@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
-#include <owl_om/owlapi/csp/ResourceMatch.hpp>
-#include <owl_om/owlapi/model/OWLOntologyReader.hpp>
-#include <owl_om/owlapi/model/OWLOntologyTell.hpp>
-#include <owl_om/owlapi/OWLApi.hpp>
+#include <owlapi/csp/ResourceMatch.hpp>
+#include <owlapi/model/OWLOntologyReader.hpp>
+#include <owlapi/model/OWLOntologyTell.hpp>
+#include <owlapi/OWLApi.hpp>
 #include <boost/foreach.hpp>
 
 #include "test_utils.hpp"
@@ -23,9 +23,9 @@ BOOST_AUTO_TEST_SUITE(csp)
 //    tell.initializeDefaultClasses();
 //    
 //
-//    OWLClass::Ptr a = tell.getOWLClass("http://klass/base");
-//    OWLClass::Ptr b = tell.getOWLClass("http://klass/base-derived");
-//    OWLClass::Ptr c = tell.getOWLClass("http://klass/base-derived-derived");
+//    OWLClass::Ptr a = tell.klass("http://klass/base");
+//    OWLClass::Ptr b = tell.klass("http://klass/base-derived");
+//    OWLClass::Ptr c = tell.klass("http://klass/base-derived-derived");
 //
 //    tell.subclassOf(c,b);
 //    tell.subclassOf(b,a);
@@ -56,10 +56,10 @@ BOOST_AUTO_TEST_CASE(it_should_match_resource_via_restrictions)
     OWLOntologyAsk ask(ontology);
     tell.initializeDefaultClasses();
 
-    OWLClass::Ptr a = tell.getOWLClass("http://klass/base");
-    OWLClass::Ptr b = tell.getOWLClass("http://klass/base-derived");
-    OWLClass::Ptr c = tell.getOWLClass("http://klass/base-derived-derived");
-    OWLObjectProperty::Ptr property = tell.getOWLObjectProperty("http://property/has");
+    OWLClass::Ptr a = tell.klass("http://klass/base");
+    OWLClass::Ptr b = tell.klass("http://klass/base-derived");
+    OWLClass::Ptr c = tell.klass("http://klass/base-derived-derived");
+    OWLObjectProperty::Ptr property = tell.objectProperty("http://property/has");
 
     tell.subclassOf(c,b);
     tell.subclassOf(b,a);

@@ -103,13 +103,13 @@ void OWLOntologyReader::load()
                     throw std::runtime_error("Property '" + subject.toString() + "' neither object nor data property");
                 } else if(object == vocabulary::OWL::DatatypeProperty())
                 {
-                    mTell->getOWLDataProperty(subject);
+                    mTell->dataProperty(subject);
                 } else if (object == vocabulary::RDFS::Datatype())
                 {
                     // introduces a new datatype
                 } else if( object == vocabulary::OWL::ObjectProperty())
                 {
-                    mTell->getOWLObjectProperty(subject);
+                    mTell->objectProperty(subject);
 
                 } else if( object == vocabulary::OWL::FunctionalProperty())
                 {
@@ -149,7 +149,7 @@ void OWLOntologyReader::load()
                 } else {
                     // We have to delay the mapping until the anonymous node has 
                     // been fully resolved to a restriction or similar
-                    OWLClass::Ptr e_subject = mTell->getOWLClass(subject);
+                    OWLClass::Ptr e_subject = mTell->klass(subject);
                     // cache the restrictions
                     anonymousRestrictions[object].push_back(e_subject);
 

@@ -38,7 +38,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
 
 
 OWLCardinalityRestriction::OWLCardinalityRestriction()
-    : OWLQualifiedRestriction( OWLPropertyExpression::Ptr(), OWLQualification("test"))
+    : OWLQualifiedRestriction( OWLPropertyExpression::Ptr(), OWLQualification(""))
     , mCardinality(0)
     , mCardinalityRestrictionType(OWLCardinalityRestriction::UNKNOWN)
 {}

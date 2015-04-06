@@ -3,6 +3,7 @@
 
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/model/OWLLiteral.hpp>
+#include <owlapi/model/OWLCardinalityRestriction.hpp>
 
 namespace owlapi {
 namespace model {
@@ -28,31 +29,31 @@ public:
      * Get or create the OWLClass instance by IRI
      * \return OWLClass::Ptr
      */
-    OWLClass::Ptr getOWLClass(const IRI& iri);
+    OWLClass::Ptr klass(const IRI& iri);
 
     /**
      * Get or create the OWLAnonymousIndividual by IRI
      * \return OWLAnonymousIndividual::Ptr
      */
-    OWLAnonymousIndividual::Ptr getOWLAnonymousIndividual(const IRI& iri);
+    OWLAnonymousIndividual::Ptr anonymousIndividual(const IRI& iri);
 
     /**
      * Get or create the OWLNamedIndividual by IRI
      * \return OWLNamedIndividual::Ptr
      */
-    OWLNamedIndividual::Ptr getOWLNamedIndividual(const IRI& iri);
+    OWLNamedIndividual::Ptr namedIndividual(const IRI& iri);
 
     /**
      * Get or create the OWLObjectProperty by IRI
      * \return OWLObjectProperty::Ptr
      */
-    OWLObjectProperty::Ptr getOWLObjectProperty(const IRI& iri);
+    OWLObjectProperty::Ptr objectProperty(const IRI& iri);
 
     /**
      * Get or create the OWLDataProperty by IRI
      * \return OWLDataProperty::Ptr
      */
-    OWLDataProperty::Ptr getOWLDataProperty(const IRI& iri);
+    OWLDataProperty::Ptr dataProperty(const IRI& iri);
 
     OWLSubClassOfAxiom::Ptr subclassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass);
     OWLSubClassOfAxiom::Ptr subclassOf(const IRI& subclass, OWLClassExpression::Ptr superclass);
@@ -73,6 +74,12 @@ public:
     OWLClassAssertionAxiom::Ptr instanceOf(const IRI& instance, const IRI& classType);
 
     /**
+     * Create a cardinality restriction
+     * \return restriction
+     */
+    OWLCardinalityRestriction::Ptr cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType);
+
+    /**
      * Add an axiom
      * \param axiom
      */
@@ -90,6 +97,8 @@ public:
 
     // DataPropertyAssert
     void valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
+    void restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
+
 };
 
 } // end namespace model

@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
 #include "test_utils.hpp"
 
-#include <owl_om/owlapi/model/OWLOntology.hpp>
-#include <owl_om/owlapi/model/OWLOntologyReader.hpp>
-#include <owl_om/owlapi/model/OWLOntologyAsk.hpp>
+#include <owlapi/model/OWLOntology.hpp>
+#include <owlapi/model/OWLOntologyReader.hpp>
+#include <owlapi/model/OWLOntologyAsk.hpp>
 
 using namespace owlapi::model;
 

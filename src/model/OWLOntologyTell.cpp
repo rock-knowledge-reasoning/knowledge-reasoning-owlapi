@@ -12,8 +12,8 @@ OWLOntologyTell::OWLOntologyTell(OWLOntology::Ptr ontology)
 
 void OWLOntologyTell::initializeDefaultClasses()
 {
-    getOWLClass(vocabulary::OWL::Class());
-    getOWLClass(vocabulary::OWL::Thing());
+    klass(vocabulary::OWL::Class());
+    klass(vocabulary::OWL::Thing());
 
 //    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
 //    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
@@ -36,7 +36,7 @@ void OWLOntologyTell::initializeDefaultClasses()
 
 }
 
-OWLClass::Ptr OWLOntologyTell::getOWLClass(const IRI& iri)
+OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
 {
     LOG_WARN_S << "Retrieve class: " << iri;
     std::map<IRI, OWLClass::Ptr>::const_iterator it = mpOntology->mClasses.find(iri);
@@ -54,7 +54,7 @@ OWLClass::Ptr OWLOntologyTell::getOWLClass(const IRI& iri)
     }
 }
 
-OWLAnonymousIndividual::Ptr OWLOntologyTell::getOWLAnonymousIndividual(const IRI& iri)
+OWLAnonymousIndividual::Ptr OWLOntologyTell::anonymousIndividual(const IRI& iri)
 {
     std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator it = mpOntology->mAnonymousIndividuals.find(iri);
     if(it != mpOntology->mAnonymousIndividuals.end())
@@ -68,7 +68,7 @@ OWLAnonymousIndividual::Ptr OWLOntologyTell::getOWLAnonymousIndividual(const IRI
     }
 }
 
-OWLNamedIndividual::Ptr OWLOntologyTell::getOWLNamedIndividual(const IRI& iri)
+OWLNamedIndividual::Ptr OWLOntologyTell::namedIndividual(const IRI& iri)
 {
     std::map<IRI, OWLNamedIndividual::Ptr>::const_iterator it = mpOntology->mNamedIndividuals.find(iri);
     if(it != mpOntology->mNamedIndividuals.end())
@@ -85,7 +85,7 @@ OWLNamedIndividual::Ptr OWLOntologyTell::getOWLNamedIndividual(const IRI& iri)
     }
 }
 
-OWLObjectProperty::Ptr OWLOntologyTell::getOWLObjectProperty(const IRI& iri)
+OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
 {
     std::map<IRI, OWLObjectProperty::Ptr>::const_iterator it = mpOntology->mObjectProperties.find(iri);
     if(it != mpOntology->mObjectProperties.end())
@@ -102,7 +102,7 @@ OWLObjectProperty::Ptr OWLOntologyTell::getOWLObjectProperty(const IRI& iri)
     }
 }
 
-OWLDataProperty::Ptr OWLOntologyTell::getOWLDataProperty(const IRI& iri)
+OWLDataProperty::Ptr OWLOntologyTell::dataProperty(const IRI& iri)
 {
     std::map<IRI, OWLDataProperty::Ptr>::const_iterator it = mpOntology->mDataProperties.find(iri);
     if(it != mpOntology->mDataProperties.end())
@@ -121,15 +121,15 @@ OWLDataProperty::Ptr OWLOntologyTell::getOWLDataProperty(const IRI& iri)
 
 OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(const IRI& subclass, OWLClassExpression::Ptr superclass)
 {
-    OWLClass::Ptr e_subclass = getOWLClass(subclass);
+    OWLClass::Ptr e_subclass = klass(subclass);
     return subclassOf(e_subclass, superclass);
 }
 
 OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(const IRI& subclass, const IRI& superclass)
 {
     // All classes inherit from top concept, i.e. owl:Thing
-    OWLClass::Ptr e_subclass = getOWLClass(subclass);
-    OWLClass::Ptr e_superclass = getOWLClass(superclass);
+    OWLClass::Ptr e_subclass = klass(subclass);
+    OWLClass::Ptr e_superclass = klass(superclass);
 
     return subclassOf(e_subclass, e_superclass);
 }
@@ -151,6 +151,12 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(OWLClassExpression::Ptr subc
     return axiom;
 }
 
+OWLCardinalityRestriction::Ptr OWLOntologyTell::cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType)
+{
+    return OWLCardinalityRestriction::Ptr(new OWLCardinalityRestriction(property, cardinality, qualification, restrictionType));
+
+}
+
 void OWLOntologyTell::addAxiom(OWLAxiom::Ptr axiom)
 {
     mpOntology->mAxiomsByType[axiom->getAxiomType()].push_back( axiom );
@@ -162,8 +168,8 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
     mpOntology->kb()->instanceOf(instance, classType);
 
     // ClassAssertion
-    OWLNamedIndividual::Ptr e_individual = getOWLNamedIndividual(instance);
-    OWLClassExpression::Ptr e_class = getOWLClass(classType);
+    OWLNamedIndividual::Ptr e_individual = namedIndividual(instance);
+    OWLClassExpression::Ptr e_class = klass(classType);
     OWLClassAssertionAxiom::Ptr axiom(new OWLClassAssertionAxiom(e_individual, e_class));
 
     // Register
@@ -224,6 +230,11 @@ void OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataProperty, OWLL
 {
     reasoner::factpp::DataValue dataValue = mpOntology->kb()->dataValue(literal->getValue(), literal->getType());
     mpOntology->kb()->valueOf(instance, dataProperty, dataValue);
+}
+
+void OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)
+{
+    subclassOf(klass, restriction);
 }
 
 } // end namespace model
