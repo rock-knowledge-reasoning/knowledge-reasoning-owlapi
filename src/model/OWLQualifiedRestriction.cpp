@@ -7,7 +7,7 @@ namespace model {
 OWLQualifiedRestriction::OWLQualifiedRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification)
     : OWLRestriction(property)
 {
-    if(qualification == IRI())
+    if(property && qualification == IRI())
     {
         if(isDataRestriction())
         {

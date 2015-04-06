@@ -23,6 +23,25 @@ std::string OWLRestriction::toString() const
     return ss.str();
 }
 
+bool OWLRestriction::isDataRestriction() const
+{
+    if(!mpProperty)
+    {
+        throw std::runtime_error("owlapi::model::OWLRestriction::isDataRestriction: property has not been set");
+    }
+    return  mpProperty->isDataPropertyExpression();
+}
+
+bool OWLRestriction::isObjectRestriction() const
+{
+    if(!mpProperty)
+    {
+        throw std::runtime_error("owlapi::model::OWLRestriction::isObjectRestriction: property has not been set");
+    }
+
+    return mpProperty->isObjectPropertyExpression();
+}
+
 } // end namespace model
 } // end namespace owlapi
 

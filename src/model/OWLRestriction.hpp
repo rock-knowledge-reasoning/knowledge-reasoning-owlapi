@@ -30,8 +30,8 @@ public:
      */
     void setProperty(OWLPropertyExpression::Ptr property) { mpProperty = property; }
 
-    virtual bool isDataRestriction() const { return  mpProperty->isDataPropertyExpression(); }
-    virtual bool isObjectRestriction() const { return mpProperty->isObjectPropertyExpression(); }
+    virtual bool isDataRestriction() const;
+    virtual bool isObjectRestriction() const;
 
     virtual std::string toString() const;
 };
