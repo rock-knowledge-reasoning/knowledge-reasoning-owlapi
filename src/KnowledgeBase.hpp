@@ -33,6 +33,12 @@ typedef std::map<IRI, reasoner::factpp::DataTypeName > IRIDataTypeMap;
 
 enum Representation { UNKNOWN = 0, LISP = 1 };
 
+/**
+ * \class KnowledgeBase represent the core class that manages OWL based
+ * information
+ * \details In its current form the KnowledgeBase wrap the Fact++ Reasoner
+ * in order to provide its main functionality
+ */
 class KnowledgeBase
 {
     ReasoningKernel* mKernel;
@@ -324,7 +330,8 @@ public:
      * Adds an object property restriction
      * \param type Type, e.g., depending of existential or universal quantifier is required
      * \param relationProperty the property to which the restriction will refer
-     * \param klassOrInstance property value
+     * \param klassOrInstance property value referring to the qualificaiton of
+     * this restriction
      * \param cardinality if cardinality type is selected this defines the min,max or exact cardinality to use
      * \return corresponding class expression
      */

@@ -12,6 +12,33 @@
 #include <owlapi/model/OWLDeclarationAxiom.hpp>
 #include <owlapi/model/OWLSubClassOfAxiom.hpp>
 
+/**
+ * \mainpage OWL API in C++
+ * \mainsection Managing Web Ontology Language (OWL) based information in C++
+ * \verbatim
+#include <owlapi/model/OWLOntology.hpp>
+
+using namespace owlapi::model;
+
+OWLOntologyReader reader;
+OWLOntology::Ptr ontology = reader.fromFile("om-schema-v0.6.owl");
+
+// Add information to ontology
+OWLOntologyTell tell(ontology);
+OWLClass::Ptr robotKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
+OWLClass::Ptr cameraKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Camera")
+OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics.org/2014/01/om-schema#has");
+
+OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
+
+
+// Retrieve information from ontology
+OWLOntologyAsk ask(ontology);
+IRI robot("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
+std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCardinalityRestrictions(robot);
+ 
+ \endverbatim
+ */
 namespace owlapi {
 
 class KnowledgeBase;
