@@ -22,8 +22,35 @@ typedef owlapi::model::IRIList TypeList;
  * The CSP problem is defined by a query that searches to fulfill a set of cardinality 
  * restrictions. Available resources are implicitly defined -- also by a list of
  * cardinality restrictions. This originates from the fact that these
- * restrictions describe a model that a certain 'robot' fulfills and thus
- * defines which resource have to exist for this robot. 
+ * restrictions describe a model that a certain instance ('robot') fulfills and thus
+ * defines which resource have to exist for this robot.
+ *
+ * While is an actual instance resources might be missing this allows model
+ * checking in the first place. 
+ *
+ \verbatim
+
+ using namespace owlapi;
+
+ OWLOntology::Ptr ontology = reader.fromFile("organization-model.owl");
+ ...
+ IRI sherpa = owlapi::vocabulary::OM::resolve("Sherpa");
+ IRI move_to = owlapi::vocabulary::OM::resolve("MoveTo");
+
+ std::vector<OWLCardinalityRestriction::Ptr> r_sherpa = ask.getCardinalityRestrictions(sherpa);
+ std::vector<OWLCardinalityRestriction::Ptr> r_move_to = ask.getCardinalityRestrictions(move_to);
+
+ try {
+     // Check whether 'move_to' provides a subset of restriction existing for 'sherpa'
+     csp::ResourceMatch* fulfillment = cs::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
+     std::cout << fulfillment->toString() std::endl;
+     ...
+     delete fulfillment;
+ } catch(const std::runtime_error& e)
+ {
+     std::cout << "No solution found" << std::endl;
+ }
+ \endverbatim
  */
 class ResourceMatch : public Gecode::Space
 {
@@ -55,30 +82,35 @@ protected:
     virtual Gecode::Space* copy(bool share);
 
     /**
-     * Convert restrictions to type instance map
+     * Convert restrictions to type instance map, where a qualification is
+     * mapped to a list of instances (identified by an id)
      * \return Type to instances map
      */
     static TypeInstanceMap toTypeInstanceMap(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
 
     /**
-     * Get the list of types the are given by the restrictions
+     * Get the list of types that are given by the restrictions
      * \return List of types
      */
     static TypeList getTypeList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
 
     /**
-     * Identify the allowed types, i.e. what items in the pool can fulfill the
-     * items in the query
+     * Identify the allowed types, i.e., what items in the pool can fulfill the
+     * items in the query.
+     * Either items of the same class or subclasses are allowed
      */
     static AllowedTypesMap getAllowedTypes(const TypeInstanceMap& query, const TypeInstanceMap& pool, owlapi::model::OWLOntology::Ptr ontology);
 
     /**
-     * Compute the allowed domains for Gecode
+     * Compute the allowed domains for Gecode.
+     * This the qualification item to the actual instances that can 'fulfill'
+     * this qualification item. 
      */
     static std::vector<int> getAllowedDomain(const owlapi::model::IRI& qualificationItem, const AllowedTypesMap& allowedTypes, const TypeInstanceMap& typeInstanceMap);
 
     /**
-     * Compute the number of all instances
+     * Compute the number of all instances in a TypeInstanceMap
+     * \return Number of instances
      */
     static uint32_t getInstanceCount(const TypeInstanceMap& map);
 
@@ -92,8 +124,9 @@ public:
     void print(std::ostream& os) const;
 
     /**
-     * Convert restriction list to a list of instance, e.g. min 4 Item will
-     * converted to a list of size 4 Items (qualification of the restriction)
+     * Convert restriction list to a list of instances, e.g., a restriction of min 4 items will be
+     * converted to a list of items (qualification of the restriction) where the
+     * list has size 4
      * \return List of (model) instances
      */
     static InstanceList getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
@@ -110,6 +143,7 @@ public:
      * \throw std::runtime_error if a solution could not be found
      * \return Solution to the constrained satisfaction problem as ResourceMatch
      * object, receiver takes over ownership, i.e. object needs to be deleted
+     * \throws std::runtime_error if no solution could be found
      */
     static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions, const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
 
@@ -120,6 +154,7 @@ public:
      * \param ontology Ontology to check whether an item in the resource pool is a valid replacement for an item in the query
      * \return Solution to the constrained satisfaction problem as ResourceMatch
      * object, receiver takes over ownership, i.e. object needs to be deleted
+     * \throws std::runtime_error if no solution could be found
      */
     static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions, const InstanceList& resourcePool, owlapi::model::OWLOntology::Ptr ontology);
 

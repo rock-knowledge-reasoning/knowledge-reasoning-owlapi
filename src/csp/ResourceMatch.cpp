@@ -32,7 +32,8 @@ TypeInstanceMap ResourceMatch::toTypeInstanceMap(const std::vector<owlapi::model
 {
     TypeInstanceMap typeInstanceMap;
     int instanceId = 0;
-    // We assume a compact representation of the query restrictions
+    // We assume a compact representation of the query restrictions, meaning
+    // no 'overlapping' restrictions
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
     for(; cit != restrictions.end(); ++cit)
     {
@@ -97,6 +98,8 @@ AllowedTypesMap ResourceMatch::getAllowedTypes(const TypeInstanceMap& query, con
         TypeInstanceMap::const_iterator rit = pool.begin();
         for(; rit != pool.end(); ++rit)
         {
+            // Either items are of the same type, or a subclass of the requested
+            // one
             if(cit->first == rit->first || ask.isSubclassOf(rit->first, cit->first))
             {
                 allowedTypes.push_back(rit->first);
@@ -109,6 +112,9 @@ AllowedTypesMap ResourceMatch::getAllowedTypes(const TypeInstanceMap& query, con
 
 std::vector<int> ResourceMatch::getAllowedDomain(const owlapi::model::IRI& item, const AllowedTypesMap& allowedTypes, const TypeInstanceMap& typeInstanceMap )
 {
+    /// 1. get the allowed types for the given item
+    /// 2. find instances (that are part of the resource pool) that are of an allowed type
+    /// --> all allowed instances that form (part of) the domain
     std::vector<int> domain;
     AllowedTypesMap::const_iterator cit = allowedTypes.find(item);
     const std::vector<IRI>& types = cit->second;
@@ -267,6 +273,7 @@ void ResourceMatch::remapSolution()
         InstanceList assignedResources;
         for(Gecode::SetVarGlbValues v(mSetAssignment[i]); v(); ++v)
         {
+            // v.val() --> the assigned value
             assignedResources.push_back(mResourcePool[v.val()]);
         }
 
