@@ -29,14 +29,22 @@ OWLClass::Ptr robotKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om
 OWLClass::Ptr cameraKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Camera")
 OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics.org/2014/01/om-schema#has");
 
-OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
+// either
+{
+    OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subclassOf(robotKlass, restriction);
+}
+// or
+{
+    OWLCardinalityRestriction::Ptr restriction = tell->cardinalityRestriction(oProperty, 10, cameraKlass.getIRI(), OWLCardinalityRestriction::MAX);
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subclassOf(robotKlass, restriction);
+}
 
 
 // Retrieve information from ontology
 OWLOntologyAsk ask(ontology);
 IRI robot("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
 std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCardinalityRestrictions(robot);
- 
  \endverbatim
  */
 namespace owlapi {
@@ -57,11 +65,16 @@ class OWLOntology
     friend class OWLOntologyAsk;
 
 protected:
-    // Mapping of iri to types
+    /// Mapping of iri to types
+    /// All existing classes
     std::map<IRI, OWLClass::Ptr> mClasses;
+    /// All named individuals
     std::map<IRI, OWLNamedIndividual::Ptr> mNamedIndividuals;
+    /// All anonymous individuals
     std::map<IRI, OWLAnonymousIndividual::Ptr> mAnonymousIndividuals;
+    /// All object properties
     std::map<IRI, OWLObjectProperty::Ptr> mObjectProperties;
+    /// All data properties
     std::map<IRI, OWLDataProperty::Ptr> mDataProperties;
 
     /// General axiom map

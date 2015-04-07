@@ -74,7 +74,8 @@ public:
     OWLClassAssertionAxiom::Ptr instanceOf(const IRI& instance, const IRI& classType);
 
     /**
-     * Create a cardinality restriction
+     * Create a cardinality restriction (for consistency reasons)
+     * \see OWLCardinalityRestriction
      * \return restriction
      */
     OWLCardinalityRestriction::Ptr cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType);
