@@ -1276,7 +1276,6 @@ DataPropertyExpressionList KnowledgeBase::getRelatedDataProperties(const IRI& kl
     ExplorationNode e_node = getExplorationNode(klass);
     ReasoningKernel::TCGRoleSet result;
     bool onlyDeterministicInfo = false;
-    bool needIncoming = false;
 
     mKernel->getDataRoles(e_node.get(), result, onlyDeterministicInfo);
 
