@@ -19,10 +19,7 @@ BOOST_AUTO_TEST_CASE(it_should_load_restrictions)
         std::vector<IRI> klasses;
         IRI sherpa("http://www.rock-robotics.org/2014/01/om-schema#Sherpa");
         klasses.push_back(sherpa);
-        std::map<IRI, std::vector<OWLCardinalityRestriction::Ptr> > restrictionsMap = ask.getCardinalityRestrictions(klasses);
-        BOOST_REQUIRE(restrictionsMap.size() > 0);
-
-        std::vector<OWLCardinalityRestriction::Ptr> restrictions = restrictionsMap[sherpa];
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(klasses);
         BOOST_REQUIRE(restrictions.size() > 0);
 
         std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();

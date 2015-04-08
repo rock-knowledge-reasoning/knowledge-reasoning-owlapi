@@ -192,6 +192,27 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
         BOOST_REQUIRE_MESSAGE(false, "Computing fulfills failed");
     }
 
+
+    owlapi::model::IRIList combinedSystem;
+    combinedSystem.push_back(sherpa);
+
+    owlapi::model::IRIList serviceModels;
+    serviceModels.push_back(location_image_provider);
+    serviceModels.push_back(image_provider);
+    serviceModels.push_back(move_to);
+
+    {
+
+        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 3, "Services supported by sherpa");
+    }
+
+    {
+        combinedSystem.push_back(sherpa);
+        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 3, "Services supported by sherpa");
+    }
+
 }
     
 

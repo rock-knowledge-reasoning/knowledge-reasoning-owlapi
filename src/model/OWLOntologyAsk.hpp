@@ -56,7 +56,7 @@ public:
 
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(owlapi::model::OWLClassExpression::Ptr ce) const;
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri) const;
-    std::map<IRI, std::vector<OWLCardinalityRestriction::Ptr> > getCardinalityRestrictions(const std::vector<IRI>& klasses) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses) const;
 
     /**
      * Check if object identified by iri is a subclass of the given superclass

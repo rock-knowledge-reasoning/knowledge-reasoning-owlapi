@@ -382,5 +382,28 @@ ResourceMatch::Ptr ResourceMatch::isSupporting(const owlapi::model::IRI& provide
     }
 }
 
+owlapi::model::IRIList ResourceMatch::filterSupportedModels(const owlapi::model::IRIList& combinations,
+        const owlapi::model::IRIList& serviceModels, owlapi::model::OWLOntology::Ptr ontology)
+{
+    OWLOntologyAsk ask(ontology);
+    std::vector<OWLCardinalityRestriction::Ptr> providerRestrictions = ask.getCardinalityRestrictions(combinations);
+    owlapi::model::IRIList supportedModels;
+
+    owlapi::model::IRIList::const_iterator it = serviceModels.begin();
+    for(; it != serviceModels.end(); ++it)
+    {
+        owlapi::model::IRI serviceModel = *it;
+        std::vector<OWLCardinalityRestriction::Ptr> serviceRestriction = ask.getCardinalityRestrictions(serviceModel);
+        try {
+            ResourceMatch* fulfillment = ResourceMatch::solve(serviceRestriction, providerRestrictions, ontology);
+            supportedModels.push_back(serviceModel);
+        } catch(const std::runtime_error& e)
+        {
+            // not supported
+        }
+    }
+    return supportedModels;
+}
+
 } // end namespace csp
 } // end namespace owlapi

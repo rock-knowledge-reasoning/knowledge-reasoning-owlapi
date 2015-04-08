@@ -111,17 +111,18 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     return getCardinalityRestrictions(klass);
 }
 
-std::map<IRI, std::vector<OWLCardinalityRestriction::Ptr> > OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses) const
 {
     std::vector<IRI>::const_iterator cit = klasses.begin();
-    std::map<IRI, std::vector<OWLCardinalityRestriction::Ptr> > restrictionsMap;
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
 
     for(; cit != klasses.end(); ++cit)
     {
         IRI iri = *cit;
-        restrictionsMap[iri] = getCardinalityRestrictions(iri);
+        std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri);
+        restrictions.insert(restrictions.end(), klassRestrictions.begin(), klassRestrictions.end());
     }
-    return restrictionsMap;
+    return restrictions;
 }
 
 bool OWLOntologyAsk::isSubclassOf(const IRI& iri, const IRI& superclass) const

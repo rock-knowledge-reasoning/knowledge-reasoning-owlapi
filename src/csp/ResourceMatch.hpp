@@ -200,6 +200,14 @@ public:
      */
     static ResourceMatch::Ptr isSupporting(const owlapi::model::IRI& providerModel, const owlapi::model::IRI& serviceModel,
             owlapi::model::OWLOntology::Ptr ontology);
+
+    /**
+     * Compute for a given set of model and possible models, the available
+     * set of supported models, i.e., fulfilling the restrictions
+     * \return List of provided services
+     */
+    static owlapi::model::IRIList filterSupportedModels(const owlapi::model::IRIList& combinations,
+            const owlapi::model::IRIList& serviceModels, owlapi::model::OWLOntology::Ptr ontology);
 };
 
 } // end namespace cps
