@@ -382,6 +382,5 @@ ResourceMatch::Ptr ResourceMatch::isSupporting(const owlapi::model::IRI& provide
     }
 }
 
-
-} // end namespace cps
+} // end namespace csp
 } // end namespace owlapi

@@ -25,7 +25,7 @@ typedef owlapi::model::IRIList TypeList;
  * restrictions describe a model that a certain instance ('robot') fulfills and thus
  * defines which resource have to exist for this robot.
  *
- * While is an actual instance resources might be missing this allows model
+ * While in an actual instance resources might be missing solving the csp allows for model
  * checking in the first place.
  *
  \verbatim
@@ -163,7 +163,7 @@ public:
     /**
      * Solve the given constraint satisfaction problem
      * \param queryRestrictions The restrictions to be fulfilled
-     * \param resourePool The items available to fulfill the restriction
+     * \param resourcePool The items available to fulfill the restriction
      * \param ontology Ontology to check whether an item in the resource pool is a valid replacement for an item in the query
      * \return Solution to the constrained satisfaction problem as ResourceMatch
      * object, receiver takes over ownership, i.e. object needs to be deleted
