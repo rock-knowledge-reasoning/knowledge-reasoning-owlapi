@@ -367,6 +367,20 @@ InstanceList ResourceMatch::getUnassignedResources() const
     return instances;
 }
 
+ResourceMatch::Ptr ResourceMatch::isSupporting(const owlapi::model::IRI& providerModel, const owlapi::model::IRI& serviceModel, OWLOntology::Ptr ontology)
+{
+    OWLOntologyAsk ask(ontology);
+    std::vector<OWLCardinalityRestriction::Ptr> serviceRestrictions = ask.getCardinalityRestrictions(serviceModel);
+    std::vector<OWLCardinalityRestriction::Ptr> providerRestrictions = ask.getCardinalityRestrictions(providerModel);
+
+    try {
+        ResourceMatch* fulfillment = ResourceMatch::solve(serviceRestrictions, providerRestrictions, ontology);
+        return ResourceMatch::Ptr(fulfillment);
+    } catch(const std::runtime_error& e)
+    {
+        return ResourceMatch::Ptr();
+    }
+}
 
 } // end namespace cps
 } // end namespace owlapi

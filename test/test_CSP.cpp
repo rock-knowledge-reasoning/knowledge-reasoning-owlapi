@@ -181,6 +181,16 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
         }
     }
     delete fulfillment;
+
+    using namespace owlapi::csp;
+    owlapi::csp::ResourceMatch::Ptr fulfillmentResult = ResourceMatch::isSupporting(sherpa, location_image_provider, ontology);
+    if(fulfillmentResult)
+    {
+        BOOST_REQUIRE_MESSAGE(true, "Assignment successful: " << fulfillmentResult->toString());
+    } else {
+        BOOST_REQUIRE_MESSAGE(false, "Computing fulfills failed");
+    }
+
 }
     
 

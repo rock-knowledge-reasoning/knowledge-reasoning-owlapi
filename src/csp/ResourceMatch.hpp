@@ -18,15 +18,15 @@ typedef owlapi::model::IRIList InstanceList;
 typedef owlapi::model::IRIList TypeList;
 
 /**
- * ResourceMatch allow to search for a valid solution to a CSP problem. 
- * The CSP problem is defined by a query that searches to fulfill a set of cardinality 
+ * ResourceMatch allows to search for a valid solution to a CSP problem.
+ * The CSP problem is defined by a query that searches to fulfill a set of cardinality
  * restrictions. Available resources are implicitly defined -- also by a list of
  * cardinality restrictions. This originates from the fact that these
  * restrictions describe a model that a certain instance ('robot') fulfills and thus
  * defines which resource have to exist for this robot.
  *
  * While is an actual instance resources might be missing this allows model
- * checking in the first place. 
+ * checking in the first place.
  *
  \verbatim
 
@@ -43,12 +43,19 @@ typedef owlapi::model::IRIList TypeList;
  try {
      // Check whether 'move_to' provides a subset of restriction existing for 'sherpa'
      csp::ResourceMatch* fulfillment = cs::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
-     std::cout << fulfillment->toString() std::endl;
+     std::cout << fulfillment->toString() << std::endl;
      ...
      delete fulfillment;
  } catch(const std::runtime_error& e)
  {
      std::cout << "No solution found" << std::endl;
+ }
+
+ // or in compact form
+ ResourceMatch::Ptr fulfillment = csp::ResourceMatch::fulfills(sherpa, move_to, ontology);
+ if(fulfillment)
+ {
+    std::cout << fulfillment->toString() << std::endl;
  }
  \endverbatim
  */
@@ -121,6 +128,8 @@ protected:
     void remapSolution();
 
 public:
+    typedef boost::shared_ptr<ResourceMatch> Ptr;
+
     void print(std::ostream& os) const;
 
     /**
@@ -176,6 +185,16 @@ public:
      * \return InstanceList representing unassigned resources
      */
     InstanceList getUnassignedResources() const;
+
+    /**
+     * Check if the serviceModel is supported by the providerModel
+     * \param providerModel
+     * \param serviceModel
+     * \param resourceMatch
+     * \return Pointer to resource match, which is NULL if there is no solution
+     */
+    static ResourceMatch::Ptr isSupporting(const owlapi::model::IRI& providerModel, const owlapi::model::IRI& serviceModel,
+            owlapi::model::OWLOntology::Ptr ontology);
 };
 
 } // end namespace cps
