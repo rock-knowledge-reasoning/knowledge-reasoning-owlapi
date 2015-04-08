@@ -237,7 +237,7 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
         switch(restriction->getCardinalityRestrictionType())
         {
             case OWLCardinalityRestriction::MIN:
-                cardinality(*this, mSetAssignment[assignmentIndex], restriction->getCardinality(), restriction->getCardinality());
+                cardinality(*this, mSetAssignment[assignmentIndex], restriction->getCardinality(),  Gecode::Set::Limits::max);
                 break;
             case OWLCardinalityRestriction::MAX:
                 cardinality(*this, mSetAssignment[assignmentIndex], 0, restriction->getCardinality());
