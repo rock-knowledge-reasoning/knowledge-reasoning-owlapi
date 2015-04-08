@@ -124,12 +124,12 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     std::vector<OWLCardinalityRestriction::Ptr> r_location_image_provider = ask.getCardinalityRestrictions(location_image_provider);
 
     owlapi::csp::ResourceMatch* fulfillment = owlapi::csp::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Assignment: " << fulfillment->toString());
+    BOOST_TEST_MESSAGE("Sherpa provides MoveTo\nAssignment: " << fulfillment->toString());
     delete fulfillment;
     fulfillment = NULL;
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_image_provider, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Assignment: " << fulfillment->toString());
+    BOOST_TEST_MESSAGE("Sherpa provides ImageProvider\nAssignment: " << fulfillment->toString());
     delete fulfillment;
     fulfillment = NULL;
 
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     }
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_stereo_image_provider, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Assignment: " << fulfillment->toString());
+    BOOST_TEST_MESSAGE("Sherpa provides StereoImageProvider\nAssignment: " << fulfillment->toString());
     delete fulfillment;
     fulfillment = NULL;
 
@@ -171,14 +171,15 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     std::vector<OWLCardinalityRestriction::Ptr> r_sherpa_with_service = ask.getCardinalityRestrictions(sherpa);
     try {
         fulfillment = owlapi::csp::ResourceMatch::solve(r_location_image_provider, r_sherpa_with_service, ontology);
-        BOOST_TEST_MESSAGE("Assignment: " << fulfillment->toString());
+        BOOST_REQUIRE_MESSAGE(true, "Sherpa provides LocationImageProvider\nAssignment: " << fulfillment->toString());
     } catch(...)
     {
-        BOOST_TEST_MESSAGE("Assignment failed for: " << location_image_provider);
+        BOOST_TEST_MESSAGE("Sherpa does not provide LocationImageProvider\nAssignment failed for: " << location_image_provider);
         BOOST_FOREACH(OWLCardinalityRestriction::Ptr r, r_sherpa_with_service)
         {
             BOOST_TEST_MESSAGE("Cardinality: " << r->toString());
         }
+        BOOST_REQUIRE_MESSAGE(false, "Assignment failed");
     }
     delete fulfillment;
 
