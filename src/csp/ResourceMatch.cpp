@@ -308,11 +308,11 @@ ResourceMatch* ResourceMatch::solve()
         throw std::runtime_error("owlapi::csp::ResourceMatch: no solution found");
     }
 
-   
+
     return best;
 }
 
-std::string ResourceMatch::toString() const 
+std::string ResourceMatch::toString() const
 {
     InstanceList queryInstances = getTypeList(mQueryRestrictions);
 
@@ -381,6 +381,7 @@ ResourceMatch::Ptr ResourceMatch::isSupporting(const owlapi::model::IRI& provide
         return ResourceMatch::Ptr();
     }
 }
+
 
 } // end namespace cps
 } // end namespace owlapi

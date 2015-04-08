@@ -74,7 +74,8 @@ class ResourceMatch : public Gecode::Space
     ResourceMatch* solve();
 
 protected:
-    ResourceMatch(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions, const InstanceList& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
+    ResourceMatch(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
+            const InstanceList& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Search support
@@ -106,14 +107,16 @@ protected:
      * items in the query.
      * Either items of the same class or subclasses are allowed
      */
-    static AllowedTypesMap getAllowedTypes(const TypeInstanceMap& query, const TypeInstanceMap& pool, owlapi::model::OWLOntology::Ptr ontology);
+    static AllowedTypesMap getAllowedTypes(const TypeInstanceMap& query, const TypeInstanceMap& pool,
+            owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Compute the allowed domains for Gecode.
      * This the qualification item to the actual instances that can 'fulfill'
-     * this qualification item. 
+     * this qualification item.
      */
-    static std::vector<int> getAllowedDomain(const owlapi::model::IRI& qualificationItem, const AllowedTypesMap& allowedTypes, const TypeInstanceMap& typeInstanceMap);
+    static std::vector<int> getAllowedDomain(const owlapi::model::IRI& qualificationItem,
+            const AllowedTypesMap& allowedTypes, const TypeInstanceMap& typeInstanceMap);
 
     /**
      * Compute the number of all instances in a TypeInstanceMap
@@ -154,7 +157,8 @@ public:
      * object, receiver takes over ownership, i.e. object needs to be deleted
      * \throws std::runtime_error if no solution could be found
      */
-    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions, const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
+    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
+            const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Solve the given constraint satisfaction problem
@@ -165,7 +169,8 @@ public:
      * object, receiver takes over ownership, i.e. object needs to be deleted
      * \throws std::runtime_error if no solution could be found
      */
-    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions, const InstanceList& resourcePool, owlapi::model::OWLOntology::Ptr ontology);
+    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
+            const InstanceList& resourcePool, owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Create a string representation of this object
