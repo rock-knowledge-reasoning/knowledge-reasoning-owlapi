@@ -1,6 +1,8 @@
 #include "OWLOntologyAsk.hpp"
 #include <owlapi/KnowledgeBase.hpp>
 
+#include <owlapi/Vocabulary.hpp>
+
 namespace owlapi {
 namespace model {
 

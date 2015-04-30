@@ -18,8 +18,9 @@ typedef owlapi::model::IRIList InstanceList;
 typedef owlapi::model::IRIList TypeList;
 
 /**
- * ResourceMatch allows to search for a valid solution to a CSP problem.
- * The CSP problem is defined by a query that searches to fulfill a set of cardinality
+ * ResourceMatch allows to search for a valid solution for checking cardinality constraints
+ * of resources by formulation as CSP (Constraint Satisfaction Problem).
+ * The CSP is defined by a query that searches to fulfill a set of cardinality
  * restrictions. Available resources are implicitly defined -- also by a list of
  * cardinality restrictions. This originates from the fact that these
  * restrictions describe a model that a certain instance ('robot') fulfills and thus
@@ -206,7 +207,7 @@ public:
      * set of supported models, i.e., fulfilling the restrictions
      * \return List of provided services
      */
-    static owlapi::model::IRIList filterSupportedModels(const owlapi::model::IRIList& combinations,
+    static owlapi::model::IRIList filterSupportedModels(const owlapi::model::IRIList& combination,
             const owlapi::model::IRIList& serviceModels, owlapi::model::OWLOntology::Ptr ontology);
 };
 

@@ -9,6 +9,9 @@
 namespace owlapi {
 namespace model {
 
+/**
+ * OWLOntologyAsk will cache query results
+ */
 class OWLOntologyAsk
 {
     OWLOntology::Ptr mpOntology;

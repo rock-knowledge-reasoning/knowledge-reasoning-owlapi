@@ -14,7 +14,7 @@ ResourceMatch::ResourceMatch(bool share, ResourceMatch& other)
     , mResourcePool(other.mResourcePool)
 {
     mSetAssignment.update(*this, share, other.mSetAssignment);
-    //LOG_DEBUG_S << "ResourceMatch: construct: " << toString();
+    LOG_DEBUG_S << "ResourceMatch: construct: " << toString();
 }
 
 Gecode::Space* ResourceMatch::copy(bool share)
@@ -171,6 +171,7 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
 {
     TypeInstanceMap query = ResourceMatch::toTypeInstanceMap(queryRestrictions);
 
+    /// Allow mapping from the resources to a given id
     TypeInstanceMap resourcePoolTypeMap;
     {
         InstanceList::const_iterator iit = mResourcePool.begin();
@@ -184,8 +185,14 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
     // The restriction will be fulfilled by a set of instances -- that are
     // defined by the resourcePoolRestrictions in this case
     Gecode::IntSet allDomainValues(0, mResourcePool.size()-1);
+
+    // assignment of a set of available resources
+    // see http://www.gecode.org/doc-latest/reference/group__TaskModelSet.html
+    // domain set assignement: SRT_SUB --> subset
     dom(*this, mSetAssignment, Gecode::SRT_SUB, allDomainValues);
-    // Domain must no be empty
+
+    // Domain must not be empty
+    // domain set assignment: SRT_NQ --> disequality
     dom(*this, mSetAssignment, Gecode::SRT_NQ, Gecode::IntSet(1,0));
 
     LOG_DEBUG_S << "All domain values: " << allDomainValues;
@@ -196,12 +203,14 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
     {
         indexes.push_back(i);
     }
+
     // If there is just one entry -- no need for computing disjoint relationship
     if(indexes.size() > 1)
     {
         numeric::Combination<int> combination(indexes, 2, numeric::EXACT);
         do {
             std::vector<int> indexes = combination.current();
+            // SRT_DISJ --> disjoint
             rel(*this, mSetAssignment[ indexes[0] ], Gecode::SRT_DISJ, mSetAssignment[ indexes[1] ]);
         } while(combination.next());
     }
@@ -237,7 +246,9 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
         switch(restriction->getCardinalityRestrictionType())
         {
             case OWLCardinalityRestriction::MIN:
-                cardinality(*this, mSetAssignment[assignmentIndex], restriction->getCardinality(),  Gecode::Set::Limits::max);
+                // Increasing the upper limit can lead to a significant
+                // performance impact
+                cardinality(*this, mSetAssignment[assignmentIndex], restriction->getCardinality(),  restriction->getCardinality());// Gecode::Set::Limits::max);
                 break;
             case OWLCardinalityRestriction::MAX:
                 cardinality(*this, mSetAssignment[assignmentIndex], 0, restriction->getCardinality());
@@ -256,10 +267,10 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
     branch(*this, mSetAssignment, Gecode::SET_VAR_MIN_MAX(), Gecode::SET_VAL_MAX_INC());
     branch(*this, mSetAssignment, Gecode::SET_VAR_RND( Gecode::Rnd(0)), Gecode::SET_VAL_MAX_INC());
 
-//    Gecode::Gist::Print<ResourceMatch> p("Print solution");
-//    Gecode::Gist::Options o;
-//    o.inspect.click(&p);
-//    Gecode::Gist::bab(this, o);
+    //Gecode::Gist::Print<ResourceMatch> p("Print solution");
+    //Gecode::Gist::Options o;
+    //o.inspect.click(&p);
+    //Gecode::Gist::bab(this, o);
 
 }
 
@@ -397,6 +408,11 @@ owlapi::model::IRIList ResourceMatch::filterSupportedModels(const owlapi::model:
         try {
             ResourceMatch* fulfillment = ResourceMatch::solve(serviceRestriction, providerRestrictions, ontology);
             supportedModels.push_back(serviceModel);
+            LOG_DEBUG_S << "Fulfillment for: ";
+            LOG_DEBUG_S << "    service model: " << serviceModel;
+            LOG_DEBUG_S << "    combination of provider models: " << combinations;
+            LOG_DEBUG_S << fulfillment->toString();
+            delete fulfillment;
         } catch(const std::runtime_error& e)
         {
             // not supported
