@@ -149,11 +149,32 @@ std::string IRI::toEscapedString() const
     return iri;
 }
 
-std::string IRI::toString(const IRIList& list)
+std::string IRI::toString(const IRIList& iris, bool fragmentsOnly)
 {
-    std::stringstream ss;
-    ss << list;
-    return ss.str();
+    std::stringstream os;
+    IRIList::const_iterator cit = iris.begin();
+    os << "[";
+    for(; cit != iris.end(); ++cit)
+    {
+        if(fragmentsOnly)
+        {
+            try {
+                os << cit->getFragment();
+            } catch(const std::invalid_argument& e)
+            {
+                LOG_WARN_S << "Error in IRI::toString when trying to output fragments only";
+                throw;
+            }
+        } else {
+            os << cit->toString();
+        }
+        if(cit+1 != iris.end())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os.str();
 }
 
 
@@ -170,17 +191,7 @@ std::ostream& operator<<(std::ostream& os, const owlapi::model::IRI& iri)
 
 std::ostream& operator<<(std::ostream& os, const IRIList& iris)
 {
-    IRIList::const_iterator cit = iris.begin();
-    os << "[";
-    for(; cit != iris.end(); ++cit)
-    {
-        os << cit->toString();
-        if(cit+1 != iris.end())
-        {
-            os << ", ";
-        }
-    }
-    os << "]";
+    os << IRI::toString(iris);
     return os;
 }
 

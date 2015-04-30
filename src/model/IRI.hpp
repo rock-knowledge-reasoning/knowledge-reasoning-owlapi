@@ -79,7 +79,7 @@ public:
     /**
      * To string
      */
-    static std::string toString(const IRIList& list);
+    static std::string toString(const IRIList& list, bool fragementsOnly = false);
 
     /**
      * To escape string, e.g. for usage as regular expression
