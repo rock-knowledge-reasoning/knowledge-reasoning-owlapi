@@ -4,6 +4,7 @@
 #include <owlapi/model/OWLOntologyTell.hpp>
 #include <owlapi/OWLApi.hpp>
 #include <boost/foreach.hpp>
+#include <base/Time.hpp>
 
 #include "test_utils.hpp"
 
@@ -197,22 +198,72 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     combinedSystem.push_back(sherpa);
 
     owlapi::model::IRIList serviceModels;
+    // http://www.rock-robotics.org/2014/01/om-schema#StereoImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#LocationImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#ImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#EmiPowerProvider
     serviceModels.push_back(location_image_provider);
     serviceModels.push_back(image_provider);
     serviceModels.push_back(move_to);
+    IRI emi_power_provider = owlapi::vocabulary::OM::resolve("EmiPowerProvider");
+    serviceModels.push_back(emi_power_provider);
 
     {
 
         owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
-        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 3, "Services supported by sherpa");
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 4, "Services supported by sherpa");
     }
 
     {
+
+        base::Time startTime = base::Time::now();
+        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
+        base::Time stopTime = base::Time::now();
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 4, "Services supported by sherpa: computing time: " << (stopTime - startTime).toSeconds());
+    }
+
+}
+
+BOOST_AUTO_TEST_CASE(performance_three_sherpa)
+{
+    OWLOntologyReader reader;
+    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    ontology->refresh();
+
+    OWLOntologyTell tell(ontology);
+    OWLOntologyAsk ask(ontology);
+    tell.initializeDefaultClasses();
+
+    IRI sherpa = owlapi::vocabulary::OM::resolve("Sherpa");
+    IRI move_to = owlapi::vocabulary::OM::resolve("MoveTo");
+    IRI image_provider = owlapi::vocabulary::OM::resolve("ImageProvider");
+    IRI stereo_image_provider = owlapi::vocabulary::OM::resolve("StereoImageProvider");
+    IRI location_image_provider = owlapi::vocabulary::OM::resolve("LocationImageProvider");
+
+    owlapi::model::IRIList serviceModels;
+    // http://www.rock-robotics.org/2014/01/om-schema#StereoImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#LocationImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#ImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#EmiPowerProvider
+    //serviceModels.push_back(location_image_provider);
+    //serviceModels.push_back(image_provider);
+    //serviceModels.push_back(move_to);
+    IRI emi_power_provider = owlapi::vocabulary::OM::resolve("EmiPowerProvider");
+    serviceModels.push_back(emi_power_provider);
+
+
+    {
+        owlapi::model::IRIList combinedSystem;
+
         combinedSystem.push_back(sherpa);
-        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
-        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 3, "Services supported by sherpa");
-    }
+        combinedSystem.push_back(sherpa);
+        combinedSystem.push_back(sherpa);
 
+        base::Time startTime = base::Time::now();
+        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
+        base::Time stopTime = base::Time::now();
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == 1, "Services supported by sherpa: computing time: " << (stopTime - startTime).toSeconds());
+    }
 }
     
 
