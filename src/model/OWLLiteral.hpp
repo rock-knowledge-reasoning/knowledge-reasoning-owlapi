@@ -35,6 +35,8 @@ protected:
 public:
     typedef boost::shared_ptr<OWLLiteral> Ptr;
 
+    virtual ~OWLLiteral() {}
+
     /**
      * Test if literal is typed,
      * e.g. "1^^http://www.w3.org/2001/XMLSchema#nonNegativeInteger"

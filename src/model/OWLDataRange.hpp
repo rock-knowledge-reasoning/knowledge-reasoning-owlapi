@@ -8,6 +8,8 @@ namespace model {
 
 class OWLDataRange : public OWLPropertyRange//, SWRLPredicate
 {
+public:
+    virtual ~OWLDataRange() {}
 };
 
 } // end namespace model

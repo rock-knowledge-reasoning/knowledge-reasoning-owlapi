@@ -83,6 +83,8 @@ public:
         : HasAnnotations(annotations)
         , mAxiomType(type)
     {}
+
+    virtual ~OWLAxiom() {}
 //
 //    /**
 //     * @param visitor

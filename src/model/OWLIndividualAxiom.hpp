@@ -12,6 +12,8 @@ public:
     OWLIndividualAxiom(AxiomType type, OWLAnnotationList annotations)
         : OWLLogicalAxiom(type, annotations)
     {}
+
+    virtual ~OWLIndividualAxiom() {}
 };
 
 } // end namespace model

@@ -8,6 +8,9 @@ namespace model {
 
 class OWLAnnotationProperty : public OWLProperty
 {
+public:
+    virtual ~OWLAnnotationProperty() {}
+
     /**
      * Determines if this annotation property has an IRI corresponding to
      * {@code rdfs:comment}

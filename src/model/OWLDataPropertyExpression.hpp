@@ -8,6 +8,8 @@ namespace model {
 
 class OWLDataPropertyExpression : public OWLPropertyExpression // SWRLPredicate
 {
+public:
+    virtual ~OWLDataPropertyExpression() {}
 };
 
 } // end namespace model

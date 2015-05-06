@@ -23,6 +23,8 @@ public:
         : mNodeID()
     {}
 
+    virtual ~OWLAnonymousIndividual() {}
+
     /**
      * Retrieve associated NodeID of this anonymous individual
      * \return NodeID

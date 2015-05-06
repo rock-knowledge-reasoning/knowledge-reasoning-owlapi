@@ -13,6 +13,8 @@ public:
 
     OWLLiteralDouble(const std::string& value);
 
+    virtual ~OWLLiteralDouble() {}
+
     double getDouble() const;
 };
 

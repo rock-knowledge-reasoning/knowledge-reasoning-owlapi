@@ -15,7 +15,10 @@ class OWLNaryClassAxiom : public OWLClassAxiom, public OWLNaryAxiom
 public:
     OWLNaryClassAxiom(OWLClassExpressionPtrList classExpressions, AxiomType type, OWLAnnotationList annotations)
         : OWLClassAxiom(type, annotations)
+        , OWLNaryAxiom()
     {}
+
+    virtual ~OWLNaryClassAxiom() {}
 
     bool contains(OWLClassExpression::Ptr ce) { throw std::runtime_error("OWLNaryClassAxiom::contains not implemented"); }
     OWLClassExpressionPtrList getClassExpressions() { throw std::runtime_error("OWLNaryClassAxiom::getClassExpressions not implemented"); }

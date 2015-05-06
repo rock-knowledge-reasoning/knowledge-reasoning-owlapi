@@ -14,6 +14,8 @@ class OWLNaryAxiom
 public:
     typedef boost::shared_ptr<OWLNaryAxiom> Ptr;
 
+    virtual ~OWLNaryAxiom() {}
+
     virtual std::vector<OWLAxiom::Ptr> asPairwiseAxioms() = 0;
 };
 

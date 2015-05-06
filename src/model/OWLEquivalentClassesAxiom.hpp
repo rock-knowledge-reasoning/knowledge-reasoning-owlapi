@@ -19,6 +19,8 @@ public:
         , mClassExpressions(classExpressions)
     {}
 
+    virtual ~OWLEquivalentClassesAxiom() {}
+
     bool containsNamedEquivalentClass() const { throw std::runtime_error("OWLEquivalentClassesAxiom:containsOWLNothing: not implemented"); }
 
     bool containsOWLNothing() const { throw std::runtime_error("OWLEquivalentClassesAxiom:containsOWLNothing: not implemented"); }

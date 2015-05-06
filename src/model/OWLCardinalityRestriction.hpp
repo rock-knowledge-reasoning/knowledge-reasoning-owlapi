@@ -31,6 +31,8 @@ public:
 
     OWLCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, CardinalityRestrictionType restrictionType);
 
+    virtual ~OWLCardinalityRestriction() {}
+
     uint32_t getCardinality() const { return mCardinality; }
 
     /**

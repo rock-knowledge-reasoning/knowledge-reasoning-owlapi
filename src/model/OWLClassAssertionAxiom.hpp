@@ -16,6 +16,8 @@ class OWLClassAssertionAxiom : public OWLIndividualAxiom
 public:
     typedef boost::shared_ptr<OWLClassAssertionAxiom> Ptr;
 
+    virtual ~OWLClassAssertionAxiom() {}
+
     OWLClassAssertionAxiom(OWLIndividual::Ptr individual, OWLClassExpression::Ptr classExpression, OWLAnnotationList annotations = OWLAnnotationList())
         : OWLIndividualAxiom(OWLAxiom::ClassAssertion, annotations)
         , mpIndividual(individual)

@@ -13,6 +13,8 @@ public:
         : OWLLiteral(value)
     {}
 
+    virtual ~OWLLiteralInteger() {}
+
     int getInteger() const;
 };
 

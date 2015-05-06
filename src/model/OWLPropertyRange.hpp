@@ -12,6 +12,8 @@ namespace model {
  */
 class OWLPropertyRange : public OWLObject//, SWRLPredicate
 {
+public:
+    virtual ~OWLPropertyRange() {}
 };
 
 } // end namespace model

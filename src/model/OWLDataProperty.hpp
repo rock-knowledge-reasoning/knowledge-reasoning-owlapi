@@ -17,8 +17,11 @@ public:
         typedef boost::shared_ptr<OWLDataProperty> Ptr;
 
         OWLDataProperty(const IRI& iri)
-            : OWLProperty(iri)
+            : OWLDataPropertyExpression()
+            , OWLProperty(iri)
         {}
+
+        virtual ~OWLDataProperty() {}
 
         bool isDataPropertyExpression() const { return true; }
         bool isObjectPropertyExpression() const { return false; }

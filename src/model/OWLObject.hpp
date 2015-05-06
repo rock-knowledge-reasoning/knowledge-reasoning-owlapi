@@ -14,6 +14,8 @@ class OWLObject
 public:
     typedef boost::shared_ptr<OWLObject> Ptr;
 
+    virtual ~OWLObject() {}
+
     /**
      * Accept a visitor to visit this object, i.e. 
      * will call visitor->visit(*this)

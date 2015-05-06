@@ -19,6 +19,8 @@ public:
     OWLEntity( const IRI& iri = IRI())
         : OWLNamedObject(iri)
     {}
+
+    virtual ~OWLEntity() {}
 };
 
 } // end namespace model

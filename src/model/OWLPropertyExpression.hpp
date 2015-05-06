@@ -15,6 +15,8 @@ class OWLPropertyExpression : public OWLObject
 public:
     typedef boost::shared_ptr<OWLPropertyExpression> Ptr;
 
+    virtual ~OWLPropertyExpression() {}
+
     virtual bool isDataPropertyExpression() const { throw std::runtime_error("OWLPropertyExpression::isDataPropertyExpression: not implemented"); }
     virtual bool isObjectPropertyExpression() const { throw std::runtime_error("OWLPropertyExpression::isObjectPropertyExpression: not implemented"); }
 

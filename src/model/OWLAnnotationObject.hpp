@@ -14,6 +14,8 @@ class OWLAnnotationObject : public OWLObject
 {
 public:
     boost::shared_ptr<OWLAnnotationObject> Ptr;
+
+    virtual ~OWLAnnotationObject() {}
 };
 
 } // end namespace model

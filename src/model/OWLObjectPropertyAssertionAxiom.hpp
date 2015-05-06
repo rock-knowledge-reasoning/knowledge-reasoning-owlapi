@@ -13,6 +13,8 @@ public:
             :  OWLPropertyAssertionAxiom(subject, property, object, ObjectPropertyAssertion, annotations)
     {}
 
+    virtual ~OWLObjectPropertyAssertionAxiom() {}
+
     /**
      * Accept a visitor to visit this object, i.e. 
      * will call visitor->visit(*this)

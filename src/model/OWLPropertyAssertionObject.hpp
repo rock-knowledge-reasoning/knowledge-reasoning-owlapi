@@ -13,6 +13,8 @@ class OWLPropertyAssertionObject : public OWLObject
 {
 public:
     typedef boost::shared_ptr<OWLPropertyAssertionObject> Ptr;
+
+    virtual ~OWLPropertyAssertionObject() {}
 };
 
 } // end namespace model

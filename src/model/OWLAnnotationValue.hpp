@@ -8,6 +8,8 @@ namespace model {
 
 class OWLAnnotationValue : public OWLAnnotationObject
 {
+public:
+    virtual ~OWLAnnotationValue() {}
 };
 
 } // end namespace model

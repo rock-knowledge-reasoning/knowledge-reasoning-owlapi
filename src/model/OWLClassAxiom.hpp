@@ -12,6 +12,8 @@ class OWLClassAxiom : public OWLLogicalAxiom
 public:
     typedef boost::shared_ptr<OWLClassAxiom> Ptr;
 
+    virtual ~OWLClassAxiom() {}
+
     OWLClassAxiom(AxiomType type, OWLAnnotationList annotations)
         : OWLLogicalAxiom(type, annotations)
     {}

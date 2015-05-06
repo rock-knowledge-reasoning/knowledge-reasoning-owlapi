@@ -14,6 +14,8 @@ public:
     OWLPropertyAxiom(AxiomType type, OWLAnnotationList annotations)
         : OWLLogicalAxiom(type, annotations)
     {}
+
+    virtual ~OWLPropertyAxiom() {}
 };
 
 } // end namespace model

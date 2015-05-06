@@ -18,6 +18,8 @@ namespace model {
 class OWLClassExpression : public OWLObject //, OWLPropertyRange, SWRLPredicate
 {
 public:
+    virtual ~OWLClassExpression() {}
+
     /// ClassExpressionType represents all subtypes
     /// of ClassExpressions
     enum ClassExpressionType { DATA_ALL_VALUES_FROM

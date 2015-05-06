@@ -10,6 +10,8 @@ namespace model {
 class HasIRI
 {
 public:
+    virtual ~HasIRI() {}
+
     virtual IRI getIRI() const { throw NotImplemented("owlapi::model::HasIRI::getIRI()"); }
 };
 

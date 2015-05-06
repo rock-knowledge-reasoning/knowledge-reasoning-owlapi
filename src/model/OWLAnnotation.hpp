@@ -15,6 +15,7 @@ class OWLAnnotation : public OWLObject
     OWLAnnotationValue mValue;
 
 public:
+    virtual ~OWLAnnotation() {}
 
 };
 

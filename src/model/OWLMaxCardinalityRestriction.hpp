@@ -12,6 +12,8 @@ public:
     OWLMaxCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::MAX)
     {}
+
+    virtual ~OWLMaxCardinalityRestriction() {}
 };
 
 } // end namespace model

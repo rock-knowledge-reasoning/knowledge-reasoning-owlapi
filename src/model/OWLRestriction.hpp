@@ -20,8 +20,11 @@ public:
     typedef boost::shared_ptr<OWLRestriction> Ptr;
 
     OWLRestriction(OWLPropertyExpression::Ptr property)
-        : mpProperty(property)
+        : OWLClassExpression()
+        , mpProperty(property)
     {}
+
+    virtual ~OWLRestriction() {}
 
     virtual OWLPropertyExpression::Ptr getProperty() const { return mpProperty; }
 

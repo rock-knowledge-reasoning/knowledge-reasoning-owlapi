@@ -7,6 +7,8 @@ namespace model {
 class OWLReasoner
 {
 public:
+    virtual ~OWLReasoner() {}
+
     virtual void dispose() {}
 
     /**
@@ -14,9 +16,6 @@ public:
      * into consideration the changes of the current root ontology specified by the changes
      */
     void flush() {}
-
-
-
 };
 
 } // end namespace model

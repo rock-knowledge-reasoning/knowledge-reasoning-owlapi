@@ -24,6 +24,8 @@ public:
         , mEntity(entity)
     {}
 
+    virtual ~OWLDeclarationAxiom() {}
+
     OWLEntity::Ptr getEntity() const { return mEntity; }
 
     /**

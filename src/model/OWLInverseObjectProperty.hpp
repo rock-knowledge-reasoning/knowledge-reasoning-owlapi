@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_INVERSE_OBJECT_PROPERTY_HPP
 
 #include <owlapi/model/OWLObjectPropertyExpression.hpp>
+#include <base/Logging.hpp>
 
 namespace owlapi {
 namespace model {
@@ -17,7 +18,11 @@ public:
     /**
      */
     OWLInverseObjectProperty(OWLObjectPropertyExpression::Ptr inverse)
+        : OWLObjectPropertyExpression()
+        , mObjectPropertyExpression(inverse)
     {}
+
+    virtual ~OWLInverseObjectProperty() {}
 
     /**
      * Get inverse of this property expression

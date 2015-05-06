@@ -13,8 +13,12 @@ class OWLNamedObject : public OWLObject, HasIRI
 
 public:
     OWLNamedObject( const IRI& iri = IRI())
-        : mIRI(iri)
+        : OWLObject()
+        , HasIRI()
+        , mIRI(iri)
     {}
+
+    virtual ~OWLNamedObject() {}
    
     IRI getIRI() const { return mIRI; }
 

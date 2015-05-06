@@ -12,6 +12,8 @@ public:
     OWLExactCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::EXACT)
     {}
+
+    virtual ~OWLExactCardinalityRestriction() {}
 };
 
 } // end namespace model

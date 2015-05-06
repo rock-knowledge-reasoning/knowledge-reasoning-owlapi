@@ -18,6 +18,8 @@ public:
         : OWLClassAxiom(DisjointUnion, annotations)
     {}
 
+    virtual ~OWLDisjointUnionAxiom() {}
+
     /**
      * Accept a visitor to visit this object, i.e.
      * will call visitor->visit(*this)

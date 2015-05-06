@@ -16,6 +16,8 @@ public:
         : OWLMinCardinalityRestriction( boost::dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
     {}
 
+    virtual ~OWLObjectMinCardinality() {}
+
     ClassExpressionType getClassExpressionType() const { return OBJECT_MIN_CARDINALITY; }
     bool isAnonymous() const { return true; }
     bool isClassExpressionLiteral() const { return false; }

@@ -10,6 +10,8 @@ class OWLObjectPropertyCharacteristicAxiom : public OWLAxiom
 {
 public:
     typedef boost::shared_ptr<OWLObjectPropertyCharacteristicAxiom> Ptr;
+
+    virtual ~OWLObjectPropertyCharacteristicAxiom() {}
 };
 
 } // end namespace model

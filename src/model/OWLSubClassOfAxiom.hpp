@@ -20,6 +20,8 @@ public:
         , mSuperClass(superClass)
     {}
 
+    virtual ~OWLSubClassOfAxiom() {}
+
     /**
      * Accept a visitor to visit this object, i.e. 
      * will call visitor->visit(*this)

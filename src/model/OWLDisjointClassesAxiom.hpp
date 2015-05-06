@@ -13,6 +13,8 @@ public:
         : OWLNaryClassAxiom(classExpressions, DisjointClasses, annotations)
     {}
 
+    virtual ~OWLDisjointClassesAxiom() {}
+
     /**
      * Accept a visitor to visit this object, i.e.
      * will call visitor->visit(*this)

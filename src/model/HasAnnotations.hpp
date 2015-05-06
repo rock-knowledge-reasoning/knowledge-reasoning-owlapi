@@ -22,6 +22,8 @@ public:
         : mAnnotations(annotations)
     {}
 
+    virtual ~HasAnnotations() {}
+
     OWLAnnotationList getAnnotations() const { return mAnnotations; }
 };
 

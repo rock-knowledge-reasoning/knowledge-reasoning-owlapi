@@ -28,6 +28,8 @@ public:
      */
     OWLQualifiedRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification);
 
+    virtual ~OWLQualifiedRestriction() {}
+
     /**
      * Retrieve the qualification for this restriction
      * \return Given qualification

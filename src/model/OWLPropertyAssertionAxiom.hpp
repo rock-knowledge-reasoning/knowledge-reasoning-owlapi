@@ -22,6 +22,8 @@ public:
         , mObject(object)
 
     {}
+
+    virtual ~OWLPropertyAssertionAxiom() {}
     /**
      * Gets the individual that is the subject of this assertion.
      */

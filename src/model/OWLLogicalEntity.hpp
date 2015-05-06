@@ -12,6 +12,8 @@ public:
     OWLLogicalEntity(const IRI& iri)
         : OWLEntity(iri)
     {}
+
+    virtual ~OWLLogicalEntity() {}
 };
 
 } // end namespace model

@@ -15,6 +15,8 @@ public:
     OWLLogicalAxiom(AxiomType type, OWLAnnotationList annotations)
         : OWLAxiom(type, annotations)
     {}
+
+    virtual ~OWLLogicalAxiom() {}
     
     bool isLogicalAxiom() const { return true; } 
 };

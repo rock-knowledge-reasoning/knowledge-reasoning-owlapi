@@ -11,6 +11,8 @@ class OWLUnaryPropertyAxiom
 public:
     typedef boost::shared_ptr<OWLUnaryPropertyAxiom> Ptr;
 
+    virtual ~OWLUnaryPropertyAxiom() {}
+
     virtual OWLPropertyExpression::Ptr getProperty() = 0;
 }
 

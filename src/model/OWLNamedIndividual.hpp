@@ -14,8 +14,11 @@ public:
     typedef boost::shared_ptr<OWLNamedIndividual> Ptr;
 
     OWLNamedIndividual( const IRI& iri)
-        : OWLLogicalEntity(iri)
+        : OWLIndividual()
+        , OWLLogicalEntity(iri)
     {}
+
+    virtual ~OWLNamedIndividual() {}
 };
 
 } // end namespace model

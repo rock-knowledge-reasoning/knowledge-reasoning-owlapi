@@ -15,6 +15,8 @@ class OWLIndividual : public OWLObject //, OWLPropertyAssertionObject
 {
 public:
     typedef boost::shared_ptr<OWLIndividual> Ptr;
+
+    virtual ~OWLIndividual() {}
 };
 
 } // end namespace model

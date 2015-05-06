@@ -25,6 +25,8 @@ public:
      */
     OWLClass(const IRI& iri);
 
+    virtual ~OWLClass() {}
+
     /**
      * Test if this class is the top entity, i.e. owl:Thing
      * \return true, if this is the top entity, false otherwise

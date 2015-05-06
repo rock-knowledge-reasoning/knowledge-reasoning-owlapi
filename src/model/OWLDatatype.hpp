@@ -8,8 +8,10 @@
 namespace owlapi {
 namespace model {
 
-class OWLDatatype : public OWLDataRange, OWLLogicalEntity, OWLNamedObject
+class OWLDatatype : public OWLDataRange, public OWLLogicalEntity, public OWLNamedObject
 {
+public:
+    virtual ~OWLDatatype() {}
 };
 
 } // end namespace model

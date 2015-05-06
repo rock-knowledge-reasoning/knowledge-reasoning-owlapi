@@ -12,6 +12,8 @@ public:
     OWLMinCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::MIN)
     {}
+
+    virtual ~OWLMinCardinalityRestriction() {}
 };
 
 } // end namespace model
