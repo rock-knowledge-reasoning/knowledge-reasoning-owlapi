@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "test_utils.hpp"
 
-#include <owl_om/owlapi/OWLApi.hpp>
-#include <owl_om/owlapi/Vocabulary.hpp>
+#include <owlapi/OWLApi.hpp>
+#include <owlapi/Vocabulary.hpp>
 #include <boost/regex.hpp>
 
 using namespace owlapi::model;
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(it_should_handle_property_expressions)
 {
     OWLObjectPropertyExpression::Ptr oProperty( new OWLObjectProperty("http://www.w3.org/2002/07/custom#has"));
     OWLInverseObjectProperty inverseProperty(oProperty);
-
-    BOOST_REQUIRE_MESSAGE( inverseProperty.getInverse() == oProperty, "Inverse should be the same");
+    OWLObjectPropertyExpression::Ptr inverse = inverseProperty.getInverse();
+    BOOST_REQUIRE_MESSAGE( inverse == oProperty, "Inverse should be the same: " << inverse << " vs." << oProperty);
 }
 
 BOOST_AUTO_TEST_CASE(it_should_handle_class_expressions)

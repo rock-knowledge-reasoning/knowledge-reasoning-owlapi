@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
-#include <owl_om/owlapi/Vocabulary.hpp>
-#include <owl_om/owlapi/model/OWLOntology.hpp>
-#include <owl_om/owlapi/db/rdf/SopranoDB.hpp>
-#include <owl_om/owlapi/db/rdf/Sparql.hpp>
+#include <owlapi/Vocabulary.hpp>
+#include <owlapi/model/OWLOntology.hpp>
+#include <owlapi/db/rdf/SopranoDB.hpp>
+#include <owlapi/db/rdf/Sparql.hpp>
 #include "test_utils.hpp"
 
 using namespace owlapi;
