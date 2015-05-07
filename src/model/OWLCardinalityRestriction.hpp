@@ -9,6 +9,8 @@ namespace owlapi {
 namespace model {
 
 class OWLOntologyReader;
+class OWLMinCardinalityRestriction;
+class OWLMaxCardinalityRestriction;
 
 /**
  * \class OWLCardinalityRestriction
@@ -52,6 +54,41 @@ public:
      * or reuse
      */
     void setCardinality(uint32_t cardinality) { mCardinality = cardinality; }
+
+
+    static OWLCardinalityRestriction::Ptr getInstance(OWLPropertyExpression::Ptr property, 
+            uint32_t cardinality, 
+            const OWLQualification& qualification, 
+            CardinalityRestrictionType restrictionType);
+
+    /**
+     * Merge cardinality restrictions which overlapd, i.e. 
+     * data or object restriction for the very same qualification
+     *
+     *  examples:
+     *   merge: a -- min 1 cam 
+     *          with
+     *          b -- min 1 specialcam, where specialcam subsumes cam
+     *          -->  min 1 cam, min 1 special cam
+     *  merge:  a -- min 1 cam
+     *          with 
+     *          b -- min 1 specialcam, where specialcam subsumes cam
+     *          --> min 2 cam + min 1 special cam
+     *
+     * \return empty list when candidates are compatible, but cannot be merged
+     * since they are do not overlap
+     */
+    static OWLCardinalityRestriction::Ptr merge(OWLCardinalityRestriction::Ptr a, 
+            OWLCardinalityRestriction::Ptr b);
+
+    static std::vector<OWLCardinalityRestriction::Ptr> merge(const std::vector<OWLCardinalityRestriction::Ptr>& a, 
+            const std::vector<OWLCardinalityRestriction::Ptr>& b);
+
+    static bool areOverlapping(OWLCardinalityRestriction::Ptr a, 
+            OWLCardinalityRestriction::Ptr b);
+
+    static OWLCardinalityRestriction::Ptr mergeMinMax(boost::shared_ptr<OWLMinCardinalityRestriction> a,
+            boost::shared_ptr<OWLMaxCardinalityRestriction> b);
 
 protected:
     void setCardinalityRestrictionType(OWLCardinalityRestriction::CardinalityRestrictionType type) { mCardinalityRestrictionType = type; }

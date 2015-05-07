@@ -10,6 +10,8 @@
 using namespace owlapi;
 using namespace owlapi::model;
 
+BOOST_AUTO_TEST_SUITE(knowledge_base)
+
 BOOST_AUTO_TEST_CASE(kb_tell_and_ask)
 {
     {
@@ -128,3 +130,5 @@ BOOST_AUTO_TEST_CASE(kb_handle_om_datavalues)
         BOOST_TEST_MESSAGE( "DataValue: " << dataValue.getType() << " - " << dataValue.getValue());
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

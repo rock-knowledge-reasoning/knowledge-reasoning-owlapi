@@ -153,7 +153,7 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(OWLClassExpression::Ptr subc
 
 OWLCardinalityRestriction::Ptr OWLOntologyTell::cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType)
 {
-    return OWLCardinalityRestriction::Ptr(new OWLCardinalityRestriction(property, cardinality, qualification, restrictionType));
+    return OWLCardinalityRestriction::getInstance(property, cardinality, qualification, restrictionType);
 
 }
 

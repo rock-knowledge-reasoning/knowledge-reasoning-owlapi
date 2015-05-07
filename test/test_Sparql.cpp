@@ -10,7 +10,9 @@ using namespace owlapi::model;
 
 extern std::string rdfTestFiles[];
 
-BOOST_AUTO_TEST_CASE(it_should_query_db_with_sparql)
+BOOST_AUTO_TEST_SUITE(sparql)
+
+BOOST_AUTO_TEST_CASE(query_db_with_sparql)
 {
     std::string baseUri = "http://www.rock-robotics.org/2013/09/om-schema#";
     db::SopranoDB db(getRootDir() + rdfTestFiles[0], baseUri);
@@ -95,7 +97,7 @@ BOOST_AUTO_TEST_CASE(it_should_query_db_with_sparql)
     }
 }
 
-BOOST_AUTO_TEST_CASE(it_should_query_anonymous_node)
+BOOST_AUTO_TEST_CASE(query_anonymous_node)
 {
     {
         std::string baseUri = "http://www.rock-robotics.org/2013/09/om-schema#";
@@ -140,4 +142,6 @@ BOOST_AUTO_TEST_CASE(it_should_query_anonymous_node)
         }
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 
