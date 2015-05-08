@@ -35,7 +35,21 @@ public:
 
     virtual ~OWLCardinalityRestriction() {}
 
+    /**
+     * Create a deep copy of this cardinality restriction
+     */
+    OWLCardinalityRestriction::Ptr clone() const;
+
+    /**
+     * Get the cardinality
+     */
     uint32_t getCardinality() const { return mCardinality; }
+
+    /**
+     * Set cardinality -- e.g. to allow incremental construction of restrictions
+     * or reuse
+     */
+    void setCardinality(uint32_t cardinality) { mCardinality = cardinality; }
 
     /**
      * Get the restriction type
@@ -44,53 +58,71 @@ public:
 
     virtual std::string toString() const;
 
-    /** 
+    /**
      * Convert to exact mapping
      */
     static std::map<IRI, uint32_t> convertToExactMapping(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions);
 
-    /**
-     * Set cardinality -- e.g. to allow incremental construction of restrictions
-     * or reuse
-     */
-    void setCardinality(uint32_t cardinality) { mCardinality = cardinality; }
-
-
-    static OWLCardinalityRestriction::Ptr getInstance(OWLPropertyExpression::Ptr property, 
-            uint32_t cardinality, 
-            const OWLQualification& qualification, 
+    static OWLCardinalityRestriction::Ptr getInstance(OWLPropertyExpression::Ptr property,
+            uint32_t cardinality,
+            const OWLQualification& qualification,
             CardinalityRestrictionType restrictionType);
 
     /**
-     * Merge cardinality restrictions which overlapd, i.e. 
+     * Merge cardinality restrictions which overlap, i.e.
      * data or object restriction for the very same qualification
      *
      *  examples:
-     *   merge: a -- min 1 cam 
+     *   merge: a -- min 1 cam
      *          with
      *          b -- min 1 specialcam, where specialcam subsumes cam
      *          -->  min 1 cam, min 1 special cam
      *  merge:  a -- min 1 cam
-     *          with 
+     *          with
      *          b -- min 1 specialcam, where specialcam subsumes cam
      *          --> min 2 cam + min 1 special cam
      *
      * \return empty list when candidates are compatible, but cannot be merged
      * since they are do not overlap
      */
-    static OWLCardinalityRestriction::Ptr merge(OWLCardinalityRestriction::Ptr a, 
+    static OWLCardinalityRestriction::Ptr merge(OWLCardinalityRestriction::Ptr a,
             OWLCardinalityRestriction::Ptr b);
 
-    static std::vector<OWLCardinalityRestriction::Ptr> merge(const std::vector<OWLCardinalityRestriction::Ptr>& a, 
+    static std::vector<OWLCardinalityRestriction::Ptr> merge(const std::vector<OWLCardinalityRestriction::Ptr>& a,
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
 
-    static bool areOverlapping(OWLCardinalityRestriction::Ptr a, 
+     /**
+      * Check if restrictions have same restriction type (data/object), same property
+      * and the same qualification
+      * \return True, if the conditions hold, false otherwise
+      */
+    static bool areOverlapping(OWLCardinalityRestriction::Ptr a,
             OWLCardinalityRestriction::Ptr b);
 
     static OWLCardinalityRestriction::Ptr mergeMinMax(boost::shared_ptr<OWLMinCardinalityRestriction> a,
             boost::shared_ptr<OWLMaxCardinalityRestriction> b);
 
+    /**
+     * Get the sum of cardinality restrictions, e.g. for overlapping
+     * restrictions 
+     * where MAX+MAX
+     * and   MIN+MIN
+     * and   EXACT+EXACT
+     * \see areOverlapping
+     */
+    static OWLCardinalityRestriction::Ptr sum(OWLCardinalityRestriction::Ptr a,
+            OWLCardinalityRestriction::Ptr b);
+
+    /**
+     * Sum overlapping restrictions of two compact (!) lists of restrictions,
+     * \see areOverlapping
+     */
+    static std::vector<OWLCardinalityRestriction::Ptr> sum(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+            const std::vector<OWLCardinalityRestriction::Ptr>& b);
+
 protected:
+    OWLCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t minCardinality, uint32_t maxCardinality, const OWLQualification& qualification);
+
     void setCardinalityRestrictionType(OWLCardinalityRestriction::CardinalityRestrictionType type) { mCardinalityRestrictionType = type; }
 
     /**

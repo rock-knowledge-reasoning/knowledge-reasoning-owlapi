@@ -3,6 +3,7 @@
 #include "OWLObjectMinCardinality.hpp"
 #include "OWLObjectMaxCardinality.hpp"
 #include <algorithm>
+#include <limits>
 #include <sstream>
 #include <boost/assign/list_of.hpp>
 #include <base/Logging.hpp>
@@ -52,6 +53,11 @@ OWLCardinalityRestriction::OWLCardinalityRestriction(OWLPropertyExpression::Ptr 
     , mCardinality(cardinality)
     , mCardinalityRestrictionType(restrictionType)
 {}
+
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::clone() const
+{
+    return getInstance(getProperty(), mCardinality, getQualification(), mCardinalityRestrictionType);
+}
 
 std::string OWLCardinalityRestriction::toString() const
 {
@@ -220,7 +226,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::merge(con
         if(!merged)
         {
             // seems like *ait did not get merged, so add it to results
-            restrictions.push_back(*ait);
+            restrictions.push_back((*ait)->clone());
         }
     }
     // At this point the vector restrictions contains all merged ones from a,
@@ -249,6 +255,68 @@ bool OWLCardinalityRestriction::areOverlapping(OWLCardinalityRestriction::Ptr a,
     }
 
     return false;
+}
+
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::sum(OWLCardinalityRestriction::Ptr a,
+        OWLCardinalityRestriction::Ptr b)
+{
+    if(areOverlapping(a,b))
+    {
+        if(a->getCardinalityRestrictionType() == b->getCardinalityRestrictionType())
+        {
+            return getInstance(a->getProperty(),
+                            a->getCardinality() + b->getCardinality(),
+                            a->getQualification(),
+                            a->getCardinalityRestrictionType());
+        }
+    }
+    return OWLCardinalityRestriction::Ptr();
+}
+
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::sum(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+        const std::vector<OWLCardinalityRestriction::Ptr>& _b)
+{
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
+    std::vector<OWLCardinalityRestriction::Ptr> b = _b;
+
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator ait = a.begin();
+    for(; ait != a.end(); ++ait)
+    {
+        LOG_DEBUG_S << "Try summing: " << (*ait)->toString();
+        bool summed = false;
+        std::vector<OWLCardinalityRestriction::Ptr>::iterator bit = b.begin();
+        for(; bit != b.end(); ++bit)
+        {
+            LOG_DEBUG_S << "   -- with : " << (*bit)->toString();
+            OWLCardinalityRestriction::Ptr aRestriction= *ait;
+            OWLCardinalityRestriction::Ptr bRestriction= *bit;
+
+            OWLCardinalityRestriction::Ptr restriction = sum(aRestriction, bRestriction);
+            if(restriction)
+            {
+                // merging succeeded
+                restrictions.push_back(restriction);
+
+                // assuming a compact representation of _a and _b, i.e. not multiple
+                // definitions of the same type in it we can skip checking the
+                // remaining
+                b.erase(bit);
+                LOG_DEBUG_S << "Summing succeeded: result is " << restriction->toString();
+                summed = true;
+                break;
+            }
+        }
+
+        if(!summed)
+        {
+            // seems like *ait did not get merged, so add it to results
+            restrictions.push_back((*ait)->clone());
+        }
+    }
+    // At this point the vector restrictions contains all merged ones from a,
+    // but left one of b have still to be added
+    restrictions.insert(restrictions.begin(), b.begin(), b.end());
+    return restrictions;
 }
 
 } // end namespace model

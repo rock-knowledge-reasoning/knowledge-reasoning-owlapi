@@ -140,6 +140,9 @@ public:
      * Convert restriction list to a list of instances, e.g., a restriction of min 4 items will be
      * converted to a list of items (qualification of the restriction) where the
      * list has size 4
+     * This assumes a compact representation of the query restrictions, i.e.
+     * maximum of 1 Exact of Min/Max Pair per overlapping restriction
+     *
      * \return List of (model) instances
      */
     static InstanceList getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);

@@ -88,12 +88,12 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::DATA_EXACT_CARDINALITY:
             case OWLClassExpression::DATA_MIN_CARDINALITY:
             case OWLClassExpression::DATA_MAX_CARDINALITY:
-                restrictions.push_back(boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass));
+                restrictions.push_back(boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
                 break;
             case OWLClassExpression::OWL_CLASS:
             {
                 std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass);
-                //restrictions = OWLCardinalityRestriction::merge(restrictions, inheritedRestrictions);
+                restrictions = OWLCardinalityRestriction::merge(restrictions, inheritedRestrictions);
             }
             default:
                 break;

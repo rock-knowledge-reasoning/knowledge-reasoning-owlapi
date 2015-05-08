@@ -29,6 +29,7 @@ rock_library(owlapi
         model/OWLDisjointClassesAxiom.cpp
         model/OWLDisjointUnionAxiom.cpp
         model/OWLEquivalentClassesAxiom.cpp
+        model/OWLExactCardinalityRestriction.cpp
         model/OWLLiteral.cpp
         model/OWLLiteralInteger.cpp
         model/OWLLiteralDouble.cpp
