@@ -161,17 +161,61 @@ TypeInstanceMap ResourceMatch::toTypeInstanceMap(const std::vector<owlapi::model
     return typeInstanceMap;
 }
 
-InstanceList ResourceMatch::getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions)
+InstanceList ResourceMatch::getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions, bool useMaxCardinality)
 {
     IRIList instances;
+    typedef std::pair<uint32_t,uint32_t> MinMax;
+    std::map<owlapi::model::IRI, MinMax> modelCount;
 
-    // We assume a compact representation of the query restrictions
+    owlapi::model::OWLPropertyExpression::Ptr property;
+
+    // We assume a compact representation of the query restrictions, so we go
+    // only for MIN or EXACT statements
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
     for(; cit != restrictions.end(); ++cit)
     {
         OWLCardinalityRestriction::Ptr restriction = *cit;
+
+        // Check if the same property is used for all cardinality restrictions
+        // Note: might to too restrictive, but need to verify lateron
+        if(!property)
+        {
+            property = restriction->getProperty();
+        } else {
+            if(property != restriction->getProperty())
+            {
+                throw std::invalid_argument("owlapi::csp::ResourceMatch::getInstanceList cardinality restriction are inconsistent, i.e. apply to different properties");
+            }
+        }
+
         uint32_t cardinality = restriction->getCardinality();
-        OWLQualification qualification = restriction->getQualification();
+        owlapi::model::IRI qualification = restriction->getQualification();
+        std::pair<uint32_t,uint32_t> minMax = modelCount[qualification];
+
+        if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MAX)
+        {
+            modelCount[qualification].second = std::min(cardinality, minMax.second);
+        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MIN)
+        {
+            modelCount[qualification].first = std::max(cardinality, minMax.first);
+        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::EXACT)
+        {
+            modelCount[qualification].first = cardinality;
+            modelCount[qualification].second = cardinality;
+        }
+    }
+    
+    std::map<owlapi::model::IRI, MinMax>::const_iterator mit = modelCount.begin();
+    for(; mit != modelCount.end(); ++mit)
+    {
+        const owlapi::model::IRI& qualification = mit->first;
+        const std::pair<uint32_t, uint32_t>& minMax = mit->second;
+
+        uint32_t cardinality = minMax.first;
+        if(useMaxCardinality)
+        {
+            cardinality = minMax.second;
+        }
 
         for(uint32_t i = 0; i < cardinality; ++i)
         {

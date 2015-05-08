@@ -143,9 +143,14 @@ public:
      * This assumes a compact representation of the query restrictions, i.e.
      * maximum of 1 Exact of Min/Max Pair per overlapping restriction
      *
+     * In the default setup, will use only min and exact statements
+     *
+     * \param list of min,max and exact cardinality restrictions (which apply to
+     * the same property)
+     *
      * \return List of (model) instances
      */
-    static InstanceList getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
+    static InstanceList getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions, bool useMaxCardinality = false);
 
     /*
      * constrain function for best solution search. the
