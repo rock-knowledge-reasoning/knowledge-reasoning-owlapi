@@ -93,7 +93,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::OWL_CLASS:
             {
                 std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass);
-                restrictions = OWLCardinalityRestriction::merge(restrictions, inheritedRestrictions);
+                restrictions = OWLCardinalityRestriction::intersection(restrictions, inheritedRestrictions);
             }
             default:
                 break;

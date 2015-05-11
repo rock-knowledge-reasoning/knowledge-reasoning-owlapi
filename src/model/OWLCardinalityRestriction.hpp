@@ -11,6 +11,7 @@ namespace model {
 class OWLOntologyReader;
 class OWLMinCardinalityRestriction;
 class OWLMaxCardinalityRestriction;
+class OWLExactCardinalityRestriction;
 
 /**
  * \class OWLCardinalityRestriction
@@ -69,26 +70,35 @@ public:
             CardinalityRestrictionType restrictionType);
 
     /**
-     * Merge cardinality restrictions which overlap, i.e.
-     * data or object restriction for the very same qualification
+     * Create intersection of cardinality restrictions which overlap, i.e.
+     * data or object restrictions for the very same qualification
      *
      *  examples:
-     *   merge: a -- min 1 cam
+     *   intersection of:
+     *   a -- min 1 cam
      *          with
      *          b -- min 1 specialcam, where specialcam subsumes cam
      *          -->  min 1 cam, min 1 special cam
-     *  merge:  a -- min 1 cam
+     *  intersection of:
+     *  a -- min 1 cam
      *          with
      *          b -- min 1 specialcam, where specialcam subsumes cam
      *          --> min 2 cam + min 1 special cam
      *
-     * \return empty list when candidates are compatible, but cannot be merged
-     * since they are do not overlap
+     * \return NULL, when candidates are compatible, but cannot be merged
+     * since they are do not overlap, otherwise the intersection of both
+     * restrictions
+     * \throws invalid_argument if restriction are incompatible
      */
-    static OWLCardinalityRestriction::Ptr merge(OWLCardinalityRestriction::Ptr a,
+    static OWLCardinalityRestriction::Ptr intersection(OWLCardinalityRestriction::Ptr a,
             OWLCardinalityRestriction::Ptr b);
 
-    static std::vector<OWLCardinalityRestriction::Ptr> merge(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+    /**
+     * Create intersection of two lists of cardinality restrictions according
+     * a x b using intersection operator
+     * \return list of intersection results
+     */
+    static std::vector<OWLCardinalityRestriction::Ptr> intersection(const std::vector<OWLCardinalityRestriction::Ptr>& a,
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
 
      /**
@@ -99,25 +109,41 @@ public:
     static bool areOverlapping(OWLCardinalityRestriction::Ptr a,
             OWLCardinalityRestriction::Ptr b);
 
-    static OWLCardinalityRestriction::Ptr mergeMinMax(boost::shared_ptr<OWLMinCardinalityRestriction> a,
-            boost::shared_ptr<OWLMaxCardinalityRestriction> b);
-
     /**
-     * Get the sum of cardinality restrictions, e.g. for overlapping
-     * restrictions 
-     * where MAX+MAX
-     * and   MIN+MIN
-     * and   EXACT+EXACT
-     * \see areOverlapping
+     * Merge intersection with exact cardinality constraint
      */
-    static OWLCardinalityRestriction::Ptr sum(OWLCardinalityRestriction::Ptr a,
+    static OWLCardinalityRestriction::Ptr intersectionExact(boost::shared_ptr<OWLExactCardinalityRestriction> a,
             OWLCardinalityRestriction::Ptr b);
 
     /**
-     * Sum overlapping restrictions of two compact (!) lists of restrictions,
+     * If min and max cardinality overlap, the intersection can result
+     * 1. in an exact cardinality
+     * 2. in a invalid restriction, where min > max cardinality
+     *
+     * \return in case 1. an exact cardinality, if min max are valid, but not
+     * overlapping -- return a NULL pointer
+     * \throws an invalid argument exception in case 2.
+     */
+    static OWLCardinalityRestriction::Ptr intersectionMinMax(boost::shared_ptr<OWLMinCardinalityRestriction> a,
+            boost::shared_ptr<OWLMaxCardinalityRestriction> b);
+
+    /**
+     * Get the join of cardinality restrictions, e.g. for overlapping
+     * restrictions, so that overlapping cardinality restriction are
+     * join and updated as follows
+     *      MAX + MAX = 2*MAX
+     *      MIN + MIN = 2*MIN
+     *      EXACT + EXACT = 2*EXACT
      * \see areOverlapping
      */
-    static std::vector<OWLCardinalityRestriction::Ptr> sum(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+    static OWLCardinalityRestriction::Ptr join(OWLCardinalityRestriction::Ptr a,
+            OWLCardinalityRestriction::Ptr b);
+
+    /**
+     * Join overlapping restrictions of two compact (!) lists of restrictions,
+     * \see areOverlapping
+     */
+    static std::vector<OWLCardinalityRestriction::Ptr> join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
 
 protected:

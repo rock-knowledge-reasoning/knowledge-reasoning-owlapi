@@ -98,7 +98,7 @@ std::map<IRI, uint32_t> OWLCardinalityRestriction::convertToExactMapping(const s
     return exactMapping;
 }
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::merge(OWLCardinalityRestriction::Ptr a,
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersection(OWLCardinalityRestriction::Ptr a,
         OWLCardinalityRestriction::Ptr b)
 {
     if(areOverlapping(a,b))
@@ -106,6 +106,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::merge(OWLCardinalityRe
         CardinalityRestrictionType aType = a->getCardinalityRestrictionType();
         CardinalityRestrictionType bType = b->getCardinalityRestrictionType();
 
+        // Same cardinality type
         if(aType == bType)
         {
             switch(aType)
@@ -125,7 +126,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::merge(OWLCardinalityRe
                         if(a->getCardinality() != b->getCardinality())
                         {
                             std::stringstream ss;
-                            ss << "owlapi::model::OWLCardinalityRestriction::merge ";
+                            ss << "owlapi::model::OWLCardinalityRestriction::intersection ";
                             ss << "incompatible EXACT cardinality restrictions on property ";
                             ss << "'" << a->getProperty()->toString() << "' ";
                             ss << " qualification ";
@@ -144,24 +145,64 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::merge(OWLCardinalityRe
                                 EXACT);
                     }
                 default:
-                    throw std::runtime_error("owlapi::model::OWLCardinalityRestriction::merge  \
+                    throw std::runtime_error("owlapi::model::OWLCardinalityRestriction::intersection  \
                              invalid cardinality restriction of type UNKNOWN");
             }
         } else if(aType == MIN && bType == MAX)
         {
-            return mergeMinMax( boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(a),
+            return intersectionMinMax( boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(a),
                     boost::dynamic_pointer_cast<OWLMaxCardinalityRestriction>(b));
         } else if(aType == MAX && bType == MIN)
         {
-            return mergeMinMax(boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(b),
+            return intersectionMinMax(boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(b),
                     boost::dynamic_pointer_cast<OWLMaxCardinalityRestriction>(a));
+        } else if(aType == EXACT)
+        {
+            return intersectionExact(boost::dynamic_pointer_cast<OWLExactCardinalityRestriction>(a),
+                    b);
+        } else if(bType == EXACT)
+        {
+            return intersectionExact(boost::dynamic_pointer_cast<OWLExactCardinalityRestriction>(b),
+                    a);
         }
     }
 
     return OWLCardinalityRestriction::Ptr();
 }
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::mergeMinMax(OWLMinCardinalityRestriction::Ptr a,
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersectionExact(OWLExactCardinalityRestriction::Ptr exact,
+        OWLCardinalityRestriction::Ptr b)
+{
+    switch(b->getCardinalityRestrictionType())
+    {
+        case MIN:
+            if(exact->getCardinality() >= b->getCardinality())
+            {
+                return exact->clone();
+            }
+            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
+                    cardinality restriction of exact and min : " + exact->toString() + " vs. " + b->toString());
+        case MAX:
+            if(exact->getCardinality() <= b->getCardinality())
+            {
+                return exact->clone();
+            }
+            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
+                    cardinality restriction of exact and max : " + exact->toString() + " vs. " + b->toString());
+        case EXACT:
+            if(exact->getCardinality() == b->getCardinality())
+            {
+                return exact->clone();
+            }
+            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
+                    cardinality restriction of exact and exact: " + exact->toString() + " vs. " + b->toString());
+        default:
+            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: \
+                    cannot handle UNKNOWN type");
+    }
+}
+
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersectionMinMax(OWLMinCardinalityRestriction::Ptr a,
     OWLMaxCardinalityRestriction::Ptr b)
 {
     if(a->getCardinality() == b->getCardinality())
@@ -173,7 +214,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::mergeMinMax(OWLMinCard
     } else if(a->getCardinality() > b->getCardinality())
     {
         std::stringstream ss;
-        ss << "owlapi::model::OWLCardinalityRestriction::merge ";
+        ss << "owlapi::model::OWLCardinalityRestriction::intersection ";
         ss << "incompatible MIN/MAX cardinality restrictions on property ";
         ss << "'" << a->getProperty()->toString() << "' ";
         ss << " qualification ";
@@ -189,7 +230,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::mergeMinMax(OWLMinCard
     return OWLCardinalityRestriction::Ptr();
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::merge(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::intersection(const std::vector<OWLCardinalityRestriction::Ptr>& a,
             const std::vector<OWLCardinalityRestriction::Ptr>& _b)
 {
     std::vector<OWLCardinalityRestriction::Ptr> restrictions;
@@ -199,7 +240,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::merge(con
     for(; ait != a.end(); ++ait)
     {
         LOG_DEBUG_S << "Try merging : " << (*ait)->toString();
-        bool merged = false;
+        bool intersectiond = false;
         std::vector<OWLCardinalityRestriction::Ptr>::iterator bit = b.begin();
         for(; bit != b.end(); ++bit)
         {
@@ -207,7 +248,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::merge(con
             OWLCardinalityRestriction::Ptr aRestriction= *ait;
             OWLCardinalityRestriction::Ptr bRestriction= *bit;
 
-            OWLCardinalityRestriction::Ptr restriction = merge(aRestriction, bRestriction);
+            OWLCardinalityRestriction::Ptr restriction = intersection(aRestriction, bRestriction);
             if(restriction)
             {
                 // merging succeeded
@@ -218,18 +259,18 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::merge(con
                 // remaining
                 b.erase(bit);
                 LOG_DEBUG_S << "Merging succeeded: result is " << restriction->toString();
-                merged = true;
+                intersectiond = true;
                 break;
             }
         }
 
-        if(!merged)
+        if(!intersectiond)
         {
-            // seems like *ait did not get merged, so add it to results
+            // seems like *ait did not get intersectiond, so add it to results
             restrictions.push_back((*ait)->clone());
         }
     }
-    // At this point the vector restrictions contains all merged ones from a,
+    // At this point the vector restrictions contains all intersectiond ones from a,
     // but left one of b have still to be added
     restrictions.insert(restrictions.begin(), b.begin(), b.end());
     return restrictions;
@@ -257,7 +298,7 @@ bool OWLCardinalityRestriction::areOverlapping(OWLCardinalityRestriction::Ptr a,
     return false;
 }
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::sum(OWLCardinalityRestriction::Ptr a,
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(OWLCardinalityRestriction::Ptr a,
         OWLCardinalityRestriction::Ptr b)
 {
     if(areOverlapping(a,b))
@@ -273,7 +314,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::sum(OWLCardinalityRest
     return OWLCardinalityRestriction::Ptr();
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::sum(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
         const std::vector<OWLCardinalityRestriction::Ptr>& _b)
 {
     std::vector<OWLCardinalityRestriction::Ptr> restrictions;
@@ -282,8 +323,8 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::sum(const
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator ait = a.begin();
     for(; ait != a.end(); ++ait)
     {
-        LOG_DEBUG_S << "Try summing: " << (*ait)->toString();
-        bool summed = false;
+        LOG_DEBUG_S << "Try joining: " << (*ait)->toString();
+        bool joined = false;
         std::vector<OWLCardinalityRestriction::Ptr>::iterator bit = b.begin();
         for(; bit != b.end(); ++bit)
         {
@@ -291,7 +332,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::sum(const
             OWLCardinalityRestriction::Ptr aRestriction= *ait;
             OWLCardinalityRestriction::Ptr bRestriction= *bit;
 
-            OWLCardinalityRestriction::Ptr restriction = sum(aRestriction, bRestriction);
+            OWLCardinalityRestriction::Ptr restriction = join(aRestriction, bRestriction);
             if(restriction)
             {
                 // merging succeeded
@@ -301,19 +342,19 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::sum(const
                 // definitions of the same type in it we can skip checking the
                 // remaining
                 b.erase(bit);
-                LOG_DEBUG_S << "Summing succeeded: result is " << restriction->toString();
-                summed = true;
+                LOG_DEBUG_S << "Joining succeeded: result is " << restriction->toString();
+                joined = true;
                 break;
             }
         }
 
-        if(!summed)
+        if(!joined)
         {
-            // seems like *ait did not get merged, so add it to results
+            // seems like *ait did not get intersectiond, so add it to results
             restrictions.push_back((*ait)->clone());
         }
     }
-    // At this point the vector restrictions contains all merged ones from a,
+    // At this point the vector restrictions contains all intersectiond ones from a,
     // but left one of b have still to be added
     restrictions.insert(restrictions.begin(), b.begin(), b.end());
     return restrictions;

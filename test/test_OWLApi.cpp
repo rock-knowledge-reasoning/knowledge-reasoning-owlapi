@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
                 oPropertyPtr, cardinality, fork.getIRI(), OWLCardinalityRestriction::EXACT);
 
         OWLCardinalityRestriction::Ptr restriction = 
-            OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1);
+            OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
 
         BOOST_REQUIRE_MESSAGE(restriction, "Merging exact restrictions of same cardinality");
     }
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
 
-        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
     }
     {
         uint32_t cardinality0 = 2;
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
 
-        BOOST_REQUIRE_NO_THROW(OWLCardinalityRestriction::merge(forkRestriction, spoonRestriction));
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::merge(forkRestriction, spoonRestriction);
+        BOOST_REQUIRE_NO_THROW(OWLCardinalityRestriction::intersection(forkRestriction, spoonRestriction));
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction, spoonRestriction);
         BOOST_REQUIRE_MESSAGE(!restriction, "Non overlapping restrictions return null pointer");
     }
     {
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MIN);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == cardinality1, "Min cardinality takes max");
     }
     {
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == cardinality0, "Max cardinality takes min");
     }
     {
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(!restriction, "Min max cardinality returns null pointer if valid");
     }
     {
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MIN);
 
-        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::merge(forkRestriction0, forkRestriction1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
     }
 
     {
@@ -244,13 +244,13 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::merge(restrictionsA, restrictionsB);
-            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Merge sets should reduce to size 2");
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets should reduce to size 2");
         }
     
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::merge(restrictionsB, restrictionsA);
-            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Merge sets (reverse) should reduce to size 2");
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets (reverse) should reduce to size 2");
         }
     }
 
@@ -278,13 +278,13 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         }
     
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::merge(restrictionsA, restrictionsB);
-            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Merge sets should reduce to size 3");
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets should reduce to size 3");
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::merge(restrictionsB, restrictionsA);
-            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Merge sets (reverse) should reduce to size 3");
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets (reverse) should reduce to size 3");
         }
     }
 }

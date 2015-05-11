@@ -9,6 +9,8 @@ namespace model {
 class OWLExactCardinalityRestriction : public OWLCardinalityRestriction
 {
 public:
+    typedef boost::shared_ptr<OWLExactCardinalityRestriction> Ptr;
+
     OWLExactCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification);
 
     virtual ~OWLExactCardinalityRestriction();
