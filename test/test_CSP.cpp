@@ -12,7 +12,7 @@ using namespace owlapi::model;
 
 BOOST_AUTO_TEST_SUITE(csp)
 
-//BOOST_AUTO_TEST_CASE(it_should_match_resources)
+//BOOST_AUTO_TEST_CASE(match_resources)
 //{
 //    OWLOntologyReader reader;
 //    //OWLOntology::Ptr ontology(new OWLOntology());
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_SUITE(csp)
 //    BOOST_REQUIRE_MESSAGE( assignment == b->getIRI(), "Expected base to be matched by base-derived");
 //}
 
-BOOST_AUTO_TEST_CASE(it_should_match_resource_via_restrictions)
+BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
 {
     OWLOntologyReader reader;
     OWLOntology::Ptr ontology(new OWLOntology());

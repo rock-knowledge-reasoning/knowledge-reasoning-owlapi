@@ -38,7 +38,7 @@ void OWLOntologyTell::initializeDefaultClasses()
 
 OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
 {
-    LOG_WARN_S << "Retrieve class: " << iri;
+    LOG_DEBUG_S << "Retrieve class: " << iri;
     std::map<IRI, OWLClass::Ptr>::const_iterator it = mpOntology->mClasses.find(iri);
     if(it != mpOntology->mClasses.end())
     {

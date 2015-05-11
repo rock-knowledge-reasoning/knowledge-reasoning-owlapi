@@ -4,6 +4,7 @@
 #include "OWLObjectMaxCardinality.hpp"
 #include <algorithm>
 #include <limits>
+#include <math.h>
 #include <sstream>
 #include <boost/assign/list_of.hpp>
 #include <base/Logging.hpp>
@@ -67,6 +68,17 @@ std::string OWLCardinalityRestriction::toString() const
     ss << "    cardinality: " << getCardinality() << std::endl;
     ss << "    qualification: " << getQualification().toString() << std::endl;
     ss << "    type: " << CardinalityRestrictionTypeTxt[getCardinalityRestrictionType()] << std::endl;
+    return ss.str();
+}
+
+std::string OWLCardinalityRestriction::toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
+{
+    std::stringstream ss;
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+    for(; cit != restrictions.end(); ++cit)
+    {
+        ss << (*cit)->toString();
+    }
     return ss.str();
 }
 
@@ -358,6 +370,59 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
     // but left one of b have still to be added
     restrictions.insert(restrictions.begin(), b.begin(), b.end());
     return restrictions;
+}
+
+std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getBounds(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
+{
+    owlapi::model::OWLPropertyExpression::Ptr property;
+    std::map<IRI, OWLCardinalityRestriction::MinMax> modelCount;
+
+    // We assume a compact list of the query restrictions, but
+    // have to generate an intermediate bounded representation for each 
+    // possible resource model
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+    for(; cit != restrictions.end(); ++cit)
+    {
+        OWLCardinalityRestriction::Ptr restriction = *cit;
+
+        // Check if the same property is used for all cardinality restrictions
+        // Note: might to too restrictive, but need to verify lateron
+        if(!property)
+        {
+            property = restriction->getProperty();
+        } else {
+            if(property->toString() != restriction->getProperty()->toString())
+            {
+                throw std::invalid_argument("owlapi::model::getBounds cardinality restrictions are inconsistent, i.e. apply to different properties: " + \
+                        property->toString() + " vs. " + restriction->getProperty()->toString());
+            }
+        }
+
+        uint32_t cardinality = restriction->getCardinality();
+        owlapi::model::IRI qualification = restriction->getQualification();
+        std::pair<uint32_t,uint32_t>& minMax = modelCount[qualification];
+
+        if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MAX)
+        {
+            minMax.first = std::max(static_cast<uint32_t>(0), minMax.first);
+            if(minMax.second == 0) // has not been initialized yet
+            {
+                minMax.second = cardinality;
+            } else {
+                minMax.second = std::min(cardinality, minMax.second);
+            }
+        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MIN)
+        {
+            minMax.first = std::max(cardinality, minMax.first);
+            minMax.second = std::numeric_limits<uint32_t>::max();
+        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::EXACT)
+        {
+            minMax.first = cardinality;
+            minMax.second = cardinality;
+        }
+    }
+
+    return modelCount;
 }
 
 } // end namespace model

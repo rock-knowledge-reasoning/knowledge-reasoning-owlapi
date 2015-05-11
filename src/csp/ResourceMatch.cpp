@@ -163,58 +163,31 @@ TypeInstanceMap ResourceMatch::toTypeInstanceMap(const std::vector<owlapi::model
 
 InstanceList ResourceMatch::getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions, bool useMaxCardinality)
 {
+    using namespace owlapi::model;
+
     IRIList instances;
-    typedef std::pair<uint32_t,uint32_t> MinMax;
-    std::map<owlapi::model::IRI, MinMax> modelCount;
+    // Retrieve bound per qualification (only valid if restriction apply to the
+    // same property)
+    std::map<IRI, OWLCardinalityRestriction::MinMax> modelCount = OWLCardinalityRestriction::getBounds(restrictions);
 
-    owlapi::model::OWLPropertyExpression::Ptr property;
-
-    // We assume a compact representation of the query restrictions, so we go
-    // only for MIN or EXACT statements
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
-    for(; cit != restrictions.end(); ++cit)
-    {
-        OWLCardinalityRestriction::Ptr restriction = *cit;
-
-        // Check if the same property is used for all cardinality restrictions
-        // Note: might to too restrictive, but need to verify lateron
-        if(!property)
-        {
-            property = restriction->getProperty();
-        } else {
-            if(property != restriction->getProperty())
-            {
-                throw std::invalid_argument("owlapi::csp::ResourceMatch::getInstanceList cardinality restriction are inconsistent, i.e. apply to different properties");
-            }
-        }
-
-        uint32_t cardinality = restriction->getCardinality();
-        owlapi::model::IRI qualification = restriction->getQualification();
-        std::pair<uint32_t,uint32_t> minMax = modelCount[qualification];
-
-        if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MAX)
-        {
-            modelCount[qualification].second = std::min(cardinality, minMax.second);
-        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MIN)
-        {
-            modelCount[qualification].first = std::max(cardinality, minMax.first);
-        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::EXACT)
-        {
-            modelCount[qualification].first = cardinality;
-            modelCount[qualification].second = cardinality;
-        }
-    }
-    
-    std::map<owlapi::model::IRI, MinMax>::const_iterator mit = modelCount.begin();
+    std::map<IRI, OWLCardinalityRestriction::MinMax>::const_iterator mit = modelCount.begin();
     for(; mit != modelCount.end(); ++mit)
     {
-        const owlapi::model::IRI& qualification = mit->first;
+        const IRI& qualification = mit->first;
         const std::pair<uint32_t, uint32_t>& minMax = mit->second;
 
+        LOG_DEBUG_S << "qualification: " << qualification.toString() << " min: " << minMax.first << ", max: " << minMax.second;
+
         uint32_t cardinality = minMax.first;
+        // optimistic would mean infinite resources if only min is defined
         if(useMaxCardinality)
-        {
-            cardinality = minMax.second;
+        { 
+            if(minMax.second == std::numeric_limits<uint32_t>::max())
+            {
+                LOG_DEBUG_S << "No upper bound given for " << qualification << ", skipping for optimistic estimation of resource instances";
+            } else {
+                cardinality = minMax.second;
+            }
         }
 
         for(uint32_t i = 0; i < cardinality; ++i)
@@ -296,7 +269,11 @@ uint32_t ResourceMatch::getInstanceCount(const TypeInstanceMap& map)
 
 ResourceMatch* ResourceMatch::solve(const std::vector<OWLCardinalityRestriction::Ptr>& queryRestrictions, const std::vector<OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, OWLOntology::Ptr ontology)
 {
-    ResourceMatch* match = new ResourceMatch(queryRestrictions, getInstanceList(resourcePoolRestrictions), ontology);
+    LOG_WARN_S << "Solve: resource pool restrictions" << owlapi::model::OWLCardinalityRestriction::toString(resourcePoolRestrictions);
+    InstanceList instanceList = getInstanceList(resourcePoolRestrictions, true);
+    LOG_WARN_S << "Solve: instances: " << instanceList;
+    LOG_WARN_S << "Solve: restriction: " << owlapi::model::OWLCardinalityRestriction::toString(queryRestrictions);
+    ResourceMatch* match = new ResourceMatch(queryRestrictions, instanceList, ontology);
     ResourceMatch* solvedMatch = match->solve();
     delete match;
     match = NULL;

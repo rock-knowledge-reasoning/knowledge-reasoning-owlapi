@@ -22,6 +22,7 @@ class OWLCardinalityRestriction : public OWLQualifiedRestriction
 
 public:
     typedef boost::shared_ptr<OWLCardinalityRestriction> Ptr;
+    typedef std::pair<uint32_t, uint32_t> MinMax;
 
     enum CardinalityRestrictionType { UNKNOWN, MIN, MAX, EXACT };
 
@@ -58,6 +59,8 @@ public:
     virtual CardinalityRestrictionType getCardinalityRestrictionType() const { return mCardinalityRestrictionType; }
 
     virtual std::string toString() const;
+
+    static std::string toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions);
 
     /**
      * Convert to exact mapping
@@ -145,6 +148,12 @@ public:
      */
     static std::vector<OWLCardinalityRestriction::Ptr> join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
+
+    /**
+     * Retrieve bounds for the qualifications for a set of cardinality restrictions
+     * \throws invalid_argument if restrictions do not refer to the same property
+     */
+    static std::map<IRI, MinMax> getBounds(const std::vector<OWLCardinalityRestriction::Ptr>& e);
 
 protected:
     OWLCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t minCardinality, uint32_t maxCardinality, const OWLQualification& qualification);

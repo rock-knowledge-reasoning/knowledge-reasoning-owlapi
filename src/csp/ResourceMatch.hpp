@@ -143,7 +143,10 @@ public:
      * This assumes a compact representation of the query restrictions, i.e.
      * maximum of 1 Exact of Min/Max Pair per overlapping restriction
      *
-     * In the default setup, will use only min and exact statements
+     * \todo Different policies can be applied here in order to interprete the
+     * cardinality restriction either pessimistically or optimistically, e.g.
+     * when given min/max --> min provides a lower bound for the pessimistic
+     * computation, while max and upper for the optimistic computation
      *
      * \param list of min,max and exact cardinality restrictions (which apply to
      * the same property)

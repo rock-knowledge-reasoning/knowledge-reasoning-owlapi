@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(iris)
 
         IRI resolvedIri = iri.resolve("TransitiveProperty");
         IRI expected("http://www.w3.org/2002/07/owl#TransitiveProperty");
- 
+
         BOOST_REQUIRE_MESSAGE(resolvedIri == expected, "Resolved iri: " << resolvedIri << " vs. expected " << expected);
 
     }
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
                 oPropertyPtr, cardinality, fork.getIRI(), OWLCardinalityRestriction::EXACT);
 
-        OWLCardinalityRestriction::Ptr restriction = 
+        OWLCardinalityRestriction::Ptr restriction =
             OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
 
         BOOST_REQUIRE_MESSAGE(restriction, "Merging exact restrictions of same cardinality");
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
             std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets should reduce to size 2");
         }
-    
+
         {
             std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets (reverse) should reduce to size 2");
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
             restrictionsB.push_back(forkRestriction);
             restrictionsB.push_back(spoonRestriction);
         }
-    
+
         {
             std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets should reduce to size 3");
@@ -286,6 +286,78 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
             std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets (reverse) should reduce to size 3");
         }
+    }
+
+    // Check join
+    {
+        std::vector<OWLCardinalityRestriction::Ptr> restrictionsA;
+        std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
+        {
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr knifeRestriction = OWLCardinalityRestriction::getInstance(
+                    oPropertyPtr, 3, knife.getIRI(), OWLCardinalityRestriction::EXACT);
+            restrictionsA.push_back(forkRestriction);
+            restrictionsA.push_back(spoonRestriction);
+            restrictionsA.push_back(knifeRestriction);
+        }
+        {
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            restrictionsB.push_back(forkRestriction);
+            restrictionsB.push_back(spoonRestriction);
+        }
+
+        {
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsA, restrictionsB);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Joined sets should reduce to size 3");
+
+            std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = cardinalityRestrictions.begin();
+            for(;cit != cardinalityRestrictions.end(); ++cit)
+            {
+                OWLCardinalityRestriction::Ptr restriction = *cit;
+                if(restriction->getQualification() == fork.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for fork should have cardinality 2");
+                } else if(restriction->getQualification() == spoon.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for spoon should have cardinality 2");
+                } else if(restriction->getQualification() == knife.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 3, "Joined restrictions for knife should have cardinality 3");
+                }
+            }
+        }
+
+        {
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsB, restrictionsA);
+            BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Joined sets (reverse) should reduce to size 3");
+
+            std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = cardinalityRestrictions.begin();
+            for(;cit != cardinalityRestrictions.end(); ++cit)
+            {
+                OWLCardinalityRestriction::Ptr restriction = *cit;
+                if(restriction->getQualification() == fork.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for fork should have cardinality 2");
+                } else if(restriction->getQualification() == spoon.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for spoon should have cardinality 2");
+                } else if(restriction->getQualification() == knife.getIRI())
+                {
+                    BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 3, "Joined restrictions for knife should have cardinality 3");
+                }
+            }
+        }
+
+        {
+
+        }
+
     }
 }
 
