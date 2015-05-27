@@ -138,12 +138,12 @@ bool OWLOntologyAsk::isOWLClass(const IRI& iri) const
     return it != mpOntology->mClasses.end();
 }
 
-IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct)
+IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct) const
 {
     return mpOntology->kb()->allInstancesOf(classType, direct);
 }
 
-IRIList OWLOntologyAsk::allSubclassesOf(const IRI& classType, bool direct)
+IRIList OWLOntologyAsk::allSubclassesOf(const IRI& classType, bool direct) const
 {
     return mpOntology->kb()->allSubclassesOf(classType, direct);
 }
@@ -169,7 +169,7 @@ IRIList OWLOntologyAsk::allObjectProperties() const
     return list;
 }
 
-bool OWLOntologyAsk::isInstanceOf(const IRI& instance, const IRI& klass)
+bool OWLOntologyAsk::isInstanceOf(const IRI& instance, const IRI& klass) const
 {
     return mpOntology->kb()->isInstanceOf(instance, klass);
 }
@@ -184,18 +184,18 @@ IRI OWLOntologyAsk::typeOf(const IRI& instance) const
     return mpOntology->kb()->typeOf(instance);
 }
 
-IRIList OWLOntologyAsk::allRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass)
+IRIList OWLOntologyAsk::allRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass) const
 {
     return mpOntology->kb()->allRelatedInstances(instance, relationProperty, klass);
 }
 
-IRIList OWLOntologyAsk::allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass)
+IRIList OWLOntologyAsk::allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass) const
 {
     return mpOntology->kb()->allInverseRelatedInstances(instance, relationProperty, klass);
 }
 
 
-OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance, const IRI& dataProperty)
+OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance, const IRI& dataProperty) const
 {
     reasoner::factpp::DataValue dataValue = mpOntology->kb()->getDataValue(instance, dataProperty);
 

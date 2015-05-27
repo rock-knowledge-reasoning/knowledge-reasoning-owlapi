@@ -89,12 +89,12 @@ public:
      * Retrieve all subclasses of a given klass
      * \return list of all subclasses
      */
-    IRIList allSubclassesOf(const IRI& klass, bool direct = false);
+    IRIList allSubclassesOf(const IRI& klass, bool direct = false) const;
 
     /**
      * Retrieve all known instance of the given class type
      */
-    IRIList allInstancesOf(const IRI& classType, bool direct = false);
+    IRIList allInstancesOf(const IRI& classType, bool direct = false) const;
 
     /**
      * Retrieve all known object properties
@@ -107,7 +107,7 @@ public:
      * \param klass Class identifier
      * \return true if instance is of given klass type, false otherwise
      */
-    bool isInstanceOf(const IRI& instance, const IRI& klass);
+    bool isInstanceOf(const IRI& instance, const IRI& klass) const;
 
     /**
      * Test if instances are related via given a given property
@@ -126,7 +126,7 @@ public:
      * \param klass Klass type the relation should map to
      * \return list of instances that are related to instance via the relationProperty
      */
-    IRIList allRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI());
+    IRIList allRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI()) const;
 
     /**
      * Retrieve all instances regarding a single instance and a selected property
@@ -136,13 +136,13 @@ public:
      * \return list of instance that are related to instance via the inverse of the given 
      * relationProperty
      */
-    IRIList allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI());
+    IRIList allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI()) const;
 
     /**
      * Retrieve data value associated with instance
      * \return data value
      */
-    OWLLiteral::Ptr getDataValue(const IRI& instance, const IRI& dataProperty);
+    OWLLiteral::Ptr getDataValue(const IRI& instance, const IRI& dataProperty) const;
 
     /**
      * Retrieve the list of ancestors
