@@ -150,6 +150,11 @@ public:
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
 
     /**
+     * Create a compact representation of cardinality restrictions
+     */
+    static std::vector<OWLCardinalityRestriction::Ptr> compact(const std::vector<OWLCardinalityRestriction::Ptr>& a);
+
+    /**
      * Retrieve bounds for the qualifications for a set of cardinality restrictions
      * \throws invalid_argument if restrictions do not refer to the same property
      */

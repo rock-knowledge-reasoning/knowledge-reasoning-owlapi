@@ -372,6 +372,22 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
     return restrictions;
 }
 
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::compact(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
+{
+    std::vector<OWLCardinalityRestriction::Ptr> compactRestrictions;
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+    for(; cit != restrictions.end(); ++cit)
+    {
+        std::vector<OWLCardinalityRestriction::Ptr> singleRestriction;
+        singleRestriction.push_back(*cit);
+
+        std::vector<OWLCardinalityRestriction::Ptr> merged = join(compactRestrictions, singleRestriction);
+        compactRestrictions = merged;
+    }
+
+    return compactRestrictions;
+}
+
 std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getBounds(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
 {
     owlapi::model::OWLPropertyExpression::Ptr property;
