@@ -73,7 +73,7 @@ owlapi::model::IRI ResultsIterator::operator[](const Variable& variable) const
         Variable variable = cit->first;
         bindings += variable.getQueryName() + ",";
     }
-    std::string msg = "owl_om::db::query::ResultsIterator: unknown binding for '" + variable.getQueryName() + "' known are: " + bindings;
+    std::string msg = "owlapi::db::query::ResultsIterator: unknown binding for '" + variable.getQueryName() + "' known are: " + bindings;
     throw std::runtime_error(msg);
 }
 

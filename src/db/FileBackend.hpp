@@ -13,7 +13,7 @@ public:
 
     virtual ~FileBackend() {}
 
-    virtual query::Results query(const std::string& query, const query::Bindings& bindings) { throw std::runtime_error("owl_om::FileBackend: query interface not implemented"); }
+    virtual query::Results query(const std::string& query, const query::Bindings& bindings) { throw std::runtime_error("owlapi::FileBackend: query interface not implemented"); }
 
 protected:
     std::string mFilename;

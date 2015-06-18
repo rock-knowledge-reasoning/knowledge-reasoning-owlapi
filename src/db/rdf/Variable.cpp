@@ -22,7 +22,7 @@ Variable::Variable(const std::string& name, bool grounded)
     {
         if(name.find("http://") != std::string::npos)
         {
-            throw std::invalid_argument("owl_om::Query::Variable: given URI: '" + name + "'");
+            throw std::invalid_argument("owlapi::Query::Variable: given URI: '" + name + "'");
         }
 
         if(name.data()[0] != '?')

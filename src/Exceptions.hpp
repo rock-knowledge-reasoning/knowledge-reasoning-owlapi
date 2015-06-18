@@ -16,5 +16,5 @@
 namespace owlapi {
     OWLAPI_EXCEPTION(NotImplemented, "owlapi: Functionality has not been implemented: ");
     OWLAPI_EXCEPTION(NotSupported, "owlapi: Not supported: ");
-} // end namespace owl_om
+} // end namespace owlapi
 #endif // OWLAPI_EXCEPTIONS_HPP

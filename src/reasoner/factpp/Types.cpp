@@ -67,7 +67,7 @@ double DataValue::toDouble() const
         return numericValue;
     } catch(const std::exception& e)
     {
-        throw std::runtime_error("owl_om::DataValue::toDouble invalid value format -- '" + getValue() + "' cannot be converted to double");
+        throw std::runtime_error("owlapi::DataValue::toDouble invalid value format -- '" + getValue() + "' cannot be converted to double");
     }
 
 }

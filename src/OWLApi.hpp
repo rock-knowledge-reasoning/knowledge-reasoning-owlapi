@@ -1,5 +1,5 @@
-#ifndef OWL_OM_OWL_API_HPP
-#define OWL_OM_OWL_API_HPP
+#ifndef OWLAPI_HPP
+#define OWLAPI_HPP
 
 #include <boost/shared_ptr.hpp>
 #include <owlapi/model/HasIRI.hpp>
@@ -37,4 +37,4 @@
 #include <owlapi/model/OWLOntologyTell.hpp>
 #include <owlapi/model/OWLOntologyAsk.hpp>
 
-#endif // OWL_OM_OWL_API_HPP
+#endif // OWLAPI_HPP

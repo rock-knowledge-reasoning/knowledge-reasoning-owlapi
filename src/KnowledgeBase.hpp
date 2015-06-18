@@ -1,5 +1,5 @@
-#ifndef OWL_OM_KNOWLEDGE_BASE_HPP
-#define OWL_OM_KNOWLEDGE_BASE_HPP
+#ifndef OWLAPI_KNOWLEDGE_BASE_HPP
+#define OWLAPI_KNOWLEDGE_BASE_HPP
 
 #include <string.h>
 #include <map>

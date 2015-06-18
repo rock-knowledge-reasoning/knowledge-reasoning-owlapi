@@ -73,7 +73,7 @@ std::string Query::whereTxt() const
 //            LOG_DEBUG_S << "Unbound variable '" << variable << "' already registered";
 //        }
 //    } else {
-//        throw std::invalid_argument("owl_om::db::query::Query::addUnboundVariable: trying to add grounded variable");
+//        throw std::invalid_argument("owlapi::db::query::Query::addUnboundVariable: trying to add grounded variable");
 //    }
 //}
 
@@ -107,7 +107,7 @@ std::string Query::getOrCreatePrefix(const owlapi::model::IRI& iri)
 //            
 //    //if(uriOrVariable.empty())
 //    //{
-//    //    throw std::invalid_argument("owl_om::db::rdf::Sparql::prepare given uri or variable is empty");
+//    //    throw std::invalid_argument("owlapi::db::rdf::Sparql::prepare given uri or variable is empty");
 //    //}
 //    //// need to extract prefixes from a single uri, list or uri or chained uris
 //    //// if the argument is not an uri, check if the variable is already known
@@ -142,7 +142,7 @@ std::string Query::getOrCreatePrefix(const owlapi::model::IRI& iri)
 //    //    return prefix + ":" + iri.getRemainder();
 //    //}
 //
-//    //throw std::runtime_error("owl_om::db::sparql::Query::prepare Failed to prepare variable '" + uriOrVariable + "'");
+//    //throw std::runtime_error("owlapi::db::sparql::Query::prepare Failed to prepare variable '" + uriOrVariable + "'");
 //}
 
 Query::Type Query::getType() const
@@ -175,13 +175,13 @@ Query& Query::select(const db::query::Variable& variable, bool do_throw)
     //    // Not an unbound variable 
     //    if(do_throw)
     //    {
-    //        throw std::invalid_argument("owl_om::Query::select: '" + variable.toString() + "' is not an unbound variable");
+    //        throw std::invalid_argument("owlapi::Query::select: '" + variable.toString() + "' is not an unbound variable");
     //    }
     //    return *this;
     //}
     if(variable.isGrounded() && do_throw)
     {
-        throw std::invalid_argument("owl_om::Query::select: '" + variable.toString() + "' is a grounded variable");
+        throw std::invalid_argument("owlapi::Query::select: '" + variable.toString() + "' is a grounded variable");
     }
 
     db::query::VariableList::const_iterator cit = std::find(mSelect.begin(), mSelect.end(), variable);
@@ -189,7 +189,7 @@ Query& Query::select(const db::query::Variable& variable, bool do_throw)
     {
         if(do_throw)
         {
-            throw std::invalid_argument("owl_om::Query::select: '" + variable.getQueryName() + "' has already been added to list of 'select'");
+            throw std::invalid_argument("owlapi::Query::select: '" + variable.getQueryName() + "' has already been added to list of 'select'");
         } else {
             return *this;
         }
@@ -221,7 +221,7 @@ std::string Query::toString() const
             query += selectTxt() + " ";
             break;
         default:
-            throw std::invalid_argument("owl_om::Query::toString: query type '" + TypeTxt[getType()] + "' is not supported");
+            throw std::invalid_argument("owlapi::Query::toString: query type '" + TypeTxt[getType()] + "' is not supported");
     }
     query += whereTxt();
 
@@ -233,7 +233,7 @@ WhereClause::WhereClause(Query* query)
 {
     if(!mQuery)
     {
-        throw std::runtime_error("owl_om::WhereClause(): associated query object is NULL");
+        throw std::runtime_error("owlapi::WhereClause(): associated query object is NULL");
     }
 }
 
@@ -263,7 +263,7 @@ Query& WhereClause::endWhere()
 {
     if(!mQuery)
     {
-        throw std::runtime_error("owl_om::WhereClause::endwhere: associated query object is NULL");
+        throw std::runtime_error("owlapi::WhereClause::endwhere: associated query object is NULL");
     }
     return *mQuery;
 }

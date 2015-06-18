@@ -507,7 +507,7 @@ Axiom KnowledgeBase::disjoint(const IRIList& klassesOrInstances, KnowledgeBase::
         return Axiom(axiom);
     }
 
-    throw std::runtime_error("owl_om::KnowledgeBase::disjoint requires either list of classes or instances");
+    throw std::runtime_error("owlapi::KnowledgeBase::disjoint requires either list of classes or instances");
 
 }
 
@@ -591,7 +591,7 @@ DataValue KnowledgeBase::dataValue(const std::string& value, const std::string& 
     IRIDataTypeMap::const_iterator cit = mDataTypes.find(dataType);
     if(cit == mDataTypes.end())
     {
-        throw std::invalid_argument("owl_om::KnowledgeBase::dataValue: dataType '" + dataType + "' is unkown");
+        throw std::invalid_argument("owlapi::KnowledgeBase::dataValue: dataType '" + dataType + "' is unkown");
     }
 
     DataTypeName dataTypeName = cit->second;
@@ -661,7 +661,7 @@ ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type,
         }
     }
 
-    throw std::runtime_error("owl_om::KnowledgeBase::objectPropertyRestriction: Unknown restriction type");
+    throw std::runtime_error("owlapi::KnowledgeBase::objectPropertyRestriction: Unknown restriction type");
 }
 
 bool KnowledgeBase::isSubclassOf(const IRI& subclass, const IRI& parentClass)

@@ -266,7 +266,7 @@ void OWLOntologyReader::load()
                 {
                     std::stringstream ss;
                     ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
-                    throw std::invalid_argument("owl_om::Ontology: " + ss.str() );
+                    throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
                 }
 
                 cardinalityRestrictions[restriction].setProperty(boost::dynamic_pointer_cast<OWLPropertyExpression>(oProperty));

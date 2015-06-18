@@ -88,7 +88,7 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 //        while( qit.next())
 //        {
 //            std::string classUri = qit.binding("r").toString().toStdString();
-//            registry.registerClass( classUri, owl_om::Class::Ptr( new owl_om::Class( classUri ) ) );
+//            registry.registerClass( classUri, owlapi::Class::Ptr( new owlapi::Class( classUri ) ) );
 //        }
 //    }
 //
@@ -117,7 +117,7 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 //        {
 //            LOG_DEBUG_S << qit.binding("r").toString().toStdString();
 //            std::string propertyUri = qit.binding("r").toString().toStdString();
-//            registry.registerProperty( propertyUri, owl_om::Property::Ptr( new owl_om::ObjectProperty( propertyUri ) ) );
+//            registry.registerProperty( propertyUri, owlapi::Property::Ptr( new owlapi::ObjectProperty( propertyUri ) ) );
 //        }
 //    }
 //
@@ -128,7 +128,7 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 //        {
 //            LOG_DEBUG_S << qit.binding("r").toString().toStdString();
 //            std::string propertyUri = qit.binding("r").toString().toStdString();
-//            registry.registerProperty( propertyUri, owl_om::Property::Ptr( new owl_om::DatatypeProperty( propertyUri ) ) );
+//            registry.registerProperty( propertyUri, owlapi::Property::Ptr( new owlapi::DatatypeProperty( propertyUri ) ) );
 //        }
 //    }
 //
@@ -147,7 +147,7 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 //        std::vector<std::string>::const_iterator cit = individuals.begin();
 //        for(; cit != individuals.end(); ++cit)
 //        {
-//            owl_om::vocabulary::SplitUri splitUri = owl_om::vocabulary::Utils::extractBaseUri(*cit);
+//            owlapi::vocabulary::SplitUri splitUri = owlapi::vocabulary::Utils::extractBaseUri(*cit);
 //            std::string prefixIndividual = prefix + " PREFIX custom: <" + splitUri.baseUri +">\n";
 //            std::string iQuery = prefixIndividual + " select ?o where { custom:" + splitUri.name + " rdf:type ?o . }";
 //
@@ -157,7 +157,7 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 //            while( iit.next())
 //            {
 //                std::string uri = iit.binding("o").toString().toStdString();
-//                if(uri != owl_om::vocabulary::OWL::NamedIndividual())
+//                if(uri != owlapi::vocabulary::OWL::NamedIndividual())
 //                {
 //                    OrganizationElement::Ptr element = RDFModelFactory::getInstanceOf( splitUri.fullName(), uri);
 //                    model.add(element);

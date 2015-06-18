@@ -12,7 +12,7 @@ SplitUri Utils::extractBaseUri(const Uri& uri)
     {
         if(positionHash < positionSlash)
         {
-            throw std::runtime_error("owl_om::vocabulary::Utils extractBaseUri failed: slash is following a hash");
+            throw std::runtime_error("owlapi::vocabulary::Utils extractBaseUri failed: slash is following a hash");
         } else {
             return SplitUri(uri.substr(0,positionHash+1), uri.substr(positionHash+1));
         }

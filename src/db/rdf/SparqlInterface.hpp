@@ -79,7 +79,7 @@ public:
      * \param query The SPARQL conform query
      * \param bindings The set of bindings used
      */
-    virtual Results query(const std::string& query, const Bindings& bindings) const { throw std::runtime_error("owl_om::db::query::SparqlInterface not implemented"); }
+    virtual Results query(const std::string& query, const Bindings& bindings) const { throw std::runtime_error("owlapi::db::query::SparqlInterface not implemented"); }
 
     /**
      * Retrieve results when matching the given triple definition
