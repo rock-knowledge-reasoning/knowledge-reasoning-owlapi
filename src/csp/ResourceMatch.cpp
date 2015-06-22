@@ -334,13 +334,17 @@ ResourceMatch* ResourceMatch::solve()
         delete best;
         // Save current solution as best
         best = matching;
+
+        //We do not need optimization of the result,
+        //just trying to validate sufficient condition,
+        //so take first solution
+        break;
     }
 
     if(best == NULL)
     {
         throw std::runtime_error("owlapi::csp::ResourceMatch: no solution found");
     }
-
 
     return best;
 }
