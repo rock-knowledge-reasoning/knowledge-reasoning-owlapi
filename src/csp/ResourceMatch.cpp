@@ -301,7 +301,7 @@ void ResourceMatch::remapSolution()
     // update solution vector
     InstanceList queryInstances = getTypeList(mQueryRestrictions);
 
-    for(int i = 0; i < mSetAssignment.size(); i++)
+    for(int i = 0; i < mSetAssignment.size(); ++i)
     {
         InstanceList assignedResources;
         for(Gecode::SetVarGlbValues v(mSetAssignment[i]); v(); ++v)
