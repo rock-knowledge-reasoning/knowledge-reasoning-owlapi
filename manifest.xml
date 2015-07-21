@@ -11,7 +11,7 @@
   <depend package="boost" />
   <depend package="base/types" />
   <depend package="base/numeric" />
-  <depend package="external/factpp" />
+  <depend package="knowledge_reasoning/factpp" />
   <depend package="uriparser" />
   <depend package="soprano" />
   <!-- constraint satisfaction -->
