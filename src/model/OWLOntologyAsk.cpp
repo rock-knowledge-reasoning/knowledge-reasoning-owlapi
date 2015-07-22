@@ -78,6 +78,8 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     {
         OWLSubClassOfAxiom::Ptr subclassAxiomPtr = *sit;
         OWLClassExpression::Ptr superClass = subclassAxiomPtr->getSuperClass();
+
+        // The class for which the cardinality expressions are queried for
         OWLClassExpression::Ptr subClass = subclassAxiomPtr->getSubClass();
 
         switch(superClass->getClassExpressionType())
@@ -88,8 +90,25 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::DATA_EXACT_CARDINALITY:
             case OWLClassExpression::DATA_MIN_CARDINALITY:
             case OWLClassExpression::DATA_MAX_CARDINALITY:
-                restrictions.push_back(boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
+            {
+                OWLCardinalityRestriction::Ptr restriction = boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
+
+                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getQualification());
+
+                if(inheritedRestrictions.empty())
+                {
+                    restrictions.push_back(boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
+                } else {
+                    // We need to increase scale each cardinality based on the
+                    // requirements of the restrictions that got it in here in
+                    // the first place
+                    std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions = OWLCardinalityRestriction::scale(inheritedRestrictions,
+                            restriction->getCardinality());
+
+                    restrictions = OWLCardinalityRestriction::intersection(restrictions, scaledRestrictions);
+                }
                 break;
+            }
             case OWLClassExpression::OWL_CLASS:
             {
                 std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass);
@@ -99,7 +118,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
                 break;
         }
     }
-    return restrictions;
+    return OWLCardinalityRestriction::compact(restrictions);
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& iri) const

@@ -295,18 +295,21 @@ bool OWLCardinalityRestriction::areOverlapping(OWLCardinalityRestriction::Ptr a,
     if((a->isDataRestriction() && b->isDataRestriction()) ||
             (a->isObjectRestriction() && b->isObjectRestriction()))
     {
-        if(a->getProperty() != b->getProperty())
+        if( a->getProperty()->toString() != b->getProperty()->toString() )
         {
+            LOG_DEBUG_S << "Different property";
             return false;
         }
 
         if(a->getQualification() != b->getQualification())
         {
+            LOG_DEBUG_S << "Different qualification";
             return false;
         }
         return true;
     }
 
+    LOG_DEBUG_S << "Data/Object Restrictions are incompatible";
     return false;
 }
 
@@ -322,6 +325,10 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(OWLCardinalityRes
                             a->getQualification(),
                             a->getCardinalityRestrictionType());
         }
+    } else {
+        LOG_DEBUG_S << "Restrictions are not overlapping: "
+            << a->toString() << std::endl
+            << b->toString() << std::endl;
     }
     return OWLCardinalityRestriction::Ptr();
 }
@@ -357,6 +364,8 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
                 LOG_DEBUG_S << "Joining succeeded: result is " << restriction->toString();
                 joined = true;
                 break;
+            } else {
+                LOG_DEBUG_S << "Joining failed";
             }
         }
 
@@ -439,6 +448,23 @@ std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getB
     }
 
     return modelCount;
+}
+
+
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::scale(const std::vector<OWLCardinalityRestriction::Ptr>& a, size_t factor)
+{
+    LOG_WARN_S << "Scale restrictions by factor: " << factor;
+    std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions;
+
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = a.begin();
+    for(; cit != a.end(); ++cit)
+    {
+        OWLCardinalityRestriction::Ptr restriction = (*cit)->clone();
+        restriction->setCardinality( restriction->getCardinality() * factor );
+        scaledRestrictions.push_back(restriction);
+    }
+
+    return scaledRestrictions;
 }
 
 } // end namespace model

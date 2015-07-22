@@ -160,6 +160,11 @@ public:
      */
     static std::map<IRI, MinMax> getBounds(const std::vector<OWLCardinalityRestriction::Ptr>& e);
 
+    /**
+     * Scale the cardinality by a given factor
+     */
+    static std::vector<OWLCardinalityRestriction::Ptr> scale(const std::vector<OWLCardinalityRestriction::Ptr>& a, size_t factor);
+
 protected:
     OWLCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t minCardinality, uint32_t maxCardinality, const OWLQualification& qualification);
 

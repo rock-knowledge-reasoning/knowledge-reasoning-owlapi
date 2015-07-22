@@ -290,8 +290,25 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
 
     // Check join
     {
+        {
+            std::vector<OWLCardinalityRestriction::Ptr> restrictionsA;
+            std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
+
+            {
+                OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
+                        oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+
+                restrictionsA.push_back(forkRestriction);
+                restrictionsB.push_back(forkRestriction->clone());
+
+                std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsA, restrictionsB);
+                BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 1, "Joined set expected to reduce to size 1, size was " << cardinalityRestrictions.size());
+            }
+        }
+
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsA;
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
+
         {
             OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
                     oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);

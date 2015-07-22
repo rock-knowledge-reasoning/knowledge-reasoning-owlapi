@@ -431,6 +431,11 @@ owlapi::model::IRIList ResourceMatch::filterSupportedModels(const owlapi::model:
     {
         owlapi::model::IRI serviceModel = *it;
         std::vector<OWLCardinalityRestriction::Ptr> serviceRestriction = ask.getCardinalityRestrictions(serviceModel);
+        LOG_DEBUG_S << "Checking required models:" << std::endl
+            << OWLCardinalityRestriction::toString(serviceRestriction) << std::endl
+            << " vs provided: "
+            << OWLCardinalityRestriction::toString(providerRestrictions);
+
         try {
             ResourceMatch* fulfillment = ResourceMatch::solve(serviceRestriction, providerRestrictions, ontology);
             supportedModels.push_back(serviceModel);
