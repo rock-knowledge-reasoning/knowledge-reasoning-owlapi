@@ -269,10 +269,10 @@ uint32_t ResourceMatch::getInstanceCount(const TypeInstanceMap& map)
 
 ResourceMatch* ResourceMatch::solve(const std::vector<OWLCardinalityRestriction::Ptr>& queryRestrictions, const std::vector<OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, OWLOntology::Ptr ontology)
 {
-    LOG_WARN_S << "Solve: resource pool restrictions" << owlapi::model::OWLCardinalityRestriction::toString(resourcePoolRestrictions);
+    LOG_DEBUG_S << "Solve: resource pool restrictions" << owlapi::model::OWLCardinalityRestriction::toString(resourcePoolRestrictions);
     InstanceList instanceList = getInstanceList(resourcePoolRestrictions, true);
-    LOG_WARN_S << "Solve: instances: " << instanceList;
-    LOG_WARN_S << "Solve: restriction: " << owlapi::model::OWLCardinalityRestriction::toString(queryRestrictions);
+    LOG_DEBUG_S << "Solve: instances: " << instanceList;
+    LOG_DEBUG_S << "Solve: restriction: " << owlapi::model::OWLCardinalityRestriction::toString(queryRestrictions);
     ResourceMatch* match = new ResourceMatch(queryRestrictions, instanceList, ontology);
     ResourceMatch* solvedMatch = match->solve();
     delete match;
