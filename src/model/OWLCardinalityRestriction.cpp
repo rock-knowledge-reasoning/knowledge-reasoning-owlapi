@@ -453,7 +453,7 @@ std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getB
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::scale(const std::vector<OWLCardinalityRestriction::Ptr>& a, size_t factor)
 {
-    LOG_WARN_S << "Scale restrictions by factor: " << factor;
+    LOG_DEBUG_S << "Scale restrictions by factor: " << factor;
     std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions;
 
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = a.begin();
