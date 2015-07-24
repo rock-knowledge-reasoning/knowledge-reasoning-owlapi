@@ -12,7 +12,52 @@ ResourceMatch::ResourceMatch(const std::vector<OWLCardinalityRestriction::Ptr>& 
     : mQueryRestrictions(queryRestrictions)
     , mResourcePool( resources )
     , mSetAssignment(*this, queryRestrictions.size())
+    , mModelAssignment(*this, /*width --> col*/ modelPool.size()*
+            /*height --> row*/ modelBound.size(),0,
+            ModelPool::getMaxResourceCount(modelPool))
 {
+
+    Gecode::Matrix<Gecode::IntVarArray> serviceAssignment(mServiceAssignment, 
+            modelPool.size(), modelBound.size());
+
+    for(size_t ri = 0; ri < mRequiredModels.size(); ++ri)
+    {
+        Gecode::IntVarsArgs args;
+        for(size_t ai = 0; ai < mAvailableModels.size(); ++ai)
+        {
+            Gecode::IntVar m = modelAssignment(ai, mi);
+            args << m;
+
+            // lower bound
+            rel(*this, m, Gecode::IRT_GQ, 0);
+            // upper bound
+            owlapi::model::IRI required = mRequiredModels[ri];
+            owlapi::model::IRI available = mAvailableModels[ai];
+            if(required == available || ask.isSubclassOf(available, required))
+            {
+                rel(*this, Gecode::IRT_LQ, mModelBound[available].max);
+            } else {
+                // does not fulfill the requirement so force count
+                // to 0
+                rel(*this, Gecode::IRT_LQ, 0);
+            }
+        }
+        // row is 
+        rel(*this, sum(args) >= mRequiredModelBound[ri].min);
+    }
+
+    for(size_t ai = 0; ai < mAvailableModels.size(); ++ai)
+    {
+        Gecode::IntVarsArgs args;
+        for(size_t ri = 0; ri < mRequiredModels.size(); ++ri)
+        {
+            Gecode::IntVar m = modelAssignment(ai, mi);
+            args << m;
+        }
+        rel(*this, sum(args) <= mAvailableModelBound[ai].max);
+    }
+
+
     TypeInstanceMap query = ResourceMatch::toTypeInstanceMap(queryRestrictions);
 
     /// Allow mapping from the resources to a given id

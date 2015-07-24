@@ -69,8 +69,16 @@ class ResourceMatch : public Gecode::Space
 
     /**
      * Assignments of query resources to pool resources. This is what has to be solved.
+     *                    available-service-0 available-service1 
+     * requirement
+     * service-0                  1                   2            
+     * service-1                  1
+     *
+     * Constraints apply to min/max of sum of row --> e.g. min/max cardinality of service-0
+     * Constraints apply to min/max of sum of col --> e.g. min/max cardinality of available-service-0
+     * Constraints apply to individual cells due to fulfillment of service (we assume most granular resolution of services)
      */
-    Gecode::SetVarArray mSetAssignment;
+    Gecode::IntVarArray mModelAssignment;
 
     ResourceMatch* solve();
 
