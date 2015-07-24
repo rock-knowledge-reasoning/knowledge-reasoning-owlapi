@@ -141,7 +141,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     {
         IRI iri = *cit;
         std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri);
-        restrictions.insert(restrictions.end(), klassRestrictions.begin(), klassRestrictions.end());
+        restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions);
     }
     return restrictions;
 }
