@@ -88,20 +88,15 @@ BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
         resourcePool.push_back(restriction);
     }
 
-    owlapi::csp::ResourceMatch* match = owlapi::csp::ResourceMatch::solve(query, resourcePool, ontology);
+    using namespace owlapi::csp;
+    ModelBound::List required = ResourceMatch::toModelBoundList(query);
+    ModelBound::List available = ResourceMatch::toModelBoundList(resourcePool);
 
-    BOOST_TEST_MESSAGE("Assignment: " << match->toString());
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = query.begin();
-    for(; cit != query.end(); ++cit)
-    {
-        BOOST_TEST_MESSAGE("Assignment: " << (*cit)->toString() << " -- " << IRI::toString( match->getAssignedResources(*cit) ) );
-    }
-
-    BOOST_TEST_MESSAGE("Unassigned: " << IRI::toString( match->getUnassignedResources() ) );
-    delete match;
+    ResourceMatch::Solution solution = ResourceMatch::solve(query, resourcePool, ontology);
+    BOOST_TEST_MESSAGE("Solution:" << solution.toString());
 }
 
-BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
+BOOST_AUTO_TEST_CASE(test_provider_via_restrictions)
 {
     OWLOntologyReader reader;
     //OWLOntology::Ptr ontology(new OWLOntology());
@@ -124,15 +119,12 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     std::vector<OWLCardinalityRestriction::Ptr> r_stereo_image_provider = ask.getCardinalityRestrictions(stereo_image_provider);
     std::vector<OWLCardinalityRestriction::Ptr> r_location_image_provider = ask.getCardinalityRestrictions(location_image_provider);
 
-    owlapi::csp::ResourceMatch* fulfillment = owlapi::csp::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Sherpa provides MoveTo\nAssignment: " << fulfillment->toString());
-    delete fulfillment;
-    fulfillment = NULL;
+    using namespace owlapi::csp;
+    ResourceMatch::Solution fulfillment = owlapi::csp::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
+    BOOST_TEST_MESSAGE("Sherpa provides MoveTo\nAssignment: " << fulfillment.toString());
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_image_provider, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Sherpa provides ImageProvider\nAssignment: " << fulfillment->toString());
-    delete fulfillment;
-    fulfillment = NULL;
+    BOOST_TEST_MESSAGE("Sherpa provides ImageProvider\nAssignment: " << fulfillment.toString());
 
     {
         OWLObjectProperty::Ptr hasProperty = ask.getOWLObjectProperty( owlapi::vocabulary::OM::resolve("has") );
@@ -141,9 +133,7 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     }
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_stereo_image_provider, r_sherpa, ontology);
-    BOOST_TEST_MESSAGE("Sherpa provides StereoImageProvider\nAssignment: " << fulfillment->toString());
-    delete fulfillment;
-    fulfillment = NULL;
+    BOOST_TEST_MESSAGE("Sherpa provides StereoImageProvider\nAssignment: " << fulfillment.toString());
 
     {
         OWLObjectProperty::Ptr hasProperty = ask.getOWLObjectProperty( owlapi::vocabulary::OM::resolve("has") );
@@ -172,7 +162,7 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
     std::vector<OWLCardinalityRestriction::Ptr> r_sherpa_with_service = ask.getCardinalityRestrictions(sherpa);
     try {
         fulfillment = owlapi::csp::ResourceMatch::solve(r_location_image_provider, r_sherpa_with_service, ontology);
-        BOOST_REQUIRE_MESSAGE(true, "Sherpa provides LocationImageProvider\nAssignment: " << fulfillment->toString());
+        BOOST_REQUIRE_MESSAGE(true, "Sherpa provides LocationImageProvider\nAssignment: " << fulfillment.toString());
     } catch(...)
     {
         BOOST_TEST_MESSAGE("Sherpa does not provide LocationImageProvider\nAssignment failed for: " << location_image_provider);
@@ -182,13 +172,11 @@ BOOST_AUTO_TEST_CASE(csp_test_provider_via_restrictions)
         }
         BOOST_REQUIRE_MESSAGE(false, "Assignment failed");
     }
-    delete fulfillment;
 
     using namespace owlapi::csp;
-    owlapi::csp::ResourceMatch::Ptr fulfillmentResult = ResourceMatch::isSupporting(sherpa, location_image_provider, ontology);
-    if(fulfillmentResult)
+    if( ResourceMatch::isSupporting(sherpa, location_image_provider, ontology) )
     {
-        BOOST_REQUIRE_MESSAGE(true, "Assignment successful: " << fulfillmentResult->toString());
+        BOOST_REQUIRE_MESSAGE(true, "Assignment successful");
     } else {
         BOOST_REQUIRE_MESSAGE(false, "Computing fulfills failed");
     }
@@ -239,6 +227,49 @@ BOOST_AUTO_TEST_CASE(performance_three_sherpa)
     IRI image_provider = owlapi::vocabulary::OM::resolve("ImageProvider");
     IRI stereo_image_provider = owlapi::vocabulary::OM::resolve("StereoImageProvider");
     IRI location_image_provider = owlapi::vocabulary::OM::resolve("LocationImageProvider");
+    IRI emi_power_provider = owlapi::vocabulary::OM::resolve("EmiPowerProvider");
+
+    owlapi::model::IRIList serviceModels;
+    // http://www.rock-robotics.org/2014/01/om-schema#StereoImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#LocationImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#ImageProvider,
+    // http://www.rock-robotics.org/2014/01/om-schema#EmiPowerProvider
+    serviceModels.push_back(location_image_provider);
+    serviceModels.push_back(stereo_image_provider);
+    serviceModels.push_back(image_provider);
+    serviceModels.push_back(move_to);
+    serviceModels.push_back(emi_power_provider);
+
+
+    {
+        owlapi::model::IRIList combinedSystem;
+
+        combinedSystem.push_back(sherpa);
+        combinedSystem.push_back(sherpa);
+        combinedSystem.push_back(sherpa);
+
+        base::Time startTime = base::Time::now();
+        owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);
+        base::Time stopTime = base::Time::now();
+        BOOST_REQUIRE_MESSAGE(supportedModels.size() == serviceModels.size(), "Services supported by sherpa: computing time: " << (stopTime - startTime).toSeconds());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(performance_ten_sherpa)
+{
+    OWLOntologyReader reader;
+    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    ontology->refresh();
+
+    OWLOntologyTell tell(ontology);
+    OWLOntologyAsk ask(ontology);
+    tell.initializeDefaultClasses();
+
+    IRI sherpa = owlapi::vocabulary::OM::resolve("Sherpa");
+    IRI move_to = owlapi::vocabulary::OM::resolve("MoveTo");
+    IRI image_provider = owlapi::vocabulary::OM::resolve("ImageProvider");
+    IRI stereo_image_provider = owlapi::vocabulary::OM::resolve("StereoImageProvider");
+    IRI location_image_provider = owlapi::vocabulary::OM::resolve("LocationImageProvider");
 
     owlapi::model::IRIList serviceModels;
     // http://www.rock-robotics.org/2014/01/om-schema#StereoImageProvider,
@@ -255,9 +286,10 @@ BOOST_AUTO_TEST_CASE(performance_three_sherpa)
     {
         owlapi::model::IRIList combinedSystem;
 
-        combinedSystem.push_back(sherpa);
-        combinedSystem.push_back(sherpa);
-        combinedSystem.push_back(sherpa);
+        for(int i=0; i < 10; ++i)
+        {
+            combinedSystem.push_back(sherpa);
+        }
 
         base::Time startTime = base::Time::now();
         owlapi::model::IRIList supportedModels = owlapi::csp::ResourceMatch::filterSupportedModels(combinedSystem, serviceModels, ontology);

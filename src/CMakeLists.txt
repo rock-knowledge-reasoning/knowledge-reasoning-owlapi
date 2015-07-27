@@ -11,6 +11,7 @@ set(ICU_LIBS icutu
 
 rock_library(owlapi
     SOURCES KnowledgeBase.cpp
+        csp/ModelBound.cpp
         csp/ResourceMatch.cpp
         db/FileBackend.cpp
         db/rdf/SopranoDB.cpp
@@ -50,12 +51,13 @@ rock_library(owlapi
         reasoner/factpp/AxiomVisitor.hpp
         reasoner/factpp/Types.hpp
         Vocabulary.hpp
+        csp/ModelBound.hpp
+        csp/ResourceMatch.hpp
         db/FileBackend.hpp
         db/rdf/SopranoDB.hpp
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
         db/rdf/Sparql.hpp
-        csp/ResourceMatch.hpp
         KnowledgeBase.hpp
         vocabularies/OWL.hpp
         vocabularies/OM.hpp

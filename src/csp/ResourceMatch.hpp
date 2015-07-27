@@ -7,6 +7,7 @@
 
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/model/OWLOntologyAsk.hpp>
+#include <owlapi/csp/ModelBound.hpp>
 #include <base/Logging.hpp>
 
 namespace owlapi {
@@ -62,10 +63,8 @@ typedef owlapi::model::IRIList TypeList;
  */
 class ResourceMatch : public Gecode::Space
 {
-    std::vector<owlapi::model::OWLCardinalityRestriction::Ptr> mQueryRestrictions;
-    std::vector<owlapi::model::OWLCardinalityRestriction::Ptr> mResourcePoolRestrictions;
-    std::map<owlapi::model::OWLCardinalityRestriction::Ptr, InstanceList> mSolution;
-    InstanceList mResourcePool;
+    ModelBound::List mRequiredModelBound;
+    ModelBound::List mAvailableModelBound;
 
     /**
      * Assignments of query resources to pool resources. This is what has to be solved.
@@ -83,8 +82,9 @@ class ResourceMatch : public Gecode::Space
     ResourceMatch* solve();
 
 protected:
-    ResourceMatch(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
-            const InstanceList& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
+    ResourceMatch(const ModelBound::List& required,
+            const ModelBound::List& provided,
+            owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Search support
@@ -98,99 +98,28 @@ protected:
      */
     virtual Gecode::Space* copy(bool share);
 
-    /**
-     * Convert restrictions to type instance map, where a qualification is
-     * mapped to a list of instances (identified by an id)
-     * \return Type to instances map
-     */
-    static TypeInstanceMap toTypeInstanceMap(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
-
-    /**
-     * Get the list of types that are given by the restrictions
-     * \return List of types
-     */
-    static TypeList getTypeList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
-
-    /**
-     * Identify the allowed types, i.e., what items in the pool can fulfill the
-     * items in the query.
-     * Either items of the same class or subclasses are allowed
-     */
-    static AllowedTypesMap getAllowedTypes(const TypeInstanceMap& query, const TypeInstanceMap& pool,
-            owlapi::model::OWLOntology::Ptr ontology);
-
-    /**
-     * Compute the allowed domains for Gecode.
-     * This the qualification item to the actual instances that can 'fulfill'
-     * this qualification item.
-     */
-    static std::vector<int> getAllowedDomain(const owlapi::model::IRI& qualificationItem,
-            const AllowedTypesMap& allowedTypes, const TypeInstanceMap& typeInstanceMap);
-
-    /**
-     * Compute the number of all instances in a TypeInstanceMap
-     * \return Number of instances
-     */
-    static uint32_t getInstanceCount(const TypeInstanceMap& map);
-
-    /**
-     * Map solution from internally used integer list to input format, i.e.
-     * cardinality restrictions
-     */
-    void remapSolution();
-
 public:
     typedef boost::shared_ptr<ResourceMatch> Ptr;
+    struct Solution
+    {
+        ModelBound::List modelBounds;
+        std::string toString() const
+        {
+            return ModelBound::toString(modelBounds);
+        }
+    };
+
+    ResourceMatch::Solution getSolution() const;
 
     void print(std::ostream& os) const;
 
-    /**
-     * Convert restriction list to a list of instances, e.g., a restriction of min 4 items will be
-     * converted to a list of items (qualification of the restriction) where the
-     * list has size 4
-     * This assumes a compact representation of the query restrictions, i.e.
-     * maximum of 1 Exact of Min/Max Pair per overlapping restriction
-     *
-     * \todo Different policies can be applied here in order to interprete the
-     * cardinality restriction either pessimistically or optimistically, e.g.
-     * when given min/max --> min provides a lower bound for the pessimistic
-     * computation, while max and upper for the optimistic computation
-     *
-     * \param list of min,max and exact cardinality restrictions (which apply to
-     * the same property)
-     *
-     * \return List of (model) instances
-     */
-    static InstanceList getInstanceList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions, bool useMaxCardinality = false);
+    static ResourceMatch::Solution solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& modelRequirements,
+            const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& providerResources,
+            owlapi::model::OWLOntology::Ptr ontology);
 
-    /*
-     * constrain function for best solution search. the
-     * currently best solution _b is passed and we have to constraint that this solution can only
-     * be better than b, for it to be excluded if it isn't
-     */
-    //virtual void constrain(const Gecode::Space& _b);
-
-    /**
-     * Construct a solution with an initial situation to search
-     * \throw std::runtime_error if a solution could not be found
-     * \return Solution to the constrained satisfaction problem as ResourceMatch
-     * object, receiver takes over ownership, i.e. object needs to be deleted
-     * \throws std::runtime_error if no solution could be found
-     */
-    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
-            const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& resourcePoolRestrictions, owlapi::model::OWLOntology::Ptr ontology);
-
-    /**
-     * Solve the given constraint satisfaction problem
-     * \param queryRestrictions The restrictions to be fulfilled
-     * \param resourcePool The items available to fulfill the restriction
-     * \param ontology Ontology to check whether an item in the resource pool is a valid replacement for an item in the query
-     * \return Solution to the constrained satisfaction problem as ResourceMatch
-     * object, receiver takes over ownership, i.e. object needs to be deleted
-     * \throws std::runtime_error if no solution could be found
-     */
-    static ResourceMatch* solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& queryRestrictions,
-            const InstanceList& resourcePool, owlapi::model::OWLOntology::Ptr ontology);
+    static ResourceMatch::Solution solve(const ModelBound::List& required,
+            const ModelBound::List& available,
+            owlapi::model::OWLOntology::Ptr ontology);
 
     /**
      * Create a string representation of this object
@@ -198,29 +127,22 @@ public:
      */
     std::string toString() const;
 
-    /**
-     * Retrieve assignment of a solution for a given restriction
-     * \return InstanceList that has been assigned from the resourcePool to
-     * fulfill this restriction
-     */
-    InstanceList getAssignedResources(owlapi::model::OWLCardinalityRestriction::Ptr restriction) const;
-
-    /**
-     * Retrieve the list of resources that remain unassigned
-     * \return InstanceList representing unassigned resources
-     */
-    InstanceList getUnassignedResources() const;
+    static ModelBound::List toModelBoundList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
 
     /**
      * Check if the serviceModel is supported by the providerModel
      * \param providerModel
      * \param serviceModel
      * \param resourceMatch
-     * \return Pointer to resource match, which is NULL if there is no solution
+     * \return True if the providerModel supports the serviceModel
      */
-    static ResourceMatch::Ptr isSupporting(const owlapi::model::IRI& providerModel, const owlapi::model::IRI& serviceModel,
+    static bool isSupporting(const owlapi::model::IRI& providerModel, const owlapi::model::IRI& serviceModel,
             owlapi::model::OWLOntology::Ptr ontology);
 
+
+    static bool isSupporting(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& providerRestrictions,
+            const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& serviceRestrictions,
+            owlapi::model::OWLOntology::Ptr ontology);
     /**
      * Compute for a given set of model and possible models, the available
      * set of supported models, i.e., fulfilling the restrictions
