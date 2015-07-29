@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_DATA_PROPERTY_HPP
 
 #include <owlapi/model/OWLProperty.hpp>
+#include <owlapi/model/OWLDataRange.hpp>
 #include <owlapi/model/OWLDataPropertyExpression.hpp>
 
 namespace owlapi {
@@ -16,15 +17,23 @@ class OWLDataProperty : public OWLDataPropertyExpression, public OWLProperty
 public:
         typedef boost::shared_ptr<OWLDataProperty> Ptr;
 
-        OWLDataProperty(const IRI& iri)
-            : OWLDataPropertyExpression()
-            , OWLProperty(iri)
-        {}
-
-        virtual ~OWLDataProperty() {}
+        OWLDataProperty(const IRI& iri);
+        virtual ~OWLDataProperty();
 
         bool isDataPropertyExpression() const { return true; }
         bool isObjectPropertyExpression() const { return false; }
+
+        /**
+         * Add a data range
+         * \throw std::invalid_argument if given range is not a data range
+         */
+        virtual void addRange(const OWLPropertyRange::Ptr& range);
+
+        /**
+         * Return the data ranges
+         */
+        OWLDataRange::PtrList getDataRanges() const;
+
 };
 
 } // end namespace model

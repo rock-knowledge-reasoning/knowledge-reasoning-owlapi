@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <owlapi/model/IRI.hpp>
+#include <owlapi/model/OWLDataType.hpp>
 #include <owlapi/model/OWLPropertyAssertionObject.hpp>
 
 namespace owlapi {
@@ -60,6 +61,12 @@ public:
      * \return pointer to an inbuilt literal type
      */
     static OWLLiteral::Ptr create(const std::string& literal);
+
+    /**
+     * Create a literal based on the given string and type information
+     * \return point to an inbuilt literal type
+     */
+    static OWLLiteral::Ptr create(const std::string& literal, const OWLDataType& type);
 
     virtual int getInteger() const;
 

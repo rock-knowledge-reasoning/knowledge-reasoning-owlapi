@@ -204,6 +204,17 @@ void OWLOntologyReader::load()
     }
 
     // Properties
+    // http://www.w3.org/TR/owl-ref/
+    //
+    // An object property is defined as an instance of the built-in OWL class
+    // owl:ObjectProperty.
+    //
+    // A datatype property is defined as an instance of the built-in OWL class
+    // owl:DatatypeProperty.
+    //
+    // Both owl:ObjectProperty and owl:DatatypeProperty
+    // are subclasses of the RDF class rdf:Property (see Appendix B). 
+    //
     // Delayed execution since we need to know whether we deal with an object or datatype property
     // TODO Property check
     {
@@ -211,12 +222,11 @@ void OWLOntologyReader::load()
         ResultsIterator it(results);
         while(it.next())
         {
-
             IRI subject = it[Subject()];
-            if( mAsk->isSubclassOf(subject, vocabulary::OWL::ObjectProperty()))
+            if( mAsk->isObjectProperty(subject))
             {
                 mTell->functionalObjectProperty(subject);
-            } else if ( mAsk->isSubclassOf(subject, vocabulary::OWL::DatatypeProperty()) )
+            } else if ( mAsk->isDataProperty(subject) )
             {
                 mTell->functionalDataProperty(subject);
             } else {
@@ -332,6 +342,76 @@ void OWLOntologyReader::load()
     }
 
     loadObjectProperties();
+    loadDataProperties();
+}
+
+void OWLOntologyReader::loadDataProperties()
+{
+    using namespace db::query;
+
+    IRIList dataProperties = mAsk->allDataProperties();
+    IRIList::const_iterator cit = dataProperties.begin();
+    for(; cit != dataProperties.end(); ++cit)
+    {
+        IRI relation = *cit;
+        Results results = findAll(Subject(), relation, Object());
+        ResultsIterator it(results);
+
+        // Setting domain of property
+        {
+            Results domain = findAll(relation, vocabulary::RDFS::domain(), Object());
+            if(!domain.empty())
+            {
+                ResultsIterator domainIt(domain);
+                while(domainIt.next())
+                {
+                    IRI classType = domainIt[Object()];
+                    mTell->dataPropertyDomainOf(relation, classType);
+                }
+            }
+        }
+        // Setting range of property
+        {
+            Results range = findAll(relation, vocabulary::RDFS::range(), Object());
+            if(!range.empty())
+            {
+                ResultsIterator rangeIt(range);
+                while(rangeIt.next())
+                {
+                    IRI classType = rangeIt[Object()];
+                    mTell->dataPropertyRangeOf(relation, classType);
+                }
+            }
+        }
+    }
+
+    cit = dataProperties.begin();
+    for(; cit != dataProperties.end(); ++cit)
+    {
+        IRI relation = *cit;
+        Results results = findAll(Subject(), relation, Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI object = it[Object()];
+
+            LOG_DEBUG_S << subject << " " << relation << " " << object;
+
+            OWLDataRange::PtrList ranges = mAsk->getDataRange(relation);
+            if(!ranges.empty())
+            {
+                OWLDataType dataType = OWLDataType::fromRange(ranges[0]);
+                OWLLiteral::Ptr literal = OWLLiteral::create(object.toString(), dataType);
+                mTell->valueOf(subject, relation, literal);
+            } else {
+                throw std::runtime_error("owlapi::model::OWLOntologyReader::fromFile: "
+                        " cannot set data property: " + relation.toString() + " on"
+                        " '" + subject.toString() + "' since data range is not specified"
+                        " for this property");
+            }
+        }
+    }
 }
 
 void OWLOntologyReader::loadObjectProperties()

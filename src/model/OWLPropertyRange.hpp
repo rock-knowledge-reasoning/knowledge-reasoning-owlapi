@@ -13,7 +13,13 @@ namespace model {
 class OWLPropertyRange : public OWLObject//, SWRLPredicate
 {
 public:
+    typedef boost::shared_ptr<OWLPropertyRange> Ptr;
+    typedef std::vector<Ptr> PtrList;
+
     virtual ~OWLPropertyRange() {}
+
+    virtual bool isDataRange() const { return false; }
+    virtual bool isObjectRange() const { return false; }
 };
 
 } // end namespace model

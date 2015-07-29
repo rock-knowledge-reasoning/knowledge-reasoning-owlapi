@@ -25,6 +25,7 @@ protected:
     void load();
 
     void loadObjectProperties();
+    void loadDataProperties();
 
 public:
     /**

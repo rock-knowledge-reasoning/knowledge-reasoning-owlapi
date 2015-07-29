@@ -9,7 +9,7 @@ using namespace owlapi::model;
 
 BOOST_AUTO_TEST_SUITE(ontology)
 
-BOOST_AUTO_TEST_CASE(it_should_load_restrictions)
+BOOST_AUTO_TEST_CASE(load_restrictions)
 {
     OWLOntologyReader reader;
     OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
@@ -38,6 +38,37 @@ BOOST_AUTO_TEST_CASE(it_should_load_restrictions)
         {
             BOOST_TEST_MESSAGE("Restrictions: " << (*cit)->toString());
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(punning)
+{
+    OWLOntologyReader reader;
+    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.9.owl");
+    OWLOntologyAsk ask(ontology);
+
+    using namespace owlapi::model;
+    {
+        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
+        IRI property = owlapi::vocabulary::OM::resolve("maxVelocity");
+
+        OWLLiteral::Ptr value = ask.getDataValue(actor, property);
+
+        BOOST_REQUIRE_MESSAGE(value, "Data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+    }
+    {
+        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
+        IRI property = owlapi::vocabulary::OM::resolve("probabilityOfFailure");
+
+        OWLLiteral::Ptr value = ask.getDataValue(actor, property);
+
+        BOOST_REQUIRE_MESSAGE(value, "Data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+    }
+    {
+        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
+        IRI property = owlapi::vocabulary::OM::resolve("notExistingProperty");
+
+        BOOST_REQUIRE_THROW(ask.getDataValue(actor, property), std::invalid_argument);
     }
 }
 

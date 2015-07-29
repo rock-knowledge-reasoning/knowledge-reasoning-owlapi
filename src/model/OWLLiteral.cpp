@@ -52,6 +52,11 @@ OWLLiteral::Ptr OWLLiteral::create(const std::string& literal)
     }
 }
 
+OWLLiteral::Ptr OWLLiteral::create(const std::string& literal, const OWLDataType& type)
+{
+    return create( literal + "^^" + type.getIRI().toString());
+}
+
 int OWLLiteral::getInteger() const
 {
     try {

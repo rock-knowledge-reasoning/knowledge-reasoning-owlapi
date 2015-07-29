@@ -3,6 +3,8 @@
 
 #include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
+#include <owlapi/model/OWLPropertyRange.hpp>
+#include <owlapi/model/OWLClassExpression.hpp>
 
 namespace owlapi {
 namespace model {
@@ -15,12 +17,26 @@ class OWLPropertyExpression : public OWLObject
 public:
     typedef boost::shared_ptr<OWLPropertyExpression> Ptr;
 
-    virtual ~OWLPropertyExpression() {}
+    virtual ~OWLPropertyExpression();
 
-    virtual bool isDataPropertyExpression() const { throw std::runtime_error("OWLPropertyExpression::isDataPropertyExpression: not implemented"); }
-    virtual bool isObjectPropertyExpression() const { throw std::runtime_error("OWLPropertyExpression::isObjectPropertyExpression: not implemented"); }
+    virtual bool isDataPropertyExpression() const;
+    virtual bool isObjectPropertyExpression() const;
+
+    virtual void addRange(const OWLPropertyRange::Ptr& range) { mRanges.push_back(range); }
+    void setRanges(const std::vector<OWLPropertyRange::Ptr>& ranges);
+
+    virtual std::vector<OWLPropertyRange::Ptr> getRanges() const { return mRanges; }
+
+    void addDomain(const OWLClassExpression::Ptr& classExpression) { mDomains.push_back(classExpression); }
+    void setDomains(const std::vector<OWLClassExpression::Ptr>& classExpressions) { mDomains = classExpressions; }
+
+    std::vector<OWLClassExpression::Ptr> getDomains() const { return mDomains; }
 
     virtual std::string toString() const { throw std::runtime_error("OWLPropertyExpression::toString: not implemented"); }
+
+protected:
+    std::vector<OWLPropertyRange::Ptr> mRanges;
+    std::vector<OWLClassExpression::Ptr> mDomains;
 };
 
 } // end namespace model

@@ -26,6 +26,9 @@ rock_library(owlapi
         model/OWLClassAssertionAxiom.cpp
         model/OWLClassExpression.cpp
         model/OWLDataPropertyAssertionAxiom.cpp
+        model/OWLDataRange.cpp
+        model/OWLDataType.cpp
+        model/OWLDataProperty.cpp
         model/OWLDeclarationAxiom.cpp
         model/OWLDisjointClassesAxiom.cpp
         model/OWLDisjointUnionAxiom.cpp
@@ -36,6 +39,7 @@ rock_library(owlapi
         model/OWLLiteralDouble.cpp
         model/OWLObject.cpp
         model/OWLObjectPropertyAssertionAxiom.cpp
+        model/OWLPropertyExpression.cpp
         model/OWLOntology.cpp
         model/OWLOntologyAsk.cpp
         model/OWLOntologyReader.cpp
@@ -98,7 +102,7 @@ rock_library(owlapi
         model/OWLDataProperty.hpp
         model/OWLLogicalEntity.hpp
         model/IRI.hpp
-        model/OWLDatatype.hpp
+        model/OWLDataType.hpp
         model/OWLClass.hpp
         model/OWLPropertyAssertionAxiom.hpp
         model/OWLObjectMaxCardinality.hpp

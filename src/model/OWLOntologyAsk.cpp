@@ -188,6 +188,17 @@ IRIList OWLOntologyAsk::allObjectProperties() const
     return list;
 }
 
+IRIList OWLOntologyAsk::allDataProperties() const
+{
+    IRIList list;
+    std::map<IRI, OWLDataProperty::Ptr>::const_iterator cit = mpOntology->mDataProperties.begin();
+    for(; cit != mpOntology->mDataProperties.end(); ++cit)
+    {
+        list.push_back(cit->first);
+    }
+    return list;
+}
+
 bool OWLOntologyAsk::isInstanceOf(const IRI& instance, const IRI& klass) const
 {
     return mpOntology->kb()->isInstanceOf(instance, klass);
@@ -227,9 +238,48 @@ OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance, const IRI& dat
     return OWLLiteral::create(valueRepresentation);
 }
 
+IRIList OWLOntologyAsk::getDataDomain(const IRI& dataProperty) const
+{
+    return mpOntology->kb()->getDataPropertyDomain(dataProperty);
+}
+
+OWLDataRange::PtrList OWLOntologyAsk::getDataRange(const IRI& dataProperty) const
+{
+    std::map<IRI, OWLDataProperty::Ptr>::const_iterator cit = mpOntology->mDataProperties.find(dataProperty);
+    if(cit != mpOntology->mDataProperties.end())
+    {
+        const OWLDataProperty::Ptr& property = cit->second;
+        return property->getDataRanges();
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataRange: "
+            " no data property '" + dataProperty.toString() + "' found");
+}
+
 IRIList OWLOntologyAsk::ancestors(const IRI& instance) const
 {
     return mpOntology->kb()->typesOf(instance);
+}
+
+bool OWLOntologyAsk::isObjectProperty(const IRI& property) const
+{
+    try {
+        mpOntology->kb()->getObjectProperty(property);
+        return true;
+    } catch(const std::exception& e)
+    {
+        return false;
+    }
+}
+
+bool OWLOntologyAsk::isDataProperty(const IRI& property) const
+{
+    try {
+        mpOntology->kb()->getDataProperty(property);
+        return true;
+    } catch(const std::exception& e)
+    {
+        return false;
+    }
 }
 
 } // end namespace model

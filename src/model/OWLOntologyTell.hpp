@@ -92,11 +92,19 @@ public:
     void functionalDataProperty(const IRI& property);
     void relatedTo(const IRI& subject, const IRI& relation, const IRI& object);
     void dataPropertyDomainOf(const IRI& relation, const IRI& classType);
+    void dataPropertyRangeOf(const IRI& relation, const IRI& classType);
     void objectPropertyDomainOf(const IRI& relation, const IRI& classType);
     void objectPropertyRangeOf(const IRI& relation, const IRI& classType);
     void inverseOf(const IRI& relation, const IRI& inverseType);
 
     // DataPropertyAssert
+    /**
+     * Setting the data property for a given instance to the value given by
+     * literal
+     * \param instance Instance name
+     * \param dataProperty DataProperty name
+     * \param literal Literal containing the value
+     */
     void valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
     void restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 

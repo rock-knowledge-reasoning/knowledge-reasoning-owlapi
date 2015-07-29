@@ -102,6 +102,11 @@ public:
     IRIList allObjectProperties() const;
 
     /**
+     * Retrieve all known data(type) properties
+     */
+    IRIList allDataProperties() const;
+
+    /**
      * Test if instance is type of a class
      * \param instance Instance identifier
      * \param klass Class identifier
@@ -145,10 +150,38 @@ public:
     OWLLiteral::Ptr getDataValue(const IRI& instance, const IRI& dataProperty) const;
 
     /**
+     * Get the data domain for the given data propery
+     * \throw std::invalid_argument if data property is not known
+     */
+    IRIList getDataDomain(const IRI& dataProperty) const;
+
+    /**
+     * Get the data range for the given data property
+     * \throw std::invalid_argument if data property is not known
+     */
+    OWLDataRange::PtrList getDataRange(const IRI& dataProperty) const;
+
+    /**
      * Retrieve the list of ancestors
      * \return list of ancestors
      */
     IRIList ancestors(const IRI& instance) const;
+
+    /**
+     * Check is the given property is an object property, i.e.
+     * check if property is an instance of ObjectProperty
+     *
+     * \see  http://www.w3.org/TR/owl-ref/
+     */
+    bool isObjectProperty(const IRI& property) const;
+
+    /**
+     * Check if the given property is a data(type) property, i.e.
+     * check if property is an instance of DatatypeProperty
+     *
+     * \see http://www.w3.org/TR/owl-ref
+     */
+    bool isDataProperty(const IRI& property) const;
 };
 
 } // end namespace model
