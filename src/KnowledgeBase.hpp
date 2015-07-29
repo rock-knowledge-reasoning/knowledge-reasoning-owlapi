@@ -463,7 +463,17 @@ public:
      */
     IRIList getObjectPropertyRange(const IRI& property, bool direct = true) const;
 
+    /**
+     * Get data property
+     * \param property Name of property
+     * \throw std::invalid_argument when property is not known
+     */
     reasoner::factpp::DataPropertyExpression getDataProperty(const IRI& property) const;
+
+    /**
+     * Get data property or register if it is unknown
+     * \param property Name of property
+     */
     reasoner::factpp::DataPropertyExpression getDataPropertyLazy(const IRI& property);
 
     /**
