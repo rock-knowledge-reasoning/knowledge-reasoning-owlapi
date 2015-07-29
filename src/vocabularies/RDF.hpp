@@ -30,6 +30,7 @@ public:
     VOCABULARY_ADD_WORD(_1);
     VOCABULARY_ADD_WORD(_2);
     VOCABULARY_ADD_WORD(_3);
+    VOCABULARY_ADD_WORD(PlainLiteral);
 };
 
 } // end namespace vocabulary
