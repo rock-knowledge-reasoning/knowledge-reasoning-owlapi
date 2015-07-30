@@ -62,7 +62,27 @@ BOOST_AUTO_TEST_CASE(punning)
 
         OWLLiteral::Ptr value = ask.getDataValue(actor, property);
 
-        BOOST_REQUIRE_MESSAGE(value, "Data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+        BOOST_REQUIRE_MESSAGE(value, "Data value of " << actor << " for " << property << " is found: " << value->getDouble());
+
+        {
+            using namespace owlapi::vocabulary;
+            IRIList domains = ask.getDataPropertyDomain(property, true);
+
+            BOOST_REQUIRE_MESSAGE(domains.size() == 1, "Domains for property for '" << property << "' should not be empty "
+                    << " was " << domains);
+        }
+
+        {
+            IRIList domains = ask.getDataPropertyDomain(property, false);
+            BOOST_REQUIRE_MESSAGE(!domains.empty(), "Domains for property '" << property << "' should not be empty"
+                    << " was " << domains);
+        }
+
+        {
+            IRIList properties = ask.getDataPropertiesForDomain(actor);
+            BOOST_REQUIRE_MESSAGE(!properties.empty(), "Properties for '" << actor << "' should not be empty, was " << properties);
+
+        }
     }
     {
         IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
