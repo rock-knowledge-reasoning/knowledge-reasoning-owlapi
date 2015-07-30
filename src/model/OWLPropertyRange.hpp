@@ -8,7 +8,10 @@ namespace model {
 
 /**
  * \class OWLPropertyRange
- * \brief Emptry class serving as marker interface for objects that can be the ranges of properties
+ * \brief Marker class for objects that can be the ranges of properties
+ * \details Multiple range restrictions are interpreted as stating that the range of the
+ * property is the intersection of all ranges
+ * \see http://www.w3.org/TR/2003/WD-owl-ref-20030221/#range-def
  */
 class OWLPropertyRange : public OWLObject//, SWRLPredicate
 {
