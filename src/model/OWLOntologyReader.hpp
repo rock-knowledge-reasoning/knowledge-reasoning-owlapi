@@ -18,12 +18,17 @@ class OWLOntologyReader
     OWLOntologyTell* mTell;
     OWLOntologyAsk* mAsk;
 
+    std::vector<IRI> mRestrictions;
+    std::map<IRI, std::vector<OWLClass::Ptr> > mAnonymousRestrictions;
+    std::map<IRI, OWLCardinalityRestriction> mCardinalityRestrictions;
+
 protected:
 
     db::query::Results findAll(const db::query::Variable& subject, const db::query::Variable& predicate, const db::query::Variable& object) const;
 
     void load();
 
+    void loadRestrictions();
     void loadObjectProperties();
     void loadDataProperties();
 
