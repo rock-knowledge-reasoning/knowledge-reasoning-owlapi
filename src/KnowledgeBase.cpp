@@ -188,30 +188,30 @@ KnowledgeBase::KnowledgeBase()
 
     using namespace owlapi::vocabulary;
 
-    mDataTypes[XSD::resolve("double").toString()] = getExpressionManager()->getRealDataType();
-    mDataTypes[XSD::resolve("float").toString()] = getExpressionManager()->getRealDataType();
+    mDataTypes[XSD::resolve("double")] = getExpressionManager()->getRealDataType();
+    mDataTypes[XSD::resolve("float")] = getExpressionManager()->getRealDataType();
 
-    mDataTypes[XSD::resolve("long").toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::resolve("int").toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::resolve("short").toString()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::resolve("long")] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::resolve("int")] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::resolve("short")] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::nonNegativeInteger().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::nonPositiveInteger().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::positiveInteger().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::negativeInteger().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::integer().toString()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::nonNegativeInteger()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::nonPositiveInteger()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::positiveInteger()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::negativeInteger()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::integer()] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::byte().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedLong().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedInt().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedShort().toString()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedByte().toString()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::byte()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::unsignedLong()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::unsignedInt()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::unsignedShort()] = getExpressionManager()->getIntDataType();
+    mDataTypes[XSD::unsignedByte()] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::decimal().toString()] = getExpressionManager()->getRealDataType();
-    mDataTypes[XSD::string().toString()] = getExpressionManager()->getStrDataType();
+    mDataTypes[XSD::decimal()] = getExpressionManager()->getRealDataType();
+    mDataTypes[XSD::string()] = getExpressionManager()->getStrDataType();
 
-    mDataTypes[XSD::dateTime().toString()] = getExpressionManager()->getTimeDataType();
-    mDataTypes[XSD::dateTimeStamp().toString()] = getExpressionManager()->getTimeDataType();
+    mDataTypes[XSD::dateTime()] = getExpressionManager()->getTimeDataType();
+    mDataTypes[XSD::dateTimeStamp()] = getExpressionManager()->getTimeDataType();
 }
 
 KnowledgeBase::~KnowledgeBase()
@@ -302,13 +302,13 @@ bool KnowledgeBase::isFunctionalProperty(const IRI& property)
     try {
         ObjectPropertyExpression e_property = getObjectProperty(property);
         return mKernel->isFunctional(e_property.get());
-    } catch(...)
+    } catch(const std::invalid_argument& e)
     {}
 
     try {
         DataPropertyExpression e_property = getDataProperty(property);
         return mKernel->isFunctional(e_property.get());
-    } catch(...)
+    } catch(const std::invalid_argument& e)
     {}
 
     throw std::invalid_argument("KnowledgeBase::isFunctionalProperty: Property '" + property.toString() + "' is not a known data or object property");
@@ -617,8 +617,31 @@ Axiom KnowledgeBase::rangeOf(const IRI& property, const IRI& range, PropertyType
 
 Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const DataValue& dataValue)
 {
-    TDLAxiom* axiom = mKernel->valueOf( getInstance(individual).get(), getDataProperty(property).get(),dataValue.get());
-    return Axiom(axiom);
+    // Make sure the database remains consistent when handling functional
+    // properties, i.e. you cannot associate two valueOf statement with a
+    // functional property
+    std::pair<IRI,IRI> key(individual, property);
+    if(isFunctionalProperty(property))
+    {
+        DataValueMap::iterator it = mValueOfAxioms.find(key);
+        if(it != mValueOfAxioms.end())
+        {
+            Axiom::List& list = it->second;
+            Axiom::List::const_iterator cit = list.begin();
+            for(; cit != list.end(); ++cit)
+            {
+                LOG_WARN_S << "Retracting existing value: " << individual << " " << property;
+                retract(*cit);
+            }
+            mValueOfAxioms.erase(it);
+        }
+    }
+
+    TDLAxiom* tdlAxiom = mKernel->valueOf( getInstance(individual).get(), getDataProperty(property).get(), dataValue.get());
+    Axiom axiom(tdlAxiom);
+    mValueOfAxioms[key].push_back(axiom);
+
+    return axiom;
 }
 
 DataValue KnowledgeBase::dataValue(const std::string& value, const std::string& dataType)
@@ -1208,9 +1231,9 @@ IRIList KnowledgeBase::uniqueList(const IRIList& individuals)
     return unique;
 }
 
-void KnowledgeBase::retract(Axiom& a)
+void KnowledgeBase::retract(const Axiom& a)
 {
-    mKernel->retract(a.get());
+    mKernel->retract(const_cast<TDLAxiom*>(a.get()));
 }
 
 bool KnowledgeBase::assertAndAddRelation(const IRI& instance, const IRI& relation, const IRI& otherInstance)
@@ -1243,7 +1266,7 @@ DataValue KnowledgeBase::getDataValue(const IRI& instance, const IRI& dataProper
     {
         TDLAxiomValueOf* valueAxiom = dynamic_cast<TDLAxiomValueOf*>(axiom);
         DataPropertyExpression dataPropertyExpression = getDataProperty(dataProperty);
-        if(valueAxiom && dataPropertyExpression.get() == valueAxiom->getAttribute())
+        if(valueAxiom && valueAxiom->isUsed() && dataPropertyExpression.get() == valueAxiom->getAttribute())
         {
             return DataValue( valueAxiom->getValue());
         }

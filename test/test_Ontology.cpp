@@ -46,15 +46,28 @@ BOOST_AUTO_TEST_CASE(punning)
     OWLOntologyReader reader;
     OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.9.owl");
     OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
 
     using namespace owlapi::model;
     {
         IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
         IRI property = owlapi::vocabulary::OM::resolve("maxVelocity");
 
-        OWLLiteral::Ptr value = ask.getDataValue(actor, property);
+        {
+            // Data retrieval
+            OWLLiteral::Ptr value = ask.getDataValue(actor, property);
+            BOOST_REQUIRE_MESSAGE(value, "Predefined data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+        }
 
-        BOOST_REQUIRE_MESSAGE(value, "Data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+        {
+            // Data setting
+            OWLLiteral::Ptr value = OWLLiteral::create("7.3", owlapi::vocabulary::XSD::resolve("double"));
+            tell.valueOf(actor, property, value);
+            ontology->refresh();
+
+            value = ask.getDataValue(actor, property);
+            BOOST_REQUIRE_MESSAGE(value->getDouble() == 7.3, "Updated data value of " << actor.toString() << " for " << property.toString() << " is found: " << value->getDouble());
+        }
     }
     {
         IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");

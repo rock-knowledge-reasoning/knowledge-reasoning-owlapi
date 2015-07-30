@@ -26,6 +26,8 @@ class Axiom
     TDLAxiom* mAxiom;
 
 public:
+    typedef std::vector<Axiom> List;
+
     Axiom(TDLAxiom* axiom);
 
     const TDLAxiom* get() const { return mAxiom; } 

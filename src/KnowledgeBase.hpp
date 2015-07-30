@@ -30,6 +30,7 @@ typedef std::map<IRI, reasoner::factpp::InstanceExpression > IRIInstanceExpressi
 typedef std::map<IRI, reasoner::factpp::ObjectPropertyExpression > IRIObjectPropertyExpressionMap;
 typedef std::map<IRI, reasoner::factpp::DataPropertyExpression > IRIDataPropertyExpressionMap;
 typedef std::map<IRI, reasoner::factpp::DataTypeName > IRIDataTypeMap;
+typedef std::map< std::pair<IRI, IRI>, reasoner::factpp::Axiom::List> DataValueMap;
 
 enum Representation { UNKNOWN = 0, LISP = 1 };
 
@@ -52,6 +53,8 @@ class KnowledgeBase
     IRIObjectPropertyExpressionMap mObjectProperties;
     IRIDataPropertyExpressionMap mDataProperties;
     IRIDataTypeMap mDataTypes;
+
+    DataValueMap mValueOfAxioms;
 
     bool hasClass(const IRI& klass) const { return mClasses.count(klass); }
 
@@ -628,7 +631,7 @@ public:
     /**
      * Remove axiom from the knowledge base
      */
-    void retract(reasoner::factpp::Axiom& a);
+    void retract(const reasoner::factpp::Axiom& a);
 
     /**
      * Test relation i.e. check if knowledge base remains consistent and add result if successfully asserted
