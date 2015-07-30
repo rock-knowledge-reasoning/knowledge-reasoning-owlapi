@@ -25,7 +25,7 @@ public:
     {
     }
 
-    owlapi::model::IRI operator[](const std::string& name) const { return mBase.resolve(name); }
+    owlapi::model::IRI resolve(const std::string& name) const { return mBase.resolve(name); }
 };
 
 } // end namespace vocabulary
