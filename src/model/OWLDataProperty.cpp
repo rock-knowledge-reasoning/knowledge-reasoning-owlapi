@@ -1,4 +1,5 @@
 #include "OWLDataProperty.hpp"
+#include <sstream>
 #include <stdexcept>
 
 namespace owlapi {
@@ -34,6 +35,13 @@ OWLDataRange::PtrList OWLDataProperty::getDataRanges() const
         ranges.push_back( range );
     }
     return ranges;
+}
+
+std::string OWLDataProperty::toString() const
+{
+    std::stringstream ss;
+    ss << "OWLDataProperty: " << getIRI();
+    return ss.str();
 }
 
 } // end namespace model

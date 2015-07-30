@@ -34,6 +34,7 @@ public:
          */
         OWLDataRange::PtrList getDataRanges() const;
 
+        std::string toString() const;
 };
 
 } // end namespace model
