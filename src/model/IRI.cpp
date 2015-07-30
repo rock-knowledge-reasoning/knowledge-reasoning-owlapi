@@ -63,7 +63,8 @@ bool IRI::isAbsolute() const
         if( !(isalpha(ch) || isdigit(ch) || ch == '.' ||
                     ch == '+' || ch == '-'))
         {
-            LOG_WARN_S << "owlapi::model::IRI::isAbsolute: Invalid character in prefix '" << ch << "'";
+            LOG_WARN_S << "owlapi::model::IRI::isAbsolute: Invalid character in prefix '" << ch << "' "
+                << "prefix: " << mPrefix << " remainder: " << mRemainder;
             return false;
         }
     }
