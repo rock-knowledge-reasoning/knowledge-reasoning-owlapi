@@ -205,6 +205,11 @@ void OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation, const I
     mpOntology->kb()->relatedTo(subject, relation, object);
 }
 
+void OWLOntologyTell::subPropertyOf(const IRI& subproperty, const IRI& parentProperty)
+{
+    mpOntology->kb()->subPropertyOf(subproperty, parentProperty);
+}
+
 void OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const IRI& classType)
 {
     mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);

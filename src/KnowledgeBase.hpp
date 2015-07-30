@@ -326,6 +326,26 @@ public:
      */
     reasoner::factpp::Axiom inverseOf(const IRI& baseProperty, const IRI& inverseProperty);
 
+
+    /// PROPERTIES
+    /**
+     * Add a (potentially not existing) subproperty to an existing parent property
+     * Create the subproperty instance if it does not yet exist
+     * \throws std::invalid_argument if parent property does not exist
+     * \return corresponding axiom
+     */
+    reasoner::factpp::Axiom subPropertyOf(const IRI& subproperty, const IRI& parentProperty);
+
+    /**
+     * Add an object subproperty to an existing parent property
+     */
+    reasoner::factpp::Axiom subObjectPropertyOf(const IRI& subproperty, const reasoner::factpp::ObjectPropertyExpression& parentProperty);
+
+    /**
+     * Add a data subproperty to an existing parent property
+     */
+    reasoner::factpp::Axiom subDataPropertyOf(const IRI& subproperty, const reasoner::factpp::DataPropertyExpression& parentProperty);
+
     /**
      * Adds an object property restriction
      * \param type Type, e.g., depending of existential or universal quantifier is required

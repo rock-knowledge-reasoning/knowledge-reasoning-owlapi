@@ -127,6 +127,10 @@ public:
      */
     bool isRelatedTo(const IRI& instance, const IRI& relationProperty, const IRI& otherInstance) const;
 
+    /**
+     * Retrieve the type of the provided instance
+     * \return type
+     */
     IRI typeOf(const IRI& instance) const;
 
     /**
@@ -157,15 +161,27 @@ public:
 
     /**
      * Get the data domain for the given data propery
+     * \param dataProperty name of the propery
+     * \param direct set to true if only the direct domain association should be
+     * used, false if inherited domains should be considered as well
      * \throw std::invalid_argument if data property is not known
      */
-    IRIList getDataDomain(const IRI& dataProperty) const;
+    IRIList getDataPropertyDomain(const IRI& dataProperty, bool direct = true) const;
 
     /**
      * Get the data range for the given data property
      * \throw std::invalid_argument if data property is not known
      */
     OWLDataRange::PtrList getDataRange(const IRI& dataProperty) const;
+
+    /**
+     * Get the object domain for the given propery
+     * \param objectProperty name of the propery
+     * \param direct set to true if only the direct domain association should be
+     * used, false if inherited domains should be considered as well
+     * \throw std::invalid_argument if object property is not known
+     */
+    IRIList getObjectPropertyDomain(const IRI& objectProperty, bool direct = true) const;
 
     /**
      * Retrieve the list of ancestors

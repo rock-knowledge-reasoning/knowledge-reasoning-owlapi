@@ -255,9 +255,9 @@ OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance, const IRI& dat
     return OWLLiteral::create(valueRepresentation);
 }
 
-IRIList OWLOntologyAsk::getDataDomain(const IRI& dataProperty) const
+IRIList OWLOntologyAsk::getDataPropertyDomain(const IRI& dataProperty, bool direct) const
 {
-    return mpOntology->kb()->getDataPropertyDomain(dataProperty);
+    return mpOntology->kb()->getDataPropertyDomain(dataProperty, direct);
 }
 
 OWLDataRange::PtrList OWLOntologyAsk::getDataRange(const IRI& dataProperty) const
@@ -270,6 +270,11 @@ OWLDataRange::PtrList OWLOntologyAsk::getDataRange(const IRI& dataProperty) cons
     }
     throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataRange: "
             " no data property '" + dataProperty.toString() + "' found");
+}
+
+IRIList OWLOntologyAsk::getObjectPropertyDomain(const IRI& objectProperty, bool direct) const
+{
+    return mpOntology->kb()->getObjectPropertyDomain(objectProperty, direct);
 }
 
 IRIList OWLOntologyAsk::ancestors(const IRI& instance) const

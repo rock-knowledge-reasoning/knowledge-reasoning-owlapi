@@ -95,6 +95,14 @@ public:
     void dataPropertyRangeOf(const IRI& relation, const IRI& classType);
     void objectPropertyDomainOf(const IRI& relation, const IRI& classType);
     void objectPropertyRangeOf(const IRI& relation, const IRI& classType);
+
+    /**
+     * Define a subproperty of an existing property
+     * \param subProperty IRI of the subproperty
+     * \param parentProperty IRI of the (already existing) parent property
+     * \throw std::invalid_argument if the parent property already exists
+     */
+    void subPropertyOf(const IRI& subProperty, const IRI& parentProperty);
     void inverseOf(const IRI& relation, const IRI& inverseType);
 
     // DataPropertyAssert

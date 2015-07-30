@@ -392,6 +392,41 @@ Axiom KnowledgeBase::subClassOf(const IRI& subclass, const ClassExpression& pare
     return Axiom( mKernel->impliesConcepts(e_subclass.get(), parentClass.get()) );
 }
 
+Axiom KnowledgeBase::subPropertyOf(const IRI& subProperty, const IRI& parentProperty)
+{
+    try {
+        ObjectPropertyExpression e_property = getObjectProperty(parentProperty);
+        return subObjectPropertyOf(subProperty, e_property);
+    } catch(const std::exception& e)
+    {
+        // not an object property
+    }
+
+    try {
+        DataPropertyExpression e_property = getDataProperty(parentProperty);
+        return subDataPropertyOf(subProperty, e_property);
+    } catch(const std::exception& e)
+    {
+        // not an object property
+    }
+
+    throw std::invalid_argument("owlapi::KnowledgeBase::subPropertyOf: "
+            "parent property '" + parentProperty.toString() + "' is not known");
+}
+
+Axiom KnowledgeBase::subObjectPropertyOf(const IRI& subProperty, const ObjectPropertyExpression& parentProperty)
+{
+    ObjectPropertyExpression e_property = getObjectPropertyLazy(subProperty);
+    //TDLAxiom* impliesORoles ( TORoleComplexExpr* R, TORoleExpr* S )
+    return Axiom( mKernel->impliesORoles(e_property.get(), parentProperty.get()));
+}
+
+Axiom KnowledgeBase::subDataPropertyOf(const IRI& subProperty, const DataPropertyExpression& parentProperty)
+{
+    DataPropertyExpression e_property = getDataPropertyLazy(subProperty);
+    return Axiom( mKernel->impliesDRoles(e_property.get(), parentProperty.get()) );
+}
+
 ClassExpression KnowledgeBase::intersectionOf(const IRI& klass, const IRI& otherKlass)
 {
     IRIList klasses;
