@@ -101,6 +101,11 @@ protected:
 
     KnowledgeBase* kb() { return mpKnowledgeBase; }
 
+protected:
+
+    OWLClass::Ptr getClass(const IRI& iri) const;
+    OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
+    OWLObjectProperty::Ptr getObjectProperty(const IRI& iri) const;
 public:
     typedef boost::shared_ptr<OWLOntology> Ptr;
 
