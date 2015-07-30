@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
+#include <owlapi/model/OWLPropertyRange.hpp>
 
 namespace owlapi {
 namespace model {
@@ -15,7 +16,7 @@ namespace model {
  *
  * \see http://www.w3.org/TR/owl2-syntax/#Class_Expression_Axioms
  */
-class OWLClassExpression : public OWLObject //, OWLPropertyRange, SWRLPredicate
+class OWLClassExpression : public OWLPropertyRange //, SWRLPredicate
 {
 public:
     virtual ~OWLClassExpression() {}
