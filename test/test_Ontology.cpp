@@ -80,8 +80,7 @@ BOOST_AUTO_TEST_CASE(punning)
 
         {
             IRIList properties = ask.getDataPropertiesForDomain(actor);
-            BOOST_REQUIRE_MESSAGE(!properties.empty(), "Properties for '" << actor << "' should not be empty, was " << properties);
-
+            BOOST_REQUIRE_MESSAGE(!properties.empty(), "Data properties for '" << actor << "' should not be empty, was " << properties);
         }
     }
     {
@@ -89,6 +88,7 @@ BOOST_AUTO_TEST_CASE(punning)
         IRI property = owlapi::vocabulary::OM::resolve("notExistingProperty");
 
         BOOST_REQUIRE_THROW(ask.getDataValue(actor, property), std::invalid_argument);
+        BOOST_REQUIRE_THROW( ask.getDataPropertyDomain(property, true), std::invalid_argument);
     }
 }
 

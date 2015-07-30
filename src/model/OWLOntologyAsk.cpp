@@ -304,5 +304,69 @@ bool OWLOntologyAsk::isDataProperty(const IRI& property) const
     }
 }
 
+IRIList OWLOntologyAsk::getObjectPropertiesForDomain(const IRI& domain) const
+{
+    IRIList validProperties;
+    IRIList objectProperties = mpOntology->kb()->allObjectProperties();
+    IRIList::const_iterator cit = objectProperties.begin();
+    for(; cit != objectProperties.end(); ++cit)
+    {
+        const IRI& property = *cit;
+        IRIList domains = domainOf(property);
+        if( isSubClassOfIntersection(domain, domains) )
+        {
+            validProperties.push_back(property);
+        }
+    }
+    return validProperties;
+}
+
+IRIList OWLOntologyAsk::getDataPropertiesForDomain(const IRI& domain) const
+{
+    IRIList validProperties;
+    IRIList dataProperties = mpOntology->kb()->allDataProperties();
+    IRIList::const_iterator cit = dataProperties.begin();
+    for(; cit != dataProperties.end(); ++cit)
+    {
+        const IRI& property = *cit;
+        IRIList domains = domainOf(property);
+        if(isSubClassOfIntersection(domain, domains) )
+        {
+            validProperties.push_back(property);
+        }
+    }
+    return validProperties;
+}
+
+bool OWLOntologyAsk::isSubClassOfIntersection(const IRI& klass, const IRIList& intersection) const
+{
+    // TODO: Proper check on intersection
+    IRIList::const_iterator cit = intersection.begin();
+    for(; cit != intersection.end(); ++cit)
+    {
+        if(isSubClassOf(klass, *cit))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+IRIList OWLOntologyAsk::domainOf(const IRI& iri, bool direct) const
+{
+    IRIList domains;
+    if(isObjectProperty(iri))
+    {
+        return getObjectPropertyDomain(iri, direct);
+    } else if(isDataProperty(iri))
+    {
+        return getDataPropertyDomain(iri, direct);
+    }
+
+    throw std::invalid_argument("owlapi::model::OWLOntologyAsk::domainOf:"
+            " property '" + iri.toString() + "' is not known");
+}
+
 } // end namespace model
 } // end namespace owlapi

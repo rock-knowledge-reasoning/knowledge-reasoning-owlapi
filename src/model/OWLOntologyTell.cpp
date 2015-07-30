@@ -213,6 +213,11 @@ void OWLOntologyTell::subPropertyOf(const IRI& subproperty, const IRI& parentPro
 void OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const IRI& classType)
 {
     mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);
+
+    /*OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
+    OWLClass::Ptr domain = mpOntology->getClass(classType);
+    dataProperty->addDomain(domain);
+    */
 }
 
 void OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classType)
@@ -220,26 +225,29 @@ void OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classT
     // cannot use the following since that is not implemented in the reasoner
     // mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
 
-    std::map<IRI, OWLDataProperty::Ptr>::iterator it = mpOntology->mDataProperties.find(property);
-    if(it != mpOntology->mDataProperties.end())
-    {
-        OWLDataProperty::Ptr& property = it->second;
-        OWLDataRange::Ptr range(new OWLDataType(classType));
-        property->addRange(range);
-    } else {
-        throw std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRangeOf: "
-                "property '" + property.toString() + "' is unknown");
-    }
+    OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
+    OWLDataRange::Ptr range(new OWLDataType(classType));
+    dataProperty->addRange(range);
 }
 
 void OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const IRI& classType)
 {
     mpOntology->kb()->domainOf(relation, classType, KnowledgeBase::OBJECT);
+
+    /*OWLObjectProperty::Ptr objectProperty = mpOntology->getObjectProperty(relation);
+    OWLClass::Ptr domain = mpOntology->getClass(classType);
+    objectProperty->addDomain(domain);
+    */
 }
 
 void OWLOntologyTell::objectPropertyRangeOf(const IRI& relation, const IRI& classType)
 {
     mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
+
+    /*OWLObjectProperty::Ptr objectProperty = mpOntology->getObjectProperty(relation);
+    OWLClass::Ptr range = mpOntology->getClass(classType);
+    objectProperty->addRange(range);
+    */
 }
 
 void OWLOntologyTell::inverseOf(const IRI& relation, const IRI& inverseType)

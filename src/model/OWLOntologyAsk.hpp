@@ -204,6 +204,28 @@ public:
      * \see http://www.w3.org/TR/owl-ref
      */
     bool isDataProperty(const IRI& property) const;
+
+    /**
+     * Retrieve all object properties that apply to a given domain
+     * \return property list
+     */
+    IRIList getObjectPropertiesForDomain(const IRI& klass) const;
+
+    /**
+     * Retrieve all data properties that apply to a given domain
+     */
+    IRIList getDataPropertiesForDomain(const IRI& klass) const;
+
+    /**
+     * Test if klass is a subclass of intersection of classes
+     * \return true if it does, false otherwise
+     */
+    bool isSubClassOfIntersection(const IRI& klass, const IRIList& intersection) const;
+
+    /**
+     * Get the list of domains for a given property
+     */
+    IRIList domainOf(const IRI& iri, bool direct = true) const;
 };
 
 } // end namespace model
