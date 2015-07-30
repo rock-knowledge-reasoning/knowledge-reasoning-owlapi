@@ -163,7 +163,7 @@ public:
      * \param parentClass IRI of parentClass
      * \return corresponding axiom
      */
-    reasoner::factpp::Axiom subclassOf(const IRI& subclass, const IRI& parentClass);
+    reasoner::factpp::Axiom subClassOf(const IRI& subclass, const IRI& parentClass);
 
     /**
      * Define a subclass relationship between two concepts / classes
@@ -171,7 +171,7 @@ public:
      * \param parentClass
      * \return corresponding axiom
      */
-    reasoner::factpp::Axiom subclassOf(const reasoner::factpp::ClassExpression& subclass, const IRI& parentClass);
+    reasoner::factpp::Axiom subClassOf(const reasoner::factpp::ClassExpression& subclass, const IRI& parentClass);
 
     /**
      * Define a subclass relationship between two concepts / classes
@@ -179,7 +179,7 @@ public:
      * \param parentClass expression for parentClass, e.g. for restrictions
      * \return corresponding axiom
      */
-    reasoner::factpp::Axiom subclassOf(const IRI& subclass, const reasoner::factpp::ClassExpression& parentClass);
+    reasoner::factpp::Axiom subClassOf(const IRI& subclass, const reasoner::factpp::ClassExpression& parentClass);
 
     /**
      * Define intersection of classes under a given alias
@@ -340,11 +340,11 @@ public:
     /**
      * Test if class / concept is a subclass of another
      */
-    bool isSubclassOf(const IRI& subclass, const IRI& parentClass);
+    bool isSubClassOf(const IRI& subclass, const IRI& parentClass);
     /**
      * Test if class expression defines subclass of another
      */
-    bool isSubclassOf(const reasoner::factpp::ClassExpression& subclass, const IRI& parentClass);
+    bool isSubClassOf(const reasoner::factpp::ClassExpression& subclass, const IRI& parentClass);
     /**
      * Test if an instance is of the same type as other instance
      */
@@ -406,7 +406,7 @@ public:
      * Retrieve all subclasses of a given klass
      * \return list of all subclasses
      */
-    IRIList allSubclassesOf(const IRI& klass, bool direct = false);
+    IRIList allSubClassesOf(const IRI& klass, bool direct = false);
     
     /**
      * Retrieve all ancestors of a given klass

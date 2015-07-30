@@ -55,18 +55,18 @@ public:
      */
     OWLDataProperty::Ptr dataProperty(const IRI& iri);
 
-    OWLSubClassOfAxiom::Ptr subclassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass);
-    OWLSubClassOfAxiom::Ptr subclassOf(const IRI& subclass, OWLClassExpression::Ptr superclass);
+    OWLSubClassOfAxiom::Ptr subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass);
+    OWLSubClassOfAxiom::Ptr subClassOf(const IRI& subclass, OWLClassExpression::Ptr superclass);
 
     /**
      * Declare the subclass relationship between two classes
      */
-    OWLSubClassOfAxiom::Ptr subclassOf(const IRI& subclass, const IRI& superclass);
+    OWLSubClassOfAxiom::Ptr subClassOf(const IRI& subclass, const IRI& superclass);
 
     /**
      * Declare the subclass relationship between two classes
      */
-    OWLSubClassOfAxiom::Ptr subclassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression);
+    OWLSubClassOfAxiom::Ptr subClassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression);
 
     /**
      * Set instance of class type

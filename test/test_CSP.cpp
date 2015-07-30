@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE(csp)
 //    tell.subclassOf(c,b);
 //    tell.subclassOf(b,a);
 //    ontology->refresh();
-//    BOOST_REQUIRE_MESSAGE(ask.isSubclassOf(c->getIRI(), b->getIRI()), "C should be subclass of b");
+//    BOOST_REQUIRE_MESSAGE(ask.isSubClassOf(c->getIRI(), b->getIRI()), "C should be subclass of b");
 //
 //    IRIList query, resourcePool;
 //
@@ -62,12 +62,10 @@ BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
     OWLClass::Ptr c = tell.klass("http://klass/base-derived-derived");
     OWLObjectProperty::Ptr property = tell.objectProperty("http://property/has");
 
-    tell.subclassOf(c,b);
-    tell.subclassOf(b,a);
+    tell.subClassOf(c,b);
+    tell.subClassOf(b,a);
     ontology->refresh();
-    BOOST_REQUIRE_MESSAGE(ask.isSubclassOf(c->getIRI(), b->getIRI()), "C should be subclass of b");
-
-
+    BOOST_REQUIRE_MESSAGE(ask.isSubClassOf(c->getIRI(), b->getIRI()), "C should be subclass of b");
 
     std::vector<OWLCardinalityRestriction::Ptr> query, resourcePool;
     {
@@ -129,7 +127,7 @@ BOOST_AUTO_TEST_CASE(test_provider_via_restrictions)
     {
         OWLObjectProperty::Ptr hasProperty = ask.getOWLObjectProperty( owlapi::vocabulary::OM::resolve("has") );
         OWLCardinalityRestriction::Ptr restriction(new OWLObjectMinCardinality(hasProperty, 1, image_provider));
-        tell.subclassOf(sherpa, restriction);
+        tell.subClassOf(sherpa, restriction);
     }
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_stereo_image_provider, r_sherpa, ontology);
@@ -138,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_provider_via_restrictions)
     {
         OWLObjectProperty::Ptr hasProperty = ask.getOWLObjectProperty( owlapi::vocabulary::OM::resolve("has") );
         OWLCardinalityRestriction::Ptr restriction(new OWLObjectMinCardinality(hasProperty, 1, move_to));
-        tell.subclassOf(sherpa, restriction);
+        tell.subClassOf(sherpa, restriction);
     }
 
     // Second level of service provisioning -- requires other services to be

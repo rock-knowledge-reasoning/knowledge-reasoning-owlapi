@@ -53,7 +53,7 @@ void OWLOntologyReader::load()
         while(it.next())
         {
             IRI subject = it[Subject()];
-            mTell->subclassOf(subject, vocabulary::OWL::Thing());
+            mTell->subClassOf(subject, vocabulary::OWL::Thing());
         }
     }
 
@@ -145,7 +145,7 @@ void OWLOntologyReader::load()
                 if( mAsk->isOWLClass(object) )
                 {
                     // This is a class
-                    mTell->subclassOf(subject, object);
+                    mTell->subClassOf(subject, object);
                 } else {
                     // We have to delay the mapping until the anonymous node has 
                     // been fully resolved to a restriction or similar

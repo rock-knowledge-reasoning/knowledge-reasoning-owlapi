@@ -43,7 +43,7 @@ ResourceMatch::ResourceMatch(const ModelBound::List& required,
             // if so, then use max required value as upper bound
             const ModelBound& availableModelBound = mAvailableModelBound[ai];
             const owlapi::model::IRI& availableModel = availableModelBound.model;
-            if(requiredModel == availableModel || ask.isSubclassOf(availableModel, requiredModel))
+            if(requiredModel == availableModel || ask.isSubClassOf(availableModel, requiredModel))
             {
                 rel(*this, m, Gecode::IRT_LQ, requiredModelBound.max);
                 rel(*this, m, Gecode::IRT_LQ, availableModelBound.max);

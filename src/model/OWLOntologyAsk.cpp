@@ -146,9 +146,26 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     return restrictions;
 }
 
-bool OWLOntologyAsk::isSubclassOf(const IRI& iri, const IRI& superclass) const
+bool OWLOntologyAsk::isSubClassOf(const IRI& iri, const IRI& superclass) const
 {
-    return mpOntology->kb()->isSubclassOf(iri, superclass);
+    return mpOntology->kb()->isSubClassOf(iri, superclass);
+}
+
+bool OWLOntologyAsk::isSubClassOf(const OWLClassExpression::Ptr& subclass, const OWLClassExpression::Ptr& superclass) const
+{
+    IRI subclassIRI;
+    IRI superclassIRI;
+
+    if(subclass->isClassExpressionLiteral() && superclass->isClassExpressionLiteral())
+    {
+        subclassIRI = boost::dynamic_pointer_cast<OWLClass>(subclass)->getIRI();
+        superclassIRI = boost::dynamic_pointer_cast<OWLClass>(superclass)->getIRI();
+
+        return isSubClassOf(subclassIRI, superclassIRI);
+    }
+
+    throw std::runtime_error("owlapi::model::OWLOntologyAsk::isSubClassOf:"
+            " cannot (yet) handle anyonmous class definitions");
 }
 
 bool OWLOntologyAsk::isOWLClass(const IRI& iri) const
@@ -162,9 +179,9 @@ IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct) const
     return mpOntology->kb()->allInstancesOf(classType, direct);
 }
 
-IRIList OWLOntologyAsk::allSubclassesOf(const IRI& classType, bool direct) const
+IRIList OWLOntologyAsk::allSubClassesOf(const IRI& classType, bool direct) const
 {
-    return mpOntology->kb()->allSubclassesOf(classType, direct);
+    return mpOntology->kb()->allSubClassesOf(classType, direct);
 }
 
 IRIList OWLOntologyAsk::allInstances() const

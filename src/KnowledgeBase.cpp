@@ -374,19 +374,19 @@ bool KnowledgeBase::isAsymmetricProperty(const IRI& property)
     return mKernel->isAsymmetric(e_property.get());
 }
 
-Axiom KnowledgeBase::subclassOf(const IRI& subclass, const IRI& parentClass)
+Axiom KnowledgeBase::subClassOf(const IRI& subclass, const IRI& parentClass)
 {
     ClassExpression ce = getClassLazy(subclass);
-    return subclassOf( ce, parentClass );
+    return subClassOf( ce, parentClass );
 }
 
-Axiom KnowledgeBase::subclassOf(const ClassExpression& subclass, const IRI& parentClass)
+Axiom KnowledgeBase::subClassOf(const ClassExpression& subclass, const IRI& parentClass)
 {
     ClassExpression e_parentClass = getClassLazy(parentClass);
     return Axiom( mKernel->impliesConcepts(subclass.get(), e_parentClass.get()) );
 }
 
-Axiom KnowledgeBase::subclassOf(const IRI& subclass, const ClassExpression& parentClass)
+Axiom KnowledgeBase::subClassOf(const IRI& subclass, const ClassExpression& parentClass)
 {
     ClassExpression e_subclass = getClassLazy(subclass);
     return Axiom( mKernel->impliesConcepts(e_subclass.get(), parentClass.get()) );
@@ -664,13 +664,13 @@ ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type,
     throw std::runtime_error("owlapi::KnowledgeBase::objectPropertyRestriction: Unknown restriction type");
 }
 
-bool KnowledgeBase::isSubclassOf(const IRI& subclass, const IRI& parentClass)
+bool KnowledgeBase::isSubClassOf(const IRI& subclass, const IRI& parentClass)
 {
     ClassExpression e_class = getClass(subclass);
-    return isSubclassOf( e_class, parentClass );
+    return isSubClassOf( e_class, parentClass );
 }
 
-bool KnowledgeBase::isSubclassOf(const ClassExpression& subclass, const IRI& parentClass)
+bool KnowledgeBase::isSubClassOf(const ClassExpression& subclass, const IRI& parentClass)
 {
     ClassExpression e_class = getClass(parentClass);
     return mKernel->isSubsumedBy(subclass.get(), e_class.get());
@@ -727,7 +727,7 @@ IRIList KnowledgeBase::allClasses(bool excludeBottomClass) const
     return klasses;
 }
 
-IRIList KnowledgeBase::allSubclassesOf(const IRI& klass, bool direct)
+IRIList KnowledgeBase::allSubClassesOf(const IRI& klass, bool direct)
 {
     ClassExpression e_class = getClass(klass);
     IRIList subclasses;

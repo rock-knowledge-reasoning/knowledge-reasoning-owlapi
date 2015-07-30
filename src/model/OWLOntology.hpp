@@ -32,12 +32,12 @@ OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics
 // either
 {
     OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
-    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subclassOf(robotKlass, restriction);
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
 }
 // or
 {
     OWLCardinalityRestriction::Ptr restriction = tell->cardinalityRestriction(oProperty, 10, cameraKlass.getIRI(), OWLCardinalityRestriction::MAX);
-    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subclassOf(robotKlass, restriction);
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
 }
 
 

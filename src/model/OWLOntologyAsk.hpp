@@ -66,7 +66,13 @@ public:
      * \param iri
      * \param superclass
      */
-    bool isSubclassOf(const IRI& iri, const IRI& superclass) const;
+    bool isSubClassOf(const IRI& iri, const IRI& superclass) const;
+
+    /**
+     * Check if given class expression is subclass of superclass
+     * \return true if superclass is parent of subclass
+     */
+    bool isSubClassOf(const OWLClassExpression::Ptr& subclass, const OWLClassExpression::Ptr& superclass) const;
 
     /**
      * Check if iri represents a known class
@@ -89,7 +95,7 @@ public:
      * Retrieve all subclasses of a given klass
      * \return list of all subclasses
      */
-    IRIList allSubclassesOf(const IRI& klass, bool direct = false) const;
+    IRIList allSubClassesOf(const IRI& klass, bool direct = false) const;
 
     /**
      * Retrieve all known instance of the given class type

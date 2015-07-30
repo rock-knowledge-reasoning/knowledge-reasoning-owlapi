@@ -118,29 +118,29 @@ OWLDataProperty::Ptr OWLOntologyTell::dataProperty(const IRI& iri)
     }
 }
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(const IRI& subclass, OWLClassExpression::Ptr superclass)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, OWLClassExpression::Ptr superclass)
 {
     OWLClass::Ptr e_subclass = klass(subclass);
-    return subclassOf(e_subclass, superclass);
+    return subClassOf(e_subclass, superclass);
 }
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(const IRI& subclass, const IRI& superclass)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, const IRI& superclass)
 {
     // All classes inherit from top concept, i.e. owl:Thing
     OWLClass::Ptr e_subclass = klass(subclass);
     OWLClass::Ptr e_superclass = klass(superclass);
 
-    return subclassOf(e_subclass, e_superclass);
+    return subClassOf(e_subclass, e_superclass);
 }
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass)
 {
-    mpOntology->kb()->subclassOf(subclass->getIRI(), superclass->getIRI());
-    return subclassOf(boost::dynamic_pointer_cast<OWLClassExpression>(subclass),boost::dynamic_pointer_cast<OWLClassExpression>(superclass));
+    mpOntology->kb()->subClassOf(subclass->getIRI(), superclass->getIRI());
+    return subClassOf(boost::dynamic_pointer_cast<OWLClassExpression>(subclass),boost::dynamic_pointer_cast<OWLClassExpression>(superclass));
 }
 
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subclassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression)
 {
     OWLSubClassOfAxiom::Ptr axiom(new OWLSubClassOfAxiom(subclassExpression, superclassExpression));
     mpOntology->mSubClassAxiomBySubPosition[subclassExpression].push_back(axiom);
@@ -250,7 +250,7 @@ void OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataProperty, OWLL
 
 void OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)
 {
-    subclassOf(klass, restriction);
+    subClassOf(klass, restriction);
 }
 
 } // end namespace model
