@@ -5,7 +5,6 @@
 #include <base/Logging.hpp>
 
 #include <factpp/Kernel.h>
-#include <factpp/Actor.h>
 #include <factpp/tOntologyPrinterLISP.h>
 
 #include "Vocabulary.hpp"
@@ -26,6 +25,25 @@ std::map<KnowledgeBase::EntityType, std::string> KnowledgeBase::EntityTypeTxt = 
     ( KnowledgeBase::OBJECT_PROPERTY, "OBJECT_RELATION")
     ( KnowledgeBase::DATA_PROPERTY, "DATA_RELATION");
 
+IRIList KnowledgeBase::getResult(const Actor& actor, const IRI& filter) const
+{
+    IRIList list;
+    Actor::Array1D result;
+
+    actor.getFoundData(result);
+    Actor::Array1D::const_iterator cit = result.begin();
+    for(; cit != result.end(); ++cit)
+    {
+        const ClassifiableEntry* entry = *cit;
+        IRI iri = IRI::create(entry->getName());
+        if(iri != filter)
+        {
+            list.push_back(iri);
+        }
+    }
+
+    return list;
+}
 
 TExpressionManager* KnowledgeBase::getExpressionManager()
 {
@@ -117,14 +135,7 @@ IRIList KnowledgeBase::getObjectPropertyDomain(const IRI& property, bool direct)
     actor.needConcepts();
     mKernel->getORoleDomain( e_property.get(), direct, actor);
 
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        classes.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return classes;
-
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::getObjectPropertyRange(const IRI& property, bool direct) const
@@ -136,13 +147,7 @@ IRIList KnowledgeBase::getObjectPropertyRange(const IRI& property, bool direct) 
     actor.needConcepts();
     mKernel->getRoleRange( e_property.get(), direct, actor);
 
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        classes.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return classes;
+    return getResult(actor);
 }
 
 DataPropertyExpression KnowledgeBase::getDataProperty(const IRI& property) const
@@ -788,76 +793,45 @@ IRIList KnowledgeBase::allClasses(bool excludeBottomClass) const
 IRIList KnowledgeBase::allSubClassesOf(const IRI& klass, bool direct)
 {
     ClassExpression e_class = getClass(klass);
-    IRIList subclasses;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getSubConcepts(e_class.get(), direct, actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        IRI subclass = IRI::create(result[i]);
-        if(subclass != IRI("BOTTOM"))
-        {
-            subclasses.push_back(subclass);
-        }
-    }
-    delete[] result;
-    return subclasses;
+
+    return getResult(actor, IRI("BOTTOM"));
 }
 
 IRIList KnowledgeBase::allAncestorsOf(const IRI& klass, bool direct)
 {
     ClassExpression e_class = getClass(klass);
-    IRIList superclasses;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getSupConcepts(e_class.get(), direct, actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        superclasses.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return superclasses;
+
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::allEquivalentClasses(const IRI& klass)
 {
     ClassExpression e_class = getClass(klass);
-    IRIList equivalentclasses;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getEquivalentConcepts(e_class.get(), actor);
-    // getSynonyms: 1D NULL terminated array
-    const char** result = actor.getSynonyms();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        equivalentclasses.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return equivalentclasses;
+
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::allDisjointClasses(const IRI& klass)
 {
     ClassExpression e_class = getClass(klass);
-    IRIList disjointclasses;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getDisjointConcepts(e_class.get(), actor);
-    // getSynonyms: 1D NULL terminated array
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        disjointclasses.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return disjointclasses;
 
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::allInstances() const
@@ -880,19 +854,20 @@ IRIList KnowledgeBase::allInstancesOf(const IRI& klass, bool direct)
     actor.needIndividuals();
     mKernel->getInstances(e_class.get(), actor);
 
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
+    Actor::Array1D result;
+    actor.getFoundData(result);
+    Actor::Array1D::const_iterator cit = result.begin();
+    for(; cit != result.end(); ++cit)
     {
         // Fact does seem to fail at extracting direct instances
-        IRI instanceName = IRI::create(result[i]);
+        const ClassifiableEntry* entry = *cit;
+        IRI instanceName = IRI::create(entry->getName());
         if(direct && ! (typeOf(instanceName) == klass) )
         {
             continue;
         }
         instances.push_back(instanceName);
-
     }
-    delete[] result;
     return instances;
 }
 
@@ -979,18 +954,12 @@ IRIList KnowledgeBase::allObjectProperties() const
 IRIList KnowledgeBase::allSubObjectProperties(const IRI& propertyRelation, bool direct)
 {
     ObjectPropertyExpression e_relation = getObjectProperty(propertyRelation);
-    IRIList relations;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getSubRoles(e_relation.get(), direct, actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        relations.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return relations;
+
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::allEquivalentObjectProperties(const IRI& propertyRelation)
@@ -1001,13 +970,7 @@ IRIList KnowledgeBase::allEquivalentObjectProperties(const IRI& propertyRelation
     Actor actor;
     actor.needConcepts();
     mKernel->getEquivalentRoles(e_relation.get(), actor);
-    const char** result = actor.getSynonyms();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        relations.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return relations;
+    return getResult(actor);
 }
 
 bool KnowledgeBase::isSubProperty(const IRI& relationProperty, const IRI& parentRelationProperty)
@@ -1087,13 +1050,8 @@ IRIList KnowledgeBase::allSubDataProperties(const IRI& propertyRelation, bool di
     Actor actor;
     actor.needConcepts();
     mKernel->getSubRoles(e_relation.get(), direct, actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        relations.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return relations;
+
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::allEquivalentDataProperties(const IRI& propertyRelation)
@@ -1104,13 +1062,8 @@ IRIList KnowledgeBase::allEquivalentDataProperties(const IRI& propertyRelation)
     Actor actor;
     actor.needConcepts();
     mKernel->getEquivalentRoles(e_relation.get(), actor);
-    const char** result = actor.getSynonyms();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        relations.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return relations;
+    
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::getPropertyDomain(const IRI& property, bool direct) const
@@ -1131,37 +1084,23 @@ IRIList KnowledgeBase::getPropertyDomain(const IRI& property, bool direct) const
 IRIList KnowledgeBase::getDataPropertyDomain(const IRI& property, bool direct) const
 {
     DataPropertyExpression e_property = getDataProperty(property);
-    IRIList classes;
 
     Actor actor;
     actor.needConcepts();
     mKernel->getDRoleDomain( e_property.get(), direct, actor);
 
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        classes.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return classes;
+    return getResult(actor);
 }
 
 IRIList KnowledgeBase::typesOf(const IRI& instance, bool direct) const
 {
     InstanceExpression e_instance = getInstance(instance);
 
-    IRIList klasses;
-
     Actor actor;
     actor.needConcepts();
     mKernel->getTypes(e_instance.get(), direct, actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        klasses.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
-    return klasses;
+
+    return getResult(actor);
 }
 
 IRI KnowledgeBase::typeOf(const IRI& instance) const
@@ -1175,17 +1114,12 @@ IRIList KnowledgeBase::getSameAs(const IRI& aliasOrInstance)
 {
     InstanceExpression e_instance = getInstance(aliasOrInstance);
 
-    IRIList alias;
-
     Actor actor;
     actor.needIndividuals();
     mKernel->getSameAs(e_instance.get(), actor);
-    const char** result = actor.getElements1D();
-    for(size_t i = 0; result[i] != NULL; ++i)
-    {
-        alias.push_back( IRI::create(result[i]) );
-    }
-    delete[] result;
+
+    IRIList alias = getResult(actor);
+
     if(alias.empty())
     {
         IRIList list;

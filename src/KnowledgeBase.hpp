@@ -6,6 +6,7 @@
 #include <vector>
 #include <owlapi/Exceptions.hpp>
 #include <base/Logging.hpp>
+#include <factpp/Actor.h>
 #include <owlapi/reasoner/factpp/Types.hpp>
 #include <owlapi/OWLApi.hpp>
 
@@ -59,6 +60,8 @@ class KnowledgeBase
     bool hasClass(const IRI& klass) const { return mClasses.count(klass); }
 
     bool hasInstance(const IRI& instance) const { return mInstances.count(instance); }
+
+    IRIList getResult(const Actor& actor, const IRI& filter = IRI()) const;
 
 public:
     enum PropertyType { UNKNOWN_PROPERTY_TYPE, OBJECT, DATA, END_PROPERTY_TYPE };
