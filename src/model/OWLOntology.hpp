@@ -145,6 +145,8 @@ namespace model {
 class OWLOntologyTell;
 class OWLOntologyAsk;
 
+typedef std::map<OWLAxiom::AxiomType, OWLAxiom::PtrList > AxiomMap;
+
 /**
  * Ontology
  */
@@ -167,7 +169,7 @@ protected:
     std::map<IRI, OWLDataProperty::Ptr> mDataProperties;
 
     /// General axiom map
-    std::map<OWLAxiom::AxiomType, std::vector<OWLAxiom::Ptr> > mAxiomsByType;
+    AxiomMap mAxiomsByType;
 
     std::map<OWLClassExpression::Ptr, std::vector<OWLClassAssertionAxiom::Ptr> > mClassAssertionAxiomsByClass;
 
@@ -195,6 +197,12 @@ protected:
     OWLClass::Ptr getClass(const IRI& iri) const;
     OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
     OWLObjectProperty::Ptr getObjectProperty(const IRI& iri) const;
+
+    void addAxiom(const OWLAxiom::Ptr& axiom);
+    const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
+    OWLAxiom::PtrList getAxioms() const;
+
+
 public:
     typedef boost::shared_ptr<OWLOntology> Ptr;
 
@@ -206,6 +214,8 @@ public:
     OWLOntology();
 
     ~OWLOntology();
+
+    static OWLOntology::Ptr fromFile(const std::string& filename);
 };
 
 } // ane namespace model

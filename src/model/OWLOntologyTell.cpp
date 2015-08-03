@@ -9,6 +9,7 @@ namespace model {
 
 OWLOntologyTell::OWLOntologyTell(OWLOntology::Ptr ontology)
     : mpOntology(ontology)
+    , mAsk(ontology)
 {}
 
 void OWLOntologyTell::initializeDefaultClasses()
@@ -50,6 +51,10 @@ OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
 
         // Update kb
         mpOntology->kb()->getClassLazy(iri);
+
+        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::Class));
+        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
+        mpOntology->addAxiom(axiom);
 
         return klass;
     }
@@ -98,6 +103,11 @@ OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
 
         //Update kb
         mpOntology->kb()->getObjectPropertyLazy(iri);
+
+        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::ObjectProperty));
+        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
+        mpOntology->addAxiom(axiom);
+
         return property;
     }
 }
@@ -114,6 +124,11 @@ OWLDataProperty::Ptr OWLOntologyTell::dataProperty(const IRI& iri)
 
         //Update kb
         mpOntology->kb()->getDataPropertyLazy(iri);
+
+        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::DataProperty));
+        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
+        mpOntology->addAxiom(axiom);
+
         return property;
     }
 }
@@ -147,6 +162,8 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClassExpression::Ptr subc
     mpOntology->mSubClassAxiomBySuperPosition[superclassExpression].push_back(axiom);
 
     LOG_DEBUG_S << "Added SubClassOfAxiom:" << subclassExpression->toString() << " axiom: " << axiom->toString();
+
+    mpOntology->addAxiom(axiom);
     return axiom;
 }
 
@@ -205,9 +222,26 @@ void OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation, const I
     mpOntology->kb()->relatedTo(subject, relation, object);
 }
 
-void OWLOntologyTell::subPropertyOf(const IRI& subproperty, const IRI& parentProperty)
+OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, const IRI& parentProperty)
 {
-    mpOntology->kb()->subPropertyOf(subproperty, parentProperty);
+    mpOntology->kb()->subPropertyOf(subProperty, parentProperty);
+
+    OWLSubPropertyAxiom::Ptr axiom;
+    if(mAsk.isObjectProperty(parentProperty))
+    {
+        OWLObjectProperty::Ptr subOProperty = mpOntology->getObjectProperty(subProperty);
+        OWLObjectProperty::Ptr superOProperty = mpOntology->getObjectProperty(parentProperty);
+
+        axiom = OWLSubPropertyAxiom::Ptr(new OWLSubObjectPropertyOfAxiom(subOProperty, superOProperty));
+    } else {
+        OWLDataProperty::Ptr subDProperty = mpOntology->getDataProperty(subProperty);
+        OWLDataProperty::Ptr superDProperty = mpOntology->getDataProperty(parentProperty);
+
+        axiom = OWLSubPropertyAxiom::Ptr(new OWLSubDataPropertyOfAxiom(subDProperty, superDProperty));
+    }
+
+    mpOntology->addAxiom(axiom);
+    return axiom;
 }
 
 void OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const IRI& classType)

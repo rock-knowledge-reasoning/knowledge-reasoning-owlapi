@@ -14,13 +14,28 @@ namespace model {
 class OWLEntity : public OWLNamedObject
 {
 public:
+    enum EntityType { UNKNOWN,
+        AnnotationProperty,
+        Class,
+        DataProperty,
+        Datatype,
+        NamedIndividual,
+        ObjectProperty
+    };
+
     typedef boost::shared_ptr<OWLEntity> Ptr;
 
-    OWLEntity( const IRI& iri = IRI())
+    OWLEntity( const IRI& iri = IRI(), EntityType type = UNKNOWN)
         : OWLNamedObject(iri)
+        , mEntityType(type)
     {}
 
     virtual ~OWLEntity() {}
+
+    EntityType getEntityType() const { return mEntityType; }
+
+private:
+    EntityType mEntityType;
 };
 
 } // end namespace model

@@ -4,6 +4,8 @@
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/model/OWLLiteral.hpp>
 #include <owlapi/model/OWLCardinalityRestriction.hpp>
+#include <owlapi/model/OWLOntologyAsk.hpp>
+#include <owlapi/model/OWLSubPropertyAxiom.hpp>
 
 namespace owlapi {
 namespace model {
@@ -14,6 +16,7 @@ namespace model {
 class OWLOntologyTell
 {
     OWLOntology::Ptr mpOntology;
+    OWLOntologyAsk mAsk;
 
 public:
     typedef boost::shared_ptr<OWLOntologyTell> Ptr;
@@ -102,7 +105,7 @@ public:
      * \param parentProperty IRI of the (already existing) parent property
      * \throw std::invalid_argument if the parent property already exists
      */
-    void subPropertyOf(const IRI& subProperty, const IRI& parentProperty);
+    OWLSubPropertyAxiom::Ptr subPropertyOf(const IRI& subProperty, const IRI& parentProperty);
     void inverseOf(const IRI& relation, const IRI& inverseType);
 
     // DataPropertyAssert

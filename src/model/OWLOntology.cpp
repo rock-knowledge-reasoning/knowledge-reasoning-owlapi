@@ -1,5 +1,6 @@
 #include "OWLOntology.hpp"
 #include <owlapi/KnowledgeBase.hpp>
+#include "OWLOntologyReader.hpp"
 
 namespace owlapi {
 namespace model {
@@ -55,6 +56,30 @@ OWLObjectProperty::Ptr OWLOntology::getObjectProperty(const IRI& iri) const
     }
     throw std::invalid_argument("owlapi::model::OWLOntology::getObjectProperty: "
             " no object property '" + iri.toString() + "' known");
+}
+
+void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
+{
+    // TODO check if axiom already exists
+    mAxiomsByType[axiom->getAxiomType()].push_back(axiom);
+}
+
+OWLOntology::Ptr OWLOntology::fromFile(const std::string& filename)
+{
+    OWLOntologyReader reader;
+    return reader.fromFile(filename);
+}
+
+OWLAxiom::PtrList OWLOntology::getAxioms() const
+{
+    OWLAxiom::PtrList axioms;
+    AxiomMap::const_iterator cit = mAxiomsByType.begin();
+    for(; cit != mAxiomsByType.end(); ++cit)
+    {
+        const OWLAxiom::PtrList& typedAxioms = cit->second;
+        axioms.insert(axioms.begin(), typedAxioms.begin(), typedAxioms.end());
+    }
+    return axioms;
 }
 
 } // end namespace model

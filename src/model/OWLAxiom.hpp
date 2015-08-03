@@ -1,6 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_AXIOM_HPP
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
 #include <owlapi/model/HasAnnotations.hpp>
@@ -17,6 +18,7 @@ class OWLAxiom : public OWLObject, public HasAnnotations
 {
 public:
     typedef boost::shared_ptr<OWLAxiom> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     /// Defines the types of axioms that can be used with OWL
     enum AxiomType {
@@ -138,58 +140,51 @@ public:
 //     */
 //    bool equalsIgnoreAnnotations(const OWLAxiom& axiom) const;
 //
-//    /**
-//     * Determines if this axiom is a logical axiom. Logical axioms are defined
-//     * to be axioms other than both declaration axioms (including imports
-//     * declarations) and annotation axioms.
-//     *
-//     * \return {@code true} if the axiom is a logical axiom, {@code false} if
-//     *         the axiom is not a logical axiom.
-//     */
-    virtual bool isLogicalAxiom() const { throw std::runtime_error("OWLAxiom::isLogicalAxiom is not implemented"); }
-//
-//    /**
-//     * Determines if this axioms in an annotation axiom (an instance of
-//     * {@code OWLAnnotationAxiom})
-//     *
-//     * @return {@code true} if this axiom is an instance of
-//     *         {@code OWLAnnotationAxiom}, otherwise {@code false}.
-//     */
-//    bool isAnnotationAxiom() const;
-//
-//    /**
-//     * Determines if this axiom has any annotations on it
-//     *
-//     * @return {@code true} if this axiom has annotations on it, otherwise
-//     *         {@code false}
-//     */
-//    bool isAnnotated() const;
-//
+    /**
+     * Determines if this axiom is a logical axiom. Logical axioms are defined
+     * to be axioms other than both declaration axioms (including imports
+     * declarations) and annotation axioms.
+     *
+     * \return {@code true} if the axiom is a logical axiom, {@code false} if
+     *         the axiom is not a logical axiom.
+     */
+    virtual bool isLogicalAxiom() const { return false; }
+
+    /**
+     * Determines if this axioms in an annotation axiom (an instance of
+     * OWLAnnotationAxiom)
+     *
+     * \return {\code true} if this axiom is an instance of
+     *         {\code OWLAnnotationAxiom}, otherwise {\code false}.
+     */
+     virtual bool isAnnotationAxiom() const { return false; }
+
     /**
      * Gets the axiom type for this axiom.
      * \return The axiom type that corresponds to the type of this axiom.
      */
     AxiomType getAxiomType() const { return mAxiomType; }
-//
-//    /**
-//     * Determines if this axiom is one of the specified types
-//     *
-//     * @param axiomTypes
-//     *        The axiom types to check for
-//     * @return {@code true} if this axiom is one of the specified types,
-//     *         otherwise {@code false}
-//     */
-//    bool isOfType(AxiomType axiomTypes);
-//
-//    /**
-//     * Determines if this axiom is one of the specified types
-//     *
-//     * @param types
-//     *        The axiom types to check for
-//     * @return {@code true} if this axioms is one of the specified types,
-//     *         otherwise {@code false}
-//     */
-//    bool isOfType(AxiomType::Set types);
+
+     /**
+      * Determines if this axiom is one of the specified types
+      *
+      * @param axiomTypes
+      *        The axiom type to check for
+      * @return {@code true} if this axiom is one of the specified types,
+      *         otherwise {@code false}
+      */
+     bool isOfType(AxiomType axiomType) const { return axiomType == mAxiomType; }
+
+     /**
+      * Determines if this axiom is one of the specified types
+      *
+      * \param types
+      *        The axiom types to check for
+      * \return {\code true} if this axioms is one of the specified types,
+      *         otherwise {\code false}
+      */
+     bool isOfType(const std::set<AxiomType>& types) const { return types.end() != types.find(mAxiomType); }
+
 //
 //    /**
 //     * Gets this axioms in negation normal form. i.e. any class expressions
@@ -198,11 +193,7 @@ public:
 //     * @return The axiom in negation normal form.
 //     */
 //    OWLAxiom getNNF();
-//
-//    bool isAnnotated()
-//    bool isAnnotationAxiom();
-//    bool isLogicalAxiom();
-//    isOfType()
+
     virtual std::string toString() const;
 
 private:

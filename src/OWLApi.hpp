@@ -31,6 +31,8 @@
 #include <owlapi/model/OWLPropertyAssertionAxiom.hpp>
 #include <owlapi/model/OWLObjectPropertyAssertionAxiom.hpp>
 #include <owlapi/model/OWLDataPropertyAssertionAxiom.hpp>
+#include <owlapi/model/OWLSubDataPropertyOfAxiom.hpp>
+#include <owlapi/model/OWLSubObjectPropertyOfAxiom.hpp>
 #include <owlapi/model/OWLLiteral.hpp>
 #include <owlapi/model/OWLLiteralInteger.hpp>
 #include <owlapi/model/OWLOntology.hpp>

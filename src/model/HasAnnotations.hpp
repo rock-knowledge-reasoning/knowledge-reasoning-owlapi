@@ -25,6 +25,15 @@ public:
     virtual ~HasAnnotations() {}
 
     OWLAnnotationList getAnnotations() const { return mAnnotations; }
+
+     /**
+     * Determines if any annotations exist
+     *
+     * \return {\code true} if this object has annotations on it, otherwise
+     *         {\code false}
+     */
+    bool isAnnotated() const { return !mAnnotations.empty(); }
+
 };
 
 } // end namespace model
