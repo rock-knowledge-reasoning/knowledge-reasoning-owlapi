@@ -140,6 +140,10 @@ namespace owlapi {
 
 class KnowledgeBase;
 
+namespace io {
+    class RedlandWriter;
+}
+
 namespace model {
 
 class OWLOntologyTell;
@@ -154,6 +158,7 @@ class OWLOntology
 {
     friend class OWLOntologyTell;
     friend class OWLOntologyAsk;
+    friend class io::RedlandWriter;
 
 protected:
     /// Mapping of iri to types
