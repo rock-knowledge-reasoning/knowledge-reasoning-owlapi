@@ -6,7 +6,7 @@
 namespace owlapi {
 namespace model {
 
-class OWLLiteralDouble : public OWLLiteral
+class OWLLiteralDouble : public OWLLiteral, OWLLiteralNumeric<double>
 {
 public:
     OWLLiteralDouble(double value);
@@ -14,8 +14,6 @@ public:
     OWLLiteralDouble(const std::string& value);
 
     virtual ~OWLLiteralDouble() {}
-
-    double getDouble() const;
 };
 
 } // end namespace model

@@ -9,6 +9,8 @@ namespace model {
 class OWLDataPropertyExpression : public OWLPropertyExpression // SWRLPredicate
 {
 public:
+    typedef boost::shared_ptr<OWLDataPropertyExpression> Ptr;
+
     virtual ~OWLDataPropertyExpression() {}
 };
 

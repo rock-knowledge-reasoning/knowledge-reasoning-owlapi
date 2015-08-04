@@ -2,12 +2,31 @@
 #define OWLAPI_MODEL_OWL_LITERAL_HPP
 
 #include <string.h>
+#include <boost/lexical_cast.hpp>
 #include <owlapi/model/IRI.hpp>
 #include <owlapi/model/OWLDataType.hpp>
 #include <owlapi/model/OWLPropertyAssertionObject.hpp>
 
 namespace owlapi {
 namespace model {
+
+template<typename T>
+class OWLLiteralNumeric
+{
+public:
+    typedef T value_t;
+
+protected:
+    T mNumericValue;
+
+    value_t fromString(const std::string& stringValue) { return boost::lexical_cast< value_t >(stringValue); }
+
+    OWLLiteralNumeric(T value)
+        : mNumericValue(value)
+    {}
+
+    value_t getValue() const { return mNumericValue; }
+};
 
 /**
  *  Represents a Literal in the OWL 2 Specification.
@@ -30,6 +49,8 @@ protected:
     std::string mType;
 
     OWLLiteral();
+
+    OWLLiteral(const std::string& value, const std::string& type);
 
     OWLLiteral(const std::string& value);
 
@@ -67,6 +88,14 @@ public:
      * \return point to an inbuilt literal type
      */
     static OWLLiteral::Ptr create(const std::string& literal, const OWLDataType& type);
+
+    static OWLLiteral::Ptr integer(int32_t value);
+    /**
+     * Create a literal typed to non negative integer and given value
+     */
+    static OWLLiteral::Ptr nonNegativeInteger(uint32_t value);
+
+    static OWLLiteral::Ptr doubleValue(double value);
 
     virtual int getInteger() const;
 

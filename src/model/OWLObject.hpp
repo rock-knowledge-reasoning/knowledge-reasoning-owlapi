@@ -16,12 +16,6 @@ public:
 
     virtual ~OWLObject() {}
 
-    /**
-     * Accept a visitor to visit this object, i.e. 
-     * will call visitor->visit(*this)
-     */
-    virtual void accept(boost::shared_ptr<OWLAxiomVisitor> visitor);
-
     virtual bool isBottomEntity();
     virtual bool isTopEntity();
 };

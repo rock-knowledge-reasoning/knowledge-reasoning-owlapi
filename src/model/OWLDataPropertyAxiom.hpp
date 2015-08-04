@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_DATA_PROPERTY_AXIOM_HPP
 
 #include <owlapi/model/OWLPropertyAxiom.hpp>
+#include <owlapi/model/OWLDataPropertyExpression.hpp>
 
 namespace owlapi {
 namespace model {
@@ -13,7 +14,10 @@ namespace model {
 class OWLDataPropertyAxiom : public OWLPropertyAxiom
 {
 public:
-    OWLDataPropertyAxiom(AxiomType type, OWLAnnotationList annotations = OWLAnnotationList());
+    typedef boost::shared_ptr<OWLDataPropertyAxiom> Ptr;
+    typedef OWLDataPropertyExpression property_t;
+
+    OWLDataPropertyAxiom(AxiomType type, OWLAnnotationList annotations = OWLAnnotationList())
         : OWLPropertyAxiom(type, annotations)
     {}
 

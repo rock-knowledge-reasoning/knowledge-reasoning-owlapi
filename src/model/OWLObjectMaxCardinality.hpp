@@ -19,7 +19,7 @@ public:
     virtual ~OWLObjectMaxCardinality() {}
 
     ClassExpressionType getClassExpressionType() const { return OBJECT_MAX_CARDINALITY; }
-    bool isAnonymous() const { return true; }
+
     bool isClassExpressionLiteral() const { return false; }
 };
 

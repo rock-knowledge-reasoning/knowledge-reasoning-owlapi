@@ -7,21 +7,19 @@ namespace owlapi {
 namespace model {
 
 OWLLiteralDouble::OWLLiteralDouble(double value)
+    : OWLLiteral("", vocabulary::XSD::resolve("double").toString())
+    , OWLLiteralNumeric<double>(value)
 {
     std::stringstream ss;
     ss << value;
-
     mValue = ss.str();
-    mType = vocabulary::XSD::resolve("double").toString();
 }
 
 OWLLiteralDouble::OWLLiteralDouble(const std::string& value)
     : OWLLiteral(value)
-{}
-
-double OWLLiteralDouble::getDouble() const
+    , OWLLiteralNumeric<double>(0.0)
 {
-    return boost::lexical_cast<double>(mValue);
+    mNumericValue = fromString(mValue);
 }
 
 } // end namespace model

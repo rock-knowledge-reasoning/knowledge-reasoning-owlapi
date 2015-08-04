@@ -14,7 +14,6 @@ SopranoDB::SopranoDB(const std::string& filename, const std::string& baseUri)
 
 Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::string& baseUri)
 {
-    const Soprano::Parser* p = Soprano::PluginManager::instance()->discoverParserForSerialization( Soprano::SerializationRdfXml );
     QUrl qBaseUri( QString::fromStdString(baseUri) );
 
     {
@@ -26,18 +25,44 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
         }
     }
 
+    std::vector<Soprano::RdfSerialization> serializationFormats;
+    serializationFormats.push_back(Soprano::SerializationRdfXml);
+// Segfault here in redland
+//    serializationFormats.push_back(Soprano::SerializationN3);
+    serializationFormats.push_back(Soprano::SerializationNTriples);
+    serializationFormats.push_back(Soprano::SerializationTrig);
+    serializationFormats.push_back(Soprano::SerializationNQuads);
 
-    Soprano::StatementIterator it = p->parseFile(QString::fromStdString(filename), qBaseUri, Soprano::SerializationRdfXml);
-
-    Soprano::Model* sopranoModel = Soprano::createModel();
-    QList<Soprano::Statement> allStatements = it.allStatements();
-
-    Q_FOREACH( Soprano::Statement s, allStatements)
+    std::vector<Soprano::RdfSerialization>::const_iterator cit = serializationFormats.begin();
+    for(; cit != serializationFormats.end(); ++cit)
     {
-        sopranoModel->addStatement(s);
+        const Soprano::Parser* p = Soprano::PluginManager::instance()->discoverParserForSerialization(*cit);
+
+        try {
+            Soprano::StatementIterator it = p->parseFile(QString::fromStdString(filename), qBaseUri, *cit);
+
+            QList<Soprano::Statement> allStatements = it.allStatements();
+            if(allStatements.empty())
+            {
+                throw std::runtime_error("owlapi::db::rdf::SopranoDB:fromFile " + filename + 
+                        " no statements found. Trying other parser.");
+            }
+            LOG_DEBUG_S << "Successfully parsed using format: " << *cit;
+
+            Soprano::Model* sopranoModel = Soprano::createModel();
+            Q_FOREACH( Soprano::Statement s, allStatements)
+            {
+                sopranoModel->addStatement(s);
+            }
+
+            return sopranoModel;
+        } catch(const std::exception& e)
+        {
+            LOG_WARN_S << e.what();
+        }
     }
 
-    return sopranoModel;
+    throw std::runtime_error("owlapi::db::rdf::SopranoDB: file format not supported");
 }
 
 query::Results SopranoDB::query(const std::string& query, const query::Bindings& bindings) const

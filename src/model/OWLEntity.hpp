@@ -15,12 +15,12 @@ class OWLEntity : public OWLNamedObject
 {
 public:
     enum EntityType { UNKNOWN,
-        AnnotationProperty,
-        Class,
-        DataProperty,
-        Datatype,
-        NamedIndividual,
-        ObjectProperty
+        ANNOTATION_PROPERTY,
+        CLASS,
+        DATATYPE,
+        DATA_PROPERTY,
+        NAMED_INDIVIDUAL,
+        OBJECT_PROPERTY
     };
 
     typedef boost::shared_ptr<OWLEntity> Ptr;

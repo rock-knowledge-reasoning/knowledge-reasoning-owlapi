@@ -12,7 +12,7 @@ class OWLDataType : public OWLDataRange, public OWLLogicalEntity
 public:
     typedef boost::shared_ptr<OWLDataType> Ptr;
 
-    OWLDataType(const IRI& iri, OWLDataRange::Type type = DATATYPE);
+    OWLDataType(const IRI& iri, OWLDataRange::Type type = OWLDataRange::DATATYPE);
     virtual ~OWLDataType() {}
 
     static OWLDataType fromRange(const OWLDataRange::Ptr& range);

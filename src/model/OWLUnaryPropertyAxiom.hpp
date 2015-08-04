@@ -2,19 +2,34 @@
 #define OWLAPI_MODEL_OWL_UNARY_PROPERTY_AXIOM_HPP
 
 #include <owlapi/model/OWLAxiom.hpp>
+#include <owlapi/model/OWLPropertyAxiom.hpp>
 
 namespace owlapi {
 namespace model {
 
-class OWLUnaryPropertyAxiom
+// Typename: OWLObjectPropertyAxiom or OWLDataPropertyAxiom
+template<typename T>
+class OWLUnaryPropertyAxiom : public T
 {
 public:
-    typedef boost::shared_ptr<OWLUnaryPropertyAxiom> Ptr;
+    // e.g. for the ObjectProperties this should refer to the
+    // ObjectPropertyExpression::Ptr
+    typedef boost::shared_ptr< typename T::property_t > PropertyPtr;
+
+    OWLUnaryPropertyAxiom(const PropertyPtr& propertyExpression,
+            OWLAxiom::AxiomType type,
+            OWLAnnotationList annotations)
+        : T(type, annotations)
+        , mProperty(propertyExpression)
+    {}
 
     virtual ~OWLUnaryPropertyAxiom() {}
 
-    virtual OWLPropertyExpression::Ptr getProperty() = 0;
-}
+    PropertyPtr getProperty() const { return mProperty; }
+
+private:
+    PropertyPtr mProperty;
+};
 
 } // end namespace model
 } // end namespace owlapi

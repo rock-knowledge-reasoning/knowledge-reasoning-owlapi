@@ -24,8 +24,6 @@ public:
         , mpClassExpression(classExpression)
     {}
 
-    virtual void accept(boost::shared_ptr<OWLAxiomVisitor> visitor);
-
     OWLClassExpression::Ptr getClassExpression() const { return mpClassExpression; }
     OWLIndividual::Ptr getIndividual() const { return mpIndividual; }
 };

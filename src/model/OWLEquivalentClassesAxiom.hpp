@@ -28,12 +28,6 @@ public:
     bool containsOWLThing() const { throw std::runtime_error("OWLEquivalentClassesAxiom:containsOWLThing: not implemented"); }
 
     std::vector<OWLClass> getNamedClasses() { throw std::runtime_error("OWLEquivalentClassesAxiom:getNamedClasses: not implemented"); }
-
-    /**
-     * Accept a visitor to visit this object, i.e.
-     * will call visitor->visit(*this)
-     */
-    virtual void accept(boost::shared_ptr<OWLAxiomVisitor> visitor);
 };
 
 } // end namespace model

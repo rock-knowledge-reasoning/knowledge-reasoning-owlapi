@@ -92,13 +92,17 @@ rock_library(owlapi
         model/OWLDataType.hpp
         model/OWLDeclarationAxiom.hpp
         model/OWLDisjointClassesAxiom.hpp
+        model/OWLDisjointObjectProperties.hpp
         model/OWLDisjointUnionAxiom.hpp
         model/OWLEntity.hpp
         model/OWLEquivalentClassesAxiom.hpp
+        model/OWLEquivalentObjectPropertiesAxiom.hpp
         model/OWLExactCardinalityRestriction.hpp
+        model/OWLFunctionObjectProperty.hpp
         model/OWLIndividual.hpp
         model/OWLIndividualAxiom.hpp
         model/OWLInverseObjectProperty.hpp
+        model/OWLInverseObjectPropertiesAxiom.hpp
         model/OWLLiteral.hpp
         model/OWLLiteralDouble.hpp
         model/OWLLiteralInteger.hpp
@@ -118,6 +122,8 @@ rock_library(owlapi
         model/OWLObjectPropertyAssertionAxiom.hpp
         model/OWLObjectPropertyAxiom.hpp
         model/OWLObjectPropertyCharacteristicAxiom.hpp
+        model/OWLObjectPropertyDomainAxiom.hpp
+        model/OWLObjectPropertyRangeAxiom.hpp
         model/OWLObjectPropertyExpression.hpp
         model/OWLOntology.hpp
         model/OWLOntologyAsk.hpp

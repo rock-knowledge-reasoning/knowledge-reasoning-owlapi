@@ -28,11 +28,6 @@ public:
 
     OWLEntity::Ptr getEntity() const { return mEntity; }
 
-    /**
-     * Accept a visitor to visit this object, i.e. 
-     * will call visitor->visit(*this)
-     */
-    virtual void accept(boost::shared_ptr<OWLAxiomVisitor> visitor);
 };
 
 } // end namespace model

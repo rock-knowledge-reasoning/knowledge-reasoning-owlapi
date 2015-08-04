@@ -16,6 +16,7 @@ class OWLQualifiedRestriction : public OWLRestriction
     bool mQualified;
 
 public:
+    typedef boost::shared_ptr<OWLQualifiedRestriction> Ptr;
     /**
      * \brief A qualified restriction allows to associate a property with a qualification
      * \details According to w3c the qualification here should be:

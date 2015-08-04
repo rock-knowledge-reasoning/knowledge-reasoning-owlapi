@@ -114,10 +114,13 @@ void OWLOntologyReader::load()
                     // delayed handling
                 } else if( object == vocabulary::OWL::InverseFunctionalProperty())
                 {
-                    mTell->inverseFunctionalProperty(subject);
+                    // delayed handling
+                } else if(object == vocabulary::OWL::SymmetricProperty())
+                {
+                    // delayed handling
                 } else if(object == vocabulary::OWL::TransitiveProperty())
                 {
-                    mTell->transitiveProperty(subject);
+                    // delayed handling
                 } else if( object == vocabulary::OWL::AnnotationProperty())
                 {
                     LOG_DEBUG_S << "Annotation property '" << subject << "' ignored for reasoning";
@@ -221,19 +224,32 @@ void OWLOntologyReader::load()
     // Delayed execution since we need to know whether we deal with an object or datatype property
     // TODO Property check
     {
-        Results results = findAll(Subject(), vocabulary::RDF::type(), vocabulary::OWL::FunctionalProperty());
+        Results results = findAll(Subject(), vocabulary::RDF::type(), Object());
         ResultsIterator it(results);
         while(it.next())
         {
             IRI subject = it[Subject()];
-            if( mAsk->isObjectProperty(subject))
+            IRI object = it[Object()];
+            if(object == vocabulary::OWL::FunctionalProperty())
             {
-                mTell->functionalObjectProperty(subject);
-            } else if ( mAsk->isDataProperty(subject) )
+                if( mAsk->isObjectProperty(subject))
+                {
+                    mTell->functionalObjectProperty(subject);
+                } else if ( mAsk->isDataProperty(subject) )
+                {
+                    mTell->functionalDataProperty(subject);
+                } else {
+                    throw std::invalid_argument("Property '" + subject.toString() + "' is not a known object or data property");
+                }
+            } else if( object == vocabulary::OWL::InverseFunctionalProperty())
             {
-                mTell->functionalDataProperty(subject);
-            } else {
-                throw std::invalid_argument("Property '" + subject.toString() + "' is not a known object or data property");
+                mTell->inverseFunctionalProperty(subject);
+            } else if(object == vocabulary::OWL::SymmetricProperty())
+            {
+                mTell->symmetricProperty(subject);
+            } else if(object == vocabulary::OWL::TransitiveProperty())
+            {
+                mTell->transitiveProperty(subject);
             }
         }
     }
@@ -266,6 +282,7 @@ void OWLOntologyReader::load()
             {
                 // check that subject and object are object properties, if not
                 // raise, else
+                mTell->inverseOf(subject, object);
             } else if(predicate == vocabulary::OWL::oneOf())
             {
                 // object is a node representing a list of named individuals

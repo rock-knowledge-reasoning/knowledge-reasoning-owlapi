@@ -12,6 +12,8 @@ class OWLNamedObject : public OWLObject, HasIRI
     IRI mIRI;
 
 public:
+    typedef boost::shared_ptr<OWLNamedObject> Ptr;
+
     OWLNamedObject( const IRI& iri = IRI())
         : OWLObject()
         , HasIRI()

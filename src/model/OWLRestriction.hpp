@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_RESTRICTION_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
+#include <owlapi/model/OWLAnonymousClassExpression.hpp>
 #include <owlapi/model/OWLPropertyExpression.hpp>
 
 namespace owlapi {
@@ -12,7 +12,7 @@ namespace model {
  * \brief Represents a general restriction
  * \see http://owlapi.sourceforge.net/javadoc/index.html
  */
-class OWLRestriction : public OWLClassExpression
+class OWLRestriction : public OWLAnonymousClassExpression
 {
     OWLPropertyExpression::Ptr mpProperty;
 
@@ -20,7 +20,7 @@ public:
     typedef boost::shared_ptr<OWLRestriction> Ptr;
 
     OWLRestriction(OWLPropertyExpression::Ptr property)
-        : OWLClassExpression()
+        : OWLAnonymousClassExpression()
         , mpProperty(property)
     {}
 

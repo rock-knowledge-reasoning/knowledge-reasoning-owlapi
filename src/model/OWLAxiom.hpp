@@ -56,7 +56,7 @@ public:
                 SubDataPropertyOf,          // TDLDRoleSubsumption
                 DisjointDataProperties,     // TDLAxiomDisjointDRoles
                 EquivalentDataProperties,   // TDLAxiomEquivalentDRoles
-                FunctionalDataProperties,   // TDLAxiomDRoleFunctional
+                FunctionalDataProperty,   // TDLAxiomDRoleFunctional
                 DataPropertyDomain,         // TDLAxiomDRoleDomain
                 DataPropertyRange,          // TDLAxiomDRoleRange
                 // Assertion
@@ -87,12 +87,12 @@ public:
     {}
 
     virtual ~OWLAxiom() {}
-//
-//    /**
-//     * @param visitor
-//     *        visitor to accept
-//     */
-//    void accept(OWLAxiomVisitor visitor);
+
+    /**
+     * \param visitor
+     *        visitor to accept
+     */
+    void accept(OWLAxiomVisitor* visitor) const;
 
 //    /**
 //     * Gets the annotations that annotate this axiom and whose annotation

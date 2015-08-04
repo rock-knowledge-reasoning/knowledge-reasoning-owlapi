@@ -1,13 +1,20 @@
 #include "OWLLiteral.hpp"
 #include "OWLLiteralInteger.hpp"
 #include "OWLLiteralDouble.hpp"
+#include "OWLLiteralNonNegativeInteger.hpp"
 #include <owlapi/Vocabulary.hpp>
 #include <boost/lexical_cast.hpp>
+#include <base/Logging.hpp>
 
 namespace owlapi {
 namespace model {
 
 OWLLiteral::OWLLiteral()
+{}
+
+OWLLiteral::OWLLiteral(const std::string& value, const std::string& type)
+    : mValue(value)
+    , mType(type)
 {}
 
 OWLLiteral::OWLLiteral(const std::string& value)
@@ -41,9 +48,12 @@ OWLLiteral::Ptr OWLLiteral::create(const std::string& literal)
 {
     OWLLiteral testLiteral(literal);
     IRI type = testLiteral.mType;
-    if(type == vocabulary::XSD::integer() || type == vocabulary::XSD::nonNegativeInteger() || type == vocabulary::XSD::resolve("int"))
+    if(type == vocabulary::XSD::integer() || type == vocabulary::XSD::resolve("int"))
     {
         return OWLLiteral::Ptr(new OWLLiteralInteger(literal));
+    } else if(type == vocabulary::XSD::nonNegativeInteger())
+    {
+        return OWLLiteral::Ptr(new OWLLiteralNonNegativeInteger(literal));
     } else if(type == vocabulary::XSD::resolve("double") )
     {
         return OWLLiteral::Ptr(new OWLLiteralDouble(literal));
@@ -55,6 +65,21 @@ OWLLiteral::Ptr OWLLiteral::create(const std::string& literal)
 OWLLiteral::Ptr OWLLiteral::create(const std::string& literal, const OWLDataType& type)
 {
     return create( literal + "^^" + type.getIRI().toString());
+}
+
+OWLLiteral::Ptr OWLLiteral::integer(int32_t value)
+{
+    return OWLLiteral::Ptr(new OWLLiteralInteger(value));
+}
+
+OWLLiteral::Ptr OWLLiteral::nonNegativeInteger(uint32_t value)
+{
+    return OWLLiteral::Ptr(new OWLLiteralNonNegativeInteger(value));
+}
+
+OWLLiteral::Ptr OWLLiteral::doubleValue(double value)
+{
+    return OWLLiteral::Ptr(new OWLLiteralDouble(value));
 }
 
 int OWLLiteral::getInteger() const

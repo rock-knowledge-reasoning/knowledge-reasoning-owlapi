@@ -14,6 +14,7 @@ namespace model {
  * \brief OWLClassExpression represent a class definition in simple (Class) or complex form, e.g. using
  * intersection definition
  *
+ * \see http://www.w3.org/TR/owl2-syntax/#Class_Expressions
  * \see http://www.w3.org/TR/owl2-syntax/#Class_Expression_Axioms
  */
 class OWLClassExpression : public OWLPropertyRange //, SWRLPredicate

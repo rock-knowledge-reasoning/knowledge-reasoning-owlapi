@@ -22,12 +22,6 @@ public:
 
     virtual ~OWLSubClassOfAxiom() {}
 
-    /**
-     * Accept a visitor to visit this object, i.e. 
-     * will call visitor->visit(*this)
-     */
-    virtual void accept(boost::shared_ptr<OWLAxiomVisitor> visitor);
-
     OWLClassExpression::Ptr getSubClass() const { return mSubClass; }
     OWLClassExpression::Ptr getSuperClass() const { return mSuperClass; }
 

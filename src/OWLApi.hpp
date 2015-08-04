@@ -21,22 +21,13 @@
 #include <owlapi/model/OWLIndividual.hpp>
 #include <owlapi/model/OWLNamedIndividual.hpp>
 #include <owlapi/model/OWLAnonymousIndividual.hpp>
-#include <owlapi/model/OWLDeclarationAxiom.hpp>
-#include <owlapi/model/OWLClassAxiom.hpp>
-#include <owlapi/model/OWLSubClassOfAxiom.hpp>
-#include <owlapi/model/OWLEquivalentClassesAxiom.hpp>
-#include <owlapi/model/OWLDisjointClassesAxiom.hpp>
-#include <owlapi/model/OWLDisjointUnionAxiom.hpp>
-#include <owlapi/model/OWLClassAssertionAxiom.hpp>
-#include <owlapi/model/OWLPropertyAssertionAxiom.hpp>
-#include <owlapi/model/OWLObjectPropertyAssertionAxiom.hpp>
-#include <owlapi/model/OWLDataPropertyAssertionAxiom.hpp>
-#include <owlapi/model/OWLSubDataPropertyOfAxiom.hpp>
-#include <owlapi/model/OWLSubObjectPropertyOfAxiom.hpp>
 #include <owlapi/model/OWLLiteral.hpp>
 #include <owlapi/model/OWLLiteralInteger.hpp>
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/model/OWLOntologyTell.hpp>
 #include <owlapi/model/OWLOntologyAsk.hpp>
+
+#include <owlapi/model/OWLLiteral.hpp>
+#include <owlapi/model/OWLAxiomVisitor.hpp>
 
 #endif // OWLAPI_HPP

@@ -90,6 +90,7 @@ public:
     void addAxiom(OWLAxiom::Ptr axiom);
 
     void inverseFunctionalProperty(const IRI& property);
+    void symmetricProperty(const IRI& property);
     void transitiveProperty(const IRI& property);
     void functionalObjectProperty(const IRI& property);
     void functionalDataProperty(const IRI& property);
