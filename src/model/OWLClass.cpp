@@ -5,7 +5,7 @@ namespace model {
 
 OWLClass::OWLClass(const IRI& iri)
     : OWLClassExpression()
-    , OWLLogicalEntity(iri)
+    , OWLLogicalEntity(iri, OWLEntity::CLASS)
 {
     mIsThing = (iri == owlapi::vocabulary::OWL::Thing());
     mIsNothing = (iri == owlapi::vocabulary::OWL::Nothing());

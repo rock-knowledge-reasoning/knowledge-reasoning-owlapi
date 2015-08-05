@@ -90,25 +90,25 @@ void OWLAxiom::accept(OWLAxiomVisitor* visitor) const
         VISIT_CASE_STATEMENT(EquivalentObjectProperties, OWLEquivalentObjectPropertiesAxiom);
         //VISIT_CASE_STATEMENT(DisjointObjectProperties, OWLDisjointObjectPropertiesAxiom);
         VISIT_CASE_STATEMENT(SubObjectPropertyOf, OWLSubObjectPropertyOfAxiom);
-        //VISIT_CASE_STATEMENT(ObjectPropertyDomain, OWLObjectPropertyDomainAxiom);
-        //VISIT_CASE_STATEMENT(ObjectPropertyRange, OWLObjectPropertyRangeAxiom);
+        VISIT_CASE_STATEMENT(ObjectPropertyDomain, OWLObjectPropertyDomainAxiom);
+        VISIT_CASE_STATEMENT(ObjectPropertyRange, OWLObjectPropertyRangeAxiom);
         VISIT_CASE_STATEMENT(InverseObjectProperties, OWLInverseObjectPropertiesAxiom);
         VISIT_CASE_STATEMENT(FunctionalObjectProperty, OWLFunctionalObjectPropertyAxiom);
-        // VISIT_CASE_STATEMENT(ReflexiveObjectProperty, OWLReflexiveObjectPropertyAxiom);
-        // VISIT_CASE_STATEMENT(InverseFunctionalObjectProperty, OWLInverseFunctionalObjectPropertyAxiom);
-        // VISIT_CASE_STATEMENT(IrreflexiveObjectProperty, OWLIrreflexiveObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(InverseFunctionalObjectProperty, OWLInverseFunctionalObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(ReflexiveObjectProperty, OWLReflexiveObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(IrreflexiveObjectProperty, OWLIrreflexiveObjectPropertyAxiom);
         VISIT_CASE_STATEMENT(SymmetricObjectProperty, OWLSymmetricObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(AsymmetricObjectProperty, OWLAsymmetricObjectPropertyAxiom);
         VISIT_CASE_STATEMENT(TransitiveObjectProperty, OWLTransitiveObjectPropertyAxiom);
-        // VISIT_CASE_STATEMENT(AsymmetricObjectProperty, OWLAsymmetricObjectPropertyAxiom);
 
         VISIT_CASE_STATEMENT(SubDataPropertyOf, OWLSubDataPropertyOfAxiom);
         //VISIT_CASE_STATEMENT(DisjointDataProperties, OWLDisjointDataPropertiesAxiom);
         //VISIT_CASE_STATEMENT(EquivalentDataProperties, OWLEquivalentDataPropertiesAxiom);
         VISIT_CASE_STATEMENT(FunctionalDataProperty, OWLFunctionalDataPropertyAxiom);
-        //VISIT_CASE_STATEMENT(DataPropertyDomain, OWLDataPropertyDomainAxiom);
-        //VISIT_CASE_STATEMENT(DataPropertyRange, OWLDataPropertyRangeAxiom);
+        VISIT_CASE_STATEMENT(DataPropertyDomain, OWLDataPropertyDomainAxiom);
+        VISIT_CASE_STATEMENT(DataPropertyRange, OWLDataPropertyRangeAxiom);
 
-        //VISIT_CASE_STATEMENT(ClassAssertion, OWLClassAssertionAxiom);
+        VISIT_CASE_STATEMENT(ClassAssertion, OWLClassAssertionAxiom);
         //VISIT_CASE_STATEMENT(SameIndividual, OWLSameIndividualAxiom);
         //VISIT_CASE_STATEMENT(DifferentIndividuals, OWLDifferentIndividualsAxiom);
 
@@ -128,6 +128,11 @@ void OWLAxiom::accept(OWLAxiomVisitor* visitor) const
         default:
             break;
     }
+}
+
+OWLAxiom::Ptr OWLAxiom::declare(const OWLEntity::Ptr& entity)
+{
+    return Ptr(new OWLDeclarationAxiom(entity));
 }
 
 

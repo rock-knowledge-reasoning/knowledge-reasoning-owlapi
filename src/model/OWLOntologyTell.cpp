@@ -52,7 +52,7 @@ OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
         // Update kb
         mpOntology->kb()->getClassLazy(iri);
 
-        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::CLASS));
+        OWLEntity::Ptr entity = OWLEntity::klass(iri);
         OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
         mpOntology->addAxiom(axiom);
 
@@ -87,6 +87,9 @@ OWLNamedIndividual::Ptr OWLOntologyTell::namedIndividual(const IRI& iri)
         //Update kb
         mpOntology->kb()->getInstanceLazy(iri);
 
+        OWLEntity::Ptr entity = OWLEntity::namedIndividual(iri);
+        mpOntology->addAxiom( OWLAxiom::declare(entity) );
+
         return individual;
     }
 }
@@ -104,9 +107,8 @@ OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
         //Update kb
         mpOntology->kb()->getObjectPropertyLazy(iri);
 
-        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::OBJECT_PROPERTY));
-        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
-        mpOntology->addAxiom(axiom);
+        OWLEntity::Ptr entity = OWLEntity::objectProperty(iri);
+        mpOntology->addAxiom( OWLAxiom::declare(entity) );
 
         return property;
     }
@@ -119,16 +121,31 @@ OWLDataProperty::Ptr OWLOntologyTell::dataProperty(const IRI& iri)
     {
         return it->second;
     } else {
-        OWLDataProperty::Ptr property(new OWLDataProperty(iri));
-        mpOntology->mDataProperties[iri] = property;
-
         //Update kb
         mpOntology->kb()->getDataPropertyLazy(iri);
 
-        OWLEntity::Ptr entity(new OWLEntity(iri, OWLEntity::DATA_PROPERTY));
-        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
-        mpOntology->addAxiom(axiom);
+        OWLEntity::Ptr entity = OWLEntity::dataProperty(iri);
+        OWLDataProperty::Ptr property = ptr_cast<OWLDataProperty, OWLEntity>(entity);
+        mpOntology->mDataProperties[iri] = property;
 
+        mpOntology->addAxiom( OWLAxiom::declare(entity) );
+        return property;
+    }
+}
+
+OWLAnnotationProperty::Ptr OWLOntologyTell::annotationProperty(const IRI& iri)
+{
+    std::map<IRI, OWLAnnotationProperty::Ptr>::const_iterator it = mpOntology->mAnnotationProperties.find(iri);
+    if(it != mpOntology->mAnnotationProperties.end())
+    {
+        return it->second;
+    } else {
+
+        OWLEntity::Ptr entity = OWLEntity::dataProperty(iri);
+        mpOntology->addAxiom( OWLAxiom::declare(entity) );
+
+        OWLAnnotationProperty::Ptr property = ptr_cast<OWLAnnotationProperty, OWLEntity>(entity);
+        mpOntology->mAnnotationProperties[iri] = property;
         return property;
     }
 }
@@ -151,7 +168,8 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, const I
 OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass)
 {
     mpOntology->kb()->subClassOf(subclass->getIRI(), superclass->getIRI());
-    return subClassOf(boost::dynamic_pointer_cast<OWLClassExpression>(subclass),boost::dynamic_pointer_cast<OWLClassExpression>(superclass));
+    return subClassOf(ptr_cast<OWLClassExpression,OWLClass>(subclass),
+            ptr_cast<OWLClassExpression, OWLClass>(superclass));
 }
 
 
@@ -194,62 +212,98 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
     mpOntology->mNamedIndividualAxioms[e_individual].push_back(axiom);
 
     LOG_DEBUG_S << "NamedIndividual '" << instance << "' of class: '" << classType << "'";
+
+    mpOntology->addAxiom( axiom );
     return axiom;
 }
 
 void OWLOntologyTell::inverseFunctionalProperty(const IRI& property)
 {
     mpOntology->kb()->inverseFunctionalProperty(property);
+    addUnaryObjectPropertyAxiom<OWLInverseFunctionalObjectPropertyAxiom>(property);
+}
+
+void OWLOntologyTell::reflexiveProperty(const IRI& property)
+{
+    mpOntology->kb()->reflexiveProperty(property);
+    addUnaryObjectPropertyAxiom<OWLReflexiveObjectPropertyAxiom>(property);
+}
+
+void OWLOntologyTell::irreflexiveProperty(const IRI& property)
+{
+    mpOntology->kb()->irreflexiveProperty(property);
+    addUnaryObjectPropertyAxiom<OWLIrreflexiveObjectPropertyAxiom>(property);
 }
 
 void OWLOntologyTell::symmetricProperty(const IRI& property)
 {
     mpOntology->kb()->symmetricProperty(property);
-
-    {
-        OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
-        OWLSymmetricObjectPropertyAxiom::Ptr axiom(new OWLSymmetricObjectPropertyAxiom(oProperty));
-        mpOntology->addAxiom(axiom);
-    }
+    addUnaryObjectPropertyAxiom<OWLSymmetricObjectPropertyAxiom>(property);
 }
 
+void OWLOntologyTell::asymmetricProperty(const IRI& property)
+{
+    mpOntology->kb()->asymmetricProperty(property);
+    addUnaryObjectPropertyAxiom<OWLAsymmetricObjectPropertyAxiom>(property);
+}
 
 void OWLOntologyTell::transitiveProperty(const IRI& property)
 {
     mpOntology->kb()->transitiveProperty(property);
-
-    {
-        OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
-        OWLTransitiveObjectPropertyAxiom::Ptr axiom(new OWLTransitiveObjectPropertyAxiom(oProperty));
-        mpOntology->addAxiom(axiom);
-    }
+    addUnaryObjectPropertyAxiom<OWLTransitiveObjectPropertyAxiom>(property);
 }
 
 void OWLOntologyTell::functionalObjectProperty(const IRI& property)
 {
     mpOntology->kb()->functionalProperty(property, KnowledgeBase::OBJECT);
-
-    {
-        OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
-        OWLFunctionalObjectPropertyAxiom::Ptr axiom(new OWLFunctionalObjectPropertyAxiom(oProperty));
-        mpOntology->addAxiom(axiom);
-    }
+    addUnaryObjectPropertyAxiom<OWLFunctionalObjectPropertyAxiom>(property);
 }
 
 void OWLOntologyTell::functionalDataProperty(const IRI& property)
 {
     mpOntology->kb()->functionalProperty(property, KnowledgeBase::DATA);
-
-    {
-        OWLDataProperty::Ptr dProperty = mpOntology->getDataProperty(property);
-        OWLFunctionalDataPropertyAxiom::Ptr axiom(new OWLFunctionalDataPropertyAxiom(dProperty));
-        mpOntology->addAxiom(axiom);
-    }
+    addUnaryDataPropertyAxiom<OWLFunctionalDataPropertyAxiom>(property);
 }
 
 void OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation, const IRI& object)
 {
     mpOntology->kb()->relatedTo(subject, relation, object);
+
+    LOG_DEBUG_S << "Add relation: " << std::endl
+        << "    s: " << subject << std::endl
+        << "    p: " << relation << std::endl
+        << "    o: " << object << std::endl;
+
+    OWLIndividual::Ptr individual = mpOntology->getIndividual(subject);
+    OWLPropertyAssertionObject::Ptr assertionObject;
+    try {
+        assertionObject = mpOntology->getIndividual(object);
+        LOG_DEBUG_S << "    o: from known individual" << std::endl;
+    } catch(...)
+    {
+        assertionObject = OWLLiteral::create(object.toString());
+        LOG_DEBUG_S << "    o: as literal" << std::endl;
+    }
+
+    if(mAsk.isObjectProperty(relation))
+    {
+        OWLObjectPropertyAssertionAxiom::Ptr axiom(new OWLObjectPropertyAssertionAxiom(
+                    individual,
+                    mpOntology->getObjectProperty(relation),
+                    assertionObject));
+        mpOntology->addAxiom(axiom);
+
+    } else if(mAsk.isDataProperty(relation))
+    {
+        OWLDataPropertyAssertionAxiom::Ptr axiom(new OWLDataPropertyAssertionAxiom(
+                    individual,
+                    mpOntology->getDataProperty(relation),
+                    boost::dynamic_pointer_cast<OWLLiteral>(assertionObject) ));
+        mpOntology->addAxiom(axiom);
+    } else {
+        throw std::runtime_error("owlapi::model::OWLOntologyTell::relatedTo: "
+                "'" + relation.toString() + "' is not a known relation/property");
+    }
 }
 
 OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, const IRI& parentProperty)
@@ -259,11 +313,15 @@ OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, 
     OWLSubPropertyAxiom::Ptr axiom;
     if(mAsk.isObjectProperty(parentProperty))
     {
+        objectProperty(subProperty);
+
         OWLObjectProperty::Ptr subOProperty = mpOntology->getObjectProperty(subProperty);
         OWLObjectProperty::Ptr superOProperty = mpOntology->getObjectProperty(parentProperty);
 
         axiom = OWLSubPropertyAxiom::Ptr(new OWLSubObjectPropertyOfAxiom(subOProperty, superOProperty));
     } else {
+        dataProperty(subProperty);
+
         OWLDataProperty::Ptr subDProperty = mpOntology->getDataProperty(subProperty);
         OWLDataProperty::Ptr superDProperty = mpOntology->getDataProperty(parentProperty);
 
@@ -278,10 +336,12 @@ void OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const IRI& class
 {
     mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);
 
-    /*OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
-    OWLClass::Ptr domain = mpOntology->getClass(classType);
-    dataProperty->addDomain(domain);
-    */
+    OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
+    OWLClassExpression::Ptr domain = mpOntology->getClass(classType);
+
+    OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
+    OWLDataPropertyDomainAxiom::Ptr axiom(new OWLDataPropertyDomainAxiom(e_dataProperty, domain));
+    mpOntology->addAxiom(axiom);
 }
 
 void OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classType)
@@ -292,26 +352,32 @@ void OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classT
     OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
     OWLDataRange::Ptr range(new OWLDataType(classType));
     dataProperty->addRange(range);
+
+    OWLDataPropertyExpression::Ptr e_dataProperty = boost::dynamic_pointer_cast<OWLDataPropertyExpression>(dataProperty);
+    OWLDataPropertyRangeAxiom::Ptr axiom(new OWLDataPropertyRangeAxiom(e_dataProperty, range));
+    mpOntology->addAxiom(axiom);
 }
 
 void OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const IRI& classType)
 {
     mpOntology->kb()->domainOf(relation, classType, KnowledgeBase::OBJECT);
 
-    /*OWLObjectProperty::Ptr objectProperty = mpOntology->getObjectProperty(relation);
-    OWLClass::Ptr domain = mpOntology->getClass(classType);
-    objectProperty->addDomain(domain);
-    */
+    OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(relation);
+    OWLClassExpression::Ptr klass = mpOntology->getClass(classType);
+
+    OWLObjectPropertyDomainAxiom::Ptr axiom(new OWLObjectPropertyDomainAxiom(oProperty, klass));
+    mpOntology->addAxiom(axiom);
 }
 
 void OWLOntologyTell::objectPropertyRangeOf(const IRI& relation, const IRI& classType)
 {
     mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
 
-    /*OWLObjectProperty::Ptr objectProperty = mpOntology->getObjectProperty(relation);
-    OWLClass::Ptr range = mpOntology->getClass(classType);
-    objectProperty->addRange(range);
-    */
+    OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(relation);
+    OWLClassExpression::Ptr klass = mpOntology->getClass(classType);
+
+    OWLObjectPropertyRangeAxiom::Ptr axiom(new OWLObjectPropertyRangeAxiom(oProperty, klass));
+    mpOntology->addAxiom(axiom);
 }
 
 void OWLOntologyTell::inverseOf(const IRI& relation, const IRI& inverseRelation)

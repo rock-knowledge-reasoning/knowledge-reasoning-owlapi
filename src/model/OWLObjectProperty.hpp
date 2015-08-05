@@ -15,7 +15,7 @@ public:
 
     OWLObjectProperty(const IRI& iri)
         : OWLObjectPropertyExpression()
-        , OWLProperty(iri)
+        , OWLProperty(iri, OWLEntity::OBJECT_PROPERTY)
     {}
 
     virtual ~OWLObjectProperty() {}

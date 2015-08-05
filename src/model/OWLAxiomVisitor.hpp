@@ -18,25 +18,25 @@
 #include <owlapi/model/OWLEquivalentObjectPropertiesAxiom.hpp>
 //#include <owlapi/model/OWLDisjointObjectPropertiesAxiom.hpp>
 #include <owlapi/model/OWLSubObjectPropertyOfAxiom.hpp>
-//#include <owlapi/model/OWLObjectPropertyDomainAxiom.hpp>
-//#include <owlapi/model/OWLObjectPropertyRangeAxiom.hpp>
+#include <owlapi/model/OWLObjectPropertyDomainAxiom.hpp>
+#include <owlapi/model/OWLObjectPropertyRangeAxiom.hpp>
 #include <owlapi/model/OWLInverseObjectPropertiesAxiom.hpp>
 #include <owlapi/model/OWLFunctionalObjectPropertyAxiom.hpp>
-//#include <owlapi/model/OWLReflexiveObjectPropertyAxiom.hpp>
-//#include <owlapi/model/OWLInverseFunctionalObjectPropertyAxiom.hpp>
-//#include <owlapi/model/OWLIrreflexiveObjectPropertyAxiom.hpp>
+#include <owlapi/model/OWLInverseFunctionalObjectPropertyAxiom.hpp>
+#include <owlapi/model/OWLReflexiveObjectPropertyAxiom.hpp>
+#include <owlapi/model/OWLIrreflexiveObjectPropertyAxiom.hpp>
 #include <owlapi/model/OWLSymmetricObjectPropertyAxiom.hpp>
+#include <owlapi/model/OWLAsymmetricObjectPropertyAxiom.hpp>
 #include <owlapi/model/OWLTransitiveObjectPropertyAxiom.hpp>
-//#include <owlapi/model/OWLAsymmetricObjectPropertyAxiom.hpp>
 
 #include <owlapi/model/OWLSubDataPropertyOfAxiom.hpp>
 //#include <owlapi/model/OWLDisjointDataPropertiesAxiom.hpp>
 //#include <owlapi/model/OWLEquivalentDataPropertiesAxiom.hpp>
 #include <owlapi/model/OWLFunctionalDataPropertyAxiom.hpp>
-//#include <owlapi/model/OWLDataPropertyDomainAxiom.hpp>
-//#include <owlapi/model/OWLDataPropertyRangeAxiom.hpp>
+#include <owlapi/model/OWLDataPropertyDomainAxiom.hpp>
+#include <owlapi/model/OWLDataPropertyRangeAxiom.hpp>
 
-//#include <owlapi/model/OWLClassAssertionAxiom.hpp>
+#include <owlapi/model/OWLClassAssertionAxiom.hpp>
 //#include <owlapi/model/OWLSameIndividualAxiom.hpp>
 //#include <owlapi/model/OWLDifferentIndividualsAxiom.hpp>
 
@@ -88,25 +88,25 @@ public:
     AXIOM_VISITOR_VISIT(OWLEquivalentObjectPropertiesAxiom);
     //AXIOM_VISITOR_VISIT(OWLDisjointObjectPropertiesAxiom);
     AXIOM_VISITOR_VISIT(OWLSubObjectPropertyOfAxiom);
-    //AXIOM_VISITOR_VISIT(OWLObjectPropertyDomainAxiom);
-    //AXIOM_VISITOR_VISIT(OWLObjectPropertyRangeAxiom);
+    AXIOM_VISITOR_VISIT(OWLObjectPropertyDomainAxiom);
+    AXIOM_VISITOR_VISIT(OWLObjectPropertyRangeAxiom);
     AXIOM_VISITOR_VISIT(OWLInverseObjectPropertiesAxiom);
     AXIOM_VISITOR_VISIT(OWLFunctionalObjectPropertyAxiom);
-    // AXIOM_VISITOR_VISIT(OWLReflexiveObjectPropertyAxiom);
-    // AXIOM_VISITOR_VISIT(OWLInverseFunctionalObjectPropertyAxiom);
-    // AXIOM_VISITOR_VISIT(OWLIrreflexiveObjectPropertyAxiom);
+    AXIOM_VISITOR_VISIT(OWLInverseFunctionalObjectPropertyAxiom);
+    AXIOM_VISITOR_VISIT(OWLReflexiveObjectPropertyAxiom);
+    AXIOM_VISITOR_VISIT(OWLIrreflexiveObjectPropertyAxiom);
     AXIOM_VISITOR_VISIT(OWLSymmetricObjectPropertyAxiom);
+    AXIOM_VISITOR_VISIT(OWLAsymmetricObjectPropertyAxiom);
     AXIOM_VISITOR_VISIT(OWLTransitiveObjectPropertyAxiom);
-    // AXIOM_VISITOR_VISIT(OWLAsymmetricObjectPropertyAxiom);
 
     AXIOM_VISITOR_VISIT(OWLSubDataPropertyOfAxiom);
     //AXIOM_VISITOR_VISIT(OWLDisjointDataPropertiesAxiom);
     //AXIOM_VISITOR_VISIT(OWLEquivalentDataPropertiesAxiom);
     AXIOM_VISITOR_VISIT(OWLFunctionalDataPropertyAxiom);
-    //AXIOM_VISITOR_VISIT(OWLDataPropertyDomainAxiom);
-    //AXIOM_VISITOR_VISIT(OWLDataPropertyRangeAxiom);
+    AXIOM_VISITOR_VISIT(OWLDataPropertyDomainAxiom);
+    AXIOM_VISITOR_VISIT(OWLDataPropertyRangeAxiom);
 
-    //AXIOM_VISITOR_VISIT(OWLClassAssertionAxiom);
+    AXIOM_VISITOR_VISIT(OWLClassAssertionAxiom);
     //AXIOM_VISITOR_VISIT(OWLSameIndividualAxiom);
     //AXIOM_VISITOR_VISIT(OWLDifferentIndividualsAxiom);
 

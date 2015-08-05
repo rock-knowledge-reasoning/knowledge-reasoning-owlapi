@@ -7,6 +7,17 @@
 namespace owlapi {
 namespace model {
 
+template<typename T, typename S>
+typename T::Ptr ptr_cast(typename S::Ptr source, bool assert = false)
+{
+    typename T::Ptr ptr = boost::dynamic_pointer_cast<T>(source);
+    if(assert && !ptr)
+    {
+        throw std::runtime_error("owlapi::model::ptr_cast assertion failed");
+    }
+    return ptr;
+}
+
 class OWLAxiomVisitor;
 
 class OWLObject

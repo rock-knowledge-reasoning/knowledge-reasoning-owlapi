@@ -25,6 +25,13 @@ NodeID::NodeID(const std::string& id, bool anonymous)
     }
 }
 
+IRI NodeID::getIRIFromNodeID() const
+{ 
+    std::stringstream ss;
+    ss << mId;
+    return IRI( ss.str() );
+}
+
 std::string NodeID::nextAnonymousIRI()
 {
     return nodeString(msGlobalId);

@@ -11,6 +11,16 @@
 namespace owlapi {
 namespace io {
 
+/**
+ * This visitor renders triple statements according to the language mapping
+ * from OWL2 to RDF
+ * 
+ * This implementation handles declarations, cardinality restrictions,
+ * properties assignments -- however it is still incomplete mainly with respect
+ * to complex class expressions
+ * \see http://www.w3.org/TR/owl2-mapping-to-rdf/
+ *
+ */
 class RedlandVisitor : public owlapi::model::OWLAxiomVisitor
 {
 public:
@@ -21,9 +31,32 @@ public:
     void visit(const owlapi::model::OWLSubObjectPropertyOfAxiom& axiom);
     void visit(const owlapi::model::OWLSubDataPropertyOfAxiom& axiom);
 
+    void visit(const owlapi::model::OWLObjectPropertyDomainAxiom& axiom);
+    void visit(const owlapi::model::OWLObjectPropertyRangeAxiom& axiom);
+    void visit(const owlapi::model::OWLDataPropertyDomainAxiom& axiom);
+    void visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom);
+
     void visit(const owlapi::model::OWLInverseObjectPropertiesAxiom& axiom);
     void visit(const owlapi::model::OWLFunctionalObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLInverseFunctionalObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLReflexiveObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLIrreflexiveObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLSymmetricObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLAsymmetricObjectPropertyAxiom& axiom);
+    void visit(const owlapi::model::OWLTransitiveObjectPropertyAxiom& axiom);
     void visit(const owlapi::model::OWLFunctionalDataPropertyAxiom& axiom);
+
+    void visit(const owlapi::model::OWLObjectPropertyAssertionAxiom& axiom);
+    void visit(const owlapi::model::OWLDataPropertyAssertionAxiom& axiom);
+    void visit(const owlapi::model::OWLClassAssertionAxiom& axiom);
+
+    template<typename T>
+    void writeObjectProperty(const T& axiom, const owlapi::model::IRI& propertyType)
+    {
+        using namespace owlapi::model;
+        IRI iri = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+        writeTriple(iri, vocabulary::RDF::type(), propertyType);
+    }
 
     void writeTriple(const owlapi::model::IRI& subject,
         const owlapi::model::IRI& predicate,

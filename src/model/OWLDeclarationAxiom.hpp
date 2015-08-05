@@ -28,6 +28,8 @@ public:
 
     OWLEntity::Ptr getEntity() const { return mEntity; }
 
+    std::string toString() const;
+
 };
 
 } // end namespace model

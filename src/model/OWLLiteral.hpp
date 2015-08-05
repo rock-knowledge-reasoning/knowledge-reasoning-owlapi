@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_LITERAL_HPP
 
 #include <string.h>
+#include <owlapi/Vocabulary.hpp>
 #include <boost/lexical_cast.hpp>
 #include <owlapi/model/IRI.hpp>
 #include <owlapi/model/OWLDataType.hpp>
@@ -76,6 +77,12 @@ public:
     //std::string getL
     //
     std::string toString() const;
+
+    bool isBoolean() const { return mType == vocabulary::XSD::boolean().toString(); }
+    bool isDouble() const { return mType == vocabulary::XSD::resolve("double").toString(); }
+    bool isFloat() const { return mType == vocabulary::XSD::resolve("float").toString(); }
+    bool isInteger() const { return mType == vocabulary::XSD::integer().toString(); }
+    bool isPlainLiteral() const { return mType == vocabulary::RDF::PlainLiteral().toString(); }
 
     /**
      * Create a literal based on the given type information

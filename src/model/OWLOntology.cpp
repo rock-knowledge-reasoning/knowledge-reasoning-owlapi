@@ -58,6 +58,25 @@ OWLObjectProperty::Ptr OWLOntology::getObjectProperty(const IRI& iri) const
             " no object property '" + iri.toString() + "' known");
 }
 
+OWLIndividual::Ptr OWLOntology::getIndividual(const IRI& iri) const
+{
+    {
+        std::map<IRI, OWLNamedIndividual::Ptr>::const_iterator cit = mNamedIndividuals.find(iri);
+        if(cit != mNamedIndividuals.end())
+        {
+            return cit->second;
+        }
+    }
+    {
+        std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator cit = mAnonymousIndividuals.find(iri);
+        if(cit != mAnonymousIndividuals.end())
+        {
+            return cit->second;
+        }
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntology::getIndividual: no individual '" + iri.toString() + "' known");
+}
+
 void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
 {
     // TODO check if axiom already exists

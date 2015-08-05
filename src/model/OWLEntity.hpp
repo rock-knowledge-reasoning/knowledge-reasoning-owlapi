@@ -23,16 +23,24 @@ public:
         OBJECT_PROPERTY
     };
 
+    static std::map<EntityType, std::string> TypeTxt;
+
     typedef boost::shared_ptr<OWLEntity> Ptr;
 
-    OWLEntity( const IRI& iri = IRI(), EntityType type = UNKNOWN)
-        : OWLNamedObject(iri)
-        , mEntityType(type)
-    {}
+    OWLEntity( const IRI& iri = IRI(), EntityType type = UNKNOWN);
 
     virtual ~OWLEntity() {}
 
     EntityType getEntityType() const { return mEntityType; }
+
+    std::string toString() const;
+
+    static OWLEntity::Ptr annotationProperty(const IRI& iri);
+    static OWLEntity::Ptr klass(const IRI& iri);
+    static OWLEntity::Ptr datatype(const IRI& iri);
+    static OWLEntity::Ptr dataProperty(const IRI& iri);
+    static OWLEntity::Ptr objectProperty(const IRI& iri);
+    static OWLEntity::Ptr namedIndividual(const IRI& iri);
 
 private:
     EntityType mEntityType;

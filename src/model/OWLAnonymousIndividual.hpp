@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_ANONYMOUS_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_ANONYMOUS_INDIVIDUAL_HPP
 
-#include <owlapi/model/NodeID.hpp>
 #include <owlapi/model/OWLObject.hpp>
+#include <owlapi/model/NodeID.hpp>
 
 namespace owlapi {
 namespace model {
@@ -30,6 +30,10 @@ public:
      * \return NodeID
      */
     NodeID getNodeID() const { return mNodeID; }
+
+    bool isAnonymous() const { return true; }
+
+    IRI getReferenceID() const { return mNodeID.getIRIFromNodeID(); }
 };
 
 } // end namespace model

@@ -23,6 +23,34 @@ public:
 
     OWLOntologyTell(OWLOntology::Ptr ontology);
 
+    template<typename T>
+    bool addUnaryObjectPropertyAxiom(const IRI& property)
+    {
+        if(!mAsk.isObjectProperty(property))
+        {
+            return false;
+        }
+
+        OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
+        boost::shared_ptr<T> axiom(new T(oProperty));
+        mpOntology->addAxiom(axiom);
+        return true;
+    }
+
+    template<typename T>
+    bool addUnaryDataPropertyAxiom(const IRI& property)
+    {
+        if(!mAsk.isDataProperty(property))
+        {
+            return false;
+        }
+
+        OWLDataProperty::Ptr dProperty = mpOntology->getDataProperty(property);
+        boost::shared_ptr<T> axiom(new T(dProperty));
+        mpOntology->addAxiom(axiom);
+        return true;
+    }
+
     /**
      * Initialize all default classes for this ontology
      */
@@ -58,6 +86,8 @@ public:
      */
     OWLDataProperty::Ptr dataProperty(const IRI& iri);
 
+    OWLAnnotationProperty::Ptr annotationProperty(const IRI& iri);
+
     OWLSubClassOfAxiom::Ptr subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass);
     OWLSubClassOfAxiom::Ptr subClassOf(const IRI& subclass, OWLClassExpression::Ptr superclass);
 
@@ -90,7 +120,10 @@ public:
     void addAxiom(OWLAxiom::Ptr axiom);
 
     void inverseFunctionalProperty(const IRI& property);
+    void reflexiveProperty(const IRI& property);
+    void irreflexiveProperty(const IRI& property);
     void symmetricProperty(const IRI& property);
+    void asymmetricProperty(const IRI& property);
     void transitiveProperty(const IRI& property);
     void functionalObjectProperty(const IRI& property);
     void functionalDataProperty(const IRI& property);

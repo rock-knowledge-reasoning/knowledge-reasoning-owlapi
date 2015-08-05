@@ -11,12 +11,14 @@ namespace vocabulary {
 /**
  * The vocabulary for OWL
  * \see http://www.w3.org/TR/owl2-mapping-to-rdf/
+ * \see http://www.w3.org/TR/owl2-xml-serialization/#The_XML_Schema
  */
 class OWL
 {
 public:
     VOCABULARY_BASE_IRI("http://www.w3.org/2002/07/owl#");
     VOCABULARY_ADD_WORD(AllDifferent);
+    VOCABULARY_ADD_WORD(AllDisjointProperties);
     VOCABULARY_ADD_WORD(AnnotationProperty);
     VOCABULARY_ADD_WORD(Class);
     VOCABULARY_ADD_WORD(DataRange);
@@ -25,14 +27,17 @@ public:
     VOCABULARY_ADD_WORD(DeprecatedProperty);
     VOCABULARY_ADD_WORD(FunctionalProperty);
     VOCABULARY_ADD_WORD(InverseFunctionalProperty);
+    VOCABULARY_ADD_WORD(ReflexiveProperty);
+    VOCABULARY_ADD_WORD(IrreflexiveProperty);
+    VOCABULARY_ADD_WORD(SymmetricProperty);
+    VOCABULARY_ADD_WORD(AsymmetricProperty);
+    VOCABULARY_ADD_WORD(TransitiveProperty);
     VOCABULARY_ADD_WORD(Nothing);
     VOCABULARY_ADD_WORD(ObjectProperty);
     VOCABULARY_ADD_WORD(Ontology);
     VOCABULARY_ADD_WORD(OntologyProperty);
     VOCABULARY_ADD_WORD(Restriction);
-    VOCABULARY_ADD_WORD(SymmetricProperty);
     VOCABULARY_ADD_WORD(Thing);
-    VOCABULARY_ADD_WORD(TransitiveProperty);
     VOCABULARY_ADD_WORD(allValuesFrom);
     VOCABULARY_ADD_WORD(backwardCompatibleWith);
     /// Unqualified cardinality
@@ -43,7 +48,9 @@ public:
     VOCABULARY_ADD_WORD(distinctMembers);
     VOCABULARY_ADD_WORD(equivalentClass);
     VOCABULARY_ADD_WORD(equivalentProperty);
+    VOCABULARY_ADD_WORD(propertyDisjointWith);
     VOCABULARY_ADD_WORD(hasValue);
+    VOCABULARY_ADD_WORD(hasKey);
     VOCABULARY_ADD_WORD(imports);
     VOCABULARY_ADD_WORD(incompatibleWith);
     VOCABULARY_ADD_WORD(intersectionOf);
@@ -58,7 +65,7 @@ public:
     VOCABULARY_ADD_WORD(someValuesFrom);
     VOCABULARY_ADD_WORD(unionOf);
     VOCABULARY_ADD_WORD(versionInfo);
-
+    VOCABULARY_ADD_WORD(deprecated);
 
     // OWL 2
     VOCABULARY_ADD_WORD(NamedIndividual);

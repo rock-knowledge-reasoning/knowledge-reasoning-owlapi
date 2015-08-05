@@ -18,8 +18,8 @@ class OWLProperty : public OWLLogicalEntity //,  public OWLPropertyExpression
 public:
     typedef boost::shared_ptr<OWLProperty> Ptr;
 
-    OWLProperty(const IRI& iri)
-        : OWLLogicalEntity(iri)
+    OWLProperty(const IRI& iri, OWLEntity::EntityType type)
+        : OWLLogicalEntity(iri, type)
     {}
 
     virtual ~OWLProperty() {}

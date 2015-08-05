@@ -196,6 +196,8 @@ public:
 
     virtual std::string toString() const;
 
+    static OWLAxiom::Ptr declare(const OWLEntity::Ptr& entity);
+
 private:
     AxiomType mAxiomType;
 };

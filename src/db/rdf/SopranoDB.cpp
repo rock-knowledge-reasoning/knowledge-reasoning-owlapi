@@ -34,9 +34,11 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
     serializationFormats.push_back(Soprano::SerializationNQuads);
 
     std::vector<Soprano::RdfSerialization>::const_iterator cit = serializationFormats.begin();
+    std::string triedFormats;
     for(; cit != serializationFormats.end(); ++cit)
     {
         const Soprano::Parser* p = Soprano::PluginManager::instance()->discoverParserForSerialization(*cit);
+        std::string format = serializationMimeType(*cit).toStdString();
 
         try {
             Soprano::StatementIterator it = p->parseFile(QString::fromStdString(filename), qBaseUri, *cit);
@@ -45,9 +47,9 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
             if(allStatements.empty())
             {
                 throw std::runtime_error("owlapi::db::rdf::SopranoDB:fromFile " + filename + 
-                        " no statements found. Trying other parser.");
+                        " no statements found using parser format: '" + format + "'. Trying other parser.");
             }
-            LOG_DEBUG_S << "Successfully parsed using format: " << *cit;
+            LOG_INFO_S << "Successfully parsed using format: " << format;
 
             Soprano::Model* sopranoModel = Soprano::createModel();
             Q_FOREACH( Soprano::Statement s, allStatements)
@@ -58,11 +60,11 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
             return sopranoModel;
         } catch(const std::exception& e)
         {
-            LOG_WARN_S << e.what();
+            triedFormats += format + ";";
         }
     }
 
-    throw std::runtime_error("owlapi::db::rdf::SopranoDB: file format not supported");
+    throw std::runtime_error("owlapi::db::rdf::SopranoDB: file format not supported. Tried the following: " + triedFormats);
 }
 
 query::Results SopranoDB::query(const std::string& query, const query::Bindings& bindings) const

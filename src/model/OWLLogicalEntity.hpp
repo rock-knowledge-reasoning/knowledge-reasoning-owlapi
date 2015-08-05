@@ -9,8 +9,8 @@ namespace model {
 class OWLLogicalEntity : public OWLEntity
 {
 public:
-    OWLLogicalEntity(const IRI& iri)
-        : OWLEntity(iri)
+    OWLLogicalEntity(const IRI& iri, OWLEntity::EntityType type)
+        : OWLEntity(iri, type)
     {}
 
     virtual ~OWLLogicalEntity() {}

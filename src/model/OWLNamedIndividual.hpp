@@ -15,10 +15,14 @@ public:
 
     OWLNamedIndividual( const IRI& iri)
         : OWLIndividual()
-        , OWLLogicalEntity(iri)
+        , OWLLogicalEntity(iri, OWLEntity::NAMED_INDIVIDUAL)
     {}
 
     virtual ~OWLNamedIndividual() {}
+
+    bool isAnonymous() const { return false; }
+
+    IRI getReferenceID() const { return getIRI(); }
 };
 
 } // end namespace model

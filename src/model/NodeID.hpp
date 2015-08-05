@@ -28,7 +28,7 @@ public:
     /**
      * Returns an absolute IRI from a nodeID attribute.
      */
-    static std::string getIRIFromNodeID(const std::string& nodeID) { throw std::runtime_error("NodeID::getIRIFromNodeID not implemented"); }
+    IRI getIRIFromNodeID() const;
 
     /**
      * Gets a NodeID with a specific identifier string

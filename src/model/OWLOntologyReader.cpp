@@ -126,7 +126,6 @@ void OWLOntologyReader::load()
                     LOG_DEBUG_S << "Annotation property '" << subject << "' ignored for reasoning";
                 } else if( object == vocabulary::OWL::Restriction() )
                 {
-                    LOG_DEBUG_S << "Found restriction: " << subject;
                     mRestrictions.push_back(subject);
                 }
             } else if(predicate == vocabulary::RDFS::subClassOf())
@@ -244,9 +243,18 @@ void OWLOntologyReader::load()
             } else if( object == vocabulary::OWL::InverseFunctionalProperty())
             {
                 mTell->inverseFunctionalProperty(subject);
+            } else if(object == vocabulary::OWL::ReflexiveProperty())
+            {
+                mTell->reflexiveProperty(subject);
+            } else if(object == vocabulary::OWL::IrreflexiveProperty())
+            {
+                mTell->irreflexiveProperty(subject);
             } else if(object == vocabulary::OWL::SymmetricProperty())
             {
                 mTell->symmetricProperty(subject);
+            } else if(object == vocabulary::OWL::AsymmetricProperty())
+            {
+                mTell->asymmetricProperty(subject);
             } else if(object == vocabulary::OWL::TransitiveProperty())
             {
                 mTell->transitiveProperty(subject);

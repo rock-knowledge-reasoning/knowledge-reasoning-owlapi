@@ -7,7 +7,7 @@ namespace model {
 
 OWLDataProperty::OWLDataProperty(const IRI& iri)
     : OWLDataPropertyExpression()
-    , OWLProperty(iri)
+    , OWLProperty(iri, OWLEntity::DATA_PROPERTY)
 {}
 
 OWLDataProperty::~OWLDataProperty()

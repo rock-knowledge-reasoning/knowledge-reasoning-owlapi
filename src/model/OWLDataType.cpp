@@ -6,7 +6,7 @@ namespace model {
 
 OWLDataType::OWLDataType(const IRI& iri, OWLDataRange::Type type)
     : OWLDataRange(type)
-    , OWLLogicalEntity(iri)
+    , OWLLogicalEntity(iri, OWLEntity::DATATYPE)
 {}
 
 OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range)

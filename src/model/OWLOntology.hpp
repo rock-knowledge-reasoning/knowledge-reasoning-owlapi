@@ -172,6 +172,8 @@ protected:
     std::map<IRI, OWLObjectProperty::Ptr> mObjectProperties;
     /// All data properties
     std::map<IRI, OWLDataProperty::Ptr> mDataProperties;
+    /// All annotation properties
+    std::map<IRI, OWLAnnotationProperty::Ptr> mAnnotationProperties;
 
     /// General axiom map
     AxiomMap mAxiomsByType;
@@ -202,6 +204,7 @@ protected:
     OWLClass::Ptr getClass(const IRI& iri) const;
     OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
     OWLObjectProperty::Ptr getObjectProperty(const IRI& iri) const;
+    OWLIndividual::Ptr getIndividual(const IRI& iri) const;
 
     void addAxiom(const OWLAxiom::Ptr& axiom);
     const AxiomMap& getAxiomMap() const { return mAxiomsByType; }

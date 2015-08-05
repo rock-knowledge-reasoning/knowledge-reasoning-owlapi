@@ -41,7 +41,12 @@ bool OWLLiteral::hasType(const IRI& typeIRI) const
 
 std::string OWLLiteral::toString() const
 {
-    return mValue + "^^" + mType;
+    if(mType.empty())
+    {
+        return mValue;
+    } else {
+        return mValue + "^^" + mType;
+    }
 }
 
 OWLLiteral::Ptr OWLLiteral::create(const std::string& literal)

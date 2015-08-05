@@ -2,6 +2,7 @@
 #include <base/Logging.hpp>
 #include <owlapi/OWLApi.hpp>
 
+
 using namespace owlapi::model;
 
 namespace owlapi {
@@ -141,17 +142,30 @@ raptor_term* RedlandVisitor::writeRestriction(OWLRestriction::Ptr restriction, c
         writeAnonymous(anonymous, vocabulary::OWL::onProperty(), namedObject->getIRI());
     }
 
+    // Correct restriction type if cardinality is not qualified
+    owlapi::model::IRI actualRestrictionType = restrictionType;
     OWLQualifiedRestriction::Ptr qualifiedRestriction = boost::dynamic_pointer_cast<OWLQualifiedRestriction>(restriction);
     if(qualifiedRestriction)
     {
         writeAnonymous(anonymous, vocabulary::OWL::onClass(), qualifiedRestriction->getQualification());
+    } else {
+        if(restrictionType == vocabulary::OWL::minQualifiedCardinality())
+        {
+            actualRestrictionType = vocabulary::OWL::minCardinality();
+        } else if(restrictionType == vocabulary::OWL::maxQualifiedCardinality())
+        {
+            actualRestrictionType = vocabulary::OWL::maxCardinality();
+        } else if(restrictionType == vocabulary::OWL::qualifiedCardinality())
+        {
+            actualRestrictionType = vocabulary::OWL::cardinality();
+        }
     }
 
     OWLCardinalityRestriction::Ptr cardinalityRestriction = boost::dynamic_pointer_cast<OWLCardinalityRestriction>(restriction);
     if(cardinalityRestriction)
     {
         OWLLiteral::Ptr literal = OWLLiteral::nonNegativeInteger( cardinalityRestriction->getCardinality() );
-        writeAnonymousLiteral(anonymous, restrictionType, literal);
+        writeAnonymousLiteral(anonymous, actualRestrictionType, literal);
     }
 
     mRestrictions[key] = anonymous;
@@ -204,11 +218,8 @@ void RedlandVisitor::visit(const OWLSubClassOfAxiom& axiom)
 
         case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
         {
-            raptor_term* minRestriction = writeRestriction(restriction, vocabulary::OWL::minQualifiedCardinality());
-            raptor_term* maxRestriction = writeRestriction(restriction, vocabulary::OWL::maxQualifiedCardinality());
-
-            restrictionTerms.push_back(minRestriction);
-            restrictionTerms.push_back(maxRestriction);
+            raptor_term* exactRestriction = writeRestriction(restriction, vocabulary::OWL::qualifiedCardinality());
+            restrictionTerms.push_back(exactRestriction);
             break;
         }
         case OWLClassExpression::OBJECT_MAX_CARDINALITY:
@@ -261,6 +272,62 @@ void RedlandVisitor::visit(const OWLSubDataPropertyOfAxiom& axiom)
     writeTriple(subIRI, vocabulary::RDFS::subPropertyOf(), superIRI);
 }
 
+void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyDomainAxiom& axiom)
+{
+    IRI propertyIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+
+    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
+    if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
+    {
+        throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as domain");
+    }
+
+    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    writeTriple(propertyIRI, vocabulary::RDFS::domain(), klass->getIRI());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyRangeAxiom& axiom)
+{
+    IRI propertyIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+
+    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getRange());
+    if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
+    {
+        throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as range");
+    }
+
+    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    writeTriple(propertyIRI, vocabulary::RDFS::range(), klass->getIRI());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyDomainAxiom& axiom)
+{
+    IRI propertyIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
+
+    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
+    if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
+    {
+        throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as data property domain");
+    }
+
+    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    writeTriple(propertyIRI, vocabulary::RDFS::domain(), klass->getIRI());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom)
+{
+    IRI propertyIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
+
+    OWLDataRange::Ptr e_range = axiom.getRange();
+    if(e_range->isDatatype())
+    {
+        OWLDataType::Ptr dataType = boost::dynamic_pointer_cast<OWLDataType>(e_range);
+        writeTriple(propertyIRI, vocabulary::RDFS::range(), dataType->getIRI());
+    } else {
+        throw std::runtime_error("owlapi::io::RedlandVisitor:visit: no support for datarange export");
+    }
+
+}
 
 void RedlandVisitor::visit(const owlapi::model::OWLInverseObjectPropertiesAxiom& axiom)
 {
@@ -272,14 +339,103 @@ void RedlandVisitor::visit(const owlapi::model::OWLInverseObjectPropertiesAxiom&
 
 void RedlandVisitor::visit(const owlapi::model::OWLFunctionalObjectPropertyAxiom& axiom)
 {
-    IRI iri = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
-    writeTriple(iri, vocabulary::RDF::type(), vocabulary::OWL::FunctionalProperty());
+    writeObjectProperty(axiom, vocabulary::OWL::FunctionalProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLInverseFunctionalObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::InverseFunctionalProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLReflexiveObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::ReflexiveProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLIrreflexiveObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::IrreflexiveProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLSymmetricObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::SymmetricProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLAsymmetricObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::AsymmetricProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLTransitiveObjectPropertyAxiom& axiom)
+{
+    writeObjectProperty(axiom, vocabulary::OWL::TransitiveProperty());
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLFunctionalDataPropertyAxiom& axiom)
 {
     IRI iri = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
     writeTriple(iri, vocabulary::RDF::type(), vocabulary::OWL::FunctionalProperty());
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyAssertionAxiom& axiom)
+{
+    OWLIndividual::Ptr subject = axiom.getSubject();
+    OWLProperty::Ptr property = boost::dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
+    OWLPropertyAssertionObject::Ptr assertionObject = axiom.getObject();
+
+    IRI iri;
+    OWLIndividual::Ptr individual = boost::dynamic_pointer_cast<OWLIndividual>(assertionObject);
+    if(individual)
+    {
+        iri = individual->getReferenceID();
+    } else {
+        OWLLiteral::Ptr literal = boost::dynamic_pointer_cast<OWLLiteral>(assertionObject);
+        if(literal)
+        {
+            iri = IRI( literal->toString() );
+        }
+    }
+    if(iri.empty())
+    {
+        throw std::runtime_error("owlapi::model::RedlandVisitor::visit:"
+                " could not extract object from ObjectPropertyAssertionAxiom");
+    }
+
+    writeTriple(subject->getReferenceID(), property->getIRI(), iri);
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyAssertionAxiom& axiom)
+{
+    OWLIndividual::Ptr subject = axiom.getSubject();
+    OWLProperty::Ptr property = boost::dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
+    OWLPropertyAssertionObject::Ptr assertionObject = axiom.getObject();
+
+    OWLLiteral::Ptr literal = boost::dynamic_pointer_cast<OWLLiteral>(assertionObject);
+    if(!literal)
+    {
+        throw std::runtime_error("owlapi::model::RedlandVisitor::visit:"
+                " could not extract literal from DataPropertyAssertionAxiom");
+    }
+    IRI iri = IRI( literal->toString() );
+    
+    writeTriple(subject->getReferenceID(), property->getIRI(), iri);
+}
+
+
+void RedlandVisitor::visit(const owlapi::model::OWLClassAssertionAxiom& axiom)
+{
+    OWLClassExpression::Ptr e_klass = axiom.getClassExpression();
+    if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
+    {
+        throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as class assertion");
+    }
+    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+
+    OWLIndividual::Ptr individual = axiom.getIndividual();
+    IRI individualIRI = individual->getReferenceID();
+
+    writeTriple(individualIRI, vocabulary::RDF::type(), klass->getIRI());
 }
 
 
@@ -341,91 +497,8 @@ void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLO
     raptor_free_uri(base_uri);
     raptor_free_memory(uri_string);
 
-    //raptor_serialize(statement_
-//    TripleStore triples = TripleStore::fromOntology(ontology);
-//
-//    TripleStore::const_iterator cit = triples.begin();
-//    for(; cit != triples.end(); ++cit)
-//    {
-//        // librdf_world* world = librdf_new_world();
-//        // librdf_free_world(world);
-//        //
-//        // librdf_world_open(world);
-//        //
-//        // allowed values:
-//        //
-//        //  const raptor_syntax_description* sd;
-//        // raptor_world_get_serializer_description(world, i)
-//        // printf("    %-14s  %s", sd->names[0], sd->label);
-//        //
-//        // serializer = raptor_new_serializer(world, serializer_syntax_name);
-//        //
-//        //  const unsigned char *output_base_uri_string = NULL;
-//        //
-//        // -- raptor_parser_set_statement_handler(rdf_parser, rdf_parser,
-//        // print_triples);
-//        //
-//        // void print_triples(void *user_data, raptor_statement *triple)
-//        //     raptor_parser* rdf_parser = (raptor_parser*)user_data;
-//        //     raptor_serializer_serialize_statement(serializer, triple);
-//        //
-//        //     raptor_serializer_set_namespace_from_namespace(rdf_serializer,
-//        //     nspace);
-//
-//// librdf_node *       librdf_node_decode                  (librdf_world *world,
-//                                                         //size_t *size_p,
-//                                                         //unsigned char *buffer,
-//                                                         //size_t length);
-////  librdf_new_statement_from_nodes     (librdf_world *world,
-//                                                         //librdf_node *subject,
-//                                                         //librdf_node *predicate,
-//                                                         //librdf_node *object);
-//
-// // librdf_storage_add_statement        (librdf_storage *storage,
-//   //                                                      librdf_statement *statement);
-//        //
-//        //   !!!     librdf_serializer_serialize_model_to_file(
-//        //    (librdf_serializer *serializer,
-//        //                                                 const char *name,
-//        //                                                 librdf_uri *base_uri,
-//        //                                                 librdf_model *model);
-//    }
 }
 
 } // end namespace io
 } // end namespace owlapi
 
-//  raptor_world *world = NULL;
-//  raptor_serializer* rdf_serializer = NULL;
-//  unsigned char *uri_string;
-//  raptor_uri *base_uri;
-//  raptor_statement* triple;
-//
-//  world = raptor_new_world();
-//  
-//  uri_string = raptor_uri_filename_to_uri_string(argv[1]);
-//  base_uri = raptor_new_uri(world, uri_string);
-//
-//  rdf_serializer = raptor_new_serializer(world, "rdfxml-abbrev");
-//  raptor_serializer_start_to_file_handle(rdf_serializer, base_uri, stdout);
-//  
-//   Make a triple with URI subject, URI predicate, literal object 
-//  triple = raptor_new_statement(world);
-//  triple->subject = raptor_new_term_from_uri_string(world, (const unsigned char*)"http://example.org/subject");
-//  triple->predicate = raptor_new_term_from_uri_string(world, (const unsigned char*)"http://example.org/predicate");
-//  triple->object = raptor_new_term_from_literal(world,
-//                                                (const unsigned char*)"An example literal",
-//                                                NULL,
-//                                                (const unsigned char*)"en");
-//
-//  raptor_serializer_serialize_statement(rdf_serializer, triple);
-//
-//  raptor_free_statement(triple);
-//
-//  raptor_serializer_serialize_end(rdf_serializer);
-//  raptor_free_serializer(rdf_serializer);
-//  
-//  raptor_free_uri(base_uri);
-//  raptor_free_memory(uri_string);
-//
-//  raptor_free_world(world);

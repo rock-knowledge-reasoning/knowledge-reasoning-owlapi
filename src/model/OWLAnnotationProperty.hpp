@@ -1,27 +1,39 @@
 #ifndef OWLAPI_MODEL_OWL_ANNOTATION_PROPERTY_HPP
 #define OWLAPI_MODEL_OWL_ANNOTATION_PROPERTY_HPP
 
-#include <owlapi/model/OWLProperty.hpp>
+#include <owlapi/model/OWLEntity.hpp>
+#include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {
 namespace model {
 
-class OWLAnnotationProperty : public OWLProperty
+class OWLAnnotationProperty : public OWLEntity
 {
 public:
+    OWLAnnotationProperty(const IRI& iri)
+        : OWLEntity(iri, OWLEntity::ANNOTATION_PROPERTY)
+    {}
+
     virtual ~OWLAnnotationProperty() {}
 
     /**
      * Determines if this annotation property has an IRI corresponding to
      * {@code rdfs:comment}
      */
-    bool isComment() { throw std::runtime_error("OWLAnnotationProperty::isComment: not implemented"); }
+    bool isComment() const { return getIRI() == vocabulary::RDFS::comment(); }
+
+
+    /**
+     * Determines if this annotation property has an IRI corresponding to
+     * {@code owl:deprecated}
+     */
+    bool isDeprecated() const { return getIRI() == vocabulary::OWL::deprecated(); }
 
     /**
      * Determines if this annotation property has an IRI corresponding to
       {@code rdfs:label}.
      */
-    bool isLabel() { throw std::runtime_error("OWLAnnotationProperty::isLabel: not implemented"); }
+    bool isLabel() const { return getIRI() == vocabulary::RDFS::label(); }
 };
 
 } // end namespace model
