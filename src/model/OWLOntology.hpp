@@ -135,6 +135,13 @@ std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCar
  * inspiration has been taken from the DIG Interface
  * (http://dl.kr.org/dig/interface.html) to use this split.
  *
+ * \section Todos
+ *
+ * - allow modularization of ontology, i.e., allow for ontology import (e.g. to
+ *   to exchange information between two systems e.g. robots
+ *
+ * - address rendering of 'anonymous' statements, e.g. DataOneOf, DataComplementOf
+ * 
  */
 namespace owlapi {
 
