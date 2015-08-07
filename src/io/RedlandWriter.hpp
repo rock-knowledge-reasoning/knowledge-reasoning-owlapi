@@ -26,6 +26,8 @@ class RedlandVisitor : public owlapi::model::OWLAxiomVisitor
 public:
     RedlandVisitor(raptor_world* world, raptor_serializer* serializer);
 
+    ~RedlandVisitor();
+
     void visit(const owlapi::model::OWLDeclarationAxiom& axiom);
     void visit(const owlapi::model::OWLSubClassOfAxiom& axiom);
     void visit(const owlapi::model::OWLSubObjectPropertyOfAxiom& axiom);
@@ -58,6 +60,8 @@ public:
         writeTriple(iri, vocabulary::RDF::type(), propertyType);
     }
 
+    raptor_term* writeSequence(const owlapi::model::IRIList& list);
+
     void writeTriple(const owlapi::model::IRI& subject,
         const owlapi::model::IRI& predicate,
         const owlapi::model::IRI& object) const;
@@ -68,15 +72,20 @@ public:
     raptor_term* writeAnonymous(const owlapi::model::IRI& subject, const owlapi::model::IRI& predicate,
         raptor_term* anonymous) const;
 
+    void writeAnonymous(raptor_term* anonymous, const owlapi::model::IRI& predicate,
+        raptor_term* anonymousObject) const;
+
     void writeAnonymousLiteral(raptor_term* anonymous, const owlapi::model::IRI& predicate, const owlapi::model::OWLLiteral::Ptr& literal);
 
     raptor_term* writeRestriction(owlapi::model::OWLRestriction::Ptr restriction, const owlapi::model::IRI& type);
 
+    raptor_term* termFromIRI(const owlapi::model::IRI& iri) const;
 private:
     raptor_world* mWorld;
     raptor_serializer* mSerializer;
 
-    std::map< std::pair<owlapi::model::OWLRestriction::Ptr, owlapi::model::IRI> , raptor_term*> mRestrictions;
+    typedef std::map< std::pair<owlapi::model::OWLRestriction::Ptr, owlapi::model::IRI> , raptor_term*> Restriction2Term;
+    Restriction2Term mRestrictions;
 };
 
 class RedlandWriter : public OWLWriter

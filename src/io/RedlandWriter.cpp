@@ -14,17 +14,46 @@ RedlandVisitor::RedlandVisitor(raptor_world* world, raptor_serializer* serialize
     , mSerializer(serializer)
 {}
 
+RedlandVisitor::~RedlandVisitor()
+{
+    while(!mRestrictions.empty())
+    {
+        Restriction2Term::iterator it = mRestrictions.begin();
+        raptor_free_term(it->second);
+        mRestrictions.erase(it);
+    }
+}
+
 void RedlandVisitor::writeTriple(const owlapi::model::IRI& subject,
         const owlapi::model::IRI& predicate,
         const owlapi::model::IRI& object) const
 {
     raptor_statement* triple = raptor_new_statement(mWorld);
-    triple->subject = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) subject.toString().c_str());
-    triple->predicate = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) predicate.toString().c_str());
-    triple->object = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) object.toString().c_str());
+    triple->subject = termFromIRI(subject);
+    triple->predicate = termFromIRI(predicate);
+    triple->object = termFromIRI(object);
 
     raptor_serializer_serialize_statement(mSerializer, triple);
     raptor_free_statement(triple);
+}
+
+raptor_term* RedlandVisitor::writeSequence(const owlapi::model::IRIList& list)
+{
+    owlapi::model::IRIList rest = list;
+    if(list.empty())
+    {
+        return termFromIRI(vocabulary::RDF::nil());
+    } else {
+        raptor_term* anonymous = raptor_new_term_from_blank(mWorld, NULL);
+        writeAnonymous(anonymous, vocabulary::RDF::first(), *rest.begin());
+
+        // Write rest
+        rest.erase(rest.begin());
+        raptor_term* termRest = writeSequence(rest);
+        writeAnonymous(anonymous, vocabulary::RDF::rest(), termRest);
+        raptor_free_term(termRest);
+        return anonymous;
+    }
 }
 
 void RedlandVisitor::visit(const OWLDeclarationAxiom& axiom)
@@ -75,8 +104,8 @@ raptor_term* RedlandVisitor::writeAnonymous(raptor_term* anonymous,
 
     raptor_statement* triple = raptor_new_statement(mWorld);
     triple->subject = raptor_term_copy(anonymous);
-    triple->predicate = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) predicate.toString().c_str());
-    triple->object = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) object.toString().c_str());
+    triple->predicate = termFromIRI(predicate);
+    triple->object = termFromIRI(object);
 
     raptor_serializer_serialize_statement(mSerializer, triple);
     raptor_free_statement(triple);
@@ -95,13 +124,35 @@ raptor_term* RedlandVisitor::writeAnonymous(const owlapi::model::IRI& subject,
     }
 
     raptor_statement* triple = raptor_new_statement(mWorld);
-    triple->subject = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) subject.toString().c_str());
-    triple->predicate = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) predicate.toString().c_str());
+    triple->subject = termFromIRI(subject);
+    triple->predicate = termFromIRI(predicate);
     triple->object = raptor_term_copy(anonymous);
 
     raptor_serializer_serialize_statement(mSerializer, triple);
     raptor_free_statement(triple);
     return anonymous;
+}
+
+void RedlandVisitor::writeAnonymous(raptor_term* anonymous,
+        const owlapi::model::IRI& predicate,
+        raptor_term* anonymousObject) const
+{
+    LOG_DEBUG_S << "Write anonymous: " << predicate << " anon: s:" << anonymous
+        << " o:" << anonymousObject;
+
+    if(!anonymous && !anonymousObject)
+    {
+        throw std::invalid_argument("owlapi::io::RedlandVisitor: cannot from NULL pointer"
+                "for anonymous nodes");
+    }
+
+    raptor_statement* triple = raptor_new_statement(mWorld);
+    triple->subject = raptor_term_copy(anonymous);
+    triple->predicate = termFromIRI(predicate);
+    triple->object = raptor_term_copy(anonymousObject);
+
+    raptor_serializer_serialize_statement(mSerializer, triple);
+    raptor_free_statement(triple);
 }
 
 void RedlandVisitor::writeAnonymousLiteral(raptor_term* anonymous,
@@ -110,8 +161,7 @@ void RedlandVisitor::writeAnonymousLiteral(raptor_term* anonymous,
 {
     raptor_statement* triple = raptor_new_statement(mWorld);
     triple->subject = raptor_term_copy(anonymous);
-    triple->predicate = raptor_new_term_from_uri_string(mWorld, (const unsigned char*) predicate.toString().c_str());
-
+    triple->predicate = termFromIRI(predicate);
     raptor_uri* datatype = raptor_new_uri(mWorld, (const unsigned char*) literal->getType().c_str());
 
     triple->object = raptor_new_term_from_literal(mWorld,
@@ -438,6 +488,10 @@ void RedlandVisitor::visit(const owlapi::model::OWLClassAssertionAxiom& axiom)
     writeTriple(individualIRI, vocabulary::RDF::type(), klass->getIRI());
 }
 
+raptor_term* RedlandVisitor::termFromIRI(const owlapi::model::IRI& iri) const
+{
+    return raptor_new_term_from_uri_string(mWorld, (const unsigned char*) iri.toString().c_str());
+}
 
 RedlandWriter::RedlandWriter()
     : OWLWriter()
