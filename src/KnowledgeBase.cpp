@@ -308,14 +308,27 @@ bool KnowledgeBase::isFunctionalProperty(const IRI& property)
         ObjectPropertyExpression e_property = getObjectProperty(property);
         return mKernel->isFunctional(e_property.get());
     } catch(const std::invalid_argument& e)
-    {}
+    {
+        // Not a known object property
+    } catch(const EFaCTPlusPlus& e)
+    {
+        // Known object property, but not registered as role
+        return false;
+    }
 
     try {
         DataPropertyExpression e_property = getDataProperty(property);
         return mKernel->isFunctional(e_property.get());
     } catch(const std::invalid_argument& e)
-    {}
+    {
+        // Not a known object property
+    } catch(const EFaCTPlusPlus& e)
+    {
+        // Known object property, but not registered as role
+        return false;
+    }
 
+    LOG_WARN_S << "KnowledgeBase::isFunctionalProperty: Property '" << property.toString() << "' is not a known data or object property";
     throw std::invalid_argument("KnowledgeBase::isFunctionalProperty: Property '" + property.toString() + "' is not a known data or object property");
 }
 
