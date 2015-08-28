@@ -3,7 +3,7 @@
 namespace owlapi {
 namespace model {
 
-OWLDataRange::OWLDataRange(Type type = DATATYPE)
+OWLDataRange::OWLDataRange(Type type)
     : OWLPropertyRange()
     , mDataRangeType(type)
     , mTop(false)
