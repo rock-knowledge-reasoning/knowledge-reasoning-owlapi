@@ -27,8 +27,8 @@ public:
 
     virtual ~OWLObject() {}
 
-    virtual bool isBottomEntity();
-    virtual bool isTopEntity();
+    virtual bool isBottomEntity() const;
+    virtual bool isTopEntity() const;
 };
 
 } // end namespace model

@@ -4,12 +4,12 @@
 namespace owlapi {
 namespace model {
 
-bool OWLObject::isBottomEntity()
+bool OWLObject::isBottomEntity() const
 {
     throw NotImplemented("owlapi::model::OWLObject::isBottomEntity");
 }
 
-bool OWLObject::isTopEntity()
+bool OWLObject::isTopEntity() const
 {
     throw NotImplemented("owlapi::model::OWLObject::isTopEntity");
 }
