@@ -22,7 +22,7 @@ public:
     };
 
 
-    OWLDataRange(Type type);
+    OWLDataRange(Type type = DATATYPE);
     virtual ~OWLDataRange();
 
     virtual bool isDataRange() const { return true; }
