@@ -2,7 +2,7 @@
 #include "test_utils.hpp"
 
 #include <boost/foreach.hpp>
-#include <owl_om/owlapi/KnowledgeBase.hpp>
+#include <owlapi/KnowledgeBase.hpp>
 
 #include <factpp/Kernel.h>
 #include <factpp/Actor.h>
@@ -12,7 +12,7 @@ using namespace owlapi::model;
 
 BOOST_AUTO_TEST_SUITE(knowledge_base)
 
-BOOST_AUTO_TEST_CASE(kb_tell_and_ask)
+BOOST_AUTO_TEST_CASE(tell_and_ask)
 {
     {
         KnowledgeBase kb;
@@ -21,11 +21,11 @@ BOOST_AUTO_TEST_CASE(kb_tell_and_ask)
         IRI derived("Derived");
         IRI has("has");
 
-        kb.subclassOf("Base", "Test");
-        kb.subclassOf(derived, "Base");
+        kb.subClassOf("Base", "Test");
+        kb.subClassOf(derived, "Base");
         kb.objectProperty(has);
         kb.functionalProperty(has, KnowledgeBase::OBJECT);
-        BOOST_REQUIRE(kb.isFunctionalProperty(has));
+        BOOST_REQUIRE_MESSAGE(kb.isFunctionalProperty(has), "Has is functional propery");
 
         IRI instance("instance");
         kb.instanceOf(instance, derived);
@@ -39,14 +39,14 @@ BOOST_AUTO_TEST_CASE(kb_tell_and_ask)
     }
 }
 
-BOOST_AUTO_TEST_CASE(kb_create_class_hierarchy)
+BOOST_AUTO_TEST_CASE(class_hierarchy)
 {
     KnowledgeBase kb;
     kb.setVerbose();
-    kb.subclassOf("Derived", "Base");
-    kb.subclassOf("DerivedDerived", "Derived");
-    BOOST_REQUIRE_MESSAGE( kb.isSubclassOf("Derived", "Base"), "Derived is subclass of base");
-    BOOST_REQUIRE_MESSAGE( kb.isSubclassOf("DerivedDerived", "Base"), "DerivedDerived is subclass of base");
+    kb.subClassOf("Derived", "Base");
+    kb.subClassOf("DerivedDerived", "Derived");
+    BOOST_REQUIRE_MESSAGE( kb.isSubClassOf("Derived", "Base"), "Derived is subclass of base");
+    BOOST_REQUIRE_MESSAGE( kb.isSubClassOf("DerivedDerived", "Base"), "DerivedDerived is subclass of base");
     kb.instanceOf("Instance", "DerivedDerived");
     BOOST_REQUIRE_MESSAGE( kb.isInstanceOf("Instance", "DerivedDerived"), "instance of DerivedDerived");
     BOOST_REQUIRE_MESSAGE( kb.isInstanceOf("Instance", "Base"), "instance of Base");
@@ -73,25 +73,49 @@ BOOST_AUTO_TEST_CASE(kb_create_class_hierarchy)
 
 }
 
-BOOST_AUTO_TEST_CASE(kb_handle_om_datavalues)
+BOOST_AUTO_TEST_CASE(data_value)
 {
     KnowledgeBase kb;
-    kb.subclassOf("Robot","TOP");
+
+    {
+        reasoner::factpp::DataValue dataValueString = kb.dataValue("foo","string");
+        BOOST_REQUIRE_THROW( dataValueString.toDouble(), std::runtime_error)
+    }
+
+    kb.subClassOf("Robot","TOP");
     kb.instanceOf("CREX","Robot");
+    kb.instanceOf("Sherpa","Robot");
     kb.dataProperty("hasWeight");
 
-    reasoner::factpp::DataValue dataValue = kb.dataValue("100","int");
-    kb.valueOf("CREX","hasWeight", dataValue);
+    {
+        reasoner::factpp::DataValue dataValue = kb.dataValue("100","int");
+        kb.valueOf("CREX","hasWeight", dataValue);
 
-    BOOST_REQUIRE_MESSAGE( dataValue.toDouble() == 100.0, "Conversion to double");
+        BOOST_REQUIRE_MESSAGE( dataValue.toDouble() == 100.0, "Conversion to double");
+        reasoner::factpp::DataValue dbValue = kb.getDataValue("CREX","hasWeight");
+        BOOST_REQUIRE_MESSAGE(dbValue.toDouble() == 100.0, "CREX hasWeight: db value expected: 100.0 was " << dbValue.toDouble());
+    }
 
-    reasoner::factpp::DataValue dataValueString = kb.dataValue("foo","string");
-    BOOST_REQUIRE_THROW( dataValueString.toDouble(), std::runtime_error)
+    {
+        reasoner::factpp::DataValue dataValue = kb.dataValue("50","int");
+        kb.valueOf("Sherpa","hasWeight", dataValue);
+
+        BOOST_REQUIRE_MESSAGE( dataValue.toDouble() == 50.0, "Conversion to double");
+        {
+            reasoner::factpp::DataValue dbValue = kb.getDataValue("Sherpa","hasWeight");
+            BOOST_REQUIRE_MESSAGE(dbValue.toDouble() == 50.0, "Sherpa hasWeight: db value expected: 50.0 was " << dbValue.toDouble());
+        }
+
+        {
+            reasoner::factpp::DataValue dbValue = kb.getDataValue("CREX","hasWeight");
+            BOOST_REQUIRE_MESSAGE(dbValue.toDouble() == 100.0, "CREX hasWeight: db value expected: 100.0 was " << dbValue.toDouble());
+        }
+    }
 
     // getNeighbours etc. do not work for data, thus implemented an alternative way 
     // to retrieve information about data value from this representation
     //
-    //kb.subclassOf("Sensor","TOP");
+    //kb.subClassOf("Sensor","TOP");
     //kb.instanceOf("Camera","Sensor");
     //kb.objectProperty("hasPart");
     //kb.relatedTo("CREX","hasPart", "Camera");

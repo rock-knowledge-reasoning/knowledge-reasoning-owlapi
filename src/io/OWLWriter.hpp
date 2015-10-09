@@ -7,11 +7,6 @@
 namespace owlapi {
 namespace io {
 
-enum Format { UNKNOWN = 0,
-        RDFXML,
-        END_FORMAT
-        };
-
 class OWLWriter
 {
 public:

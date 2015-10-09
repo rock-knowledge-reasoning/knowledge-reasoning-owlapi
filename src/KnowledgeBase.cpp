@@ -1207,13 +1207,16 @@ bool KnowledgeBase::assertAndAddRelation(const IRI& instance, const IRI& relatio
 
 DataValue KnowledgeBase::getDataValue(const IRI& instance, const IRI& dataProperty)
 {
-    // Iterate overa all axioms and filter the relevant one
+    // Iterate over all axioms and filter the relevant one
     const AxiomVec& axioms = mKernel->getOntology().getAxioms();
     BOOST_FOREACH(TDLAxiom* axiom, axioms)
     {
         TDLAxiomValueOf* valueAxiom = dynamic_cast<TDLAxiomValueOf*>(axiom);
+
+        InstanceExpression instanceExpression = getInstance(instance);
         DataPropertyExpression dataPropertyExpression = getDataProperty(dataProperty);
-        if(valueAxiom && valueAxiom->isUsed() && dataPropertyExpression.get() == valueAxiom->getAttribute())
+
+        if(valueAxiom && valueAxiom->isUsed() && dataPropertyExpression.get() == valueAxiom->getAttribute() && instanceExpression.get() == valueAxiom->getIndividual())
         {
             return DataValue( valueAxiom->getValue());
         }

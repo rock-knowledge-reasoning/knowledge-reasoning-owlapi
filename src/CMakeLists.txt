@@ -19,6 +19,7 @@ rock_library(owlapi
         db/rdf/Sparql.cpp
         db/rdf/SparqlInterface.cpp
         db/rdf/Variable.cpp
+        io/OWLOntologyIO.cpp
         io/RedlandWriter.cpp
         io/XMLUtils.cpp
         model/IRI.cpp
@@ -65,6 +66,7 @@ rock_library(owlapi
         db/rdf/Sparql.hpp
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
+        io/OWLOntologyIO.hpp
         io/OWLWriter.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
@@ -193,3 +195,7 @@ set(GECODE_LIBRARIES
 
 include_directories(${Boost_INCLUDE_DIR})
 target_link_libraries(owlapi ${Boost_LIBRARIES} ${ICU_LIBS} ${GECODE_LIBRARIES})
+
+rock_executable(owlapi-ontology_reader
+    SOURCES utils/OntologyReaderMain.cpp
+    DEPS owlapi)
