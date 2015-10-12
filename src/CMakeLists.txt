@@ -20,6 +20,7 @@ rock_library(owlapi
         db/rdf/SparqlInterface.cpp
         db/rdf/Variable.cpp
         io/OWLOntologyIO.cpp
+        io/OWLOntologyReader.cpp
         io/RedlandWriter.cpp
         io/XMLUtils.cpp
         model/IRI.cpp
@@ -46,7 +47,6 @@ rock_library(owlapi
         model/OWLObjectPropertyAssertionAxiom.cpp
         model/OWLOntology.cpp
         model/OWLOntologyAsk.cpp
-        model/OWLOntologyReader.cpp
         model/OWLOntologyTell.cpp
         model/OWLPropertyExpression.cpp
         model/OWLQualifiedRestriction.cpp
@@ -67,6 +67,7 @@ rock_library(owlapi
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
         io/OWLOntologyIO.hpp
+        io/OWLOntologyReader.hpp
         io/OWLWriter.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
@@ -138,7 +139,6 @@ rock_library(owlapi
         model/OWLObjectPropertyRangeAxiom.hpp
         model/OWLOntology.hpp
         model/OWLOntologyAsk.hpp
-        model/OWLOntologyReader.hpp
         model/OWLOntologyTell.hpp
         model/OWLProperty.hpp
         model/OWLPropertyAssertionAxiom.hpp

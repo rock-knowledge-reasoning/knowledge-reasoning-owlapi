@@ -1,6 +1,6 @@
 #include "OWLOntology.hpp"
 #include <owlapi/KnowledgeBase.hpp>
-#include "OWLOntologyReader.hpp"
+#include <owlapi/io/OWLOntologyReader.hpp>
 
 namespace owlapi {
 namespace model {
@@ -85,7 +85,7 @@ void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
 
 OWLOntology::Ptr OWLOntology::fromFile(const std::string& filename)
 {
-    OWLOntologyReader reader;
+    io::OWLOntologyReader reader;
     return reader.fromFile(filename);
 }
 

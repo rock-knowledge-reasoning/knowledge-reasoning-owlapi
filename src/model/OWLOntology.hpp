@@ -36,8 +36,7 @@
 
 using namespace owlapi::model;
 
-OWLOntologyReader reader;
-OWLOntology::Ptr ontology = reader.fromFile("om-schema-v0.6.owl");
+OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile("om-schema-v0.6.owl");
 
 // Add information to ontology
 OWLOntologyTell tell(ontology);

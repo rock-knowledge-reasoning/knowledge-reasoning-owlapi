@@ -1,15 +1,16 @@
 #include "OWLOntologyReader.hpp"
-#include "OWLOntologyTell.hpp"
 
+#include <owlapi/model/OWLOntologyTell.hpp>
 #include <owlapi/db/rdf/SopranoDB.hpp>
 #include <owlapi/db/rdf/Sparql.hpp>
 #include <owlapi/Vocabulary.hpp>
 #include <base/Logging.hpp>
 
 using namespace owlapi::db::query;
+using namespace owlapi::model;
 
 namespace owlapi {
-namespace model {
+namespace io {
 
 OWLOntologyReader::OWLOntologyReader()
     : mSparqlInterface(0)
@@ -609,5 +610,5 @@ void OWLOntologyReader::loadObjectProperties()
 //    return txt.str();
 //}
 
-} // end namespace model
+} // end namespace io
 } // end namespace owlapi

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <owlapi/csp/ResourceMatch.hpp>
-#include <owlapi/model/OWLOntologyReader.hpp>
+#include <owlapi/io/OWLOntologyIO.hpp>
 #include <owlapi/model/OWLOntologyTell.hpp>
 #include <owlapi/OWLApi.hpp>
 #include <boost/foreach.hpp>
@@ -8,15 +8,15 @@
 
 #include "test_utils.hpp"
 
+using namespace owlapi;
 using namespace owlapi::model;
 
 BOOST_AUTO_TEST_SUITE(csp)
 
 //BOOST_AUTO_TEST_CASE(match_resources)
 //{
-//    OWLOntologyReader reader;
 //    //OWLOntology::Ptr ontology(new OWLOntology());
-//    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+//    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
 //    ontology->refresh();
 //
 //    OWLOntologyTell tell(ontology);
@@ -51,7 +51,6 @@ BOOST_AUTO_TEST_SUITE(csp)
 
 BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
 {
-    OWLOntologyReader reader;
     OWLOntology::Ptr ontology(new OWLOntology());
     OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
@@ -94,11 +93,9 @@ BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
     BOOST_TEST_MESSAGE("Solution:" << solution.toString());
 }
 
-BOOST_AUTO_TEST_CASE(test_provider_via_restrictions)
+BOOST_AUTO_TEST_CASE(provider_via_restrictions)
 {
-    OWLOntologyReader reader;
-    //OWLOntology::Ptr ontology(new OWLOntology());
-    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
     ontology->refresh();
 
     OWLOntologyTell tell(ontology);
@@ -212,8 +209,7 @@ BOOST_AUTO_TEST_CASE(test_provider_via_restrictions)
 
 BOOST_AUTO_TEST_CASE(performance_three_sherpa)
 {
-    OWLOntologyReader reader;
-    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
     ontology->refresh();
 
     OWLOntologyTell tell(ontology);
@@ -255,8 +251,7 @@ BOOST_AUTO_TEST_CASE(performance_three_sherpa)
 
 BOOST_AUTO_TEST_CASE(performance_ten_sherpa)
 {
-    OWLOntologyReader reader;
-    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
     ontology->refresh();
 
     OWLOntologyTell tell(ontology);

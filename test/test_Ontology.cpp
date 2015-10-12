@@ -2,17 +2,18 @@
 #include "test_utils.hpp"
 
 #include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/model/OWLOntologyReader.hpp>
+#include <owlapi/io/OWLOntologyIO.hpp>
 #include <owlapi/model/OWLOntologyAsk.hpp>
+#include <owlapi/model/OWLOntologyTell.hpp>
 
+using namespace owlapi;
 using namespace owlapi::model;
 
 BOOST_AUTO_TEST_SUITE(ontology)
 
 BOOST_AUTO_TEST_CASE(load_restrictions)
 {
-    OWLOntologyReader reader;
-    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
     OWLOntologyAsk ask(ontology);
 
     {
@@ -43,8 +44,7 @@ BOOST_AUTO_TEST_CASE(load_restrictions)
 
 BOOST_AUTO_TEST_CASE(punning)
 {
-    OWLOntologyReader reader;
-    OWLOntology::Ptr ontology = reader.fromFile( getRootDir() + "/test/data/om-schema-v0.9.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.9.owl");
     OWLOntologyAsk ask(ontology);
     OWLOntologyTell tell(ontology);
 

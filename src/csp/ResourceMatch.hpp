@@ -34,7 +34,7 @@ typedef owlapi::model::IRIList TypeList;
 
  using namespace owlapi;
 
- OWLOntology::Ptr ontology = reader.fromFile("organization-model.owl");
+ OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile("organization-model.owl");
  ...
  IRI sherpa = owlapi::vocabulary::OM::resolve("Sherpa");
  IRI move_to = owlapi::vocabulary::OM::resolve("MoveTo");

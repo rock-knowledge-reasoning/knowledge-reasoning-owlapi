@@ -6,9 +6,14 @@
 #include <owlapi/model/OWLQualifiedRestriction.hpp>
 
 namespace owlapi {
-namespace model {
+namespace io {
 
 class OWLOntologyReader;
+
+}
+
+namespace model {
+
 class OWLMinCardinalityRestriction;
 class OWLMaxCardinalityRestriction;
 class OWLExactCardinalityRestriction;
@@ -18,7 +23,7 @@ class OWLExactCardinalityRestriction;
  */
 class OWLCardinalityRestriction : public OWLQualifiedRestriction
 {
-    friend class OWLOntologyReader;
+    friend class owlapi::io::OWLOntologyReader;
 
 public:
     typedef boost::shared_ptr<OWLCardinalityRestriction> Ptr;

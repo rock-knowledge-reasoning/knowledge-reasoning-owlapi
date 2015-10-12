@@ -10,17 +10,21 @@ namespace model {
 class OWLOntologyTell;
 class OWLOntologyAsk;
 
+}
+
+namespace io {
+
 class OWLOntologyReader
 {
     /// Pointer to the underlying query interfaces for SPARQL
     db::query::SparqlInterface* mSparqlInterface;
 
-    OWLOntologyTell* mTell;
-    OWLOntologyAsk* mAsk;
+    owlapi::model::OWLOntologyTell* mTell;
+    owlapi::model::OWLOntologyAsk* mAsk;
 
-    std::vector<IRI> mRestrictions;
-    std::map<IRI, std::vector<OWLClass::Ptr> > mAnonymousRestrictions;
-    std::map<IRI, OWLCardinalityRestriction> mCardinalityRestrictions;
+    std::vector<owlapi::model::IRI> mRestrictions;
+    std::map<owlapi::model::IRI, std::vector<owlapi::model::OWLClass::Ptr> > mAnonymousRestrictions;
+    std::map<owlapi::model::IRI, owlapi::model::OWLCardinalityRestriction> mCardinalityRestrictions;
 
 protected:
 
@@ -41,9 +45,9 @@ public:
 
     virtual ~OWLOntologyReader();
 
-    virtual OWLOntology::Ptr fromFile(const std::string& filename);
+    virtual owlapi::model::OWLOntology::Ptr fromFile(const std::string& filename);
 };
 
-} // end namespace model
+} // end namespace io
 } // end namespace owlapi
 #endif // OWLAPI_MODEL_OWL_ONTOLOGY_READER_HPP
