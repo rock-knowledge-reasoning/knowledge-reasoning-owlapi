@@ -507,12 +507,10 @@ raptor_term* RedlandVisitor::termFromIRI(const owlapi::model::IRI& iri) const
 }
 
 RedlandWriter::RedlandWriter()
-    : OWLWriter()
+    : OWLWriter("rdfxml")
     , mWorld(raptor_new_world())
     , mSerializer(NULL)
-    , mFormat("rdfxml")
-{
-}
+{}
 
 RedlandWriter::~RedlandWriter()
 {

@@ -21,6 +21,7 @@ rock_library(owlapi
         db/rdf/Variable.cpp
         io/OWLOntologyIO.cpp
         io/OWLOntologyReader.cpp
+        io/OWLWriter.cpp
         io/RedlandWriter.cpp
         io/XMLUtils.cpp
         model/IRI.cpp

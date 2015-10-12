@@ -97,23 +97,27 @@ private:
     Restriction2Term mRestrictions;
 };
 
+/**
+ * Serialization based on raptor and per default serialization to RDFXML
+ *
+ * \see http://www.w3.org/TR/REC-rdf-syntax/#section-Syntax-datatyped-literals
+ * \see http://librdf.org/raptor/
+ */
 class RedlandWriter : public OWLWriter
 {
 public:
     RedlandWriter();
     virtual ~RedlandWriter();
 
-    std::vector<std::string> getSupportedFormats() const;
+    /**
+     * Get supported formats as returned from the underlying writer
+     */
+    virtual std::vector<std::string> getSupportedFormats() const;
 
     virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const;
-
-    void setFormat(const std::string& format) { mFormat = format; }
-
 private:
-
     raptor_world* mWorld;
     mutable raptor_serializer* mSerializer;
-    std::string mFormat;
 };
 
 } // end namespace io
