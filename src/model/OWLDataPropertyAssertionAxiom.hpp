@@ -12,6 +12,7 @@ namespace model {
  * subject: Peter
  * property: hasLastName
  * object: "Pan"
+ * \see http://www.w3.org/TR/owl2-syntax/#Assertions
  */
 class OWLDataPropertyAssertionAxiom : public OWLPropertyAssertionAxiom
 {

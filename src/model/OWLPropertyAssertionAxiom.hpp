@@ -9,6 +9,11 @@
 namespace owlapi {
 namespace model {
 
+/**
+ * \class OWLPropertyAssertionAxiom
+ * \brief Represents a triple, to relate a property value to a given subject
+ * \see http://www.w3.org/TR/owl2-syntax/#Assertions
+ */
 class OWLPropertyAssertionAxiom : public OWLIndividualAxiom // OWLSubclassOfAxiomShortCut
 {
     OWLIndividual::Ptr mSubject;
