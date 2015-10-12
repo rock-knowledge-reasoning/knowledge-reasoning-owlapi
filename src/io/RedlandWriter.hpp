@@ -14,7 +14,7 @@ namespace io {
 /**
  * This visitor renders triple statements according to the language mapping
  * from OWL2 to RDF
- * 
+ *
  * This implementation handles declarations, cardinality restrictions,
  * properties assignments -- however it is still incomplete mainly with respect
  * to complex class expressions
@@ -62,6 +62,13 @@ public:
 
     raptor_term* writeSequence(const owlapi::model::IRIList& list);
 
+    /**
+     * Write a triple using literal as last term
+     */
+    void writeTriple(const owlapi::model::IRI& subject,
+            const owlapi::model::IRI& predicate,
+            const owlapi::model::OWLLiteral::Ptr& literal) const;
+
     void writeTriple(const owlapi::model::IRI& subject,
         const owlapi::model::IRI& predicate,
         const owlapi::model::IRI& object) const;
@@ -75,7 +82,9 @@ public:
     void writeAnonymous(raptor_term* anonymous, const owlapi::model::IRI& predicate,
         raptor_term* anonymousObject) const;
 
-    void writeAnonymousLiteral(raptor_term* anonymous, const owlapi::model::IRI& predicate, const owlapi::model::OWLLiteral::Ptr& literal);
+    void writeAnonymousLiteral(raptor_term* anonymous, const owlapi::model::IRI& predicate, const owlapi::model::OWLLiteral::Ptr& literal) const;
+
+    void writeTripleWithLiteral(raptor_term* subject, const owlapi::model::IRI& predicate, const owlapi::model::OWLLiteral::Ptr& literal) const;
 
     raptor_term* writeRestriction(owlapi::model::OWLRestriction::Ptr restriction, const owlapi::model::IRI& type);
 
@@ -96,7 +105,7 @@ public:
 
     std::vector<std::string> getSupportedFormats() const;
 
-    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const; 
+    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const;
 
     void setFormat(const std::string& format) { mFormat = format; }
 

@@ -20,6 +20,8 @@ class OWLPropertyAssertionAxiom : public OWLIndividualAxiom // OWLSubclassOfAxio
     OWLPropertyExpression::Ptr mProperty;
     OWLPropertyAssertionObject::Ptr mObject;
 public:
+    typedef boost::shared_ptr<OWLPropertyAssertionAxiom> Ptr;
+
     OWLPropertyAssertionAxiom(OWLIndividual::Ptr subject, OWLPropertyExpression::Ptr property, OWLPropertyAssertionObject::Ptr object, AxiomType type, OWLAnnotationList annotations)
         : OWLIndividualAxiom(type, annotations)
         , mSubject(subject)
@@ -29,6 +31,7 @@ public:
     {}
 
     virtual ~OWLPropertyAssertionAxiom() {}
+
     /**
      * Gets the individual that is the subject of this assertion.
      */

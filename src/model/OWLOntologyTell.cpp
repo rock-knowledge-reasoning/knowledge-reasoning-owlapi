@@ -398,6 +398,13 @@ void OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataProperty, OWLL
 {
     reasoner::factpp::DataValue dataValue = mpOntology->kb()->dataValue(literal->getValue(), literal->getType());
     mpOntology->kb()->valueOf(instance, dataProperty, dataValue);
+
+    OWLIndividual::Ptr individual = mAsk.getOWLIndividual(instance);
+    OWLDataProperty::Ptr property = mAsk.getOWLDataProperty(dataProperty);
+    OWLDataPropertyAssertionAxiom::Ptr axiom(new OWLDataPropertyAssertionAxiom(individual, property, literal));
+
+    mpOntology->retractValueOf(individual, property);
+    mpOntology->addAxiom(axiom);
 }
 
 void OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)

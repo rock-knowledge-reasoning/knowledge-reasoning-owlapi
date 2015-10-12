@@ -216,6 +216,8 @@ protected:
     const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
     OWLAxiom::PtrList getAxioms() const;
 
+    void retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property);
+
 
 public:
     typedef boost::shared_ptr<OWLOntology> Ptr;

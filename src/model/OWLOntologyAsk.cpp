@@ -21,6 +21,21 @@ OWLClass::Ptr OWLOntologyAsk::getOWLClass(const IRI& iri) const
     throw std::runtime_error("OWLOntologyAsk::getOWLClass: '" + iri.toString() + "' is not a known OWLClass");
 }
 
+OWLIndividual::Ptr OWLOntologyAsk::getOWLIndividual(const IRI& iri) const
+{
+    try {
+        return getOWLAnonymousIndividual(iri);
+    } catch(const std::runtime_error& e)
+    {}
+
+    try {
+        return getOWLNamedIndividual(iri);
+    } catch(const std::runtime_error& e)
+    {}
+
+    throw std::runtime_error("OWLOntologyAsk::getOWLIndividual: '" + iri.toString() + "' is not a known OWLIndividual");
+}
+
 OWLAnonymousIndividual::Ptr OWLOntologyAsk::getOWLAnonymousIndividual(const IRI& iri) const
 {
     std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator it = mpOntology->mAnonymousIndividuals.find(iri);

@@ -22,21 +22,29 @@ public:
     OWLOntologyAsk(OWLOntology::Ptr ontology);
 
     /**
-     * Get or create the OWLClass instance by IRI
+     * Get the OWLClass instance by IRI
      * \return OWLClass::Ptr
      * \throw std::runtime_error if object cannot be found in ontology
      */
     OWLClass::Ptr getOWLClass(const IRI& iri) const;
 
     /**
-     * Get or create the OWLAnonymousIndividual by IRI
+     * Get an individual by IRI
+     * \return OWLIndividual::Ptr
+     * \throw std::runtime_error if neither a anonymous nor a named individual
+     * is registered with this IRI
+     */
+    OWLIndividual::Ptr getOWLIndividual(const IRI& iri) const;
+
+    /**
+     * Get the OWLAnonymousIndividual by IRI
      * \return OWLAnonymousIndividual::Ptr
      * \throw std::runtime_error if object cannot be found in ontology
      */
     OWLAnonymousIndividual::Ptr getOWLAnonymousIndividual(const IRI& iri) const;
 
     /**
-     * Get or create the OWLNamedIndividual by IRI
+     * Get the OWLNamedIndividual by IRI
      * \return OWLNamedIndividual::Ptr
      * \throw std::runtime_error if object cannot be found in ontology
      */

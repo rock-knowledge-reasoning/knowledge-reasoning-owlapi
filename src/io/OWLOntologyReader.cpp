@@ -477,6 +477,7 @@ void OWLOntologyReader::loadDataProperties()
             IRI subject = it[Subject()];
             IRI object = it[Object()];
 
+            // Setting of DataPropertyAssertions
             LOG_DEBUG_S << subject << " " << relation << " " << object;
 
             OWLDataRange::PtrList ranges = mAsk->getDataRange(relation);

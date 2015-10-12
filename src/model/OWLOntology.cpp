@@ -101,5 +101,30 @@ OWLAxiom::PtrList OWLOntology::getAxioms() const
     return axioms;
 }
 
+void OWLOntology::retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property)
+{
+    OWLNamedIndividual::Ptr namedIndividual = boost::dynamic_pointer_cast<OWLNamedIndividual>(individual);
+    std::string individualName = "anonymous";
+    if(namedIndividual)
+    {
+        individualName = namedIndividual->getIRI().toString();
+    }
+
+    std::vector<OWLAxiom::Ptr>& axioms = mAxiomsByType[OWLAxiom::DataPropertyAssertion];
+    std::vector<OWLAxiom::Ptr>::iterator it = axioms.begin();
+    for(; it != axioms.end(); ++it)
+    {
+        OWLDataPropertyAssertionAxiom::Ptr axiom = boost::dynamic_pointer_cast<OWLDataPropertyAssertionAxiom>(*it);
+        if(axiom->getSubject() == individual && axiom->getProperty() == property)
+        {
+            LOG_DEBUG_S << "Retracted DataPropertyAssertionAxiom: s: '" << individualName << "'"
+                    << ", p: " << property->getIRI().toString() << "'";
+            axioms.erase(it);
+            return;
+        }
+    }
+    LOG_DEBUG_S << "No value to be retracted";
+}
+
 } // end namespace model
 } // end namespace owlapi

@@ -26,6 +26,13 @@ RedlandVisitor::~RedlandVisitor()
 
 void RedlandVisitor::writeTriple(const owlapi::model::IRI& subject,
         const owlapi::model::IRI& predicate,
+        const owlapi::model::OWLLiteral::Ptr& literal) const
+{
+    writeTripleWithLiteral(termFromIRI(subject), predicate, literal);
+}
+
+void RedlandVisitor::writeTriple(const owlapi::model::IRI& subject,
+        const owlapi::model::IRI& predicate,
         const owlapi::model::IRI& object) const
 {
     raptor_statement* triple = raptor_new_statement(mWorld);
@@ -157,10 +164,17 @@ void RedlandVisitor::writeAnonymous(raptor_term* anonymous,
 
 void RedlandVisitor::writeAnonymousLiteral(raptor_term* anonymous,
         const owlapi::model::IRI& predicate,
-        const OWLLiteral::Ptr& literal)
+        const OWLLiteral::Ptr& literal) const
+{
+    writeTripleWithLiteral(raptor_term_copy(anonymous), predicate, literal);
+}
+
+void RedlandVisitor::writeTripleWithLiteral(raptor_term* subject,
+        const owlapi::model::IRI& predicate,
+        const OWLLiteral::Ptr& literal) const
 {
     raptor_statement* triple = raptor_new_statement(mWorld);
-    triple->subject = raptor_term_copy(anonymous);
+    triple->subject = subject;
     triple->predicate = termFromIRI(predicate);
     raptor_uri* datatype = raptor_new_uri(mWorld, (const unsigned char*) literal->getType().c_str());
 
@@ -467,9 +481,8 @@ void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyAssertionAxiom& a
         throw std::runtime_error("owlapi::model::RedlandVisitor::visit:"
                 " could not extract literal from DataPropertyAssertionAxiom");
     }
-    IRI iri = IRI( literal->toString() );
-    
-    writeTriple(subject->getReferenceID(), property->getIRI(), iri);
+
+    writeTriple(subject->getReferenceID(), property->getIRI(), literal);
 }
 
 
