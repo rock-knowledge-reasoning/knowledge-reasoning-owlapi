@@ -648,7 +648,7 @@ Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const D
             Axiom::List::const_iterator cit = list.begin();
             for(; cit != list.end(); ++cit)
             {
-                LOG_WARN_S << "Retracting existing value: " << individual << " " << property;
+                LOG_DEBUG_S << "Retracting existing value: " << individual << " " << property;
                 retract(*cit);
             }
             mValueOfAxioms.erase(it);
