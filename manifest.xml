@@ -14,6 +14,8 @@
   <depend package="knowledge_reasoning/factpp" />
   <depend package="uriparser" />
   <depend package="soprano" />
+  <depend package="redland" />
+  <depend package="raptor2" />
   <!-- constraint satisfaction -->
   <depend package="gecode" />
 </package>
