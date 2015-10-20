@@ -9,6 +9,25 @@ using namespace owlapi::model;
 namespace owlapi {
 namespace csp {
 
+std::string ResourceMatch::Solution::toString() const
+{
+    return ModelBound::toString(modelBounds);
+}
+
+ModelBound ResourceMatch::Solution::getBound(const owlapi::model::IRI& model) const
+{
+    ModelBound::List::const_iterator cit = modelBounds.begin();
+    for(; cit != modelBounds.end(); ++cit)
+    {
+        if(cit->model == model)
+        {
+            return *cit;
+        }
+    }
+    throw std::invalid_argument("owlapi::csp::Resource::Solution::getBound: no model '"
+            + model.toString() + "' in solution");
+}
+
 ResourceMatch::ResourceMatch(const ModelBound::List& required,
         const ModelBound::List& available,
         OWLOntology::Ptr ontology)
@@ -28,6 +47,8 @@ ResourceMatch::ResourceMatch(const ModelBound::List& required,
         const ModelBound& requiredModelBound = mRequiredModelBound[ri];
         const owlapi::model::IRI& requiredModel = requiredModelBound.model;
 
+        LOG_DEBUG_S << "Required model: " << requiredModel;
+
         Gecode::IntVarArgs args;
         for(size_t ai = 0; ai < mAvailableModelBound.size(); ++ai)
         {
@@ -45,6 +66,8 @@ ResourceMatch::ResourceMatch(const ModelBound::List& required,
             const owlapi::model::IRI& availableModel = availableModelBound.model;
             if(requiredModel == availableModel || ask.isSubClassOf(availableModel, requiredModel))
             {
+                LOG_DEBUG_S << "Available model to fulfill '" << requiredModel << std::endl
+                    << "    " << availableModel;
                 rel(*this, m, Gecode::IRT_LQ, requiredModelBound.max);
                 rel(*this, m, Gecode::IRT_LQ, availableModelBound.max);
             } else {
@@ -53,6 +76,7 @@ ResourceMatch::ResourceMatch(const ModelBound::List& required,
                 rel(*this, m, Gecode::IRT_LQ, 0);
             }
         }
+        LOG_DEBUG_S << "Required instances of model: " << requiredModel << ", minimum: " << requiredModelBound.min;
         // Row requires a minimum of resources to fulfill the requirement
         rel(*this, sum(args) >= requiredModelBound.min);
     }
@@ -123,8 +147,6 @@ ResourceMatch::Solution ResourceMatch::solve(const ModelBound::List& required, c
     return solution;
 }
 
-
-
 ResourceMatch::Solution ResourceMatch::getSolution() const
 {
     Solution solution;
@@ -145,7 +167,7 @@ ResourceMatch::Solution ResourceMatch::getSolution() const
 
             Gecode::IntVarValues v( var );
 
-            modelBound.model = mAvailableModelBound[i].model;
+            modelBound.model = mRequiredModelBound[i].model;
             modelBound.min = v.val();
             modelBound.max = v.val();
 

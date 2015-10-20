@@ -25,6 +25,25 @@ struct ModelBound
     static uint32_t getMaxResourceCount(const List& boundList);
     std::string toString(size_t indent = 0) const;
     static std::string toString(const List& boundList, size_t indent = 0);
+
+    /**
+     * Substract the given ModelBound from the current object
+     * \throws if model in other does not match to this
+     */
+    ModelBound substract(const ModelBound& other) const;
+
+    /**
+     * Substract list b from a
+     * \returns a - b
+     * \throws if model in other does not exist in this object
+     */
+    static ModelBound::List substract(const ModelBound::List& a, const ModelBound::List& b);
+
+    /**
+     * Decrement min and max values
+     * \throws std::runtime_error if null values exist and cannot be further decremented
+     */
+    void decrement();
 };
 
 } // end namespace csp

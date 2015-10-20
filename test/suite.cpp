@@ -18,3 +18,8 @@ std::string getRootDir()
     return configurationPath;
 }
 
+std::string getOMSchema()
+{
+    return getRootDir() + "test/data/om-schema-latest.owl";
+}
+

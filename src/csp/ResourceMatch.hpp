@@ -44,20 +44,17 @@ typedef owlapi::model::IRIList TypeList;
 
  try {
      // Check whether 'move_to' provides a subset of restriction existing for 'sherpa'
-     csp::ResourceMatch* fulfillment = cs::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
-     std::cout << fulfillment->toString() << std::endl;
-     ...
-     delete fulfillment;
+     csp::ResourceMatch::Solution solution = cs::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
+     std::cout << solution->toString() << std::endl;
  } catch(const std::runtime_error& e)
  {
      std::cout << "No solution found" << std::endl;
  }
 
  // or in compact form
- ResourceMatch::Ptr fulfillment = csp::ResourceMatch::fulfills(sherpa, move_to, ontology);
- if(fulfillment)
+ if(csp::ResourceMatch::isSupporting(sherpa, move_to, ontology);
  {
-    std::cout << fulfillment->toString() << std::endl;
+    std::cout << "Sherpa fulfills requirements for MoveTo" << std::endl;
  }
  \endverbatim
  */
@@ -103,16 +100,24 @@ public:
     struct Solution
     {
         ModelBound::List modelBounds;
-        std::string toString() const
-        {
-            return ModelBound::toString(modelBounds);
-        }
+        std::string toString() const;
+
+        /**
+         * Get the bound for a given model
+         * \throws std::invalid_argument if model is not part of the solution
+         */
+        ModelBound getBound(const owlapi::model::IRI& model) const;
     };
 
     ResourceMatch::Solution getSolution() const;
 
     void print(std::ostream& os) const;
 
+    /**
+     * Check if provider resources fulfill the model requirements
+     * \return A solution that list the dedicated models being used an their
+     * min/max bounds
+     */
     static ResourceMatch::Solution solve(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& modelRequirements,
             const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& providerResources,
             owlapi::model::OWLOntology::Ptr ontology);
@@ -127,6 +132,12 @@ public:
      */
     std::string toString() const;
 
+    /**
+     * Convert the cardinality restrictions to a more compact representation,
+     * where each entry is a model bound, i.e. a single object defining both min
+     * and max cardinality
+     * (in contrast a cardinality restriction describes only one, min or max)
+     */
     static ModelBound::List toModelBoundList(const std::vector<owlapi::model::OWLCardinalityRestriction::Ptr>& restrictions);
 
     /**

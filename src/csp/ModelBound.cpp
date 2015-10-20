@@ -3,6 +3,7 @@
 #include <limits>
 #include <base/Logging.hpp>
 #include <gecode/int.hh>
+#include <algorithm>
 
 namespace owlapi {
 namespace csp {
@@ -60,6 +61,65 @@ std::string ModelBound::toString(const List& boundList, size_t indent)
         ss << "    " << bound.toString() << std::endl;
     }
     return ss.str();
+}
+
+ModelBound ModelBound::substract(const ModelBound& other) const
+{
+    if(other.model != model)
+    {
+        throw std::invalid_argument("owlapi::csp::ModelBound::substract: models are different");
+    }
+
+    if(other.max > max || other.min > min)
+    {
+        throw std::invalid_argument("owlapi::csp::ModelBound::substract: other model with greater "
+                "min/max values than lval");
+    }
+
+    return ModelBound(model, min - other.min, max - other.max);
+}
+
+ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBound::List& b)
+{
+    ModelBound::List a = _a;
+    ModelBound::List result;
+    ModelBound::List::const_iterator bit = b.begin();
+    for(; bit != b.end(); ++bit)
+    {
+        const ModelBound& modelBound = *bit;
+
+        ModelBound::List::iterator ait = std::find_if(a.begin(), a.end(), [&modelBound](const ModelBound& m)
+                {
+                    return m.model == modelBound.model;
+                });
+
+        if(ait == a.end())
+        {
+            throw std::invalid_argument("owlapi::csp::ModelBound::substract: model '"
+                    + modelBound.model.toString() + "' not found in lval list");
+        }
+
+        ModelBound deltaBound = ait->substract(modelBound);
+        result.push_back(deltaBound);
+
+        a.erase(ait);
+    }
+
+    // Add remaining entries
+    result.insert(result.end(), a.begin(), a.end());
+
+    return result;
+}
+
+void ModelBound::decrement()
+{
+    if(min > 0 && max > 0)
+    {
+        --min;
+        --max;
+    } else {
+        throw std::runtime_error("owlapi::csp::ModelBound::decrement: cannot further decrement 0 value");
+    }
 }
 
 } // end namespace csp

@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(match_resource_via_restrictions)
 
 BOOST_AUTO_TEST_CASE(provider_via_restrictions)
 {
-    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getRootDir() + "/test/data/om-schema-v0.6.owl");
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( getOMSchema() );
     ontology->refresh();
 
     OWLOntologyTell tell(ontology);
@@ -117,6 +117,29 @@ BOOST_AUTO_TEST_CASE(provider_via_restrictions)
     using namespace owlapi::csp;
     ResourceMatch::Solution fulfillment = owlapi::csp::ResourceMatch::solve(r_move_to, r_sherpa, ontology);
     BOOST_TEST_MESSAGE("Sherpa provides MoveTo\nAssignment: " << fulfillment.toString());
+    BOOST_TEST_MESSAGE("MoveTo requirements: " << OWLCardinalityRestriction::toString(r_move_to));
+    BOOST_TEST_MESSAGE("Sherpa provides: " << OWLCardinalityRestriction::toString(r_sherpa));
+    {
+        std::string capabilityName = "Localization";
+        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
+    }
+    {
+        std::string capabilityName = "Locomotion";
+        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
+    }
+    {
+        std::string capabilityName = "Mapping";
+        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
+    }
+    {
+        std::string capabilityName = "Power";
+        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
+    }
+
 
     fulfillment = owlapi::csp::ResourceMatch::solve(r_image_provider, r_sherpa, ontology);
     BOOST_TEST_MESSAGE("Sherpa provides ImageProvider\nAssignment: " << fulfillment.toString());
@@ -290,9 +313,107 @@ BOOST_AUTO_TEST_CASE(performance_ten_sherpa)
         BOOST_REQUIRE_MESSAGE(supportedModels.size() == 1, "Services supported by sherpa: computing time: " << (stopTime - startTime).toSeconds());
     }
 }
-    
 
-//    IRI assignment = match->getAssignment(a->getIRI());
-//    BOOST_REQUIRE_MESSAGE( assignment == b->getIRI(), "Expected base to be matched by base-derived");
+BOOST_AUTO_TEST_CASE(model_bound)
+{
+    using namespace owlapi::csp;
+
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",1,1));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",1,1));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+
+        ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
+                {
+                    return b.model == "m0";
+                });
+        BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m0 exists in list");
+
+        ModelBound mb = *it;
+        BOOST_REQUIRE_MESSAGE(mb.min == 0 && mb.max == 0, "Substract to null, but got: " << mb.toString());
+    }
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",5,10));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",3,7));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+
+        ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
+                {
+                    return b.model == "m0";
+                });
+        BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m0 exists in list");
+
+        ModelBound mb = *it;
+        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 3, "Substract to null, but got: " << mb.toString());
+    }
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",5,10));
+        a.push_back(ModelBound("m1",1,1));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",3,7));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+
+        ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
+                {
+                    return b.model == "m0";
+                });
+        BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m0 exists in list");
+
+        ModelBound mb = *it;
+        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 3, "Substract to null, but got: " << mb.toString());
+
+        it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
+                {
+                    return b.model == "m1";
+                });
+        BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m1 exists in list");
+    }
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",5,10));
+        a.push_back(ModelBound("m1",1,1));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",3,7));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_THROW(list = ModelBound::substract(b,a), std::invalid_argument);
+    }
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",0,0));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",0,2));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_THROW(list = ModelBound::substract(a,b), std::invalid_argument);
+    }
+    {
+        ModelBound::List a;
+        a.push_back(ModelBound("m0",0,0));
+
+        ModelBound::List b;
+        b.push_back(ModelBound("m0",2,0));
+
+        ModelBound::List list;
+        BOOST_REQUIRE_THROW(list = ModelBound::substract(a,b), std::invalid_argument);
+    }
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
