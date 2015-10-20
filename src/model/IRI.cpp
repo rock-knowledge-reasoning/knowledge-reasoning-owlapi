@@ -25,6 +25,11 @@ void IRI::setFromString(const std::string& s)
     }
 }
 
+IRI::IRI()
+    : mPrefix("")
+    , mRemainder("")
+{}
+
 IRI::IRI(const char* s)
     : mPrefix("")
     , mRemainder("")

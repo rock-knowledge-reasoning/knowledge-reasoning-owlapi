@@ -23,7 +23,7 @@ protected:
     void setFromString(const std::string& s);
 
 public:
-    IRI() {}
+    IRI();
     IRI(const char* s);
     IRI(const std::string& s);
     IRI(const std::string& prefix, const std::string& remainder);
