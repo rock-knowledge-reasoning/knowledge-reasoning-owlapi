@@ -121,22 +121,34 @@ BOOST_AUTO_TEST_CASE(provider_via_restrictions)
     BOOST_TEST_MESSAGE("Sherpa provides: " << OWLCardinalityRestriction::toString(r_sherpa));
     {
         std::string capabilityName = "Localization";
-        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        ModelBound::List modelBounds = fulfillment.getAssignments(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBounds.size() == 1, "Matching of 1 provided resource expected, but got '" << modelBounds.size());
+
+        ModelBound modelBound = modelBounds.front();
         BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
     }
     {
         std::string capabilityName = "Locomotion";
-        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        ModelBound::List modelBounds = fulfillment.getAssignments(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBounds.size() == 1, "Matching of 1 provided resource expected, but got '" << modelBounds.size());
+
+        ModelBound modelBound = modelBounds.front();
         BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
     }
     {
         std::string capabilityName = "Mapping";
-        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        ModelBound::List modelBounds = fulfillment.getAssignments(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBounds.size() == 1, "Matching of 1 provided resource expected, but got '" << modelBounds.size());
+
+        ModelBound modelBound = modelBounds.front();
         BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
     }
     {
         std::string capabilityName = "Power";
-        ModelBound modelBound = fulfillment.getBound(owlapi::vocabulary::OM::resolve(capabilityName));
+        ModelBound::List modelBounds = fulfillment.getAssignments(owlapi::vocabulary::OM::resolve(capabilityName));
+        BOOST_REQUIRE_MESSAGE(modelBounds.size() == 1, "Matching of 1 provided resource expected, but got '" << modelBounds.size());
+
+        ModelBound modelBound = modelBounds.front();
         BOOST_REQUIRE_MESSAGE(modelBound.min == 1 && modelBound.max == 1, "Model bound for '" << modelBound.model << "', expected min 1, max 1, but got: " << modelBound.toString());
     }
 
@@ -326,7 +338,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",1,1));
 
         ModelBound::List list;
-        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substractMin(a,b));
 
         ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
                 {
@@ -345,7 +357,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",3,7));
 
         ModelBound::List list;
-        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substractMin(a,b));
 
         ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
                 {
@@ -354,7 +366,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m0 exists in list");
 
         ModelBound mb = *it;
-        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 3, "Substract to null, but got: " << mb.toString());
+        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 7, "Substract to null, but got: " << mb.toString());
     }
     {
         ModelBound::List a;
@@ -365,7 +377,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",3,7));
 
         ModelBound::List list;
-        BOOST_REQUIRE_NO_THROW(list = ModelBound::substract(a,b));
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substractMin(a,b));
 
         ModelBound::List::iterator it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
                 {
@@ -374,7 +386,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         BOOST_REQUIRE_MESSAGE(it != list.end(), "ModelBound m0 exists in list");
 
         ModelBound mb = *it;
-        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 3, "Substract to null, but got: " << mb.toString());
+        BOOST_REQUIRE_MESSAGE(mb.min == 2 && mb.max == 7, "SubstractMin expected (2,7), but got: " << mb.toString());
 
         it = std::find_if(list.begin(), list.end(), [](const ModelBound& b)
                 {
@@ -391,7 +403,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",3,7));
 
         ModelBound::List list;
-        BOOST_REQUIRE_THROW(list = ModelBound::substract(b,a), std::invalid_argument);
+        BOOST_REQUIRE_THROW(list = ModelBound::substractMin(b,a), std::invalid_argument);
     }
     {
         ModelBound::List a;
@@ -401,7 +413,8 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",0,2));
 
         ModelBound::List list;
-        BOOST_REQUIRE_THROW(list = ModelBound::substract(a,b), std::invalid_argument);
+        BOOST_REQUIRE_NO_THROW(list = ModelBound::substractMin(a,b));
+        BOOST_REQUIRE_MESSAGE(list.front().min == 0 && list.front().max == 0, "SubstractMin expected (0,0), but got " << list.front().toString());
     }
     {
         ModelBound::List a;
@@ -411,7 +424,7 @@ BOOST_AUTO_TEST_CASE(model_bound)
         b.push_back(ModelBound("m0",2,0));
 
         ModelBound::List list;
-        BOOST_REQUIRE_THROW(list = ModelBound::substract(a,b), std::invalid_argument);
+        BOOST_REQUIRE_THROW(list = ModelBound::substractMin(a,b), std::invalid_argument);
     }
 }
 

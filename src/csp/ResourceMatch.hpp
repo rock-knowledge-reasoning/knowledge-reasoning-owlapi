@@ -65,9 +65,9 @@ class ResourceMatch : public Gecode::Space
 
     /**
      * Assignments of query resources to pool resources. This is what has to be solved.
-     *                    available-service-0 available-service1 
+     *                    available-service-0 available-service1
      * requirement
-     * service-0                  1                   2            
+     * service-0                  1                   2
      * service-1                  1
      *
      * Constraints apply to min/max of sum of row --> e.g. min/max cardinality of service-0
@@ -96,17 +96,44 @@ protected:
     virtual Gecode::Space* copy(bool share);
 
 public:
+
     typedef boost::shared_ptr<ResourceMatch> Ptr;
-    struct Solution
+    class Solution
     {
-        ModelBound::List modelBounds;
-        std::string toString() const;
+    public:
+        std::string toString(uint32_t indent = 0) const;
 
         /**
          * Get the bound for a given model
          * \throws std::invalid_argument if model is not part of the solution
          */
-        ModelBound getBound(const owlapi::model::IRI& model) const;
+        ModelBound::List getAssignments(const owlapi::model::IRI& model) const;
+
+        /**
+         * Set the list of resources that together fulfill the requirement of
+         * the given model
+         */
+        void setAssignments(const ModelBound& model, const ModelBound::List& assignments) { mAssignments[model] = assignments; }
+
+        /**
+         * Add the assignment to existing assignements of resources to fulfill the requirement
+         * \param model requirement model
+         * \param assignment model bound of available resources that are assigned to fulfill the requirement
+         */
+        void addAssignment(const ModelBound& model, const ModelBound& assignment) { mAssignments[model].push_back(assignment); }
+
+
+        /**
+         * Substract from a list of available resources
+         * \throw invalid argument if operation would result in a negative
+         * assignment
+         * \return remaining resources
+         */
+        ModelBound::List substractMinFrom(const ModelBound::List& availableResources) const;
+
+    private:
+        // Assignments for this model type
+        std::map<ModelBound, ModelBound::List> mAssignments;
     };
 
     ResourceMatch::Solution getSolution() const;

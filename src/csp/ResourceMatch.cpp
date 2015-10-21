@@ -9,23 +9,71 @@ using namespace owlapi::model;
 namespace owlapi {
 namespace csp {
 
-std::string ResourceMatch::Solution::toString() const
+std::string ResourceMatch::Solution::toString(uint32_t indent) const
 {
-    return ModelBound::toString(modelBounds);
+    std::string hspace(indent,' ');
+    std::stringstream ss;
+    ss << hspace << "Solution:" << std::endl;
+    std::map<ModelBound, ModelBound::List>::const_iterator cit = mAssignments.begin();
+    for(; cit != mAssignments.end(); ++cit)
+    {
+        ss << hspace << "    requirement: " << std::endl;
+        ss << cit->first.toString(indent + 8) << std::endl;
+        ss << hspace << "    assignment: " << std::endl;
+        ss << ModelBound::toString(cit->second, indent + 8) << std::endl;
+    }
+
+    return ss.str();
 }
 
-ModelBound ResourceMatch::Solution::getBound(const owlapi::model::IRI& model) const
+ModelBound::List ResourceMatch::Solution::getAssignments(const owlapi::model::IRI& model) const
 {
-    ModelBound::List::const_iterator cit = modelBounds.begin();
-    for(; cit != modelBounds.end(); ++cit)
+    std::map<ModelBound, ModelBound::List>::const_iterator cit = mAssignments.begin();
+    for(;cit != mAssignments.end(); ++cit)
     {
-        if(cit->model == model)
+        if(cit->first.model == model)
         {
-            return *cit;
+            return cit->second;
         }
     }
-    throw std::invalid_argument("owlapi::csp::Resource::Solution::getBound: no model '"
+
+    throw std::invalid_argument("owlapi::csp::Resource::Solution::getAssignments: no assignments for model '"
             + model.toString() + "' in solution");
+}
+
+ModelBound::List ResourceMatch::Solution::substractMinFrom(const ModelBound::List& availableResources) const
+{
+    ModelBound::List remainingResources = availableResources;
+
+    std::map<ModelBound, ModelBound::List>::const_iterator cit = mAssignments.begin();
+    for(; cit != mAssignments.end(); ++cit)
+    {
+        ModelBound::List assignedModels = cit->second;
+
+        ModelBound::List::iterator ait = assignedModels.begin();
+        for(; ait != assignedModels.end(); ++ait)
+        {
+            const ModelBound& assignedModelBound = *ait;
+
+            // Remove assigned modelBound from remaining resources
+            ModelBound::List::iterator it = std::find_if(remainingResources.begin(), remainingResources.end(),
+                    [&assignedModelBound](const ModelBound& modelBound)
+                {
+                    return assignedModelBound.model == modelBound.model;
+                });
+
+            if(it == remainingResources.end())
+            {
+                throw std::invalid_argument("owlapi::csp::ResourceMatch::Solution::substractMinFrom: could not find model '" + assignedModelBound.model.toString() + "'");
+            }
+
+            ModelBound delta = it->substractMin(assignedModelBound);
+
+            it->min = delta.min;
+            it->max = delta.max;
+        }
+    }
+    return remainingResources;
 }
 
 ResourceMatch::ResourceMatch(const ModelBound::List& required,
@@ -149,16 +197,15 @@ ResourceMatch::Solution ResourceMatch::solve(const ModelBound::List& required, c
 
 ResourceMatch::Solution ResourceMatch::getSolution() const
 {
-    Solution solution;
     Gecode::Matrix<Gecode::IntVarArray> modelAssignment(mModelAssignment, mAvailableModelBound.size(), mRequiredModelBound.size());
 
-    ModelBound::List modelBounds;
-    // Check if resource requirements holds
-    for(size_t i = 0; i < mRequiredModelBound.size(); ++i)
+    Solution solution;
+    for(size_t mi = 0; mi < mAvailableModelBound.size(); ++mi)
     {
-        ModelBound modelBound;
-        for(size_t mi = 0; mi < mAvailableModelBound.size(); ++mi)
+        // Check if resource requirements holds
+        for(size_t i = 0; i < mRequiredModelBound.size(); ++i)
         {
+
             Gecode::IntVar var = modelAssignment(mi, i);
             if(!var.assigned())
             {
@@ -167,18 +214,14 @@ ResourceMatch::Solution ResourceMatch::getSolution() const
 
             Gecode::IntVarValues v( var );
 
-            modelBound.model = mRequiredModelBound[i].model;
-            modelBound.min = v.val();
-            modelBound.max = v.val();
-
+            ModelBound modelBound(mAvailableModelBound[mi].model, v.val(), v.val());
             if(modelBound.min != 0)
             {
-                modelBounds.push_back(modelBound);
+                solution.addAssignment(mRequiredModelBound[i], modelBound);
             }
         }
-    }
 
-    solution.modelBounds = modelBounds;
+    }
     return solution;
 }
 

@@ -63,23 +63,25 @@ std::string ModelBound::toString(const List& boundList, size_t indent)
     return ss.str();
 }
 
-ModelBound ModelBound::substract(const ModelBound& other) const
+ModelBound ModelBound::substractMin(const ModelBound& other) const
 {
     if(other.model != model)
     {
-        throw std::invalid_argument("owlapi::csp::ModelBound::substract: models are different");
+        LOG_DEBUG_S << "models different";
+        throw std::invalid_argument("owlapi::csp::ModelBound::substractMin: models are different");
     }
 
-    if(other.max > max || other.min > min)
+    if(max < other.min)
     {
-        throw std::invalid_argument("owlapi::csp::ModelBound::substract: other model with greater "
-                "min/max values than lval");
+        LOG_DEBUG_S << "min value greater max: " << other.min << " vs. " << max;
+        throw std::invalid_argument("owlapi::csp::ModelBound::substractMin: other model with greater min value "
+                " than this max: '" + this->toString() + "' vs '" + other.toString() + "'");
     }
 
-    return ModelBound(model, min - other.min, max - other.max);
+    return ModelBound(model, std::max(0, (int) (min - other.min)), std::max(0, (int) (max - other.min)));
 }
 
-ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBound::List& b, bool removeNegative)
+ModelBound::List ModelBound::substractMin(const ModelBound::List& _a, const ModelBound::List& b, bool removeNegative)
 {
     ModelBound::List a = _a;
     ModelBound::List result;
@@ -87,7 +89,6 @@ ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBo
     for(; bit != b.end(); ++bit)
     {
         const ModelBound& modelBound = *bit;
-
         ModelBound::List::iterator ait = std::find_if(a.begin(), a.end(), [&modelBound](const ModelBound& m)
                 {
                     return m.model == modelBound.model;
@@ -95,18 +96,15 @@ ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBo
 
         if(ait == a.end())
         {
-            if(!removeNegative)
-            {
-                throw std::invalid_argument("owlapi::csp::ModelBound::substract: model '"
-                        + modelBound.model.toString() + "' not found in lval list");
-            } else {
-                a.erase(ait);
-                continue;
-            }
+            LOG_ERROR_S << "Lval: '" << modelBound.model << "' not found";
+            throw std::invalid_argument("owlapi::csp::ModelBound::substractMin: model '"
+                        + modelBound.model.toString() + "' not found in lval list: " + ModelBound::toString(a));
         }
 
         try {
-            ModelBound deltaBound = ait->substract(modelBound);
+            LOG_DEBUG_S << "SubstractMin: lval: a " << ait->toString() << 
+                " rval: b " << modelBound.toString();
+            ModelBound deltaBound = ait->substractMin(modelBound);
             result.push_back(deltaBound);
         } catch(const std::invalid_argument &e)
         {

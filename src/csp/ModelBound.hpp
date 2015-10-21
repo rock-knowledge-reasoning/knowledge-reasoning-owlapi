@@ -28,24 +28,28 @@ struct ModelBound
 
     /**
      * Substract the given ModelBound from the current object
-     * \throws if model in other does not match to this
+     * this->max - other.min
+     * \throws invalid_argument if model in other does not match to this
+     * \throws invalid_argument if other.min > this->max
      */
-    ModelBound substract(const ModelBound& other) const;
+    ModelBound substractMin(const ModelBound& other) const;
 
     /**
-     * Substract list b from a
+     * Substract min values of list b from a max and(!) min values
      * \param a List of model bounds (lval)
      * \param b List of model bounds (rval)
      * \param removeNegative Remove results with a negative result
      * \returns a - b
      */
-    static ModelBound::List substract(const ModelBound::List& a, const ModelBound::List& b, bool removeNegative = false);
+    static ModelBound::List substractMin(const ModelBound::List& a, const ModelBound::List& b, bool removeNegative = false);
 
     /**
      * Decrement min and max values
      * \throws std::runtime_error if null values exist and cannot be further decremented
      */
     void decrement();
+
+    bool operator<(const ModelBound& other) const { return model < other.model; }
 };
 
 } // end namespace csp
