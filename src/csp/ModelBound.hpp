@@ -34,10 +34,12 @@ struct ModelBound
 
     /**
      * Substract list b from a
+     * \param a List of model bounds (lval)
+     * \param b List of model bounds (rval)
+     * \param removeNegative Remove results with a negative result
      * \returns a - b
-     * \throws if model in other does not exist in this object
      */
-    static ModelBound::List substract(const ModelBound::List& a, const ModelBound::List& b);
+    static ModelBound::List substract(const ModelBound::List& a, const ModelBound::List& b, bool removeNegative = false);
 
     /**
      * Decrement min and max values

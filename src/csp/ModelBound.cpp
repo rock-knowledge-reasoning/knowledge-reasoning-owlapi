@@ -79,7 +79,7 @@ ModelBound ModelBound::substract(const ModelBound& other) const
     return ModelBound(model, min - other.min, max - other.max);
 }
 
-ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBound::List& b)
+ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBound::List& b, bool removeNegative)
 {
     ModelBound::List a = _a;
     ModelBound::List result;
@@ -95,12 +95,26 @@ ModelBound::List ModelBound::substract(const ModelBound::List& _a, const ModelBo
 
         if(ait == a.end())
         {
-            throw std::invalid_argument("owlapi::csp::ModelBound::substract: model '"
-                    + modelBound.model.toString() + "' not found in lval list");
+            if(!removeNegative)
+            {
+                throw std::invalid_argument("owlapi::csp::ModelBound::substract: model '"
+                        + modelBound.model.toString() + "' not found in lval list");
+            } else {
+                a.erase(ait);
+                continue;
+            }
         }
 
-        ModelBound deltaBound = ait->substract(modelBound);
-        result.push_back(deltaBound);
+        try {
+            ModelBound deltaBound = ait->substract(modelBound);
+            result.push_back(deltaBound);
+        } catch(const std::invalid_argument &e)
+        {
+            if(!removeNegative)
+            {
+                throw;
+            }
+        }
 
         a.erase(ait);
     }
