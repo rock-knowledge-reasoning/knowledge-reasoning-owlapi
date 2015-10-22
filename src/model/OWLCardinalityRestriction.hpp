@@ -155,7 +155,8 @@ public:
             const std::vector<OWLCardinalityRestriction::Ptr>& b);
 
     /**
-     * Create a compact representation of cardinality restrictions
+     * Create a compact representation of cardinality restrictions by joining
+     * the existing cardinalities with the provided
      */
     static std::vector<OWLCardinalityRestriction::Ptr> compact(const std::vector<OWLCardinalityRestriction::Ptr>& a);
 
