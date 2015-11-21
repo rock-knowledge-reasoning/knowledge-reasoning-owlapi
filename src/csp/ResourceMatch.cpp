@@ -3,6 +3,7 @@
 #include <gecode/minimodel.hh>
 #include <gecode/gist.hh>
 #include <numeric/Combinatorics.hpp>
+#include <owlapi/Vocabulary.hpp>
 
 using namespace owlapi::model;
 
@@ -307,29 +308,38 @@ bool ResourceMatch::isSupporting(const std::vector<owlapi::model::OWLCardinality
 }
 
 owlapi::model::IRIList ResourceMatch::filterSupportedModels(const owlapi::model::IRIList& combinations,
-        const owlapi::model::IRIList& serviceModels, owlapi::model::OWLOntology::Ptr ontology)
+        const owlapi::model::IRIList& resourceModels, owlapi::model::OWLOntology::Ptr ontology)
 {
     OWLOntologyAsk ask(ontology);
     std::vector<OWLCardinalityRestriction::Ptr> providerRestrictions = ask.getCardinalityRestrictions(combinations);
     owlapi::model::IRIList supportedModels;
 
-    owlapi::model::IRIList::const_iterator it = serviceModels.begin();
-    for(; it != serviceModels.end(); ++it)
+    owlapi::model::IRIList::const_iterator it = resourceModels.begin();
+    for(; it != resourceModels.end(); ++it)
     {
-        owlapi::model::IRI serviceModel = *it;
-        std::vector<OWLCardinalityRestriction::Ptr> serviceRestriction = ask.getCardinalityRestrictions(serviceModel);
-
-        LOG_DEBUG_S << "Checking required models for '" << serviceModel.toString() << "'" << std::endl
-            << OWLCardinalityRestriction::toString(serviceRestriction) << std::endl
-            << " vs provided from '" << combinations << "' : "
-            << OWLCardinalityRestriction::toString(providerRestrictions);
-
-        if( ResourceMatch::isSupporting(providerRestrictions, serviceRestriction, ontology))
+        owlapi::model::IRI resourceModel = *it;
+        std::vector<OWLCardinalityRestriction::Ptr> resourceRestrictions = ask.getCardinalityRestrictions(resourceModel);
+        if(resourceRestrictions.empty())
         {
-            supportedModels.push_back(serviceModel);
+            // This definition has no children, i.e. is not defined by
+            // subconstraints, thus adding the resourceModel itself as min
+            // constraint
+            // TODO: REMOVE REQUIREMENT FOR PROPERTY HERE
+            OWLCardinalityRestriction::Ptr restriction(new OWLCardinalityRestriction(ask.getOWLObjectProperty(vocabulary::OM::has()), 1, resourceModel, OWLCardinalityRestriction::MIN));
+            resourceRestrictions.push_back(restriction);
+        }
 
-            LOG_DEBUG_S << "Fulfillment for: " << std::endl
-                << "    service model: " << serviceModel << std::endl
+        LOG_DEBUG_S << "Checking required models for '" << resourceModel.toString() << "'" << std::endl
+            << "restrictions: " << OWLCardinalityRestriction::toString(resourceRestrictions) << std::endl
+            << " vs provided from '" << combinations << "' : "
+            << "restrictions: " << OWLCardinalityRestriction::toString(providerRestrictions);
+
+        if( ResourceMatch::isSupporting(providerRestrictions, resourceRestrictions, ontology))
+        {
+            supportedModels.push_back(resourceModel);
+
+            LOG_DEBUG_S << "Fulfillment given for: " << std::endl
+                << "    service model: " << resourceModel << std::endl
                 << "    combination of provider models: " << combinations << std::endl;
         }
     }

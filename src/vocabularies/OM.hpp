@@ -21,6 +21,7 @@ public:
     VOCABULARY_ADD_WORD(Actor);
     VOCABULARY_ADD_WORD(Capability);
     VOCABULARY_ADD_WORD(CompositeActor);
+    VOCABULARY_ADD_WORD(Functionality);
     VOCABULARY_ADD_WORD(Interface);
     VOCABULARY_ADD_WORD(Location);
     VOCABULARY_ADD_WORD(Service);
