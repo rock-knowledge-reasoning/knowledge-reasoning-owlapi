@@ -12,8 +12,6 @@ set(ICU_LIBS icutu
 rock_library(owlapi
     SOURCES
         KnowledgeBase.cpp
-        csp/ModelBound.cpp
-        csp/ResourceMatch.cpp
         db/FileBackend.cpp
         db/rdf/SopranoDB.cpp
         db/rdf/Sparql.cpp
@@ -60,8 +58,6 @@ rock_library(owlapi
         KnowledgeBase.hpp
         OWLApi.hpp
         Vocabulary.hpp
-        csp/ModelBound.hpp
-        csp/ResourceMatch.hpp
         db/FileBackend.hpp
         db/rdf/SopranoDB.hpp
         db/rdf/Sparql.hpp
@@ -163,7 +159,6 @@ rock_library(owlapi
         model/URI.hpp
         reasoner/factpp/AxiomVisitor.hpp
         reasoner/factpp/Types.hpp
-        vocabularies/OM.hpp
         vocabularies/OWL.hpp
         vocabularies/RDF.hpp
         vocabularies/RDFS.hpp
@@ -178,24 +173,8 @@ rock_library(owlapi
         raptor2
 )
 
-
-find_library(gecode0 NAMES gecodeflatzinc   PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode1 NAMES gecodedriver     PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode2 NAMES gecodegist       PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode3 NAMES gecodesearch     PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode4 NAMES gecodeminimodel  PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode5 NAMES gecodeset        PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode6 NAMES gecodefloat      PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode7 NAMES gecodeint        PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode8 NAMES gecodekernel     PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-find_library(gecode9 NAMES gecodesupport    PATHS ${CMAKE_INSTALL_TARGET}/lib REQUIRED )
-
-set(GECODE_LIBRARIES
-    ${gecode0} ${gecode1} ${gecode2} ${gecode3} ${gecode4} ${gecode5} ${gecode6} ${gecode7} ${gecode8} ${gecode9}
-)
-
 include_directories(${Boost_INCLUDE_DIR})
-target_link_libraries(owlapi ${Boost_LIBRARIES} ${ICU_LIBS} ${GECODE_LIBRARIES})
+target_link_libraries(owlapi ${Boost_LIBRARIES} ${ICU_LIBS})
 
 rock_executable(owlapi-ontology_reader
     SOURCES utils/OntologyReaderMain.cpp

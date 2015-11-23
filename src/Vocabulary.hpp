@@ -34,7 +34,6 @@ public:
 #include <owlapi/vocabularies/OWL.hpp>
 #include <owlapi/vocabularies/RDF.hpp>
 #include <owlapi/vocabularies/RDFS.hpp>
-#include <owlapi/vocabularies/OM.hpp>
 #include <owlapi/vocabularies/XSD.hpp>
 
 #endif // OWLAPI_VOCABULARY_HPP

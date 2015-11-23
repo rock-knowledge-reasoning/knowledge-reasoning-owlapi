@@ -48,10 +48,12 @@ BOOST_AUTO_TEST_CASE(punning)
     OWLOntologyAsk ask(ontology);
     OWLOntologyTell tell(ontology);
 
+    owlapi::vocabulary::Custom OM("http://www.rock-robotics.org/2014/01/om-schema#");
+
     using namespace owlapi::model;
     {
-        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
-        IRI property = owlapi::vocabulary::OM::resolve("maxVelocity");
+        IRI actor = OM.resolve("Sherpa");
+        IRI property = OM.resolve("maxVelocity");
 
         {
             // Data retrieval
@@ -70,8 +72,8 @@ BOOST_AUTO_TEST_CASE(punning)
         }
     }
     {
-        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
-        IRI property = owlapi::vocabulary::OM::resolve("probabilityOfFailure");
+        IRI actor = OM.resolve("Sherpa");
+        IRI property = OM.resolve("probabilityOfFailure");
 
         OWLLiteral::Ptr value = ask.getDataValue(actor, property);
 
@@ -97,8 +99,8 @@ BOOST_AUTO_TEST_CASE(punning)
         }
     }
     {
-        IRI actor = owlapi::vocabulary::OM::resolve("Sherpa");
-        IRI property = owlapi::vocabulary::OM::resolve("notExistingProperty");
+        IRI actor = OM.resolve("Sherpa");
+        IRI property = OM.resolve("notExistingProperty");
 
         BOOST_REQUIRE_THROW(ask.getDataValue(actor, property), std::invalid_argument);
         BOOST_REQUIRE_THROW( ask.getDataPropertyDomain(property, true), std::invalid_argument);
