@@ -5,6 +5,8 @@
 #include <owlapi/db/rdf/Sparql.hpp>
 #include <owlapi/Vocabulary.hpp>
 #include <base/Logging.hpp>
+#include <utilmm/configfile/pkgconfig.hh>
+
 
 using namespace owlapi::db::query;
 using namespace owlapi::model;

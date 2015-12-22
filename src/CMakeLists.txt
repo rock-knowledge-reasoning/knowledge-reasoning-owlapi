@@ -171,6 +171,7 @@ rock_library(owlapi
         soprano
         redland
         raptor2
+        utilmm
 )
 
 include_directories(${Boost_INCLUDE_DIR})
