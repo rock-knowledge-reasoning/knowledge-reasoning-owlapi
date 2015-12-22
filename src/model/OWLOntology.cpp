@@ -85,8 +85,7 @@ void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
 
 OWLOntology::Ptr OWLOntology::fromFile(const std::string& filename)
 {
-    io::OWLOntologyReader reader;
-    return reader.fromFile(filename);
+    return io::OWLOntologyIO::fromFile(filename);
 }
 
 OWLAxiom::PtrList OWLOntology::getAxioms() const

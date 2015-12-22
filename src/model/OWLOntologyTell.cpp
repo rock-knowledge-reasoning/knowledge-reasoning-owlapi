@@ -94,6 +94,17 @@ OWLNamedIndividual::Ptr OWLOntologyTell::namedIndividual(const IRI& iri)
     }
 }
 
+void OWLOntologyTell::imports(const IRI& iri)
+{
+    IRIList& docs = mpOntology->mDirectImportsDocuments;
+    if( docs.end() == std::find(docs.begin(), docs.end(), iri))
+    {
+        docs.push_back(iri);
+    } else {
+        LOG_DEBUG_S << "Import of: '" << iri << "' is already defined";
+    }
+}
+
 OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
 {
     std::map<IRI, OWLObjectProperty::Ptr>::const_iterator it = mpOntology->mObjectProperties.find(iri);

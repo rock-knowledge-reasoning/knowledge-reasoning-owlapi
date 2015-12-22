@@ -14,6 +14,10 @@ class OWLOntologyAsk;
 
 namespace io {
 
+/**
+ *
+ * \see http://www.w3.org/TR/owl2-syntax/#Entity_Declarations_and_Typing
+ */
 class OWLOntologyReader
 {
     /// Pointer to the underlying query interfaces for SPARQL
@@ -32,7 +36,11 @@ protected:
 
     void load();
 
+    void loadDeclarationsAndImports();
+    void loadAxioms();
+
     void loadRestrictions();
+    void loadProperties();
     void loadObjectProperties();
     void loadDataProperties();
 

@@ -201,7 +201,12 @@ protected:
     /// Map to access subclass axiom by a given superclass
     std::map<OWLClassExpression::Ptr, std::vector<OWLSubClassOfAxiom::Ptr> > mSubClassAxiomBySuperPosition;
 
+    /// Full path this ontology has been loaded from
+    std::string mAbsolutePath;
     KnowledgeBase* mpKnowledgeBase;
+
+    /// List of documents that this ontology imports
+    IRIList mDirectImportsDocuments;
 
     KnowledgeBase* kb() { return mpKnowledgeBase; }
 
@@ -218,6 +223,7 @@ protected:
 
     void retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property);
 
+    void setAbsolutePath(const std::string& path) { mAbsolutePath = path; }
 
 public:
     typedef boost::shared_ptr<OWLOntology> Ptr;
@@ -232,6 +238,11 @@ public:
     ~OWLOntology();
 
     static OWLOntology::Ptr fromFile(const std::string& filename);
+
+    /**
+     * Get the absolute path this ontology has been loaded from
+     */
+    std::string getAbsolutePath() const { return mAbsolutePath; }
 };
 
 } // ane namespace model

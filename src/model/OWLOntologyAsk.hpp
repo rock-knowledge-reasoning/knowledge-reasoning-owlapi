@@ -234,6 +234,12 @@ public:
      * Get the list of domains for a given property
      */
     IRIList domainOf(const IRI& iri, bool direct = true) const;
+
+    /**
+     * Get the list of imports of other ontologies
+     * \see http://www.w3.org/TR/owl2-syntax/#Imports
+     */
+    IRIList imports() const;
 };
 
 } // end namespace model

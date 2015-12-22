@@ -48,6 +48,13 @@ db::query::Results OWLOntologyReader::findAll(const db::query::Variable& subject
 
 void OWLOntologyReader::load()
 {
+    loadDeclarationsAndImports();
+    loadAxioms();
+    loadProperties();
+}
+
+void OWLOntologyReader::loadDeclarationsAndImports()
+{
     mTell->initializeDefaultClasses();
 
     {
@@ -131,7 +138,43 @@ void OWLOntologyReader::load()
                 {
                     mRestrictions.push_back(subject);
                 }
-            } else if(predicate == vocabulary::RDFS::subClassOf())
+            } else if(predicate == vocabulary::OWL::imports())
+            {
+               mTell->imports(object);
+            }
+        } // end while
+    }
+}
+
+void OWLOntologyReader::loadAxioms()
+{
+    {
+        db::query::Results results = findAll(Subject(),vocabulary::RDF::type(),vocabulary::OWL::Class());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            mTell->subClassOf(subject, vocabulary::OWL::Thing());
+        }
+    }
+
+    // Identify restrictions -- will contain the id, should be anonymous
+    // Since SPARQL cannot query directly for anonymous restrictions, we do
+    // an incremental construction after querying all triple and filtering for
+    // the one that are related to the restriction
+    //
+    // TODO: introduce rdf triple parser
+    // http://www.w3.org/TR/owl-parsing/#subsec-streaming
+    {
+        db::query::Results results = findAll(Subject(), Predicate(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI predicate = it[Predicate()];
+            IRI object = it[Object()];
+
+            if(predicate == vocabulary::RDFS::subClassOf())
             {
                 // add a new axiom SubClassOf(subject-translation
                 // object-translation)
@@ -210,7 +253,10 @@ void OWLOntologyReader::load()
             }
         }
     }
+} // end loadAxioms()
 
+void OWLOntologyReader::loadProperties()
+{
     // Properties
     // http://www.w3.org/TR/owl-ref/
     //

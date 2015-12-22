@@ -75,6 +75,11 @@ public:
     OWLNamedIndividual::Ptr namedIndividual(const IRI& iri);
 
     /**
+     * Define an import of another ontology defined by the given IRI
+     */
+    void imports(const IRI& iri);
+
+    /**
      * Get or create the OWLObjectProperty by IRI
      * \return OWLObjectProperty::Ptr
      */

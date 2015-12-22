@@ -383,5 +383,10 @@ IRIList OWLOntologyAsk::domainOf(const IRI& iri, bool direct) const
             " property '" + iri.toString() + "' is not known");
 }
 
+IRIList OWLOntologyAsk::imports() const
+{
+    return mpOntology->mDirectImportsDocuments;
+}
+
 } // end namespace model
 } // end namespace owlapi
