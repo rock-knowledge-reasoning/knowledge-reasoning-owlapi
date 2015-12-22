@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_OWL_NAMED_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_OWL_NAMED_INDIVIDUAL_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLIndividual.hpp>
 #include <owlapi/model/OWLLogicalEntity.hpp>
 

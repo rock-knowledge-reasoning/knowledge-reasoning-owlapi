@@ -2,7 +2,6 @@
 #define OWLAPI_MODEL_OWL_AXIOM_HPP
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
 #include <owlapi/model/HasAnnotations.hpp>
 

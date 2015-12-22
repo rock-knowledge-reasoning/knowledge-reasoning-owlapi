@@ -1,18 +1,21 @@
 #include "OWLOntology.hpp"
 #include <owlapi/KnowledgeBase.hpp>
-#include <owlapi/io/OWLOntologyReader.hpp>
+#include <owlapi/io/OWLOntologyIO.hpp>
 
 namespace owlapi {
 namespace model {
 
-OWLOntology::OWLOntology()
-    : mpKnowledgeBase(new KnowledgeBase())
-{}
+OWLOntology::OWLOntology(const KnowledgeBase::Ptr& kb)
+    : mpKnowledgeBase(kb)
+{
+    if(!mpKnowledgeBase)
+    {
+        mpKnowledgeBase = boost::make_shared<KnowledgeBase>();
+    }
+}
 
 OWLOntology::~OWLOntology()
-{
-    delete mpKnowledgeBase;
-}
+{}
 
 void OWLOntology::refresh()
 {

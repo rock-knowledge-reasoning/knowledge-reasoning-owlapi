@@ -147,6 +147,7 @@ namespace owlapi {
 class KnowledgeBase;
 
 namespace io {
+    class OWLOntologyIO;
     class RedlandWriter;
 }
 
@@ -159,11 +160,13 @@ typedef std::map<OWLAxiom::AxiomType, OWLAxiom::PtrList > AxiomMap;
 
 /**
  * Ontology
+ * \see http://www.w3.org/TR/owl2-syntax
  */
 class OWLOntology
 {
     friend class OWLOntologyTell;
     friend class OWLOntologyAsk;
+    friend class io::OWLOntologyIO;
     friend class io::RedlandWriter;
 
 protected:
@@ -203,12 +206,13 @@ protected:
 
     /// Full path this ontology has been loaded from
     std::string mAbsolutePath;
-    KnowledgeBase* mpKnowledgeBase;
 
     /// List of documents that this ontology imports
     IRIList mDirectImportsDocuments;
 
-    KnowledgeBase* kb() { return mpKnowledgeBase; }
+    boost::shared_ptr<KnowledgeBase> mpKnowledgeBase;
+
+    boost::shared_ptr<KnowledgeBase> kb() { return mpKnowledgeBase; }
 
 protected:
 
@@ -232,8 +236,9 @@ public:
 
     /**
      * Default constructor
+     * \param kb Knowledge base which can be shared across multiple instances
      */
-    OWLOntology();
+    OWLOntology(const boost::shared_ptr<KnowledgeBase>& kb = boost::shared_ptr<KnowledgeBase>());
 
     ~OWLOntology();
 
@@ -248,7 +253,6 @@ public:
 } // ane namespace model
 } // end namespace owlapi
 #endif // OWLAPI_MODEL_OWL_ONTOLOGY_HPP
-
 
 //package org.semanticweb.owlapi.model;
 //

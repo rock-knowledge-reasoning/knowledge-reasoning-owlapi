@@ -3,7 +3,6 @@
 
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
 #include <owlapi/model/OWLPropertyRange.hpp>
 

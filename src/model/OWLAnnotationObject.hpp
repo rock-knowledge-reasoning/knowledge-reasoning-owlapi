@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_ANNOTATION_OBJECT_HPP
 #define OWLAPI_MODEL_ANNOTATION_OBJECT_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLObject.hpp>
 
 namespace owlapi {

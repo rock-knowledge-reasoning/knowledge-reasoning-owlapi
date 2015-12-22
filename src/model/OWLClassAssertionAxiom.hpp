@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_OWL_CLASS_ASSERTION_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_CLASS_ASSERTION_AXIOM_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLIndividual.hpp>
 #include <owlapi/model/OWLIndividualAxiom.hpp>
 #include <owlapi/model/OWLClassExpression.hpp>

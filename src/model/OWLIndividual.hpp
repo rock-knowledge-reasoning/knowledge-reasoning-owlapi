@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLPropertyAssertionObject.hpp>
 #include <owlapi/model/IRI.hpp>
 

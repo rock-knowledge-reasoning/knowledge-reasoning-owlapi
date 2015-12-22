@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_OWL_CLASS_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_CLASS_AXIOM_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLLogicalAxiom.hpp>
 
 namespace owlapi {

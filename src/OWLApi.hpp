@@ -1,7 +1,7 @@
 #ifndef OWLAPI_HPP
 #define OWLAPI_HPP
 
-#include <boost/shared_ptr.hpp>
+#include <owlapi/SharedPtr.hpp>
 #include <owlapi/model/HasIRI.hpp>
 #include <owlapi/model/OWLObject.hpp>
 #include <owlapi/model/OWLNamedObject.hpp>

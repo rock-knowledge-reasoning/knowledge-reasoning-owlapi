@@ -1,9 +1,7 @@
 #ifndef OWLAPI_MODEL_HAS_ANNOTATIONS_HPP
 #define OWLAPI_MODEL_HAS_ANNOTATIONS_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
-
 #include <owlapi/model/OWLAnnotation.hpp>
 
 namespace owlapi {

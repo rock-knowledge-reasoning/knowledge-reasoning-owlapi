@@ -1,7 +1,6 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_PROPERTY_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_PROPERTY_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <owlapi/model/OWLProperty.hpp>
 #include <owlapi/model/OWLObjectPropertyExpression.hpp>
 

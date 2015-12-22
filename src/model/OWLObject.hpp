@@ -2,7 +2,7 @@
 #define OWLAPI_MODEL_OWL_OBJECT_HPP
 
 #include <owlapi/Exceptions.hpp>
-#include <boost/shared_ptr.hpp>
+#include <owlapi/SharedPtr.hpp>
 
 namespace owlapi {
 namespace model {

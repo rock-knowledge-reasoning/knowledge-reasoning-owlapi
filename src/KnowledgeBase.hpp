@@ -9,6 +9,7 @@
 #include <factpp/Actor.h>
 #include <owlapi/reasoner/factpp/Types.hpp>
 #include <owlapi/OWLApi.hpp>
+#include <owlapi/SharedPtr.hpp>
 
 namespace owlapi {
 
@@ -64,6 +65,8 @@ class KnowledgeBase
     IRIList getResult(const Actor& actor, const IRI& filter = IRI()) const;
 
 public:
+    typedef boost::shared_ptr<KnowledgeBase> Ptr;
+
     enum PropertyType { UNKNOWN_PROPERTY_TYPE, OBJECT, DATA, END_PROPERTY_TYPE };
     enum EntityType { UNKNOWN_ENTITY_TYPE, CLASS, INSTANCE, OBJECT_PROPERTY, DATA_PROPERTY, END_ENTITY_TYPE };
 
