@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
+#include <owlapi/Vocabulary.hpp>
+
 namespace owlapi {
 namespace io {
 
@@ -24,6 +26,118 @@ void OWLOntologyIO::write(const std::string& filename, const owlapi::model::OWLO
             throw std::invalid_argument("owlapi::io::OWLWriter::write: unsupported format");
 
     }
+}
+
+void OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology)
+{
+    using namespace owlapi::model;
+
+    OWLOntologyReader reader;
+    if(!ontology->getAbsolutePath().empty())
+    {
+        // Check if ontology has to be loaded from file
+        reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+    }
+
+    IRIList unprocessed = ontology->getDirectImportsDocuments();
+    IRIList processed;
+    std::vector<OWLOntology::Ptr> processedOntology;
+
+    typedef std::map<OWLOntology::Ptr, OWLOntologyReader*> ReadersMap;
+    ReadersMap readersMap;
+
+    // load declarations and imports
+    while(!unprocessed.empty())
+    {
+        IRI iri = unprocessed.back();
+        unprocessed.pop_back();
+
+        // Check on inbuilt
+        std::string iriString = iri.toString();
+        if(strncmp(iriString.c_str(), vocabulary::OWL::IRIPrefix().toString().c_str(), iriString.size()) == 0)
+        {
+            LOG_INFO_S << "Skipping import of builtin vocabulary: " << iri;
+            continue;
+        } else if(strncmp(iriString.c_str(), vocabulary::RDF::IRIPrefix().toString().c_str(), iriString.size()) == 0)
+        {
+            LOG_INFO_S << "Skipping import of builtin vocabulary: " << iri;
+            continue;
+        } else if(strncmp(iriString.c_str(), vocabulary::RDFS::IRIPrefix().toString().c_str(), iriString.size()) == 0)
+        {
+            LOG_INFO_S << "Skipping import of builtin vocabulary: " << iri;
+            continue;
+        }
+
+        if(processed.end() != std::find(processed.begin(), processed.end(), iri))
+        {
+            // has already been processed, but to satisfy earlier dependency
+            // requests append this iri if requested
+            processed.push_back(iri);
+            continue;
+        }
+
+        LOG_DEBUG_S << "Processing: " << iri;
+
+        std::string filename = retrieve(iri);
+
+        OWLOntologyReader* importReader = new OWLOntologyReader();
+        OWLOntology::Ptr importedOntology = importReader->open(filename);
+        importedOntology->setIRI(iri);
+
+        // updated imports
+        importReader->loadDeclarationsAndImports(importedOntology, true /*directImport*/);
+        IRIList directImports = importedOntology->getDirectImportsDocuments();
+        unprocessed.insert(unprocessed.begin(), directImports.begin(), directImports.end());
+
+        readersMap[importedOntology] = importReader;
+
+        // register IRI and ontology
+        processed.push_back(iri);
+    }
+
+    // Process the imported ontologies in reverse order of import to
+    // make sure all types are properly defined
+    IRIList loaded;
+    if(!processed.empty())
+    {
+        IRIList::iterator it = processed.end()-1;
+        for(; it != processed.begin(); --it)
+        {
+            IRI iri = *it;
+            if(loaded.end() != std::find(loaded.begin(), loaded.end(), iri))
+            {
+                // skip already loaded ontologies
+                continue;
+            }
+
+            // Find reader by given iri
+            ReadersMap::iterator rit = readersMap.begin();
+            for(; rit != readersMap.end(); ++rit)
+            {
+                if(rit->first->getIRI() == iri)
+                {
+                    break;
+                }
+            }
+            OWLOntologyReader* importReader = rit->second;
+
+            // Load the full ontology
+            importReader->loadDeclarationsAndImports(ontology, false);
+            importReader->loadAxioms(ontology);
+            delete importReader;
+
+            loaded.push_back(iri);
+        }
+    }
+
+    // If the top level is loaded from file make sure the
+    // axioms are loaded after all imports have been processed
+    if(!ontology->getAbsolutePath().empty())
+    {
+        reader.loadAxioms(ontology);
+    }
+
+    LOG_INFO_S << "Processed all imports: " << processed;
 }
 
 owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filename)
@@ -48,10 +162,17 @@ std::string OWLOntologyIO::getOntologyPath()
 
 std::string OWLOntologyIO::canonizeForOfflineUsage(const owlapi::model::IRI& iri)
 {
+    if(iri.empty())
+        return "";
+
     std::string iriString = iri.toString();
     std::replace(iriString.begin(),iriString.end(), '/','_');
     std::replace(iriString.begin(),iriString.end(), ':','_');
     std::replace(iriString.begin(),iriString.end(), '.','_');
+
+    // remove trailing '#'
+    iriString.erase(std::remove(iriString.end()-1,iriString.end(),'#'), iriString.end());
+
     return iriString;
 }
 
@@ -68,6 +189,7 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
     if( !boost::filesystem::exists( absoluteFilename ) )
     {
         std::string cmd = "wget " + iri.toString() + " -O " + absoluteFilename + " -q";
+        LOG_DEBUG_S << "Trying to retrieve document with command '" << cmd << "'";
         if(-1 == system(cmd.c_str()) )
         {
             throw std::runtime_error("owlapi::io::OWLOntologyIO::retrieve: failed to retrieve document using the following command: '" + cmd + "'");

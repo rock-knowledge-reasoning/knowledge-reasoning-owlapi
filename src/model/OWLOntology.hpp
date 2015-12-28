@@ -148,6 +148,7 @@ class KnowledgeBase;
 
 namespace io {
     class OWLOntologyIO;
+    class OWLOntologyReader;
     class RedlandWriter;
 }
 
@@ -167,6 +168,7 @@ class OWLOntology
     friend class OWLOntologyTell;
     friend class OWLOntologyAsk;
     friend class io::OWLOntologyIO;
+    friend class io::OWLOntologyReader;
     friend class io::RedlandWriter;
 
 protected:
@@ -207,8 +209,14 @@ protected:
     /// Full path this ontology has been loaded from
     std::string mAbsolutePath;
 
-    /// List of documents that this ontology imports
+    /// The iri associated with this document, where to retrieve it
+    IRI mIri;
+
+    /// List of documents that this ontology directly imports
     IRIList mDirectImportsDocuments;
+
+    /// List of documents that this ontology imports directly or indirectly
+    IRIList mImportsDocuments;
 
     boost::shared_ptr<KnowledgeBase> mpKnowledgeBase;
 
@@ -222,9 +230,6 @@ protected:
     OWLIndividual::Ptr getIndividual(const IRI& iri) const;
 
     void addAxiom(const OWLAxiom::Ptr& axiom);
-    const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
-    OWLAxiom::PtrList getAxioms() const;
-
     void retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property);
 
     void setAbsolutePath(const std::string& path) { mAbsolutePath = path; }
@@ -247,7 +252,28 @@ public:
     /**
      * Get the absolute path this ontology has been loaded from
      */
-    std::string getAbsolutePath() const { return mAbsolutePath; }
+    const std::string& getAbsolutePath() const { return mAbsolutePath; }
+
+    void setIRI(const IRI& iri) { mIri = iri; }
+    const IRI& getIRI() const { return mIri; }
+
+    const IRIList& getDirectImportsDocuments() const { return mDirectImportsDocuments; }
+    IRIList& getDirectImportsDocuments() { return mDirectImportsDocuments; }
+
+    const IRIList& getImportsDocuments() const { return mImportsDocuments; }
+    IRIList& getImportsDocuments() { return mImportsDocuments; }
+
+    /**
+     * Add a direct import
+     */
+    void addDirectImportsDocument(const IRI& iri);
+    /**
+     * Add imported document
+     */
+    void addImportsDocument(const IRI& iri);
+
+    const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
+    OWLAxiom::PtrList getAxioms() const;
 };
 
 } // ane namespace model

@@ -6,7 +6,7 @@
 #include <owlapi/Vocabulary.hpp>
 #include <base/Logging.hpp>
 #include <utilmm/configfile/pkgconfig.hh>
-
+#include <boost/filesystem.hpp>
 
 using namespace owlapi::db::query;
 using namespace owlapi::model;
@@ -16,19 +16,22 @@ namespace io {
 
 OWLOntologyReader::OWLOntologyReader()
     : mSparqlInterface(0)
-    , mTell(0)
-    , mAsk(0)
 {}
 
-OWLOntology::Ptr OWLOntologyReader::fromFile(const std::string& filename)
+OWLOntology::Ptr OWLOntologyReader::open(const std::string& filename)
 {
     OWLOntology::Ptr ontology(new OWLOntology());
     mSparqlInterface = new db::SopranoDB(filename);
 
-    mTell = new OWLOntologyTell(ontology);
-    mAsk = new OWLOntologyAsk(ontology);
+    mAbsolutePath = boost::filesystem::absolute(filename).string();
+    ontology->setAbsolutePath(mAbsolutePath);
+    return ontology;
+}
 
-    load();
+OWLOntology::Ptr OWLOntologyReader::fromFile(const std::string& filename)
+{
+    OWLOntology::Ptr ontology = open(filename);
+    load(ontology);
 
     return ontology;
 }
@@ -36,7 +39,6 @@ OWLOntology::Ptr OWLOntologyReader::fromFile(const std::string& filename)
 OWLOntologyReader::~OWLOntologyReader()
 {
     delete mSparqlInterface;
-    delete mTell;
 }
 
 db::query::Results OWLOntologyReader::findAll(const db::query::Variable& subject, const db::query::Variable& predicate, const db::query::Variable& object) const
@@ -46,16 +48,18 @@ db::query::Results OWLOntologyReader::findAll(const db::query::Variable& subject
     return results;
 }
 
-void OWLOntologyReader::load()
+void OWLOntologyReader::load(OWLOntology::Ptr& ontology)
 {
-    loadDeclarationsAndImports();
-    loadAxioms();
-    loadProperties();
+    loadDeclarationsAndImports(ontology, true);
+    loadAxioms(ontology);
 }
 
-void OWLOntologyReader::loadDeclarationsAndImports()
+void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, bool directImport)
 {
-    mTell->initializeDefaultClasses();
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
+    tell.initializeDefaultClasses();
 
     {
         db::query::Results results = findAll(Subject(),vocabulary::RDF::type(),vocabulary::OWL::Class());
@@ -63,7 +67,7 @@ void OWLOntologyReader::loadDeclarationsAndImports()
         while(it.next())
         {
             IRI subject = it[Subject()];
-            mTell->subClassOf(subject, vocabulary::OWL::Thing());
+            tell.subClassOf(subject, vocabulary::OWL::Thing());
         }
     }
 
@@ -100,7 +104,7 @@ void OWLOntologyReader::loadDeclarationsAndImports()
                         IRI classType = objectsIt[Object()];
                         if(classType != vocabulary::OWL::NamedIndividual())
                         {
-                            mTell->instanceOf(subject, classType);
+                            tell.instanceOf(subject, classType);
 
                         } else {
                             LOG_DEBUG_S << "Skipping NamedIndividual " << classType;
@@ -108,16 +112,16 @@ void OWLOntologyReader::loadDeclarationsAndImports()
                     }
                 } else if(object == vocabulary::RDF::Property())
                 {
-                    throw std::runtime_error("Property '" + subject.toString() + "' neither object nor data property");
+                    LOG_DEBUG_S << "owlapi::model::OWLOntologyReader::loadDeclarationsAndImports: Property '" << subject.toString() << "' neither object nor data property";
                 } else if(object == vocabulary::OWL::DatatypeProperty())
                 {
-                    mTell->dataProperty(subject);
+                    tell.dataProperty(subject);
                 } else if (object == vocabulary::RDFS::Datatype())
                 {
                     // introduces a new datatype
                 } else if( object == vocabulary::OWL::ObjectProperty())
                 {
-                    mTell->objectProperty(subject);
+                    tell.objectProperty(subject);
 
                 } else if( object == vocabulary::OWL::FunctionalProperty())
                 {
@@ -140,21 +144,31 @@ void OWLOntologyReader::loadDeclarationsAndImports()
                 }
             } else if(predicate == vocabulary::OWL::imports())
             {
-               mTell->imports(object);
+                if(directImport)
+                {
+                    tell.directlyImports(object);
+                } else {
+                    tell.imports(object);
+                }
             }
         } // end while
     }
 }
 
-void OWLOntologyReader::loadAxioms()
+void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
 {
+    LOG_DEBUG_S << "Loading axioms from path: " << mAbsolutePath;
+
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
     {
         db::query::Results results = findAll(Subject(),vocabulary::RDF::type(),vocabulary::OWL::Class());
         ResultsIterator it(results);
         while(it.next())
         {
             IRI subject = it[Subject()];
-            mTell->subClassOf(subject, vocabulary::OWL::Thing());
+            tell.subClassOf(subject, vocabulary::OWL::Thing());
         }
     }
 
@@ -188,14 +202,14 @@ void OWLOntologyReader::loadAxioms()
                 // subclassOf(subject, object);
 
                 // Check if this is truely a class (or an AnonymousIndividual)
-                if( mAsk->isOWLClass(object) )
+                if( ask.isOWLClass(object) )
                 {
                     // This is a class
-                    mTell->subClassOf(subject, object);
+                    tell.subClassOf(subject, object);
                 } else {
                     // We have to delay the mapping until the anonymous node has
                     // been fully resolved to a restriction or similar
-                    OWLClass::Ptr e_subject = mTell->klass(subject);
+                    OWLClass::Ptr e_subject = tell.klass(subject);
                     // cache the restrictions
                     mAnonymousRestrictions[object].push_back(e_subject);
 
@@ -253,10 +267,17 @@ void OWLOntologyReader::loadAxioms()
             }
         }
     }
+
+    loadProperties(ontology);
 } // end loadAxioms()
 
-void OWLOntologyReader::loadProperties()
+void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 {
+    LOG_DEBUG_S << "Loading properties from path: " << mAbsolutePath;
+
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
     // Properties
     // http://www.w3.org/TR/owl-ref/
     //
@@ -280,41 +301,41 @@ void OWLOntologyReader::loadProperties()
             IRI object = it[Object()];
             if(object == vocabulary::OWL::FunctionalProperty())
             {
-                if( mAsk->isObjectProperty(subject))
+                if( ask.isObjectProperty(subject))
                 {
-                    mTell->functionalObjectProperty(subject);
-                } else if ( mAsk->isDataProperty(subject) )
+                    tell.functionalObjectProperty(subject);
+                } else if ( ask.isDataProperty(subject) )
                 {
-                    mTell->functionalDataProperty(subject);
+                    tell.functionalDataProperty(subject);
                 } else {
-                    throw std::invalid_argument("Property '" + subject.toString() + "' is not a known object or data property");
+                    throw std::invalid_argument("owlapi::io::OWLOntologyReader::loadProperties: property '" + subject.toString() + "' is not a known object or data property");
                 }
             } else if( object == vocabulary::OWL::InverseFunctionalProperty())
             {
-                mTell->inverseFunctionalProperty(subject);
+                tell.inverseFunctionalProperty(subject);
             } else if(object == vocabulary::OWL::ReflexiveProperty())
             {
-                mTell->reflexiveProperty(subject);
+                tell.reflexiveProperty(subject);
             } else if(object == vocabulary::OWL::IrreflexiveProperty())
             {
-                mTell->irreflexiveProperty(subject);
+                tell.irreflexiveProperty(subject);
             } else if(object == vocabulary::OWL::SymmetricProperty())
             {
-                mTell->symmetricProperty(subject);
+                tell.symmetricProperty(subject);
             } else if(object == vocabulary::OWL::AsymmetricProperty())
             {
-                mTell->asymmetricProperty(subject);
+                tell.asymmetricProperty(subject);
             } else if(object == vocabulary::OWL::TransitiveProperty())
             {
-                mTell->transitiveProperty(subject);
+                tell.transitiveProperty(subject);
             }
         }
     }
 
-    loadRestrictions();
+    loadRestrictions(ontology);
 
-    loadObjectProperties();
-    loadDataProperties();
+    loadObjectProperties(ontology);
+    loadDataProperties(ontology);
 
 
     {
@@ -330,7 +351,7 @@ void OWLOntologyReader::loadProperties()
             {
                 // validate that subject and object have the same property type
                 // add axiom to assert superproperty
-                mTell->subPropertyOf(subject, object);
+                tell.subPropertyOf(subject, object);
             } else if(predicate == vocabulary::OWL::equivalentProperty())
             {
                 // validate that subject and object have the same property type
@@ -339,7 +360,7 @@ void OWLOntologyReader::loadProperties()
             {
                 // check that subject and object are object properties, if not
                 // raise, else
-                mTell->inverseOf(subject, object);
+                tell.inverseOf(subject, object);
             } else if(predicate == vocabulary::OWL::oneOf())
             {
                 // object is a node representing a list of named individuals
@@ -365,8 +386,11 @@ void OWLOntologyReader::loadProperties()
     }
 }
 
-void OWLOntologyReader::loadRestrictions()
+void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
 {
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
     // Restrictions
     // RDF/XML Syntax
     // <owl:Class rdf:about="Person">
@@ -463,7 +487,7 @@ void OWLOntologyReader::loadRestrictions()
             std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
             for(; sit != subclasses.end(); ++sit)
             {
-                mTell->subClassOf(*sit, cardinalityRestriction);
+                tell.subClassOf(*sit, cardinalityRestriction);
             }
         } catch(const std::runtime_error& e)
         {
@@ -473,11 +497,14 @@ void OWLOntologyReader::loadRestrictions()
 }
 
 
-void OWLOntologyReader::loadDataProperties()
+void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
 {
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
     using namespace db::query;
 
-    IRIList dataProperties = mAsk->allDataProperties();
+    IRIList dataProperties = ask.allDataProperties();
     IRIList::const_iterator cit = dataProperties.begin();
     for(; cit != dataProperties.end(); ++cit)
     {
@@ -495,7 +522,7 @@ void OWLOntologyReader::loadDataProperties()
                 {
                     IRI classType = domainIt[Object()];
                     LOG_DEBUG_S << "tell: " << relation << " rdfs:domain " << classType;
-                    mTell->dataPropertyDomainOf(relation, classType);
+                    tell.dataPropertyDomainOf(relation, classType);
                 }
             }
         }
@@ -508,7 +535,7 @@ void OWLOntologyReader::loadDataProperties()
                 while(rangeIt.next())
                 {
                     IRI classType = rangeIt[Object()];
-                    mTell->dataPropertyRangeOf(relation, classType);
+                    tell.dataPropertyRangeOf(relation, classType);
                 }
             }
         }
@@ -528,14 +555,15 @@ void OWLOntologyReader::loadDataProperties()
             // Setting of DataPropertyAssertions
             LOG_DEBUG_S << subject << " " << relation << " " << object;
 
-            OWLDataRange::PtrList ranges = mAsk->getDataRange(relation);
+            OWLDataRange::PtrList ranges = ask.getDataRange(relation);
             if(!ranges.empty())
             {
                 OWLDataType dataType = OWLDataType::fromRange(ranges[0]);
                 OWLLiteral::Ptr literal = OWLLiteral::create(object.toString(), dataType);
-                mTell->valueOf(subject, relation, literal);
+                tell.valueOf(subject, relation, literal);
             } else {
                 throw std::runtime_error("owlapi::model::OWLOntologyReader::fromFile: "
+                        " '" + mAbsolutePath + "' "
                         " cannot set data property: " + relation.toString() + " on"
                         " '" + subject.toString() + "' since data range is not specified"
                         " for this property");
@@ -544,11 +572,14 @@ void OWLOntologyReader::loadDataProperties()
     }
 }
 
-void OWLOntologyReader::loadObjectProperties()
+void OWLOntologyReader::loadObjectProperties(OWLOntology::Ptr& ontology)
 {
+    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyAsk ask(ontology);
+
     using namespace db::query;
 
-    IRIList objectProperties = mAsk->allObjectProperties();
+    IRIList objectProperties = ask.allObjectProperties();
     IRIList::const_iterator cit = objectProperties.begin();
     for(; cit != objectProperties.end(); ++cit)
     {
@@ -561,7 +592,7 @@ void OWLOntologyReader::loadObjectProperties()
             IRI object = it[Object()];
 
             LOG_DEBUG_S << subject << " " << relation << " " << object;
-            mTell->relatedTo(subject, relation, object);
+            tell.relatedTo(subject, relation, object);
         }
 
         // Setting domain of property
@@ -573,7 +604,7 @@ void OWLOntologyReader::loadObjectProperties()
                 while(domainIt.next())
                 {
                     IRI classType = domainIt[Object()];
-                    mTell->objectPropertyDomainOf(relation, classType);
+                    tell.objectPropertyDomainOf(relation, classType);
                 }
             }
         }
@@ -586,7 +617,7 @@ void OWLOntologyReader::loadObjectProperties()
                 while(rangeIt.next())
                 {
                     IRI classType = rangeIt[Object()];
-                    mTell->objectPropertyRangeOf(relation, classType);
+                    tell.objectPropertyRangeOf(relation, classType);
                 }
             }
         }
@@ -599,8 +630,7 @@ void OWLOntologyReader::loadObjectProperties()
                 while(inversesIt.next())
                 {
                     IRI inverseType = inversesIt[Object()];
-                    mTell->inverseOf(relation, inverseType);
-
+                    tell.inverseOf(relation, inverseType);
                 }
             }
         }

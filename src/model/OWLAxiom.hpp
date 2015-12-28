@@ -197,8 +197,21 @@ public:
 
     static OWLAxiom::Ptr declare(const OWLEntity::Ptr& entity);
 
+    /**
+     * Set the origin of this axiom
+     */
+    void setOrigin(const IRI& iri) { mOrigin = iri; }
+
+    /**
+     * Get the origin of this axiom, i.e. in which ontology this axiom was
+     * stated
+     */
+    const IRI& getOrigin() const { return mOrigin; }
+
 private:
     AxiomType mAxiomType;
+
+    IRI mOrigin;
 };
 
 } // end namespace model

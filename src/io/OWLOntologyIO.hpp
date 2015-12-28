@@ -26,6 +26,13 @@ public:
     static owlapi::model::OWLOntology::Ptr fromFile(const std::string& filename);
 
     /**
+     * Load an ontology which has only been defined through imported documents
+     * \throws if this ontology has already been loaded (checking on any existing
+     * axioms)
+     */
+    static void load(owlapi::model::OWLOntology::Ptr& ontology);
+
+    /**
      * Retrieve the Ontology document and provide path to the document
      * \return path to the document
      * \throw std::runtime_error if the document could not be retrieved

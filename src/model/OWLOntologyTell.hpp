@@ -1,6 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_ONTOLOGY_TELL_HPP
 #define OWLAPI_MODEL_OWL_ONTOLOGY_TELL_HPP
 
+#include <stdexcept>
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/model/OWLLiteral.hpp>
 #include <owlapi/model/OWLCardinalityRestriction.hpp>
@@ -11,6 +12,7 @@ namespace owlapi {
 namespace model {
 
 /**
+ * \class OWLOntologyTell
  * This class is allowed to add new information to an ontology
  */
 class OWLOntologyTell
@@ -18,37 +20,51 @@ class OWLOntologyTell
     OWLOntology::Ptr mpOntology;
     OWLOntologyAsk mAsk;
 
+    IRI mOrigin;
+
 public:
     typedef boost::shared_ptr<OWLOntologyTell> Ptr;
 
-    OWLOntologyTell(OWLOntology::Ptr ontology);
+    /**
+     * \brief
+     * \param ontology OWLOntology to populate with information
+     * \param origin optional source IRI to provide information 'who' the
+     * information originates from
+     */
+    OWLOntologyTell(OWLOntology::Ptr ontology, const IRI& origin = IRI());
+
+    /**
+     * Get the origin of the data provided by this OWLOntologyTell object
+     * \return IRI to describe the origin
+     */
+    const IRI& getOrigin() const { return mOrigin; }
 
     template<typename T>
-    bool addUnaryObjectPropertyAxiom(const IRI& property)
+    OWLAxiom::Ptr addUnaryObjectPropertyAxiom(const IRI& property)
     {
         if(!mAsk.isObjectProperty(property))
         {
-            return false;
+            throw std::invalid_argument("owlapi::model::OWLOntologyTell: '" +
+                    property.toString() + "' is not an object property");
         }
 
         OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
         boost::shared_ptr<T> axiom(new T(oProperty));
-        mpOntology->addAxiom(axiom);
-        return true;
+        return addAxiom(axiom);
     }
 
     template<typename T>
-    bool addUnaryDataPropertyAxiom(const IRI& property)
+    OWLAxiom::Ptr addUnaryDataPropertyAxiom(const IRI& property)
     {
         if(!mAsk.isDataProperty(property))
         {
-            return false;
+            throw std::invalid_argument("owlapi::model::OWLOntologyTell: '" +
+                    property.toString() + "' is not an data property");
         }
 
         OWLDataProperty::Ptr dProperty = mpOntology->getDataProperty(property);
         boost::shared_ptr<T> axiom(new T(dProperty));
-        mpOntology->addAxiom(axiom);
-        return true;
+        return addAxiom(axiom);
     }
 
     /**
@@ -78,6 +94,8 @@ public:
      * Define an import of another ontology defined by the given IRI
      */
     void imports(const IRI& iri);
+
+    void directlyImports(const IRI& iri);
 
     /**
      * Get or create the OWLObjectProperty by IRI
@@ -121,22 +139,23 @@ public:
     /**
      * Add an axiom
      * \param axiom
+     * \return the added axiom
      */
-    void addAxiom(OWLAxiom::Ptr axiom);
+    OWLAxiom::Ptr addAxiom(const OWLAxiom::Ptr& axiom);
 
-    void inverseFunctionalProperty(const IRI& property);
-    void reflexiveProperty(const IRI& property);
-    void irreflexiveProperty(const IRI& property);
-    void symmetricProperty(const IRI& property);
-    void asymmetricProperty(const IRI& property);
-    void transitiveProperty(const IRI& property);
-    void functionalObjectProperty(const IRI& property);
-    void functionalDataProperty(const IRI& property);
-    void relatedTo(const IRI& subject, const IRI& relation, const IRI& object);
-    void dataPropertyDomainOf(const IRI& relation, const IRI& classType);
-    void dataPropertyRangeOf(const IRI& relation, const IRI& classType);
-    void objectPropertyDomainOf(const IRI& relation, const IRI& classType);
-    void objectPropertyRangeOf(const IRI& relation, const IRI& classType);
+    OWLAxiom::Ptr inverseFunctionalProperty(const IRI& property);
+    OWLAxiom::Ptr reflexiveProperty(const IRI& property);
+    OWLAxiom::Ptr irreflexiveProperty(const IRI& property);
+    OWLAxiom::Ptr symmetricProperty(const IRI& property);
+    OWLAxiom::Ptr asymmetricProperty(const IRI& property);
+    OWLAxiom::Ptr transitiveProperty(const IRI& property);
+    OWLAxiom::Ptr functionalObjectProperty(const IRI& property);
+    OWLAxiom::Ptr functionalDataProperty(const IRI& property);
+    OWLAxiom::Ptr relatedTo(const IRI& subject, const IRI& relation, const IRI& object);
+    OWLAxiom::Ptr dataPropertyDomainOf(const IRI& relation, const IRI& classType);
+    OWLAxiom::Ptr dataPropertyRangeOf(const IRI& relation, const IRI& classType);
+    OWLAxiom::Ptr objectPropertyDomainOf(const IRI& relation, const IRI& classType);
+    OWLAxiom::Ptr objectPropertyRangeOf(const IRI& relation, const IRI& classType);
 
     /**
      * Define a subproperty of an existing property
@@ -145,7 +164,13 @@ public:
      * \throw std::invalid_argument if the parent property already exists
      */
     OWLSubPropertyAxiom::Ptr subPropertyOf(const IRI& subProperty, const IRI& parentProperty);
-    void inverseOf(const IRI& relation, const IRI& inverseType);
+
+    /**
+     * Define the inverse of an object property
+     * \throws if relation of inverseType are not object properties
+     * \return newly added axiom
+     */
+    OWLAxiom::Ptr inverseOf(const IRI& relation, const IRI& inverseType);
 
     // DataPropertyAssert
     /**
@@ -155,8 +180,8 @@ public:
      * \param dataProperty DataProperty name
      * \param literal Literal containing the value
      */
-    void valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
-    void restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
+    OWLAxiom::Ptr valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
+    OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 
 };
 

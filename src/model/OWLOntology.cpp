@@ -82,8 +82,14 @@ OWLIndividual::Ptr OWLOntology::getIndividual(const IRI& iri) const
 
 void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
 {
-    // TODO check if axiom already exists
-    mAxiomsByType[axiom->getAxiomType()].push_back(axiom);
+    OWLAxiom::PtrList& axioms = mAxiomsByType[axiom->getAxiomType()];
+
+    if( axioms.end() == std::find(axioms.begin(), axioms.end(), axiom) )
+    {
+        axioms.push_back(axiom);
+    } else {
+        LOG_WARN_S << "Axiom: '" << axiom->toString() << "' has already been added to ontology loaded from '" << getAbsolutePath() << "'";
+    }
 }
 
 OWLOntology::Ptr OWLOntology::fromFile(const std::string& filename)
@@ -126,6 +132,23 @@ void OWLOntology::retractValueOf(const OWLIndividual::Ptr& individual, const OWL
         }
     }
     LOG_DEBUG_S << "No value to be retracted";
+}
+
+void OWLOntology::addDirectImportsDocument(const IRI& iri)
+{
+    if( mDirectImportsDocuments.end() == std::find(mDirectImportsDocuments.begin(), mDirectImportsDocuments.end(), iri) )
+    {
+        mDirectImportsDocuments.push_back(iri);
+        addImportsDocument(iri);
+    }
+}
+
+void OWLOntology::addImportsDocument(const IRI& iri)
+{
+    if( mImportsDocuments.end() == std::find(mImportsDocuments.begin(), mImportsDocuments.end(), iri) )
+    {
+        mImportsDocuments.push_back(iri);
+    }
 }
 
 } // end namespace model
