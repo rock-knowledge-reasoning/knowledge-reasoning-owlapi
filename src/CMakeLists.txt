@@ -57,6 +57,7 @@ rock_library(owlapi
         Exceptions.hpp
         KnowledgeBase.hpp
         OWLApi.hpp
+        SharedPtr.hpp
         Vocabulary.hpp
         db/FileBackend.hpp
         db/rdf/SopranoDB.hpp
