@@ -181,3 +181,7 @@ target_link_libraries(owlapi ${Boost_LIBRARIES} ${ICU_LIBS})
 rock_executable(owlapi-ontology_reader
     SOURCES utils/OntologyReaderMain.cpp
     DEPS owlapi)
+
+rock_executable(owlapi-utils
+    SOURCES utils/OWLApi.cpp
+    DEPS owlapi)
