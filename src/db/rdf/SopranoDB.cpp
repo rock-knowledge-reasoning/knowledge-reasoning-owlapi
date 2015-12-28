@@ -49,7 +49,7 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
                 throw std::runtime_error("owlapi::db::rdf::SopranoDB:fromFile " + filename + 
                         " no statements found using parser format: '" + format + "'. Trying other parser.");
             }
-            LOG_INFO_S << "Successfully parsed using format: " << format;
+            LOG_INFO_S << "Successfully parsed '" << filename << "' using format: " << format;
 
             Soprano::Model* sopranoModel = Soprano::createModel();
             Q_FOREACH( Soprano::Statement s, allStatements)
@@ -64,7 +64,7 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
         }
     }
 
-    throw std::runtime_error("owlapi::db::rdf::SopranoDB: file format not supported. Tried the following: " + triedFormats);
+    throw std::runtime_error("owlapi::db::rdf::SopranoDB: file format of '" + filename + "' not supported. Tried the following: " + triedFormats);
 }
 
 query::Results SopranoDB::query(const std::string& query, const query::Bindings& bindings) const
