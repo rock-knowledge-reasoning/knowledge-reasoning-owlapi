@@ -12,12 +12,13 @@ namespace owlapi {
 namespace io {
 
 /**
- * This visitor renders triple statements according to the language mapping
+ * \class RedlandVisitor
+ * \brief This visitor renders triple statements according to the language mapping
  * from OWL2 to RDF
- *
- * This implementation handles declarations, cardinality restrictions,
+ * \details This implementation handles declarations, cardinality restrictions,
  * properties assignments -- however it is still incomplete mainly with respect
  * to complex class expressions
+ * The visitor is apply to the list of axioms returned by owlapi::model::OWLOntology::getAxioms
  * \see http://www.w3.org/TR/owl2-mapping-to-rdf/
  *
  */

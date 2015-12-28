@@ -537,18 +537,18 @@ std::vector<std::string> RedlandWriter::getSupportedFormats() const
 
 void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const
 {
-    const owlapi::model::OWLAxiom::PtrList& axioms = ontology->getAxioms();
-
     // rdfxml
     const char *serializer_syntax_name = mFormat.c_str();
     unsigned char* uri_string = raptor_uri_filename_to_uri_string(filename.c_str());
     raptor_uri* base_uri = raptor_new_uri(mWorld, uri_string);
 
     mSerializer = raptor_new_serializer(mWorld, serializer_syntax_name);
-
     raptor_serializer_start_to_filename(mSerializer, filename.c_str());
 
     RedlandVisitor visitor(mWorld, mSerializer);
+
+    // Visit all axioms that are part of this ontology
+    const owlapi::model::OWLAxiom::PtrList& axioms = ontology->getAxioms();
 
     OWLAxiom::PtrList::const_iterator cit = axioms.begin();
     for(; cit != axioms.end(); ++cit)
