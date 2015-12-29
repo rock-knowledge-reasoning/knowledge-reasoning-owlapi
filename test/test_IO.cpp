@@ -55,7 +55,8 @@ BOOST_AUTO_TEST_CASE(create_with_builtin)
     IRI iri("http://www.w3.org/2002/07/owl");
     ontology->addDirectImportsDocument(iri);
 
-    OWLOntologyIO::load(ontology);
+    BOOST_REQUIRE_THROW(OWLOntologyIO::load(ontology), std::invalid_argument);
+    BOOST_REQUIRE_NO_THROW(ontology = OWLOntologyIO::load(ontology, "http://test/owlapi/create_with_builtin") );
     BOOST_REQUIRE_MESSAGE(ontology->getAxioms().empty(), "Ontology is empty -- after importing only builtin vocabularies");
 }
 
