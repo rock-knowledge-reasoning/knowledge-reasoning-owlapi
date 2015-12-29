@@ -115,7 +115,7 @@ public:
      */
     virtual std::vector<std::string> getSupportedFormats() const;
 
-    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const;
+    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, bool includeImports = false) const;
 private:
     raptor_world* mWorld;
     mutable raptor_serializer* mSerializer;

@@ -27,10 +27,13 @@ public:
 
     /**
      * Load an ontology which has only been defined through imported documents
+     * \param ontology Ontology object to load and populate
+     * \param ontologyIRI ontology iri that should be assigned to the document if no iri is given
      * \throws if this ontology has already been loaded (checking on any existing
      * axioms)
+     * \return OWLOntology::Ptr
      */
-    static void load(owlapi::model::OWLOntology::Ptr& ontology);
+    static owlapi::model::OWLOntology::Ptr load(owlapi::model::OWLOntology::Ptr& ontology, const owlapi::model::IRI& ontologyIRI = "");
 
     /**
      * Retrieve the Ontology document and provide path to the document

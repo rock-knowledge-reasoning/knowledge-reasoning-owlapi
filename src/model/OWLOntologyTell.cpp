@@ -11,7 +11,12 @@ OWLOntologyTell::OWLOntologyTell(OWLOntology::Ptr ontology, const IRI& origin)
     : mpOntology(ontology)
     , mAsk(ontology)
     , mOrigin(origin)
-{}
+{
+    if(mOrigin.empty())
+    {
+        mOrigin = ontology->getIRI();
+    }
+}
 
 void OWLOntologyTell::initializeDefaultClasses()
 {
@@ -432,7 +437,6 @@ OWLAxiom::Ptr OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRes
 
 void OWLOntologyTell::ontology(const IRI& iri)
 {
-    LOG_WARN_S << "DECLARE INSTANCE: " << iri;
     // allowing punning
     instanceOf(iri, vocabulary::OWL::Ontology());
 }

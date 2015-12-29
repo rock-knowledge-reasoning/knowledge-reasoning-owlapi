@@ -535,7 +535,7 @@ std::vector<std::string> RedlandWriter::getSupportedFormats() const
 }
 
 
-void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const
+void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, bool includeImports) const
 {
     // rdfxml
     const char *serializer_syntax_name = mFormat.c_str();
@@ -547,6 +547,20 @@ void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLO
 
     RedlandVisitor visitor(mWorld, mSerializer);
 
+    // Set the ontologies name and set imports for this name
+    if(!ontology->getIRI().empty())
+    {
+        visitor.writeTriple(ontology->getIRI(), vocabulary::RDF::type(), vocabulary::OWL::Ontology());
+
+        IRIList imports = ontology->getDirectImportsDocuments();
+        IRIList::const_iterator cit = imports.begin();
+        for(; cit != imports.end(); ++cit)
+        {
+            const IRI& importDocument = *cit;
+            visitor.writeTriple(ontology->getIRI(), vocabulary::OWL::imports(), importDocument);
+        }
+    }
+
     // Visit all axioms that are part of this ontology
     const owlapi::model::OWLAxiom::PtrList& axioms = ontology->getAxioms();
 
@@ -554,7 +568,16 @@ void RedlandWriter::write(const std::string& filename, const owlapi::model::OWLO
     for(; cit != axioms.end(); ++cit)
     {
         const OWLAxiom::Ptr& axiom = *cit;
-        axiom->accept(&visitor);
+        // Store only axioms that can be mapped to this ontology
+        if(includeImports || axiom->getOrigin() == ontology->getIRI())
+        {
+            axiom->accept(&visitor);
+        } else {
+            LOG_DEBUG_S << "Skipping writing axiom since:"
+                << " includeImports: " << includeImports << ", and "
+                << "origin: " << axiom->getOrigin()
+                << " iri: " << ontology->getIRI();
+        }
     }
     raptor_serializer_serialize_end(mSerializer);
     raptor_free_serializer(mSerializer);

@@ -28,14 +28,37 @@ void OWLOntologyIO::write(const std::string& filename, const owlapi::model::OWLO
     }
 }
 
-void OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology)
+owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& o, const owlapi::model::IRI& ontologyIRI)
 {
     using namespace owlapi::model;
 
+    OWLOntology::Ptr ontology = o;
+
     OWLOntologyReader reader;
-    if(!ontology->getAbsolutePath().empty())
+    if(ontology->getAbsolutePath().empty())
     {
-        // Check if ontology has to be loaded from file
+        if(ontology->getIRI().empty())
+        {
+            // no file and no iri provided -- well seem to be an
+            // empty top level ontology document
+            // no need to load anything, but we have to assign a identifying IRI
+            if(ontologyIRI.empty())
+            {
+                throw std::invalid_argument("owlapi::model::OWLOntologyIO::load "
+                        " unspecified ontology given, please provide an IRI as second argument");
+            } else {
+                ontology->setIRI(ontologyIRI);
+            }
+        } else {
+            // load from IRI
+            std::string path = retrieve(ontology->getIRI());
+            ontology = reader.open(path);
+            // Check if ontology has to be loaded from file
+            reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+        }
+    } else {
+        // load from given file
+        ontology = reader.open(ontology->getAbsolutePath());
         reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
     }
 
@@ -138,6 +161,7 @@ void OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology)
     }
 
     LOG_INFO_S << "Processed all imports: " << processed;
+    return ontology;
 }
 
 owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filename)

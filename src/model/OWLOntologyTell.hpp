@@ -13,7 +13,7 @@ namespace model {
 
 /**
  * \class OWLOntologyTell
- * This class is allowed to add new information to an ontology
+ * \brief This class is allowed to add new information to an ontology
  */
 class OWLOntologyTell
 {
@@ -26,10 +26,12 @@ public:
     typedef boost::shared_ptr<OWLOntologyTell> Ptr;
 
     /**
-     * \brief
+     * \brief default constructor
      * \param ontology OWLOntology to populate with information
      * \param origin optional source IRI to provide information 'who' the
-     * information originates from
+     * information originates from -- if not provided will fallback to the
+     * ontology's IRI
+     * \see OWLOntology::getIRI
      */
     OWLOntologyTell(OWLOntology::Ptr ontology, const IRI& origin = IRI());
 

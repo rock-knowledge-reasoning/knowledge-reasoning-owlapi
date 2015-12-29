@@ -27,8 +27,9 @@ public:
      * Write the ontology to a given file
      * \param filename Name of the file
      * \param ontology Ontology to serialize
+     * \param includeImports If set to true, write also the imports to the same file -- by default set to false
      */
-    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology) const { throw std::runtime_error("owlapi::io::OWLWriter: write not implemented"); }
+    virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, bool includeImports = false) const { throw std::runtime_error("owlapi::io::OWLWriter: write not implemented"); }
 
     /**
      * Check if the writer supports the given format
