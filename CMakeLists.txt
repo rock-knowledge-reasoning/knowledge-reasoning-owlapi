@@ -5,3 +5,9 @@ find_package(Rock)
 rock_init(owlapi 0.1)
 rock_activate_cxx11()
 rock_standard_layout()
+
+configure_file(modules/owlapi-config.cmake.in owlapi-config.cmake @ONLY)
+install(FILES
+    modules/owlapi.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/owlapi-config.cmake
+    DESTINATION share/owlapi/cmake)
