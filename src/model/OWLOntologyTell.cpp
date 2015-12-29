@@ -430,5 +430,12 @@ OWLAxiom::Ptr OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRes
     return subClassOf(klass, restriction);
 }
 
+void OWLOntologyTell::ontology(const IRI& iri)
+{
+    LOG_WARN_S << "DECLARE INSTANCE: " << iri;
+    // allowing punning
+    instanceOf(iri, vocabulary::OWL::Ontology());
+}
+
 } // end namespace model
 } // end namespace owlapi

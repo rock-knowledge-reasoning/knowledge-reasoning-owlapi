@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED regex system)
+find_package(Boost REQUIRED regex system filesystem program_options)
 set(ICU_LIBS icutu
     icudata
     icui18n

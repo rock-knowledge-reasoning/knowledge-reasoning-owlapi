@@ -141,6 +141,14 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                 } else if( object == vocabulary::OWL::Restriction() )
                 {
                     mRestrictions.push_back(subject);
+                } else if(object == vocabulary::OWL::Ontology())
+                {
+                    LOG_DEBUG_S << "Ontology identified: '" << subject << "' loading from: " << mAbsolutePath;
+                    tell.ontology(subject);
+                    if(directImport)
+                    {
+                        ontology->setIRI(subject);
+                    }
                 }
             } else if(predicate == vocabulary::OWL::imports())
             {

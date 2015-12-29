@@ -183,6 +183,10 @@ public:
     OWLAxiom::Ptr valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
     OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 
+    /**
+     * Make ontology known
+     */
+    void ontology(const IRI& ontology);
 };
 
 } // end namespace model
