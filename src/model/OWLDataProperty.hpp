@@ -15,7 +15,7 @@ namespace model {
 class OWLDataProperty : public OWLDataPropertyExpression, public OWLProperty
 {
 public:
-        typedef boost::shared_ptr<OWLDataProperty> Ptr;
+        typedef shared_ptr<OWLDataProperty> Ptr;
 
         OWLDataProperty(const IRI& iri);
         virtual ~OWLDataProperty();

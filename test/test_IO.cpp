@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(retrieve)
 
 BOOST_AUTO_TEST_CASE(create_with_builtin)
 {
-    OWLOntology::Ptr ontology = boost::make_shared<OWLOntology>();
+    OWLOntology::Ptr ontology = owlapi::make_shared<OWLOntology>();
     IRI iri("http://www.w3.org/2002/07/owl");
     ontology->addDirectImportsDocument(iri);
 

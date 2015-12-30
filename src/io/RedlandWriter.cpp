@@ -197,7 +197,7 @@ raptor_term* RedlandVisitor::writeRestriction(OWLRestriction::Ptr restriction, c
     }
 
     raptor_term* anonymous = writeAnonymous(NULL, vocabulary::RDF::type(), vocabulary::OWL::Restriction());
-    OWLNamedObject::Ptr namedObject = boost::dynamic_pointer_cast<OWLNamedObject>( restriction->getProperty() );
+    OWLNamedObject::Ptr namedObject = dynamic_pointer_cast<OWLNamedObject>( restriction->getProperty() );
     if(!namedObject)
     {
         throw std::runtime_error("owlapi::io::RedlandVisitor::writeRestriction: no support for "
@@ -208,7 +208,7 @@ raptor_term* RedlandVisitor::writeRestriction(OWLRestriction::Ptr restriction, c
 
     // Correct restriction type if cardinality is not qualified
     owlapi::model::IRI actualRestrictionType = restrictionType;
-    OWLQualifiedRestriction::Ptr qualifiedRestriction = boost::dynamic_pointer_cast<OWLQualifiedRestriction>(restriction);
+    OWLQualifiedRestriction::Ptr qualifiedRestriction = dynamic_pointer_cast<OWLQualifiedRestriction>(restriction);
     if(qualifiedRestriction)
     {
         writeAnonymous(anonymous, vocabulary::OWL::onClass(), qualifiedRestriction->getQualification());
@@ -225,7 +225,7 @@ raptor_term* RedlandVisitor::writeRestriction(OWLRestriction::Ptr restriction, c
         }
     }
 
-    OWLCardinalityRestriction::Ptr cardinalityRestriction = boost::dynamic_pointer_cast<OWLCardinalityRestriction>(restriction);
+    OWLCardinalityRestriction::Ptr cardinalityRestriction = dynamic_pointer_cast<OWLCardinalityRestriction>(restriction);
     if(cardinalityRestriction)
     {
         OWLLiteral::Ptr literal = OWLLiteral::nonNegativeInteger( cardinalityRestriction->getCardinality() );
@@ -244,8 +244,8 @@ void RedlandVisitor::visit(const OWLSubClassOfAxiom& axiom)
     if(sub->getClassExpressionType() == OWLClassExpression::OWL_CLASS
         && super->getClassExpressionType() == OWLClassExpression::OWL_CLASS)
     {
-        IRI subIRI = boost::dynamic_pointer_cast<OWLClass>(sub)->getIRI();
-        IRI superIRI = boost::dynamic_pointer_cast<OWLClass>(super)->getIRI();
+        IRI subIRI = dynamic_pointer_cast<OWLClass>(sub)->getIRI();
+        IRI superIRI = dynamic_pointer_cast<OWLClass>(super)->getIRI();
         if(superIRI != vocabulary::OWL::Thing())
         {
             writeTriple(subIRI, vocabulary::RDFS::subClassOf(), superIRI);
@@ -256,7 +256,7 @@ void RedlandVisitor::visit(const OWLSubClassOfAxiom& axiom)
 
     std::vector<raptor_term*> restrictionTerms;
 
-    owlapi::model::OWLRestriction::Ptr restriction = boost::dynamic_pointer_cast<OWLRestriction>(super);
+    owlapi::model::OWLRestriction::Ptr restriction = dynamic_pointer_cast<OWLRestriction>(super);
 
     switch(super->getClassExpressionType())
     {
@@ -307,7 +307,7 @@ void RedlandVisitor::visit(const OWLSubClassOfAxiom& axiom)
     {
         case OWLClassExpression::OWL_CLASS:
         {
-            IRI subIRI = boost::dynamic_pointer_cast<OWLClass>(sub)->getIRI();
+            IRI subIRI = dynamic_pointer_cast<OWLClass>(sub)->getIRI();
             std::vector<raptor_term*>::const_iterator cit = restrictionTerms.begin();
             for(; cit != restrictionTerms.end(); ++cit)
             {
@@ -322,70 +322,70 @@ void RedlandVisitor::visit(const OWLSubClassOfAxiom& axiom)
 
 void RedlandVisitor::visit(const OWLSubObjectPropertyOfAxiom& axiom)
 {
-    IRI subIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getSubProperty())->getIRI();
-    IRI superIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getSuperProperty())->getIRI();
+    IRI subIRI = dynamic_pointer_cast<OWLObjectProperty>(axiom.getSubProperty())->getIRI();
+    IRI superIRI = dynamic_pointer_cast<OWLObjectProperty>(axiom.getSuperProperty())->getIRI();
 
     writeTriple(subIRI, vocabulary::RDFS::subPropertyOf(), superIRI);
 }
 
 void RedlandVisitor::visit(const OWLSubDataPropertyOfAxiom& axiom)
 {
-    IRI subIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getSubProperty())->getIRI();
-    IRI superIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getSuperProperty())->getIRI();
+    IRI subIRI = dynamic_pointer_cast<OWLDataProperty>(axiom.getSubProperty())->getIRI();
+    IRI superIRI = dynamic_pointer_cast<OWLDataProperty>(axiom.getSuperProperty())->getIRI();
 
     writeTriple(subIRI, vocabulary::RDFS::subPropertyOf(), superIRI);
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyDomainAxiom& axiom)
 {
-    IRI propertyIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+    IRI propertyIRI = dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
 
-    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
+    OWLClassExpression::Ptr e_klass = dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
     if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
     {
         throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as domain");
     }
 
-    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    OWLClass::Ptr klass = dynamic_pointer_cast<OWLClass>(e_klass);
     writeTriple(propertyIRI, vocabulary::RDFS::domain(), klass->getIRI());
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyRangeAxiom& axiom)
 {
-    IRI propertyIRI = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+    IRI propertyIRI = dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
 
-    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getRange());
+    OWLClassExpression::Ptr e_klass = dynamic_pointer_cast<OWLClassExpression>(axiom.getRange());
     if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
     {
         throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as range");
     }
 
-    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    OWLClass::Ptr klass = dynamic_pointer_cast<OWLClass>(e_klass);
     writeTriple(propertyIRI, vocabulary::RDFS::range(), klass->getIRI());
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyDomainAxiom& axiom)
 {
-    IRI propertyIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
+    IRI propertyIRI = dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
 
-    OWLClassExpression::Ptr e_klass = boost::dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
+    OWLClassExpression::Ptr e_klass = dynamic_pointer_cast<OWLClassExpression>(axiom.getDomain());
     if(e_klass->getClassExpressionType() != OWLClassExpression::OWL_CLASS)
     {
         throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as data property domain");
     }
 
-    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    OWLClass::Ptr klass = dynamic_pointer_cast<OWLClass>(e_klass);
     writeTriple(propertyIRI, vocabulary::RDFS::domain(), klass->getIRI());
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom)
 {
-    IRI propertyIRI = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
+    IRI propertyIRI = dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
 
     OWLDataRange::Ptr e_range = axiom.getRange();
     if(e_range->isDatatype())
     {
-        OWLDataType::Ptr dataType = boost::dynamic_pointer_cast<OWLDataType>(e_range);
+        OWLDataType::Ptr dataType = dynamic_pointer_cast<OWLDataType>(e_range);
         writeTriple(propertyIRI, vocabulary::RDFS::range(), dataType->getIRI());
     } else {
         throw std::runtime_error("owlapi::io::RedlandVisitor:visit: no support for datarange export");
@@ -395,8 +395,8 @@ void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom
 
 void RedlandVisitor::visit(const owlapi::model::OWLInverseObjectPropertiesAxiom& axiom)
 {
-    IRI first = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getFirstProperty())->getIRI();
-    IRI second = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getSecondProperty())->getIRI();
+    IRI first = dynamic_pointer_cast<OWLObjectProperty>(axiom.getFirstProperty())->getIRI();
+    IRI second = dynamic_pointer_cast<OWLObjectProperty>(axiom.getSecondProperty())->getIRI();
 
     writeTriple(first, vocabulary::OWL::inverseOf(), second);
 }
@@ -438,23 +438,23 @@ void RedlandVisitor::visit(const owlapi::model::OWLTransitiveObjectPropertyAxiom
 
 void RedlandVisitor::visit(const owlapi::model::OWLFunctionalDataPropertyAxiom& axiom)
 {
-    IRI iri = boost::dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
+    IRI iri = dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
     writeTriple(iri, vocabulary::RDF::type(), vocabulary::OWL::FunctionalProperty());
 }
 
 void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyAssertionAxiom& axiom)
 {
     OWLIndividual::Ptr subject = axiom.getSubject();
-    OWLProperty::Ptr property = boost::dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
+    OWLProperty::Ptr property = dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
     OWLPropertyAssertionObject::Ptr assertionObject = axiom.getObject();
 
     IRI iri;
-    OWLIndividual::Ptr individual = boost::dynamic_pointer_cast<OWLIndividual>(assertionObject);
+    OWLIndividual::Ptr individual = dynamic_pointer_cast<OWLIndividual>(assertionObject);
     if(individual)
     {
         iri = individual->getReferenceID();
     } else {
-        OWLLiteral::Ptr literal = boost::dynamic_pointer_cast<OWLLiteral>(assertionObject);
+        OWLLiteral::Ptr literal = dynamic_pointer_cast<OWLLiteral>(assertionObject);
         if(literal)
         {
             iri = IRI( literal->toString() );
@@ -472,10 +472,10 @@ void RedlandVisitor::visit(const owlapi::model::OWLObjectPropertyAssertionAxiom&
 void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyAssertionAxiom& axiom)
 {
     OWLIndividual::Ptr subject = axiom.getSubject();
-    OWLProperty::Ptr property = boost::dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
+    OWLProperty::Ptr property = dynamic_pointer_cast<OWLProperty>(axiom.getProperty());
     OWLPropertyAssertionObject::Ptr assertionObject = axiom.getObject();
 
-    OWLLiteral::Ptr literal = boost::dynamic_pointer_cast<OWLLiteral>(assertionObject);
+    OWLLiteral::Ptr literal = dynamic_pointer_cast<OWLLiteral>(assertionObject);
     if(!literal)
     {
         throw std::runtime_error("owlapi::model::RedlandVisitor::visit:"
@@ -493,7 +493,7 @@ void RedlandVisitor::visit(const owlapi::model::OWLClassAssertionAxiom& axiom)
     {
         throw std::runtime_error("owlapi::io::RedlandVisitor: cannot handle complex class expression as class assertion");
     }
-    OWLClass::Ptr klass = boost::dynamic_pointer_cast<OWLClass>(e_klass);
+    OWLClass::Ptr klass = dynamic_pointer_cast<OWLClass>(e_klass);
 
     OWLIndividual::Ptr individual = axiom.getIndividual();
     IRI individualIRI = individual->getReferenceID();

@@ -13,7 +13,7 @@ class OWLObjectExactCardinality : public OWLExactCardinalityRestriction
 {
 public:
     OWLObjectExactCardinality(OWLObjectPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLExactCardinalityRestriction( boost::dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+        : OWLExactCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
     {}
 
     virtual ~OWLObjectExactCardinality() {}

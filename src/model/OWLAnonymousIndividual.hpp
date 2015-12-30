@@ -16,7 +16,7 @@ class OWLAnonymousIndividual : public OWLIndividual //, OWLAnnotationValue, OWLA
 {
     NodeID mNodeID;
 public:
-    typedef boost::shared_ptr<OWLAnonymousIndividual> Ptr;
+    typedef shared_ptr<OWLAnonymousIndividual> Ptr;
 
     OWLAnonymousIndividual();
     OWLAnonymousIndividual(const NodeID& nodeId)

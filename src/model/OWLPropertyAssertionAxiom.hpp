@@ -20,7 +20,7 @@ class OWLPropertyAssertionAxiom : public OWLIndividualAxiom // OWLSubclassOfAxio
     OWLPropertyExpression::Ptr mProperty;
     OWLPropertyAssertionObject::Ptr mObject;
 public:
-    typedef boost::shared_ptr<OWLPropertyAssertionAxiom> Ptr;
+    typedef shared_ptr<OWLPropertyAssertionAxiom> Ptr;
 
     OWLPropertyAssertionAxiom(OWLIndividual::Ptr subject, OWLPropertyExpression::Ptr property, OWLPropertyAssertionObject::Ptr object, AxiomType type, OWLAnnotationList annotations)
         : OWLIndividualAxiom(type, annotations)

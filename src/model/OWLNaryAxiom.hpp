@@ -12,7 +12,7 @@ namespace model {
 class OWLNaryAxiom
 {
 public:
-    typedef boost::shared_ptr<OWLNaryAxiom> Ptr;
+    typedef shared_ptr<OWLNaryAxiom> Ptr;
 
     virtual ~OWLNaryAxiom() {}
 

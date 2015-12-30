@@ -14,7 +14,7 @@ class OWLUnaryPropertyAxiom : public T
 public:
     // e.g. for the ObjectProperties this should refer to the
     // ObjectPropertyExpression::Ptr
-    typedef boost::shared_ptr< typename T::property_t > PropertyPtr;
+    typedef shared_ptr< typename T::property_t > PropertyPtr;
 
     OWLUnaryPropertyAxiom(const PropertyPtr& propertyExpression,
             OWLAxiom::AxiomType type,

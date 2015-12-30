@@ -1,6 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_PROPERTY_RANGE_HPP
 #define OWLAPI_MODEL_OWL_PROPERTY_RANGE_HPP
 
+#include <vector>
 #include <owlapi/model/OWLObject.hpp>
 
 namespace owlapi {
@@ -16,7 +17,7 @@ namespace model {
 class OWLPropertyRange : public OWLObject//, SWRLPredicate
 {
 public:
-    typedef boost::shared_ptr<OWLPropertyRange> Ptr;
+    typedef shared_ptr<OWLPropertyRange> Ptr;
     typedef std::vector<Ptr> PtrList;
 
     virtual ~OWLPropertyRange() {}

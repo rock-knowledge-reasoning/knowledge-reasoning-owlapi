@@ -18,7 +18,7 @@ class OWLDataPropertyAssertionAxiom : public OWLPropertyAssertionAxiom
 {
 public:
 
-    typedef boost::shared_ptr<OWLDataPropertyAssertionAxiom> Ptr;
+    typedef shared_ptr<OWLDataPropertyAssertionAxiom> Ptr;
 
     OWLDataPropertyAssertionAxiom(OWLIndividual::Ptr subject, OWLPropertyExpression::Ptr property, OWLLiteral::Ptr object, OWLAnnotationList annotations = OWLAnnotationList())
             :  OWLPropertyAssertionAxiom(subject, property, object, DataPropertyAssertion, annotations)

@@ -11,7 +11,7 @@ OWLDataType::OWLDataType(const IRI& iri, OWLDataRange::Type type)
 
 OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range)
 {
-    OWLDataType::Ptr ptr = boost::dynamic_pointer_cast<OWLDataType>(range);
+    OWLDataType::Ptr ptr = dynamic_pointer_cast<OWLDataType>(range);
     if(ptr)
     {
         return *ptr.get();

@@ -10,7 +10,7 @@ OWLOntology::OWLOntology(const KnowledgeBase::Ptr& kb)
 {
     if(!mpKnowledgeBase)
     {
-        mpKnowledgeBase = boost::make_shared<KnowledgeBase>();
+        mpKnowledgeBase = make_shared<KnowledgeBase>();
     }
 }
 
@@ -111,7 +111,7 @@ OWLAxiom::PtrList OWLOntology::getAxioms() const
 
 void OWLOntology::retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property)
 {
-    OWLNamedIndividual::Ptr namedIndividual = boost::dynamic_pointer_cast<OWLNamedIndividual>(individual);
+    OWLNamedIndividual::Ptr namedIndividual = dynamic_pointer_cast<OWLNamedIndividual>(individual);
     std::string individualName = "anonymous";
     if(namedIndividual)
     {
@@ -122,7 +122,7 @@ void OWLOntology::retractValueOf(const OWLIndividual::Ptr& individual, const OWL
     std::vector<OWLAxiom::Ptr>::iterator it = axioms.begin();
     for(; it != axioms.end(); ++it)
     {
-        OWLDataPropertyAssertionAxiom::Ptr axiom = boost::dynamic_pointer_cast<OWLDataPropertyAssertionAxiom>(*it);
+        OWLDataPropertyAssertionAxiom::Ptr axiom = dynamic_pointer_cast<OWLDataPropertyAssertionAxiom>(*it);
         if(axiom->getSubject() == individual && axiom->getProperty() == property)
         {
             LOG_DEBUG_S << "Retracted DataPropertyAssertionAxiom: s: '" << individualName << "'"

@@ -30,8 +30,11 @@ OWLDataRange::PtrList OWLDataProperty::getDataRanges() const
 
     for(; cit != mRanges.end(); ++cit)
     {
-        OWLDataRange::Ptr range = boost::dynamic_pointer_cast<OWLDataRange>(*cit);
-        assert(range);
+        OWLDataRange::Ptr range = dynamic_pointer_cast<OWLDataRange>(*cit);
+        if(!range)
+        {
+            throw std::runtime_error("owlapi::model::OWLDataProperty::getDataRanges OWLPropertyRange is not a OWLDataRange");
+        }
         ranges.push_back( range );
     }
     return ranges;

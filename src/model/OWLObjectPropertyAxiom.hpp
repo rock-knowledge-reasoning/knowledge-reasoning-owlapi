@@ -10,7 +10,7 @@ namespace model {
 class OWLObjectPropertyAxiom : public OWLPropertyAxiom
 {
 public:
-    typedef boost::shared_ptr<OWLPropertyAxiom> Ptr;
+    typedef shared_ptr<OWLPropertyAxiom> Ptr;
     typedef OWLObjectPropertyExpression property_t;
 
     OWLObjectPropertyAxiom(AxiomType type, OWLAnnotationList annotations)

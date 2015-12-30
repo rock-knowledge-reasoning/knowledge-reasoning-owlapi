@@ -13,7 +13,7 @@ class OWLObjectMinCardinality : public OWLMinCardinalityRestriction
 {
 public:
     OWLObjectMinCardinality(OWLObjectPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLMinCardinalityRestriction( boost::dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+        : OWLMinCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
     {}
 
     virtual ~OWLObjectMinCardinality() {}

@@ -25,7 +25,7 @@ public:
 
     static std::map<EntityType, std::string> TypeTxt;
 
-    typedef boost::shared_ptr<OWLEntity> Ptr;
+    typedef shared_ptr<OWLEntity> Ptr;
 
     OWLEntity( const IRI& iri = IRI(), EntityType type = UNKNOWN);
 

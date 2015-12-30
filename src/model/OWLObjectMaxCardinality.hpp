@@ -13,7 +13,7 @@ class OWLObjectMaxCardinality : public OWLMaxCardinalityRestriction
 {
 public:
     OWLObjectMaxCardinality(OWLObjectPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLMaxCardinalityRestriction( boost::dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+        : OWLMaxCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
     {}
 
     virtual ~OWLObjectMaxCardinality() {}

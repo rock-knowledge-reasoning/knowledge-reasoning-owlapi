@@ -10,7 +10,7 @@ namespace model {
 class OWLNamedIndividual : public OWLIndividual, public OWLLogicalEntity
 {
 public:
-    typedef boost::shared_ptr<OWLNamedIndividual> Ptr;
+    typedef shared_ptr<OWLNamedIndividual> Ptr;
 
     OWLNamedIndividual( const IRI& iri)
         : OWLIndividual()

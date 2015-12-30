@@ -106,13 +106,13 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::DATA_MIN_CARDINALITY:
             case OWLClassExpression::DATA_MAX_CARDINALITY:
             {
-                OWLCardinalityRestriction::Ptr restriction = boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
+                OWLCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
 
                 std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getQualification());
 
                 if(inheritedRestrictions.empty())
                 {
-                    restrictions.push_back(boost::dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
+                    restrictions.push_back(dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
                 } else {
                     // We need to increase scale each cardinality based on the
                     // requirements of the restrictions that got it in here in
@@ -173,8 +173,8 @@ bool OWLOntologyAsk::isSubClassOf(const OWLClassExpression::Ptr& subclass, const
 
     if(subclass->isClassExpressionLiteral() && superclass->isClassExpressionLiteral())
     {
-        subclassIRI = boost::dynamic_pointer_cast<OWLClass>(subclass)->getIRI();
-        superclassIRI = boost::dynamic_pointer_cast<OWLClass>(superclass)->getIRI();
+        subclassIRI = dynamic_pointer_cast<OWLClass>(subclass)->getIRI();
+        superclassIRI = dynamic_pointer_cast<OWLClass>(superclass)->getIRI();
 
         return isSubClassOf(subclassIRI, superclassIRI);
     }

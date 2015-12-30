@@ -9,7 +9,7 @@ namespace model {
 class OWLMinCardinalityRestriction : public OWLCardinalityRestriction
 {
 public:
-    typedef boost::shared_ptr<OWLMinCardinalityRestriction> Ptr;
+    typedef shared_ptr<OWLMinCardinalityRestriction> Ptr;
 
     OWLMinCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::MIN)

@@ -14,7 +14,7 @@ namespace model {
 class OWLDataPropertyAxiom : public OWLPropertyAxiom
 {
 public:
-    typedef boost::shared_ptr<OWLDataPropertyAxiom> Ptr;
+    typedef shared_ptr<OWLDataPropertyAxiom> Ptr;
     typedef OWLDataPropertyExpression property_t;
 
     OWLDataPropertyAxiom(AxiomType type, OWLAnnotationList annotations = OWLAnnotationList())

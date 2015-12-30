@@ -56,7 +56,7 @@ protected:
     OWLLiteral(const std::string& value);
 
 public:
-    typedef boost::shared_ptr<OWLLiteral> Ptr;
+    typedef shared_ptr<OWLLiteral> Ptr;
 
     virtual ~OWLLiteral() {}
 

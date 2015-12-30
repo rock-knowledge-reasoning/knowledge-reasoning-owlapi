@@ -23,7 +23,7 @@ class OWLOntologyTell
     IRI mOrigin;
 
 public:
-    typedef boost::shared_ptr<OWLOntologyTell> Ptr;
+    typedef shared_ptr<OWLOntologyTell> Ptr;
 
     /**
      * \brief default constructor
@@ -51,7 +51,7 @@ public:
         }
 
         OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(property);
-        boost::shared_ptr<T> axiom(new T(oProperty));
+        shared_ptr<T> axiom(new T(oProperty));
         return addAxiom(axiom);
     }
 
@@ -65,7 +65,7 @@ public:
         }
 
         OWLDataProperty::Ptr dProperty = mpOntology->getDataProperty(property);
-        boost::shared_ptr<T> axiom(new T(dProperty));
+        shared_ptr<T> axiom(new T(dProperty));
         return addAxiom(axiom);
     }
 
@@ -189,6 +189,8 @@ public:
      * Make ontology known
      */
     void ontology(const IRI& ontology);
+    void datatype(const IRI& datatype);
+
 };
 
 } // end namespace model

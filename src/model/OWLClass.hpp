@@ -18,7 +18,7 @@ class OWLClass : public OWLClassExpression, public OWLLogicalEntity
     bool mIsNothing;
 
 public:
-    typedef boost::shared_ptr<OWLClass> Ptr;
+    typedef shared_ptr<OWLClass> Ptr;
 
     /**
      * Default constructor 

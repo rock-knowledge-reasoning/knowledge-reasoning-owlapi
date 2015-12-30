@@ -16,7 +16,7 @@ namespace model {
 class OWLAxiom : public OWLObject, public HasAnnotations
 {
 public:
-    typedef boost::shared_ptr<OWLAxiom> Ptr;
+    typedef shared_ptr<OWLAxiom> Ptr;
     typedef std::vector<Ptr> PtrList;
 
     /// Defines the types of axioms that can be used with OWL

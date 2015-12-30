@@ -22,7 +22,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
 {
     if(getProperty()->isObjectPropertyExpression())
     {
-        OWLObjectPropertyExpression::Ptr property = boost::dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
+        OWLObjectPropertyExpression::Ptr property = dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
 
         switch(getCardinalityRestrictionType())
         {
@@ -162,19 +162,19 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersection(OWLCardin
             }
         } else if(aType == MIN && bType == MAX)
         {
-            return intersectionMinMax( boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(a),
-                    boost::dynamic_pointer_cast<OWLMaxCardinalityRestriction>(b));
+            return intersectionMinMax( dynamic_pointer_cast<OWLMinCardinalityRestriction>(a),
+                    dynamic_pointer_cast<OWLMaxCardinalityRestriction>(b));
         } else if(aType == MAX && bType == MIN)
         {
-            return intersectionMinMax(boost::dynamic_pointer_cast<OWLMinCardinalityRestriction>(b),
-                    boost::dynamic_pointer_cast<OWLMaxCardinalityRestriction>(a));
+            return intersectionMinMax(dynamic_pointer_cast<OWLMinCardinalityRestriction>(b),
+                    dynamic_pointer_cast<OWLMaxCardinalityRestriction>(a));
         } else if(aType == EXACT)
         {
-            return intersectionExact(boost::dynamic_pointer_cast<OWLExactCardinalityRestriction>(a),
+            return intersectionExact(dynamic_pointer_cast<OWLExactCardinalityRestriction>(a),
                     b);
         } else if(bType == EXACT)
         {
-            return intersectionExact(boost::dynamic_pointer_cast<OWLExactCardinalityRestriction>(b),
+            return intersectionExact(dynamic_pointer_cast<OWLExactCardinalityRestriction>(b),
                     a);
         }
     }

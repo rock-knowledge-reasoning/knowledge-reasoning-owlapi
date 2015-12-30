@@ -11,7 +11,7 @@ namespace model {
 class OWLObjectPropertyDomainAxiom : public OWLUnaryPropertyAxiom<OWLObjectPropertyAxiom>, public OWLPropertyDomainAxiom<OWLClassExpression::Ptr>
 {
 public:
-    typedef boost::shared_ptr<OWLObjectPropertyDomainAxiom> Ptr;
+    typedef shared_ptr<OWLObjectPropertyDomainAxiom> Ptr;
 
     OWLObjectPropertyDomainAxiom(OWLObjectPropertyExpression::Ptr property, 
             OWLClassExpression::Ptr domain,

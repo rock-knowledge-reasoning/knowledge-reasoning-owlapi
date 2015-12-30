@@ -1,4 +1,5 @@
 #include "OWLWriter.hpp"
+#include <algorithm>
 
 namespace owlapi {
 namespace io {

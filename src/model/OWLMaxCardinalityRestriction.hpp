@@ -9,7 +9,7 @@ namespace model {
 class OWLMaxCardinalityRestriction : public OWLCardinalityRestriction
 {
 public:
-    typedef boost::shared_ptr<OWLMaxCardinalityRestriction> Ptr;
+    typedef shared_ptr<OWLMaxCardinalityRestriction> Ptr;
 
     OWLMaxCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::MAX)

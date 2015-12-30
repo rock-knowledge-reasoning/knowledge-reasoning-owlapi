@@ -12,7 +12,7 @@ namespace model {
 class OWLAnnotationObject : public OWLObject
 {
 public:
-    boost::shared_ptr<OWLAnnotationObject> Ptr;
+    shared_ptr<OWLAnnotationObject> Ptr;
 
     virtual ~OWLAnnotationObject() {}
 };

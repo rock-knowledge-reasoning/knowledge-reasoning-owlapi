@@ -10,7 +10,7 @@ namespace model {
 class OWLObjectProperty : public OWLObjectPropertyExpression, public OWLProperty
 {
 public:
-    typedef boost::shared_ptr<OWLObjectProperty> Ptr;
+    typedef shared_ptr<OWLObjectProperty> Ptr;
 
     OWLObjectProperty(const IRI& iri)
         : OWLObjectPropertyExpression()

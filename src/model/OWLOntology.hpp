@@ -218,9 +218,9 @@ protected:
     /// List of documents that this ontology imports directly or indirectly
     IRIList mImportsDocuments;
 
-    boost::shared_ptr<KnowledgeBase> mpKnowledgeBase;
+    shared_ptr<KnowledgeBase> mpKnowledgeBase;
 
-    boost::shared_ptr<KnowledgeBase> kb() { return mpKnowledgeBase; }
+    shared_ptr<KnowledgeBase> kb() { return mpKnowledgeBase; }
 
 protected:
 
@@ -235,7 +235,7 @@ protected:
     void setAbsolutePath(const std::string& path) { mAbsolutePath = path; }
 
 public:
-    typedef boost::shared_ptr<OWLOntology> Ptr;
+    typedef shared_ptr<OWLOntology> Ptr;
 
     void refresh();
 
@@ -243,7 +243,7 @@ public:
      * Default constructor
      * \param kb Knowledge base which can be shared across multiple instances
      */
-    OWLOntology(const boost::shared_ptr<KnowledgeBase>& kb = boost::shared_ptr<KnowledgeBase>());
+    OWLOntology(const shared_ptr<KnowledgeBase>& kb = shared_ptr<KnowledgeBase>());
 
     ~OWLOntology();
 
@@ -274,6 +274,7 @@ public:
 
     const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
     OWLAxiom::PtrList getAxioms() const;
+
 };
 
 } // ane namespace model

@@ -17,7 +17,7 @@ class OWLOntologyAsk
     OWLOntology::Ptr mpOntology;
 
 public:
-    typedef boost::shared_ptr<OWLOntologyAsk> Ptr;
+    typedef shared_ptr<OWLOntologyAsk> Ptr;
 
     OWLOntologyAsk(OWLOntology::Ptr ontology);
 

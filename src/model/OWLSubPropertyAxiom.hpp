@@ -19,7 +19,7 @@ protected:
     {}
 
 public:
-    typedef boost::shared_ptr<OWLSubPropertyAxiom> Ptr;
+    typedef shared_ptr<OWLSubPropertyAxiom> Ptr;
 
     virtual ~OWLSubPropertyAxiom() {}
 

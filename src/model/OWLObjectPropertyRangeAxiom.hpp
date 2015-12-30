@@ -11,7 +11,7 @@ namespace model {
 class OWLObjectPropertyRangeAxiom : public OWLUnaryPropertyAxiom<OWLObjectPropertyAxiom>, public OWLPropertyRangeAxiom<OWLClassExpression::Ptr> 
 {
 public:
-    typedef boost::shared_ptr<OWLObjectPropertyRangeAxiom> Ptr;
+    typedef shared_ptr<OWLObjectPropertyRangeAxiom> Ptr;
 
     OWLObjectPropertyRangeAxiom(const OWLObjectPropertyExpression::Ptr& property,
             OWLClassExpression::Ptr range,

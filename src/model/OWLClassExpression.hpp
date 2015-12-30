@@ -44,7 +44,7 @@ public:
         , TYPE_RANGE_END
     };
 
-    typedef boost::shared_ptr<OWLClassExpression> Ptr;
+    typedef shared_ptr<OWLClassExpression> Ptr;
 
     static std::map<ClassExpressionType, std::string> TypeTxt;
 

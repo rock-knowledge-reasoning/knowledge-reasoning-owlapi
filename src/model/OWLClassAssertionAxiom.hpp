@@ -13,7 +13,7 @@ class OWLClassAssertionAxiom : public OWLIndividualAxiom
     OWLIndividual::Ptr mpIndividual;
     OWLClassExpression::Ptr mpClassExpression;
 public:
-    typedef boost::shared_ptr<OWLClassAssertionAxiom> Ptr;
+    typedef shared_ptr<OWLClassAssertionAxiom> Ptr;
 
     virtual ~OWLClassAssertionAxiom() {}
 

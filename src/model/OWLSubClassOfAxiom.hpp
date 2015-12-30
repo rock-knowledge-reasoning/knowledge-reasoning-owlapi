@@ -12,7 +12,7 @@ class OWLSubClassOfAxiom : public OWLClassAxiom
     OWLClassExpression::Ptr mSubClass;
     OWLClassExpression::Ptr mSuperClass;
 public:
-    typedef boost::shared_ptr<OWLSubClassOfAxiom> Ptr;
+    typedef shared_ptr<OWLSubClassOfAxiom> Ptr;
 
     OWLSubClassOfAxiom(OWLClassExpression::Ptr subClass, OWLClassExpression::Ptr superClass, OWLAnnotationList annotations = OWLAnnotationList())
         : OWLClassAxiom(OWLAxiom::SubClassOf, annotations)

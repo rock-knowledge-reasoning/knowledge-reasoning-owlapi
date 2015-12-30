@@ -442,7 +442,7 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
                 throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
             }
 
-            mCardinalityRestrictions[restriction].setProperty(boost::dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
+            mCardinalityRestrictions[restriction].setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
             continue;
         }
         else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())

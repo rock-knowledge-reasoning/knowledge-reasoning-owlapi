@@ -26,7 +26,7 @@ class OWLCardinalityRestriction : public OWLQualifiedRestriction
     friend class owlapi::io::OWLOntologyReader;
 
 public:
-    typedef boost::shared_ptr<OWLCardinalityRestriction> Ptr;
+    typedef shared_ptr<OWLCardinalityRestriction> Ptr;
     typedef std::pair<uint32_t, uint32_t> MinMax;
 
     enum CardinalityRestrictionType { UNKNOWN, MIN, MAX, EXACT };
@@ -120,7 +120,7 @@ public:
     /**
      * Merge intersection with exact cardinality constraint
      */
-    static OWLCardinalityRestriction::Ptr intersectionExact(boost::shared_ptr<OWLExactCardinalityRestriction> a,
+    static OWLCardinalityRestriction::Ptr intersectionExact(shared_ptr<OWLExactCardinalityRestriction> a,
             OWLCardinalityRestriction::Ptr b);
 
     /**
@@ -132,8 +132,8 @@ public:
      * overlapping -- return a NULL pointer
      * \throws an invalid argument exception in case 2.
      */
-    static OWLCardinalityRestriction::Ptr intersectionMinMax(boost::shared_ptr<OWLMinCardinalityRestriction> a,
-            boost::shared_ptr<OWLMaxCardinalityRestriction> b);
+    static OWLCardinalityRestriction::Ptr intersectionMinMax(shared_ptr<OWLMinCardinalityRestriction> a,
+            shared_ptr<OWLMaxCardinalityRestriction> b);
 
     /**
      * Get the join of cardinality restrictions, e.g. for overlapping

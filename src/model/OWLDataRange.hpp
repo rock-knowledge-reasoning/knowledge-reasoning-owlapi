@@ -10,7 +10,7 @@ namespace model {
 class OWLDataRange : public OWLPropertyRange//, SWRLPredicate
 {
 public:
-    typedef boost::shared_ptr<OWLDataRange> Ptr;
+    typedef shared_ptr<OWLDataRange> Ptr;
     typedef std::vector<Ptr> PtrList;
 
     enum Type { COMPLEMENT_OF,

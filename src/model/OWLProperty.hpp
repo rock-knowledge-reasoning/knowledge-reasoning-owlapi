@@ -15,7 +15,7 @@ namespace model {
 class OWLProperty : public OWLLogicalEntity //,  public OWLPropertyExpression
 {
 public:
-    typedef boost::shared_ptr<OWLProperty> Ptr;
+    typedef shared_ptr<OWLProperty> Ptr;
 
     OWLProperty(const IRI& iri, OWLEntity::EntityType type)
         : OWLLogicalEntity(iri, type)

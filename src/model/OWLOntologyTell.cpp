@@ -23,6 +23,10 @@ void OWLOntologyTell::initializeDefaultClasses()
     klass(vocabulary::OWL::Class());
     klass(vocabulary::OWL::Thing());
 
+    klass(vocabulary::OWL::Ontology());
+    klass(vocabulary::RDFS::Resource());
+    klass(vocabulary::RDFS::Datatype());
+
 //    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
 //    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
 //    OWLClass thing(vocabulary::OWL::Thing());
@@ -294,7 +298,21 @@ OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation
         << "    p: " << relation << std::endl
         << "    o: " << object << std::endl;
 
-    OWLIndividual::Ptr individual = mpOntology->getIndividual(subject);
+    OWLIndividual::Ptr individual;
+    try {
+         individual = mpOntology->getIndividual(subject);
+    } catch(...)
+    {
+        // punning is allowed -- so auto-declare named individual
+        if(mAsk.isOWLClass(subject) || mAsk.isDataProperty(subject) || mAsk.isObjectProperty(subject))
+        {
+            individual = namedIndividual(subject);
+        } else {
+            LOG_DEBUG_S << "Checked for punning: '" << subject << "', but its not a known class or property";
+            throw;
+        }
+    }
+
     OWLPropertyAssertionObject::Ptr assertionObject;
     try {
         assertionObject = mpOntology->getIndividual(object);
@@ -318,7 +336,7 @@ OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation
         OWLDataPropertyAssertionAxiom::Ptr axiom(new OWLDataPropertyAssertionAxiom(
                     individual,
                     mpOntology->getDataProperty(relation),
-                    boost::dynamic_pointer_cast<OWLLiteral>(assertionObject) ));
+                    dynamic_pointer_cast<OWLLiteral>(assertionObject) ));
         return addAxiom(axiom);
     } else {
         throw std::runtime_error("owlapi::model::OWLOntologyTell::relatedTo: "
@@ -373,7 +391,7 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IR
     OWLDataRange::Ptr range(new OWLDataType(classType));
     dataProperty->addRange(range);
 
-    OWLDataPropertyExpression::Ptr e_dataProperty = boost::dynamic_pointer_cast<OWLDataPropertyExpression>(dataProperty);
+    OWLDataPropertyExpression::Ptr e_dataProperty = dynamic_pointer_cast<OWLDataPropertyExpression>(dataProperty);
     OWLDataPropertyRangeAxiom::Ptr axiom(new OWLDataPropertyRangeAxiom(e_dataProperty, range));
     return addAxiom(axiom);
 }
@@ -439,6 +457,32 @@ void OWLOntologyTell::ontology(const IRI& iri)
 {
     // allowing punning
     instanceOf(iri, vocabulary::OWL::Ontology());
+}
+
+void OWLOntologyTell::datatype(const IRI& iri)
+{
+    // http://www.w3.org/TR/owl-ref/#rdf-datatype
+    //
+    // but also
+    // <http://www.linkedmodel.org/schema/vaem#dateUnion>
+    //      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+    //      <http://www.w3.org/2000/01/rdf-schema#Datatype> .
+    // <http://www.linkedmodel.org/schema/vaem#dateUnion>
+    //      <http://purl.org/dc/elements/1.1/description> "A datatype that is the
+    //      union of date xsd data types. 'dateUnion' is equivalent to the xsd
+    //      specification that uses an xsd:union of memberTypes='xsd:date
+    //      xsd:dateTime xsd:float
+    //      xsd:gYear'."^^<http://www.w3.org/2001/XMLSchema#string> .
+    // <http://www.linkedmodel.org/schema/vaem#dateUnion>
+    //      <http://www.w3.org/2000/01/rdf-schema#label> "date
+    //      union"^^<http://www.w3.org/2001/XMLSchema#string> .
+    // <http://www.linkedmodel.org/schema/vaem#dateUnion>
+    //      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+    //      <http://www.w3.org/2000/01/rdf-schema#Resource> .
+    // <http://www.linkedmodel.org/schema/vaem#dateUnion>
+    //      <http://www.w3.org/2002/07/owl#equivalentClass> _:genid1 .
+    //
+    subClassOf(iri, vocabulary::RDFS::Datatype());
 }
 
 } // end namespace model

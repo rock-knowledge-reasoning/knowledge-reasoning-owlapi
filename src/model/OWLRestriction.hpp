@@ -17,7 +17,7 @@ class OWLRestriction : public OWLAnonymousClassExpression
     OWLPropertyExpression::Ptr mpProperty;
 
 public: 
-    typedef boost::shared_ptr<OWLRestriction> Ptr;
+    typedef shared_ptr<OWLRestriction> Ptr;
 
     OWLRestriction(OWLPropertyExpression::Ptr property)
         : OWLAnonymousClassExpression()

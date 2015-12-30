@@ -57,7 +57,7 @@ public:
     void writeObjectProperty(const T& axiom, const owlapi::model::IRI& propertyType)
     {
         using namespace owlapi::model;
-        IRI iri = boost::dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
+        IRI iri = dynamic_pointer_cast<OWLObjectProperty>(axiom.getProperty())->getIRI();
         writeTriple(iri, vocabulary::RDF::type(), propertyType);
     }
 
