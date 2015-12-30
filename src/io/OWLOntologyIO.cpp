@@ -180,6 +180,7 @@ std::string OWLOntologyIO::getOntologyPath()
         return pkg.get("sharedir") + "/ontologies/";
     } catch(...)
     {
+        LOG_WARN_S << "could not find installation of: 'owlapi', thus could not infer installation path for ontologies";
         throw std::runtime_error("owlapi::io::OWLOntologyReader: owlapi is not installed - failed to find ontologies directory");
     }
 }

@@ -7,6 +7,15 @@
 using namespace owlapi::model;
 using namespace owlapi::io;
 
+// NOTE:
+// whan running test either do:
+//     export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
+// or use argument: --catch_system_errors=no
+//
+// otherwise (if the pkgconfig search fails) you will get an error on failed
+// child process
+// see http://stackoverflow.com/questions/5325202/boostunit-test-case-fails-because-a-child-process-exits-with-nonzero
+
 BOOST_AUTO_TEST_SUITE(io)
 
 BOOST_AUTO_TEST_CASE(redland)
@@ -45,8 +54,11 @@ BOOST_AUTO_TEST_CASE(canonize)
 BOOST_AUTO_TEST_CASE(retrieve)
 {
     IRI iri("http://www.w3.org/2002/07/owl");
-    std::string fileName = owlapi::io::OWLOntologyIO::retrieve(iri);
-    BOOST_TEST_MESSAGE("Test name: " << fileName);
+    BOOST_TEST_MESSAGE("Find iri: '" << iri << " -- if the following test fails: give the following "
+            " options when running the test: --catch_system_errors=no");
+    std::string fileName;
+    BOOST_REQUIRE_NO_THROW(fileName = owlapi::io::OWLOntologyIO::retrieve(iri))
+    BOOST_TEST_MESSAGE("Retrieved iri '" << iri << "', absolute path: " << fileName);
 }
 
 BOOST_AUTO_TEST_CASE(create_with_builtin)
