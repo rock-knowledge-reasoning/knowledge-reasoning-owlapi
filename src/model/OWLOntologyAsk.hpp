@@ -65,8 +65,30 @@ public:
     OWLDataProperty::Ptr getOWLDataProperty(const IRI& iri) const;
 
 
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(owlapi::model::OWLClassExpression::Ptr ce) const;
+    /**
+     * Retrieve the cardinality restrictions of a given class expression
+     * \return a compact list of cardinality restrictions
+     * \param e OWLClassExpression
+     * \see OWLCardinalityRestriction::compact
+     */
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce) const;
+
+    /**
+     * Retrieve the cardinality restrictions of a given class (by IRI)
+     * \param iri IRI identifying the class
+     * \throws std::invalid_argument if class cannot be identified
+     * \return a compact list of cardinality restrictions
+     * \see OWLCardinalityRestriction::compact
+     */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri) const;
+
+    /**
+     * Retrieve the cardinality restrictions for a given set of classes
+     * Will retrieve the restrictions per class and then join the (potentially
+     * overlapping results)
+     * \param klasses Set of klasses
+     * \see OWLCardinalityRestriction::join
+     */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses) const;
 
     /**
@@ -156,7 +178,7 @@ public:
      * \param instance Instance where this relation is bound to
      * \param relationProperty Property for this relation (which will be inverted)
      * \param klass Optional filter klass for the result list, check if result is instance of given klass
-     * \return list of instance that are related to instance via the inverse of the given 
+     * \return list of instance that are related to instance via the inverse of the given
      * relationProperty
      */
     IRIList allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI()) const;

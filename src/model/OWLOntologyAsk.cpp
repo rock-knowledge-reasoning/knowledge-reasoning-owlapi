@@ -78,7 +78,7 @@ OWLDataProperty::Ptr OWLOntologyAsk::getOWLDataProperty(const IRI& iri) const
     throw std::runtime_error("OWLOntologyAsk::getOWLDataProperty: '" + iri.toString() + "' is not a known OWLDataProperty");
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(owlapi::model::OWLClassExpression::Ptr ce) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce) const
 {
     // In order to find a restriction for a given class
     //    1. check class assertions for individuals
