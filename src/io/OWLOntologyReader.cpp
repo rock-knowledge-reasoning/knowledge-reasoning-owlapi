@@ -119,6 +119,7 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                 } else if (object == vocabulary::RDFS::Datatype())
                 {
                     // introduces a new datatype
+                    tell.datatype(subject);
                 } else if( object == vocabulary::OWL::ObjectProperty())
                 {
                     tell.objectProperty(subject);
