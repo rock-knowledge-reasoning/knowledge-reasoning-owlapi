@@ -72,5 +72,26 @@ BOOST_AUTO_TEST_CASE(create_with_builtin)
     BOOST_REQUIRE_MESSAGE(ontology->getAxioms().empty(), "Ontology is empty -- after importing only builtin vocabularies");
 }
 
+BOOST_AUTO_TEST_CASE(create_with_custom)
+{
+    OWLOntology::Ptr ontology = owlapi::make_shared<OWLOntology>();
+    {
+        //IRI iri("http://www.linkedmodel.org/1.2/schema/vaem");
+        //IRI iri("http://qudt.org/1.1/vocab/quantity");
+        IRI iri("http://www.rock-robotics.org/2015/12/robots/Sherpa");
+        std::string canonizedName = owlapi::io::OWLOntologyIO::canonizeForOfflineUsage(iri);
+        ontology->addDirectImportsDocument(iri);
+    }
+
+    IRI ontologyIRI("http://test/owlapi/create_with_custom");
+    ontology = OWLOntologyIO::load(ontology, ontologyIRI);
+    BOOST_REQUIRE_MESSAGE(ontology->getIRI()  == ontologyIRI, "Ontology has assigned iri: " << ontologyIRI);
+    BOOST_REQUIRE_MESSAGE(!ontology->getAxioms().empty(), "Ontology is not empty after importing custom vocabularies");
+
+    OWLOntologyTell tell(ontology);
+    tell.namedIndividual("http://test-foo/Individual");
+    OWLOntologyIO::write("/tmp/owlapi-test-io-create_with_custom-ontology.owl", ontology);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
