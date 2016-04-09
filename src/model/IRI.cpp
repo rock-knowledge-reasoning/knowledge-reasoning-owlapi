@@ -186,11 +186,11 @@ std::string IRI::toString(const IRIList& iris, bool fragmentsOnly)
 
 bool IRI::operator==(const IRI& other) const
 {
-    return mPrefix == other.mPrefix && mRemainder == other.mRemainder; 
+    return mPrefix == other.mPrefix && mRemainder == other.mRemainder;
 }
 
 std::ostream& operator<<(std::ostream& os, const owlapi::model::IRI& iri)
-{ 
+{
     os << iri.toString();
     return os;
 }

@@ -52,7 +52,7 @@ OWLNamedIndividual::Ptr OWLOntologyAsk::getOWLNamedIndividual(const IRI& iri) co
     if(it != mpOntology->mNamedIndividuals.end())
     {
         return it->second;
-    } 
+    }
 
     throw std::runtime_error("OWLOntologyAsk::getNamedIndividual: '" + iri.toString() + "' is not a known OWLNamedIndividual");
 }
