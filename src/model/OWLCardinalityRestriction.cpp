@@ -313,15 +313,31 @@ bool OWLCardinalityRestriction::areOverlapping(OWLCardinalityRestriction::Ptr a,
     return false;
 }
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(OWLCardinalityRestriction::Ptr a,
-        OWLCardinalityRestriction::Ptr b)
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(const OWLCardinalityRestriction::Ptr& a,
+        const OWLCardinalityRestriction::Ptr& b,
+        OperationType operationType)
+
 {
     if(areOverlapping(a,b))
     {
         if(a->getCardinalityRestrictionType() == b->getCardinalityRestrictionType())
         {
+            uint32_t cardinality;
+            switch(operationType)
+            {
+                case SUM_OP:
+                    cardinality = a->getCardinality() + b->getCardinality();
+                    break;
+                case MIN_OP:
+                    cardinality = std::min(a->getCardinality(), b->getCardinality());
+                    break;
+                case MAX_OP:
+                    cardinality = std::max(a->getCardinality(), b->getCardinality());
+                    break;
+            }
+
             return getInstance(a->getProperty(),
-                            a->getCardinality() + b->getCardinality(),
+                            cardinality,
                             a->getQualification(),
                             a->getCardinalityRestrictionType());
         }
@@ -334,7 +350,8 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(OWLCardinalityRes
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
-        const std::vector<OWLCardinalityRestriction::Ptr>& _b)
+        const std::vector<OWLCardinalityRestriction::Ptr>& _b,
+        OperationType operationType)
 {
     std::vector<OWLCardinalityRestriction::Ptr> restrictions;
     std::vector<OWLCardinalityRestriction::Ptr> b = _b;
@@ -351,7 +368,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
             OWLCardinalityRestriction::Ptr aRestriction= *ait;
             OWLCardinalityRestriction::Ptr bRestriction= *bit;
 
-            OWLCardinalityRestriction::Ptr restriction = join(aRestriction, bRestriction);
+            OWLCardinalityRestriction::Ptr restriction = join(aRestriction, bRestriction, operationType);
             if(restriction)
             {
                 // merging succeeded
@@ -403,7 +420,7 @@ std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getB
     std::map<IRI, OWLCardinalityRestriction::MinMax> modelCount;
 
     // We assume a compact list of the query restrictions, but
-    // have to generate an intermediate bounded representation for each 
+    // have to generate an intermediate bounded representation for each
     // possible resource model
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
     for(; cit != restrictions.end(); ++cit)

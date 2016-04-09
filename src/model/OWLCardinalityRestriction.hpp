@@ -29,6 +29,8 @@ public:
     typedef shared_ptr<OWLCardinalityRestriction> Ptr;
     typedef std::pair<uint32_t, uint32_t> MinMax;
 
+    // Allow to select the operation type for join operations
+    enum OperationType { SUM_OP, MIN_OP, MAX_OP };
     enum CardinalityRestrictionType { UNKNOWN, MIN, MAX, EXACT };
 
     static std::map<CardinalityRestrictionType, std::string> CardinalityRestrictionTypeTxt;
@@ -144,15 +146,17 @@ public:
      *      EXACT + EXACT = 2*EXACT
      * \see areOverlapping
      */
-    static OWLCardinalityRestriction::Ptr join(OWLCardinalityRestriction::Ptr a,
-            OWLCardinalityRestriction::Ptr b);
+    static OWLCardinalityRestriction::Ptr join(const OWLCardinalityRestriction::Ptr& a,
+        const OWLCardinalityRestriction::Ptr& b,
+        OperationType operationType = SUM_OP);
 
     /**
      * Join overlapping restrictions of two compact (!) lists of restrictions,
      * \see areOverlapping
      */
     static std::vector<OWLCardinalityRestriction::Ptr> join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
-            const std::vector<OWLCardinalityRestriction::Ptr>& b);
+            const std::vector<OWLCardinalityRestriction::Ptr>& b,
+            OperationType operationType = SUM_OP);
 
     /**
      * Create a compact representation of cardinality restrictions by joining

@@ -147,7 +147,8 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     return getCardinalityRestrictions(klass);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses,
+        OWLCardinalityRestriction::OperationType operationType) const
 {
     std::vector<IRI>::const_iterator cit = klasses.begin();
     std::vector<OWLCardinalityRestriction::Ptr> restrictions;
@@ -156,7 +157,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     {
         IRI iri = *cit;
         std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri);
-        restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions);
+        restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions, operationType);
     }
     return restrictions;
 }

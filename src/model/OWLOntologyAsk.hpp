@@ -87,9 +87,12 @@ public:
      * Will retrieve the restrictions per class and then join the (potentially
      * overlapping results)
      * \param klasses Set of klasses
+     * \param operationType Use the given operation type to join the set of
+     * restrictions
      * \see OWLCardinalityRestriction::join
      */
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses,
+            OWLCardinalityRestriction::OperationType operationType = OWLCardinalityRestriction::SUM_OP) const;
 
     /**
      * Check if object identified by iri is a subclass of the given superclass
