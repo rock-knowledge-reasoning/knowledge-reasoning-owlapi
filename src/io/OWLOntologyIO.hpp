@@ -23,7 +23,17 @@ class OWLOntologyIO
 public:
     static void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, Format format = RDFXML);
 
+    /**
+     * Load an ontology from file
+     * \param filename File to load from
+     * \return OWLOntology::Ptr
+     */
     static owlapi::model::OWLOntology::Ptr fromFile(const std::string& filename);
+
+    /**
+     * Load an ontology by a given iri
+     */
+    static owlapi::model::OWLOntology::Ptr load(const owlapi::model::IRI& ontologyIRI);
 
     /**
      * Load an ontology which has only been defined through imported documents

@@ -28,6 +28,14 @@ void OWLOntologyIO::write(const std::string& filename, const owlapi::model::OWLO
     }
 }
 
+owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(const owlapi::model::IRI& ontologyIRI)
+{
+    using namespace owlapi::model;
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
+    load(ontology, ontologyIRI);
+    return ontology;
+}
+
 owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& o, const owlapi::model::IRI& ontologyIRI)
 {
     using namespace owlapi::model;
@@ -170,7 +178,8 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filen
     owlapi::model::OWLOntology::Ptr ontology = reader.fromFile(filename);
     std::string absolutePath = boost::filesystem::canonical(filename).string();
     ontology->setAbsolutePath(absolutePath);
-    return ontology;
+
+    return load(ontology);
 }
 
 std::string OWLOntologyIO::getOntologyPath()
