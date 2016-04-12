@@ -124,7 +124,7 @@ std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCar
  * to target small/embedded devices.
  *
  * Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.2) is actually written in C++
- * and thus can be access almost directly.
+ * and thus can be accessed almost directly.
  * This implementation is not as complete as the orignal JAVA-based
  * one, but provides core features to handle ontologies and supports also some more complex
  * modelling using qualified cardinality restrictions.
@@ -135,12 +135,10 @@ std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCar
  * (http://dl.kr.org/dig/interface.html) to use this split.
  *
  * \section Todos
- *
- * - allow modularization of ontology, i.e., allow for ontology import (e.g. to
- *   to exchange information between two systems e.g. robots
- *
+ * - support modularization of ontologies for export as well (import is already
+ *   supported
  * - address rendering of 'anonymous' statements, e.g. DataOneOf, DataComplementOf
- * 
+ *
  */
 namespace owlapi {
 
@@ -303,7 +301,7 @@ public:
 // * ontology IRI. (See the <a href="http://www.w3.org/TR/owl2-syntax/">OWL 2
 // * Structural Specification</a> An ontology cannot be modified directly. Changes
 // * must be applied via its {@code OWLOntologyManager}.
-// * 
+// *
 // * @author Matthew Horridge, The University Of Manchester, Bio-Health
 // *         Informatics Group
 // * @since 2.0.0
@@ -315,7 +313,7 @@ public:
 //
 //    /**
 //     * accept for named object visitor
-//     * 
+//     *
 //     * @param visitor
 //     *        the visitor
 //     */
@@ -323,7 +321,7 @@ public:
 //
 //    /**
 //     * Accepts a visitor
-//     * 
+//     *
 //     * @param <O>
 //     *        visitor return type
 //     * @param visitor
@@ -336,7 +334,7 @@ public:
 //    /**
 //     * Gets the manager that manages this ontology. The manager is used by
 //     * various methods on OWLOntology to resolve imports
-//     * 
+//     *
 //     * @return The manager for this ontology.
 //     */
 //    @Nonnull
@@ -346,7 +344,7 @@ public:
 //     * Sets the manager for this ontology. This method is used when moving
 //     * ontologies from one manager to another and when removing an ontology form
 //     * a manager, and should be used by OWLOntologyManager implementations only.
-//     * 
+//     *
 //     * @param manager
 //     *        the new manager for this ontology
 //     */
@@ -354,7 +352,7 @@ public:
 //
 //    /**
 //     * Gets the identity of this ontology (i.e. ontology IRI + version IRI).
-//     * 
+//     *
 //     * @return The ID of this ontology.
 //     */
 //    @Nonnull
@@ -365,7 +363,7 @@ public:
 //     * Determines whether or not this ontology is anonymous. An ontology is
 //     * anonymous if it does not have an ontology IRI. In this case,
 //     * getOntologyID().getOntologyIRI() will return an Optional.absent.
-//     * 
+//     *
 //     * @return {@code true} if this ontology is anonymous, otherwise
 //     *         {@code false}
 //     */
@@ -373,7 +371,7 @@ public:
 //
 //    /**
 //     * Gets the annotations on this ontology.
-//     * 
+//     *
 //     * @return A set of annotations on this ontology. The set returned will be a
 //     *         copy - modifying the set will have no effect on the annotations
 //     *         in this ontology, similarly, any changes that affect the
@@ -389,7 +387,7 @@ public:
 //     * ontology. This corresponds to the IRIs defined by the
 //     * directlyImportsDocument association as discussed in Section 3.4 of the
 //     * OWL 2 Structural specification.
-//     * 
+//     *
 //     * @return The set of directlyImportsDocument IRIs.
 //     * @throws UnknownOWLOntologyException
 //     *         If this ontology is no longer managed by its manager because it
@@ -407,7 +405,7 @@ public:
 //     * {@link #getDirectImportsDocuments()} method. This will be the case if
 //     * some of the ontologies that are directly imported by this ontology are
 //     * not loaded for what ever reason.
-//     * 
+//     *
 //     * @return A set of ontologies such that for this ontology O, and each
 //     *         ontology O' in the set, (O, O') is in the directlyImports
 //     *         relation.
@@ -427,7 +425,7 @@ public:
 //     * For example, if this ontology imports ontology B, and ontology B imports
 //     * ontology C, then this method will return the set consisting of ontology B
 //     * and ontology C.
-//     * 
+//     *
 //     * @return The set of ontologies that this ontology is related to via the
 //     *         transitive closure of the directlyImports relation. The set that
 //     *         is returned is a copy - it will not be updated if the ontology
@@ -449,7 +447,7 @@ public:
 //     * For example, if this ontology imports ontology B, and ontology B imports
 //     * ontology C, then this method will return the set consisting of this
 //     * ontology, ontology B and ontology C.
-//     * 
+//     *
 //     * @return The set of ontologies in the reflexive transitive closure of the
 //     *         directlyImports relation.
 //     * @throws UnknownOWLOntologyException
@@ -465,7 +463,7 @@ public:
 //     * represents the set of IRIs that correspond to the set of IRIs in an
 //     * ontology's directlyImportsDocuments (see Section 3 in the OWL 2
 //     * structural specification).
-//     * 
+//     *
 //     * @return The set of imports declarations that correspond to the set of
 //     *         ontology document IRIs that are directly imported by this
 //     *         ontology. The set that is returned is a copy - it will not be
@@ -481,7 +479,7 @@ public:
 //     * not contain any axioms (i.e. {@link #getAxioms()} returns the empty set),
 //     * and it does not have any annotations (i.e. {@link #getAnnotations()}
 //     * returns the empty set).
-//     * 
+//     *
 //     * @return {@code true} if the ontology is empty, otherwise {@code false}.
 //     */
 //    boolean isEmpty();
@@ -489,7 +487,7 @@ public:
 //    /**
 //     * Gets the axioms that form the TBox for this ontology, i.e., the ones
 //     * whose type is in the AxiomType::TBoxAxiomTypes.
-//     * 
+//     *
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
 //     * @return A set containing the axioms which are of the specified type. The
@@ -503,7 +501,7 @@ public:
 //    /**
 //     * Gets the axioms that form the ABox for this ontology, i.e., the ones
 //     * whose type is in the AxiomType::ABoxAxiomTypes.
-//     * 
+//     *
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
 //     * @return A set containing the axioms which are of the specified type. The
@@ -517,7 +515,7 @@ public:
 //    /**
 //     * Gets the axioms that form the RBox for this ontology, i.e., the ones
 //     * whose type is in the AxiomType::RBoxAxiomTypes.
-//     * 
+//     *
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
 //     * @return A set containing the axioms which are of the specified type. The
@@ -537,7 +535,7 @@ public:
 //     * <li>Disjoint class axioms that don't contain any named classes (
 //     * {@code OWLClass}es)</li>
 //     * </ul>
-//     * 
+//     *
 //     * @return The set that is returned is a copy of the axioms in the ontology
 //     *         - it will not be updated if the ontology changes. It is therefore
 //     *         safe to apply changes to this ontology while iterating over this
@@ -553,7 +551,7 @@ public:
 //     * axioms and annotations in the ontology. (See <a href=
 //     * "http://www.w3.org/TR/owl2-syntax/#Entities.2C_Literals.2C_and_Anonymous_Individuals"
 //     * >The OWL 2 Structural Specification</a>)
-//     * 
+//     *
 //     * @return A set of {@code OWLEntity} objects. The set that is returned is a
 //     *         copy - it will not be updated if the ontology changes. It is
 //     *         therefore safe to apply changes to this ontology while iterating
@@ -573,7 +571,7 @@ public:
 //     * axioms and annotations in the ontology. (See <a href=
 //     * "http://www.w3.org/TR/owl2-syntax/#Entities.2C_Literals.2C_and_Anonymous_Individuals"
 //     * >The OWL 2 Structural Specification</a>)
-//     * 
+//     *
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
 //     * @return A set of {@code OWLEntity} objects. The set that is returned is a
@@ -591,7 +589,7 @@ public:
 //    /**
 //     * Determines if this ontology declares an entity i.e. it contains a
 //     * declaration axiom for the specified entity.
-//     * 
+//     *
 //     * @param owlEntity
 //     *        The entity to be tested for
 //     * @return {@code true} if the ontology contains a declaration for the
@@ -602,7 +600,7 @@ public:
 //    /**
 //     * Determines if this ontology or its imports closure declares an entity
 //     * i.e. contains a declaration axiom for the specified entity.
-//     * 
+//     *
 //     * @param owlEntity
 //     *        The entity to be tested for
 //     * @param includeImportsClosure
@@ -619,7 +617,7 @@ public:
 //     * to the location specified by an ontology IRI mapper at creation time. The
 //     * ontology will be saved in the same format which it was loaded from, or
 //     * the default ontology format if the ontology was created programmatically.
-//     * 
+//     *
 //     * @throws OWLOntologyStorageException
 //     *         An exception will be thrown if there is a problem with saving the
 //     *         ontology, or the ontology can't be saved in the format it was
@@ -630,7 +628,7 @@ public:
 //    /**
 //     * Saves the ontology, using the specified document IRI to determine
 //     * where/how the ontology should be saved.
-//     * 
+//     *
 //     * @param documentIRI
 //     *        The document IRI where the ontology should be saved to
 //     * @throws OWLOntologyStorageException
@@ -641,7 +639,7 @@ public:
 //
 //    /**
 //     * Saves the ontology, to the specified output stream
-//     * 
+//     *
 //     * @param outputStream
 //     *        The output stream where the ontology will be saved to
 //     * @throws OWLOntologyStorageException
@@ -653,7 +651,7 @@ public:
 //
 //    /**
 //     * Saves the ontology in the specified ontology format to its document URI.
-//     * 
+//     *
 //     * @param ontologyFormat
 //     *        The format in which the ontology should be saved.
 //     * @throws OWLOntologyStorageException
@@ -665,7 +663,7 @@ public:
 //    /**
 //     * Saves the ontology to the specified document IRI in the specified
 //     * ontology format.
-//     * 
+//     *
 //     * @param ontologyFormat
 //     *        The format in which to save the ontology
 //     * @param documentIRI
@@ -679,7 +677,7 @@ public:
 //    /**
 //     * Saves the ontology to the specified output stream in the specified
 //     * ontology format.
-//     * 
+//     *
 //     * @param ontologyFormat
 //     *        The format in which to save the ontology
 //     * @param outputStream
@@ -694,7 +692,7 @@ public:
 //    /**
 //     * Saves the ontology to the specified
 //     * {@link org.semanticweb.owlapi.io.OWLOntologyDocumentTarget}.
-//     * 
+//     *
 //     * @param documentTarget
 //     *        The output target where the ontology will be saved to.
 //     * @throws OWLOntologyStorageException
@@ -706,7 +704,7 @@ public:
 //    /**
 //     * Saves the ontology to the specified output target in the specified
 //     * ontology format.
-//     * 
+//     *
 //     * @param ontologyFormat
 //     *        The output format in which to save the ontology
 //     * @param documentTarget
@@ -722,16 +720,16 @@ public:
 // IMPL
 //
 // package uk.ac.manchester.cs.owl.owlapi;
-// 
+//
 // import static org.semanticweb.owlapi.model.parameters.ChangeApplied.*;
-// 
+//
 // import java.io.Serializable;
 // import java.util.ArrayList;
 // import java.util.List;
 // import java.util.Set;
-// 
+//
 // import javax.annotation.Nonnull;
-// 
+//
 // import org.semanticweb.owlapi.model.AddAxiom;
 // import org.semanticweb.owlapi.model.AddImport;
 // import org.semanticweb.owlapi.model.AddOntologyAnnotation;
@@ -746,7 +744,7 @@ public:
 // import org.semanticweb.owlapi.model.RemoveOntologyAnnotation;
 // import org.semanticweb.owlapi.model.SetOntologyID;
 // import org.semanticweb.owlapi.model.parameters.ChangeApplied;
-// 
+//
 // /**
 //  * @author Matthew Horridge, The University Of Manchester, Bio-Health
 //  *         Informatics Group
@@ -754,9 +752,9 @@ public:
 //  */
 // public class OWLOntologyImpl extends OWLImmutableOntologyImpl implements
 //         OWLMutableOntology, Serializable {
-// 
+//
 //     private static final long serialVersionUID = 40000L;
-// 
+//
 //     /**
 //      * @param manager
 //      *        ontology manager
@@ -767,13 +765,13 @@ public:
 //             @Nonnull OWLOntologyID ontologyID) {
 //         super(manager, ontologyID);
 //     }
-// 
+//
 //     @Override
 //     public ChangeApplied applyChange(@Nonnull OWLOntologyChange change) {
 //         OWLOntologyChangeFilter changeFilter = new OWLOntologyChangeFilter();
 //         return change.accept(changeFilter);
 //     }
-// 
+//
 //     @Nonnull
 //     @Override
 //     public List<OWLOntologyChange> applyChanges(
@@ -787,22 +785,22 @@ public:
 //         }
 //         return appliedChanges;
 //     }
-// 
+//
 //     @Override
 //     public ChangeApplied addAxiom(OWLAxiom axiom) {
 //         return getOWLOntologyManager().addAxiom(this, axiom);
 //     }
-// 
+//
 //     @Override
 //     public List<OWLOntologyChange> addAxioms(Set<? extends OWLAxiom> axioms) {
 //         return getOWLOntologyManager().addAxioms(this, axioms);
 //     }
-// 
+//
 //     protected class OWLOntologyChangeFilter implements
 //             OWLOntologyChangeVisitorEx<ChangeApplied>, Serializable {
-// 
+//
 //         private static final long serialVersionUID = 40000L;
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull RemoveAxiom change) {
 //             if (ints.removeAxiom(change.getAxiom())) {
@@ -810,7 +808,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull SetOntologyID change) {
 //             OWLOntologyID id = change.getNewOntologyID();
@@ -820,7 +818,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull AddAxiom change) {
 //             if (ints.addAxiom(change.getAxiom())) {
@@ -828,7 +826,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull AddImport change) {
 //             // TODO change this to be done inside
@@ -837,7 +835,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull RemoveImport change) {
 //             if (ints.removeImportsDeclaration(change.getImportDeclaration())) {
@@ -845,7 +843,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull AddOntologyAnnotation change) {
 //             if (ints.addOntologyAnnotation(change.getAnnotation())) {
@@ -853,7 +851,7 @@ public:
 //             }
 //             return UNSUCCESSFULLY;
 //         }
-// 
+//
 //         @Override
 //         public ChangeApplied visit(@Nonnull RemoveOntologyAnnotation change) {
 //             if (ints.removeOntologyAnnotation(change.getAnnotation())) {
