@@ -72,6 +72,12 @@ public:
      * Load ontology in one go -- only possible if no imports are used
      */
     virtual owlapi::model::OWLOntology::Ptr fromFile(const std::string& filename);
+
+    /**
+     * Retrieve the absolute path this ontology has been loaded from
+     * \return path
+     */
+    const std::string& getAbsolutePath() const { return mAbsolutePath; }
 };
 
 } // end namespace io

@@ -115,10 +115,11 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         OWLOntology::Ptr importedOntology = importReader->open(filename);
         importedOntology->setIRI(iri);
 
-        // updated imports
+        // load the individual ontology to identity direct imports
         importReader->loadDeclarationsAndImports(importedOntology, true /*directImport*/);
         IRIList directImports = importedOntology->getDirectImportsDocuments();
         unprocessed.insert(unprocessed.begin(), directImports.begin(), directImports.end());
+        unprocessed.push_back(iri);
 
         readersMap[importedOntology] = importReader;
 
@@ -151,6 +152,9 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
                 }
             }
             OWLOntologyReader* importReader = rit->second;
+
+            LOG_DEBUG_S << "Importing declarations from '" << importReader->getAbsolutePath()
+                << "' into ontology " << ontology->getIRI();
 
             // Load the full ontology
             importReader->loadDeclarationsAndImports(ontology, false);
