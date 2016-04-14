@@ -86,7 +86,7 @@ public:
      * Retrieve the cardinality restrictions for a given set of classes
      * Will retrieve the restrictions per class and then join the (potentially
      * overlapping results)
-     * \param klasses Set of klasses
+     * \param klasses Set of klasses to get restrictions for
      * \param operationType Use the given operation type to join the set of
      * restrictions
      * \see OWLCardinalityRestriction::join
