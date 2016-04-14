@@ -94,6 +94,34 @@ public:
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses,
             OWLCardinalityRestriction::OperationType operationType = OWLCardinalityRestriction::SUM_OP) const;
 
+    /* Get all cardinality restrictions whose qualification is a (direct)
+     * subclass of one of the classes list in the filter
+     * \param qualification klass
+     * \return filtered list
+     */
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& klass,
+            const IRI& qualificationKlass,
+            bool direct = false) const;
+
+    /* Get all cardinality restrictions whose qualification is a (direct)
+     * subclass of one of the classes list in the filter
+     * \param qualification klass
+     * \return filtered list
+     */
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRIList& klasses,
+            const IRI& qualificationKlass,
+            bool direct = false) const;
+
+    /**
+     * Get all cardinality restrictions whose qualification is a (direct)
+     * subclass of one of the classes list in the filter
+     * \return filtered list
+     */
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRIList& klasses,
+            const IRIList& qualificationKlasses,
+            bool direct = false) const;
+
+
     /**
      * Check if object identified by iri is a subclass of the given superclass
      * \param iri

@@ -162,6 +162,48 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     return restrictions;
 }
 
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& klass,
+        const IRI& qualificationKlass,
+        bool direct) const
+{
+    IRIList klasses;
+    klasses.push_back(klass);
+    return getCardinalityRestrictions(klasses, qualificationKlass, direct);
+}
+
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRI& qualificationKlass, bool direct) const
+{
+    IRIList qualificationKlasses;
+    qualificationKlasses.push_back(qualificationKlass);
+    return getCardinalityRestrictions(klasses, qualificationKlasses, direct);
+}
+
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRIList& qualificationKlasses, bool direct) const
+{
+    std::vector<OWLCardinalityRestriction::Ptr> filteredRestrictions;
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions = getCardinalityRestrictions(klasses);
+    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator rit = restrictions.begin();
+    for(; rit != restrictions.end(); ++rit)
+    {
+        const OWLCardinalityRestriction::Ptr& restriction = *rit;
+
+        std::vector<IRI>::const_iterator qit = qualificationKlasses.begin();
+        for(; qit != qualificationKlasses.end(); ++qit)
+        {
+            const IRI& allowedQualification = *qit;
+            const IRI& qualification = restriction->getQualification();
+
+                if(qualification == allowedQualification
+                        || (!direct && isSubClassOf(qualification, allowedQualification)) )
+                {
+                    filteredRestrictions.push_back(restriction);
+                }
+        }
+    }
+    return filteredRestrictions;
+}
+
+
 bool OWLOntologyAsk::isSubClassOf(const IRI& iri, const IRI& superclass) const
 {
     return mpOntology->kb()->isSubClassOf(iri, superclass);
