@@ -36,11 +36,9 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(const owlapi::model::IRI& on
     return ontology;
 }
 
-owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& o, const owlapi::model::IRI& ontologyIRI)
+owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology, const owlapi::model::IRI& ontologyIRI)
 {
     using namespace owlapi::model;
-
-    OWLOntology::Ptr ontology = o;
 
     OWLOntologyReader reader;
     if(ontology->getAbsolutePath().empty())
@@ -57,12 +55,16 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
             } else {
                 ontology->setIRI(ontologyIRI);
             }
-        } else {
-            // load from IRI
+        }
+
+        // load from IRI
+        try {
             std::string path = retrieve(ontology->getIRI());
             ontology = reader.open(path);
-            // Check if ontology has to be loaded from file
             reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+        } catch(const std::exception& e)
+        {
+            LOG_INFO_S << "Empty ontology document";
         }
     } else {
         // load from given file
@@ -153,7 +155,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
             }
             OWLOntologyReader* importReader = rit->second;
 
-            LOG_DEBUG_S << "Importing declarations from '" << importReader->getAbsolutePath()
+            LOG_INFO_S << "Importing declarations from '" << importReader->getAbsolutePath()
                 << "' into ontology " << ontology->getIRI();
 
             // Load the full ontology
