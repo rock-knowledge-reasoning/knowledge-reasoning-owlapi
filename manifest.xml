@@ -18,4 +18,5 @@
   <depend package="raptor2" />
   <!-- constraint satisfaction -->
   <depend package="gecode" />
+  <depend package="utilmm" />
 </package>
