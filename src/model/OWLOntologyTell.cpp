@@ -450,6 +450,26 @@ OWLAxiom::Ptr OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataPrope
 
 OWLAxiom::Ptr OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)
 {
+    OWLProperty::Ptr property = dynamic_pointer_cast<OWLProperty>( restriction->getProperty());
+    if(!property)
+    {
+        throw std::invalid_argument("OWLOntologyTell::restrictClass: cardinalityRestriction on anonymous properties is currently not supported");
+    }
+
+    switch(restriction->getCardinalityRestrictionType())
+    {
+        case OWLCardinalityRestriction::MIN:
+            mpOntology->kb()->objectPropertyRestriction(restriction::MIN_CARDINALITY,property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+            break;
+        case OWLCardinalityRestriction::MAX:
+            mpOntology->kb()->objectPropertyRestriction(restriction::MAX_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+            break;
+        case OWLCardinalityRestriction::EXACT:
+            mpOntology->kb()->objectPropertyRestriction(restriction::EXACT_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+            break;
+        default:
+            throw std::invalid_argument("OWLOntologyTell::restrictClass: unknown cardinality restriction type given");
+    }
     return subClassOf(klass, restriction);
 }
 
