@@ -74,6 +74,7 @@ public:
     VOCABULARY_ADD_WORD(minQualifiedCardinality);
     VOCABULARY_ADD_WORD(real);
     VOCABULARY_ADD_WORD(rational);
+    VOCABULARY_ADD_WORD(hasSelf);
 };
 
 } // end namespace vocabulary
