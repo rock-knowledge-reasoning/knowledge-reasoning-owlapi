@@ -12,7 +12,7 @@ namespace model {
  * properties. By definition, properties are either data properties or object
  * properties.
  */
-class OWLProperty : public OWLLogicalEntity //,  public OWLPropertyExpression
+class OWLProperty : public OWLLogicalEntity, public virtual OWLPropertyExpression
 {
 public:
     typedef shared_ptr<OWLProperty> Ptr;

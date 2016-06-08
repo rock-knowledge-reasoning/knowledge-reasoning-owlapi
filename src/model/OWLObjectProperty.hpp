@@ -7,7 +7,7 @@
 namespace owlapi {
 namespace model {
 
-class OWLObjectProperty : public OWLObjectPropertyExpression, public OWLProperty
+class OWLObjectProperty : public virtual OWLObjectPropertyExpression, public OWLProperty
 {
 public:
     typedef shared_ptr<OWLObjectProperty> Ptr;

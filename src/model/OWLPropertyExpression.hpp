@@ -9,7 +9,7 @@ namespace owlapi {
 namespace model {
 
 /**
- *  Expressions represent complex notions in the domain being described. For example, a class expression describes a set of individuals in terms of the restrictions on the individuals' characteristics. 
+ *  Expressions represent complex notions in the domain being described. For example, a class expression describes a set of individuals in terms of the restrictions on the individuals' characteristics.
  */
 class OWLPropertyExpression : public OWLObject
 {

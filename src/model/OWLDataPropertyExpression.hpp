@@ -6,7 +6,7 @@
 namespace owlapi {
 namespace model {
 
-class OWLDataPropertyExpression : public OWLPropertyExpression // SWRLPredicate
+class OWLDataPropertyExpression : public virtual OWLPropertyExpression // SWRLPredicate
 {
 public:
     typedef shared_ptr<OWLDataPropertyExpression> Ptr;
