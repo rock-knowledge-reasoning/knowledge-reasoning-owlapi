@@ -26,6 +26,7 @@ class OWLOntologyReader
     std::vector<owlapi::model::IRI> mRestrictions;
     std::map<owlapi::model::IRI, std::vector<owlapi::model::OWLClass::Ptr> > mAnonymousRestrictions;
     std::map<owlapi::model::IRI, owlapi::model::OWLCardinalityRestriction> mCardinalityRestrictions;
+    std::map<owlapi::model::IRI, owlapi::model::OWLValueRestriction> mValueRestrictions;
 
     /// The currently opened path
     std::string mAbsolutePath;

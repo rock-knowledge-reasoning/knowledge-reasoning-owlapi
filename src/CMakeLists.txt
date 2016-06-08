@@ -51,6 +51,7 @@ rock_library(owlapi
         model/OWLQualifiedRestriction.cpp
         model/OWLRestriction.cpp
         model/OWLSubClassOfAxiom.cpp
+        model/OWLValueRestriction.cpp
         model/URI.cpp
         reasoner/factpp/Types.cpp
     HEADERS
@@ -73,6 +74,7 @@ rock_library(owlapi
         model/HasIRI.hpp
         model/IRI.hpp
         model/NodeID.hpp
+        model/OWLAllValuesFromRestriction.hpp
         model/OWLAnnotation.hpp
         model/OWLAnnotationAxiom.hpp
         model/OWLAnnotationObject.hpp
@@ -106,6 +108,8 @@ rock_library(owlapi
         model/OWLExactCardinalityRestriction.hpp
         model/OWLFunctionalDataPropertyAxiom.hpp
         model/OWLFunctionalObjectPropertyAxiom.hpp
+        model/OWLHasSelfRestriction.hpp
+        model/OWLHasValueRestriction.hpp
         model/OWLIndividual.hpp
         model/OWLIndividualAxiom.hpp
         model/OWLInverseFunctionalObjectPropertyAxiom.hpp
@@ -125,7 +129,10 @@ rock_library(owlapi
         model/OWLNaryAxiom.hpp
         model/OWLNaryClassAxiom.hpp
         model/OWLObject.hpp
+        model/OWLObjectAllValuesFrom.hpp
         model/OWLObjectExactCardinality.hpp
+        model/OWLObjectHasSelf.hpp
+        model/OWLObjectHasValue.hpp
         model/OWLObjectMaxCardinality.hpp
         model/OWLObjectMinCardinality.hpp
         model/OWLObjectProperty.hpp
@@ -135,6 +142,7 @@ rock_library(owlapi
         model/OWLObjectPropertyDomainAxiom.hpp
         model/OWLObjectPropertyExpression.hpp
         model/OWLObjectPropertyRangeAxiom.hpp
+        model/OWLObjectSomeValuesFrom.hpp
         model/OWLOntology.hpp
         model/OWLOntologyAsk.hpp
         model/OWLOntologyTell.hpp
@@ -150,6 +158,7 @@ rock_library(owlapi
         model/OWLReasoner.hpp
         model/OWLReflexiveObjectPropertyAxiom.hpp
         model/OWLRestriction.hpp
+        model/OWLSomeValuesFromRestriction.hpp
         model/OWLSubClassOfAxiom.hpp
         model/OWLSubDataPropertyOfAxiom.hpp
         model/OWLSubObjectPropertyOfAxiom.hpp

@@ -5,6 +5,11 @@
 #include <owlapi/model/OWLPropertyExpression.hpp>
 
 namespace owlapi {
+namespace io {
+
+class OWLOntologyReader;
+
+}
 namespace model {
 
 /**
@@ -14,10 +19,16 @@ namespace model {
  */
 class OWLRestriction : public OWLAnonymousClassExpression
 {
+    friend class owlapi::io::OWLOntologyReader;
     OWLPropertyExpression::Ptr mpProperty;
 
 public: 
     typedef shared_ptr<OWLRestriction> Ptr;
+
+    /**
+     * Default constructor to allow usage of this class in a map
+     */
+    OWLRestriction() {}
 
     OWLRestriction(OWLPropertyExpression::Ptr property)
         : OWLAnonymousClassExpression()

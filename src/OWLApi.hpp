@@ -14,6 +14,7 @@
 #include <owlapi/model/OWLObjectProperty.hpp>
 #include <owlapi/model/OWLRestriction.hpp>
 #include <owlapi/model/OWLQualifiedRestriction.hpp>
+#include <owlapi/model/OWLValueRestriction.hpp>
 #include <owlapi/model/OWLCardinalityRestriction.hpp>
 #include <owlapi/model/OWLObjectExactCardinality.hpp>
 #include <owlapi/model/OWLObjectMinCardinality.hpp>

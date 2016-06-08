@@ -6,12 +6,18 @@
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {
+namespace io {
+
+class OWLOntologyReader;
+
+}
 namespace model {
 
 typedef IRI OWLQualification;
 
 class OWLQualifiedRestriction : public OWLRestriction
 {
+    friend class owlapi::io::OWLOntologyReader;
     OWLQualification mQualification;
     bool mQualified;
 
@@ -28,6 +34,10 @@ public:
      * 
      */
     OWLQualifiedRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification);
+    /**
+     * Default constructor to allow usage of this class in a map
+     */
+    OWLQualifiedRestriction() { mQualified = false; }
 
     virtual ~OWLQualifiedRestriction() {}
 
@@ -54,7 +64,10 @@ protected:
      * Allow to set the qualification for this restriction to
      * allow incremental construction
      */
-    void setQualification(const OWLQualification& qualification) { mQualification = qualification; }
+    void setQualification(const OWLQualification& qualification) {
+        mQualification = qualification;
+        mQualified = !( mQualification == owlapi::vocabulary::OWL::Thing() || mQualification == owlapi::vocabulary::RDFS::Literal() );
+    }
 
 };
 

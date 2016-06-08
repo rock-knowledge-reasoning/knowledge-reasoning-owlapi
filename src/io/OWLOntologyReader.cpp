@@ -141,6 +141,7 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                     LOG_DEBUG_S << "Annotation property '" << subject << "' ignored for reasoning";
                 } else if( object == vocabulary::OWL::Restriction() )
                 {
+                    // delayed handling
                     mRestrictions.push_back(subject);
                 } else if(object == vocabulary::OWL::Ontology())
                 {
@@ -400,7 +401,7 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
     OWLOntologyTell tell(ontology, mAbsolutePath);
     OWLOntologyAsk ask(ontology);
 
-    // Restrictions
+    // Example: Cardinality Restrictions
     // RDF/XML Syntax
     // <owl:Class rdf:about="Person">
     //   <rdfs:subClassOf>
@@ -422,6 +423,9 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
     Results results = findAll(Subject(), Predicate(), Object());
     ResultsIterator it(results);
 
+    // Maps to hold generic stuff to be added to the child classes
+    std::map<owlapi::model::IRI, owlapi::model::OWLRestriction> restrictionMap;
+    std::map<owlapi::model::IRI, owlapi::model::OWLQualifiedRestriction> qualifiedRestrictionMap;
     while(it.next())
     {
         IRI restriction = it[Subject()];
@@ -435,21 +439,20 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
         {
             OWLObjectProperty::Ptr oProperty( new OWLObjectProperty( it[Object()] ));
 
-            OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
-            if(cardinalityRestrictionPtr->getProperty())
+            OWLRestriction* r = &restrictionMap[restriction];
+            if (r->getProperty())
             {
                 std::stringstream ss;
                 ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
                 throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
             }
-
-            mCardinalityRestrictions[restriction].setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
+            r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
             continue;
         }
         else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
-            assert(cardinalityRestrictionPtr);
+
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::MIN);
@@ -457,6 +460,7 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
         } else if(predicate == vocabulary::OWL::maxCardinality() || predicate == vocabulary::OWL::maxQualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
+
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::MAX);
@@ -464,43 +468,136 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
         } else if(predicate == vocabulary::OWL::cardinality() || predicate == vocabulary::OWL::qualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
+
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::EXACT);
             continue;
         } else if(predicate == vocabulary::OWL::someValuesFrom())
         {
+            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
+
+            valueRestrictionPtr->setQualification(it[Object()]);
+            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::SOME);
+            continue;
         } else if(predicate == vocabulary::OWL::allValuesFrom())
         {
+            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
+
+            valueRestrictionPtr->setQualification(it[Object()]);
+            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
+            continue;
+        } else if(predicate == vocabulary::OWL::hasSelf())
+        {
+            // FIXME: hasSelf is not a qualified restriction but a value restriction?!?
+            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
+
+            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
+            continue;
         } else if(predicate == vocabulary::OWL::hasValue())
         {
+            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
+
+            // FIXME: the object is a rdfs::resource!!! -> setQualification?
+            valueRestrictionPtr->setQualification(it[Object()]);
+            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::HAS);
+            continue;
         } else if(predicate == vocabulary::OWL::onClass())
         {
+            // NOTE: This is only needed and valid if we have a cardinality restriction
             IRI qualification = it[Object()];
-            mCardinalityRestrictions[restriction].setQualification(qualification);
+            OWLQualifiedRestriction* qr = &qualifiedRestrictionMap[restriction];
+
+            qr->setQualification(qualification);
+            if (!qr->isQualified())
+            {
+                std::stringstream ss;
+                ss << "Restriction '" << restriction << "' could not be qualified";
+                throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+            }
             continue;
         }
     }  // while(it.next())
 
-    LOG_DEBUG_S << "Restrictions";
-    std::map<IRI, OWLCardinalityRestriction>::const_iterator cit = mCardinalityRestrictions.begin();
-    for(; cit != mCardinalityRestrictions.end(); ++cit)
+
+    // Second pass: Join generic, qualified and value or cardinality restrictions!!!
+
+    // For each value restriction:
+    //  find generic and update otherwise throw
+    //  NOTE: qualification has already been set!
+    // Then tell the ontology that we have an anonymous superclass
     {
-
-        // Found cardinality restriction
-        try {
-            OWLCardinalityRestriction::Ptr cardinalityRestriction = cit->second.narrow();
-
-            // Get anonymous node this restriction is responsible for
-            std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
-            std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
-            for(; sit != subclasses.end(); ++sit)
-            {
-                tell.subClassOf(*sit, cardinalityRestriction);
-            }
-        } catch(const std::runtime_error& e)
+        LOG_DEBUG_S << "Value Restrictions";
+        std::map<IRI, OWLValueRestriction>::const_iterator cit = mValueRestrictions.begin();
+        for(; cit != mValueRestrictions.end(); ++cit)
         {
-            LOG_ERROR_S << "Error handling restriction: '" << cit->first << "' -- " << e.what();
+
+            // Found value restriction
+            try {
+                OWLValueRestriction::Ptr valueRestriction = cit->second.narrow();
+
+                // Set stuff of associated generic and qualified restriction classes
+                std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
+                if (rcit != restrictionMap.end())
+                {
+                    valueRestriction->setProperty(rcit->second.getProperty());
+                } else {
+                    throw std::invalid_argument("owl::onProperty missing for value restriction");
+                }
+
+                // Get anonymous node this restriction is responsible for
+                std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
+                std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
+                for(; sit != subclasses.end(); ++sit)
+                {
+                    tell.subClassOf(*sit, valueRestriction);
+                }
+            } catch(const std::runtime_error& e)
+            {
+                LOG_ERROR_S << "Error handling value restriction: '" << cit->first << "' -- " << e.what();
+            }
+        }
+    }
+
+    // For each cardinality restriction:
+    //  find generic and update otherwise throw
+    //  find qualified and update (if not, continue)
+    // Then tell the ontology that we have an anonymous superclass
+    {
+        LOG_DEBUG_S << "Cardinality Restrictions";
+        std::map<IRI, OWLCardinalityRestriction>::const_iterator cit = mCardinalityRestrictions.begin();
+        for(; cit != mCardinalityRestrictions.end(); ++cit)
+        {
+
+            // Found cardinality restriction
+            try {
+                OWLCardinalityRestriction::Ptr cardinalityRestriction = cit->second.narrow();
+
+                // Set stuff of associated generic and qualified restriction classes
+                std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
+                if (rcit != restrictionMap.end())
+                {
+                    cardinalityRestriction->setProperty(rcit->second.getProperty());
+                } else {
+                    throw std::invalid_argument("owl::onProperty missing for cardinality restriction");
+                }
+                std::map<IRI, OWLQualifiedRestriction>::const_iterator qrcit = qualifiedRestrictionMap.find(cit->first);
+                if (qrcit != qualifiedRestrictionMap.end())
+                {
+                    cardinalityRestriction->setQualification(qrcit->second.getQualification());
+                }
+
+                // Get anonymous node this restriction is responsible for
+                std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
+                std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
+                for(; sit != subclasses.end(); ++sit)
+                {
+                    tell.subClassOf(*sit, cardinalityRestriction);
+                }
+            } catch(const std::runtime_error& e)
+            {
+                LOG_ERROR_S << "Error handling cardinality restriction: '" << cit->first << "' -- " << e.what();
+            }
         }
     }
 }
