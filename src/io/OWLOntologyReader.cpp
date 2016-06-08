@@ -528,29 +528,32 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
     // Then tell the ontology that we have an anonymous superclass
     {
         LOG_DEBUG_S << "Value Restrictions";
-        std::map<IRI, OWLValueRestriction>::const_iterator cit = mValueRestrictions.begin();
+        std::map<IRI, OWLValueRestriction>::iterator cit = mValueRestrictions.begin();
         for(; cit != mValueRestrictions.end(); ++cit)
         {
+            OWLValueRestriction& valueRestriction = cit->second;
 
             // Found value restriction
             try {
-                OWLValueRestriction::Ptr valueRestriction = cit->second.narrow();
 
                 // Set stuff of associated generic and qualified restriction classes
                 std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
                 if (rcit != restrictionMap.end())
                 {
-                    valueRestriction->setProperty(rcit->second.getProperty());
+                    valueRestriction.setProperty(rcit->second.getProperty());
                 } else {
                     throw std::invalid_argument("owl::onProperty missing for value restriction");
                 }
+
+                // narrow only after property is assigned
+                OWLValueRestriction::Ptr valueRestrictionPtr = cit->second.narrow();
 
                 // Get anonymous node this restriction is responsible for
                 std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
                 std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
                 for(; sit != subclasses.end(); ++sit)
                 {
-                    tell.subClassOf(*sit, valueRestriction);
+                    tell.subClassOf(*sit, valueRestrictionPtr);
                 }
             } catch(const std::runtime_error& e)
             {
@@ -565,34 +568,36 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
     // Then tell the ontology that we have an anonymous superclass
     {
         LOG_DEBUG_S << "Cardinality Restrictions";
-        std::map<IRI, OWLCardinalityRestriction>::const_iterator cit = mCardinalityRestrictions.begin();
+        std::map<IRI, OWLCardinalityRestriction>::iterator cit = mCardinalityRestrictions.begin();
         for(; cit != mCardinalityRestrictions.end(); ++cit)
         {
+            OWLCardinalityRestriction& cardinalityRestriction = cit->second;
 
             // Found cardinality restriction
             try {
-                OWLCardinalityRestriction::Ptr cardinalityRestriction = cit->second.narrow();
-
                 // Set stuff of associated generic and qualified restriction classes
                 std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
                 if (rcit != restrictionMap.end())
                 {
-                    cardinalityRestriction->setProperty(rcit->second.getProperty());
+                    cardinalityRestriction.setProperty(rcit->second.getProperty());
                 } else {
                     throw std::invalid_argument("owl::onProperty missing for cardinality restriction");
                 }
                 std::map<IRI, OWLQualifiedRestriction>::const_iterator qrcit = qualifiedRestrictionMap.find(cit->first);
                 if (qrcit != qualifiedRestrictionMap.end())
                 {
-                    cardinalityRestriction->setQualification(qrcit->second.getQualification());
+                    cardinalityRestriction.setQualification(qrcit->second.getQualification());
                 }
+
+                OWLCardinalityRestriction::Ptr cardinalityRestrictionPtr = cit->second.narrow();
+
 
                 // Get anonymous node this restriction is responsible for
                 std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
                 std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
                 for(; sit != subclasses.end(); ++sit)
                 {
-                    tell.subClassOf(*sit, cardinalityRestriction);
+                    tell.subClassOf(*sit, cardinalityRestrictionPtr);
                 }
             } catch(const std::runtime_error& e)
             {
