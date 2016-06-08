@@ -453,18 +453,38 @@ ClassExpression KnowledgeBase::intersectionOf(const IRI& klass, const IRI& other
     return intersectionOf(klasses);
 }
 
+ClassExpression KnowledgeBase::intersectionOf(const reasoner::factpp::ClassExpression& klass, const reasoner::factpp::ClassExpression& otherKlass)
+{
+    std::vector<reasoner::factpp::ClassExpression> klasses;
+    klasses.push_back(klass);
+    klasses.push_back(otherKlass);
+    return intersectionOf(klasses);
+}
+
 ClassExpression KnowledgeBase::intersectionOf(const IRIList& klasses)
 {
     IRIList::const_iterator cit = klasses.begin();
-    getExpressionManager()->newArgList();
+    std::vector<reasoner::factpp::ClassExpression> e_klasses;
     for(; cit != klasses.end(); ++cit)
     {
         ClassExpression e_class = getClassLazy(*cit);
-        getExpressionManager()->addArg(e_class.get());
+        e_klasses.push_back(e_class);
+    }
+    return intersectionOf(e_klasses);
+}
+
+ClassExpression KnowledgeBase::intersectionOf(const std::vector<reasoner::factpp::ClassExpression>& klasses)
+{
+    std::vector<reasoner::factpp::ClassExpression>::const_iterator cit = klasses.begin();
+    getExpressionManager()->newArgList();
+    for(; cit != klasses.end(); ++cit)
+    {
+        getExpressionManager()->addArg(cit->get());
     }
     TDLConceptExpression* f_and = getExpressionManager()->And();
     return ClassExpression( f_and );
 }
+
 
 ClassExpression KnowledgeBase::disjunctionOf(const IRI& klass, const IRI& otherKlass)
 {

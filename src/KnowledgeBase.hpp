@@ -199,6 +199,8 @@ public:
      */
     reasoner::factpp::ClassExpression intersectionOf(const IRI& klass, const IRI& otherKlass);
 
+    reasoner::factpp::ClassExpression intersectionOf(const reasoner::factpp::ClassExpression& klass, const reasoner::factpp::ClassExpression& otherKlass);
+
     /**
      * Define intersection of classes under a given alias
      * \param alias Equivalent concept the intersection of classes
@@ -207,6 +209,8 @@ public:
      * \return corresponding anonymous class expression
      */
     reasoner::factpp::ClassExpression intersectionOf(const IRIList& klasses);
+
+    reasoner::factpp::ClassExpression intersectionOf(const std::vector<reasoner::factpp::ClassExpression>& klasses);
 
 
     /**
