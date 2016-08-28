@@ -1,7 +1,7 @@
 #include "Sparql.hpp"
 #include <boost/assign/list_of.hpp>
 #include <boost/regex.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <sstream>
 
 #include <owlapi/Vocabulary.hpp>

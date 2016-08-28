@@ -2,7 +2,7 @@
 #include <owlapi/KnowledgeBase.hpp>
 #include <owlapi/OWLApi.hpp>
 #include <owlapi/model/OWLDataType.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {

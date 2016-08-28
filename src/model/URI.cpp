@@ -1,7 +1,7 @@
 #include "URI.hpp"
 // http://uriparser.sourceforge.net/doc/html/structUriParserStateStructA.html
 #include <boost/assign/list_of.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <uriparser/Uri.h>
 
 namespace owlapi {

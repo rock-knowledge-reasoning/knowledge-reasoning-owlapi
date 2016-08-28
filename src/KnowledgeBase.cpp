@@ -2,7 +2,7 @@
 
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 #include <factpp/Kernel.h>
 #include <factpp/tOntologyPrinterLISP.h>

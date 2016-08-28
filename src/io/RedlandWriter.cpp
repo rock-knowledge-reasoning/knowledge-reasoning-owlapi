@@ -1,5 +1,5 @@
 #include "RedlandWriter.hpp"
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <owlapi/OWLApi.hpp>
 
 

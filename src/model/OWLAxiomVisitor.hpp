@@ -53,7 +53,7 @@
 
 //#include <owlapi/model/OWLSubPropertyChainOf.hpp>
 
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 #define AXIOM_VISITOR_VISIT(X) \
     virtual void visit(const X& axiom) { LOG_INFO_S << "OWLAxiomVisitor::visit not implemented for '" #X "' "; }

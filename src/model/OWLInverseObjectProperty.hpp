@@ -2,7 +2,7 @@
 #define OWLAPI_MODEL_OWL_INVERSE_OBJECT_PROPERTY_HPP
 
 #include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {

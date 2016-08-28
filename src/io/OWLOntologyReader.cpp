@@ -4,7 +4,7 @@
 #include <owlapi/db/rdf/SopranoDB.hpp>
 #include <owlapi/db/rdf/Sparql.hpp>
 #include <owlapi/Vocabulary.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <utilmm/configfile/pkgconfig.hh>
 #include <boost/filesystem.hpp>
 

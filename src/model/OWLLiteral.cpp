@@ -4,7 +4,7 @@
 #include "OWLLiteralNonNegativeInteger.hpp"
 #include <owlapi/Vocabulary.hpp>
 #include <boost/lexical_cast.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {

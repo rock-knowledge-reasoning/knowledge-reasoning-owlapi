@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 #include <owlapi/Exceptions.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <factpp/Actor.h>
 #include <owlapi/reasoner/factpp/Types.hpp>
 #include <owlapi/OWLApi.hpp>

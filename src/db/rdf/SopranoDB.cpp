@@ -1,5 +1,5 @@
 #include "SopranoDB.hpp"
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <fstream>
 
 namespace owlapi {

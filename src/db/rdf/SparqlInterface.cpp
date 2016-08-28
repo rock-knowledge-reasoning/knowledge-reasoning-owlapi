@@ -1,7 +1,7 @@
 #include "SparqlInterface.hpp"
 #include <sstream>
 #include <boost/regex.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 #include "Sparql.hpp"
 

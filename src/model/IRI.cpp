@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 #include <owlapi/io/XMLUtils.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace owlapi {
