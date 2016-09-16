@@ -83,6 +83,8 @@ BOOST_AUTO_TEST_CASE(create_with_custom)
         ontology->addDirectImportsDocument(iri);
     }
 
+    BOOST_TEST_MESSAGE("Check if the custom model can be loaded -- if that fails, then you have to check whether"
+            " you really used RDF/XML and not OWL/XML(!) -- sopranos serializer segfaults otherwise");
     IRI ontologyIRI("http://test/owlapi/create_with_custom");
     ontology = OWLOntologyIO::load(ontology, ontologyIRI);
     BOOST_REQUIRE_MESSAGE(ontology->getIRI()  == ontologyIRI, "Ontology has assigned iri: " << ontologyIRI);
