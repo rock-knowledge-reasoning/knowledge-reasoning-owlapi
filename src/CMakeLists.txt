@@ -116,6 +116,7 @@ rock_library(owlapi
         model/OWLLiteralDouble.hpp
         model/OWLLiteralInteger.hpp
         model/OWLLiteralNonNegativeInteger.hpp
+        model/OWLLiteralNumeric.hpp
         model/OWLLogicalAxiom.hpp
         model/OWLLogicalEntity.hpp
         model/OWLMaxCardinalityRestriction.hpp

@@ -1,33 +1,14 @@
 #ifndef OWLAPI_MODEL_OWL_LITERAL_HPP
 #define OWLAPI_MODEL_OWL_LITERAL_HPP
 
-#include <string.h>
+#include <string>
 #include <owlapi/Vocabulary.hpp>
-#include <boost/lexical_cast.hpp>
 #include <owlapi/model/IRI.hpp>
 #include <owlapi/model/OWLDataType.hpp>
 #include <owlapi/model/OWLPropertyAssertionObject.hpp>
 
 namespace owlapi {
 namespace model {
-
-template<typename T>
-class OWLLiteralNumeric
-{
-public:
-    typedef T value_t;
-
-protected:
-    T mNumericValue;
-
-    value_t fromString(const std::string& stringValue) { return boost::lexical_cast< value_t >(stringValue); }
-
-    OWLLiteralNumeric(T value)
-        : mNumericValue(value)
-    {}
-
-    value_t getValue() const { return mNumericValue; }
-};
 
 /**
  *  Represents a Literal in the OWL 2 Specification.
