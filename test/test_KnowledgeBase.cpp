@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(tell_and_ask)
 
         reasoner::factpp::ObjectPropertyExpressionList list = kb.getRelatedObjectProperties(derived);
         kb.classify();
-        BOOST_CHECK_MESSAGE(!list.empty(), "Experimental evaluation: related properties: " << list.size());
+        BOOST_TEST_MESSAGE("Experimental evaluation of related object properties returned: " << list.size() << " properties");
     }
 }
 
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(data_value)
         }
     }
 
-    // getNeighbours etc. do not work for data, thus implemented an alternative way 
+    // getNeighbours etc. do not work for data, thus implemented an alternative way
     // to retrieve information about data value from this representation
     //
     //kb.subClassOf("Sensor","TOP");
