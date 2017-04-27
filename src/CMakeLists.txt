@@ -167,6 +167,7 @@ rock_library(owlapi
         model/OWLSymmetricObjectPropertyAxiom.hpp
         model/OWLTransitiveObjectPropertyAxiom.hpp
         model/OWLUnaryPropertyAxiom.hpp
+        model/OWLValueRestriction.hpp
         model/URI.hpp
         reasoner/factpp/AxiomVisitor.hpp
         reasoner/factpp/Types.hpp
