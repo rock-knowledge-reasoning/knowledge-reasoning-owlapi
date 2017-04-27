@@ -25,7 +25,7 @@
  * limitations arises from the fact that modelling from user level is done
  * mainly through NamedInvididuals.
  * Thus, anonymous classes and complex constructs such as Collections, OneOf,
- * UnionOf classes is currently now supported.
+ * UnionOf classes is currently not supported.
  *
  * \section Examples
  * The following examples shall help you to understand the user interface and
