@@ -322,7 +322,7 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(const OWLCardinal
     {
         if(a->getCardinalityRestrictionType() == b->getCardinalityRestrictionType())
         {
-            uint32_t cardinality;
+            uint32_t cardinality = 0;
             switch(operationType)
             {
                 case SUM_OP:
