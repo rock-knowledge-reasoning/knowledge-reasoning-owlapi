@@ -9,14 +9,11 @@
   <logo>http://</logo>
   <depend package="base/cmake" />
   <depend package="boost" />
-  <depend package="base/types" />
-  <depend package="base/numeric" />
+  <depend package="base/logging" />
   <depend package="knowledge_reasoning/factpp" />
   <depend package="uriparser" />
   <depend package="soprano" />
   <depend package="redland" />
   <depend package="raptor2" />
-  <!-- constraint satisfaction -->
-  <depend package="gecode" />
   <depend package="utilmm" />
 </package>

@@ -166,10 +166,9 @@ rock_library(owlapi
         vocabularies/RDFS.hpp
         vocabularies/XSD.hpp
     DEPS_PKGCONFIG
-        base-lib
+        base-logging
         factpp
         liburiparser
-        numeric
         soprano
         redland
         raptor2
