@@ -20,6 +20,11 @@ std::map<OWLCardinalityRestriction::CardinalityRestrictionType, std::string> OWL
 
 OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
 {
+    if(!getProperty())
+    {
+        throw std::runtime_error("OWLCardinalityRestriction::narrow: no property defined -- cannot narrow");
+    }
+
     if(getProperty()->isObjectPropertyExpression())
     {
         OWLObjectPropertyExpression::Ptr property = dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
