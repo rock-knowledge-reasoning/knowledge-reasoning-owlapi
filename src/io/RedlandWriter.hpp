@@ -53,6 +53,14 @@ public:
     void visit(const owlapi::model::OWLDataPropertyAssertionAxiom& axiom);
     void visit(const owlapi::model::OWLClassAssertionAxiom& axiom);
 
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLClassAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLObjectPropertyAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLDataPropertyAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLEquivalentClassesAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLEquivalentObjectPropertiesAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLDisjointClassesAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLDisjointUnionAxiom);
+
     template<typename T>
     void writeObjectProperty(const T& axiom, const owlapi::model::IRI& propertyType)
     {

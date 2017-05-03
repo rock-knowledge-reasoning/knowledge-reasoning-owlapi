@@ -505,5 +505,11 @@ void OWLOntologyTell::datatype(const IRI& iri)
     subClassOf(iri, vocabulary::RDFS::Datatype());
 }
 
+void OWLOntologyTell::removeIndividual(const IRI& iri)
+{
+    OWLIndividual::Ptr individual = mAsk.getOWLIndividual(iri);
+    mpOntology->retractIndividual(individual);
+}
+
 } // end namespace model
 } // end namespace owlapi

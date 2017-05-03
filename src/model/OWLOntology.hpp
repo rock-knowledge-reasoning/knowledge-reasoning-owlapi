@@ -2,15 +2,16 @@
 #define OWLAPI_MODEL_OWL_ONTOLOGY_HPP
 
 #include <map>
-#include <owlapi/model/OWLClass.hpp>
-#include <owlapi/model/OWLNamedIndividual.hpp>
-#include <owlapi/model/OWLAnonymousIndividual.hpp>
-#include <owlapi/model/OWLObjectProperty.hpp>
-#include <owlapi/model/OWLDataProperty.hpp>
-#include <owlapi/model/OWLAxiom.hpp>
-#include <owlapi/model/OWLClassAssertionAxiom.hpp>
-#include <owlapi/model/OWLDeclarationAxiom.hpp>
-#include <owlapi/model/OWLSubClassOfAxiom.hpp>
+#include "OWLClass.hpp"
+#include "OWLNamedIndividual.hpp"
+#include "OWLAnonymousIndividual.hpp"
+#include "OWLObjectProperty.hpp"
+#include "OWLDataProperty.hpp"
+#include "OWLAxiom.hpp"
+#include "OWLClassAssertionAxiom.hpp"
+#include "OWLDeclarationAxiom.hpp"
+#include "OWLSubClassOfAxiom.hpp"
+#include "ChangeApplied.hpp"
 
 /**
  * \mainpage OWL API in C++
@@ -154,6 +155,7 @@ namespace model {
 
 class OWLOntologyTell;
 class OWLOntologyAsk;
+class OWLOntologyChange;
 
 typedef std::map<OWLAxiom::AxiomType, OWLAxiom::PtrList > AxiomMap;
 
@@ -228,12 +230,18 @@ protected:
     OWLIndividual::Ptr getIndividual(const IRI& iri) const;
 
     void addAxiom(const OWLAxiom::Ptr& axiom);
+    void removeAxiom(const OWLAxiom::Ptr& axiom);
+
+    void retractIndividual(const OWLIndividual::Ptr& individual);
+    void retractNamedIndividual(const OWLNamedIndividual::Ptr& namedIndividual);
+    void retractAnonymousIndividual(const OWLAnonymousIndividual::Ptr& anonymousIndividual);
     void retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property);
 
     void setAbsolutePath(const std::string& path) { mAbsolutePath = path; }
 
 public:
     typedef shared_ptr<OWLOntology> Ptr;
+    typedef std::vector< Ptr > PtrList;
 
     void refresh();
 
@@ -272,6 +280,10 @@ public:
 
     const AxiomMap& getAxiomMap() const { return mAxiomsByType; }
     OWLAxiom::PtrList getAxioms() const;
+
+    OWLAxiom::PtrList getReferencingAxioms(const OWLEntity::Ptr& entity, bool excludeImports);
+
+    ChangeApplied applyChange(const shared_ptr<OWLOntologyChange>& change);
 
 };
 

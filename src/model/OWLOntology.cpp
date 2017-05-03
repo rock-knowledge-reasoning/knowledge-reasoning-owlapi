@@ -1,6 +1,8 @@
 #include "OWLOntology.hpp"
 #include <owlapi/KnowledgeBase.hpp>
 #include <owlapi/io/OWLOntologyIO.hpp>
+#include "OWLOntologyChange.hpp"
+#include "OWLOntologyChangeFilter.hpp"
 
 namespace owlapi {
 namespace model {
@@ -109,6 +111,68 @@ OWLAxiom::PtrList OWLOntology::getAxioms() const
     return axioms;
 }
 
+void OWLOntology::removeAxiom(const OWLAxiom::Ptr& axiom)
+{
+    // remove axiom from reverse map
+    OWLAxiom::PtrList& axioms = mAxiomsByType[axiom->getAxiomType()];
+    OWLAxiom::PtrList::iterator ait = std::find(axioms.begin(), axioms.end(), axiom);
+    if(ait != axioms.end())
+    {
+        LOG_INFO_S << "Removing axiom: " << (*ait)->toString();
+    }
+
+}
+
+void OWLOntology::retractIndividual(const OWLIndividual::Ptr& individual)
+{
+    if(!individual->isAnonymous())
+    {
+        OWLNamedIndividual::Ptr namedIndividual = dynamic_pointer_cast<OWLNamedIndividual>(individual);
+        retractNamedIndividual(namedIndividual);
+    } else {
+        OWLAnonymousIndividual::Ptr anonymousIndividual = dynamic_pointer_cast<OWLAnonymousIndividual>(individual);
+        retractAnonymousIndividual(anonymousIndividual);
+    }
+
+    throw std::invalid_argument("owlapi::model::OWLOntology::retractIndividual: individual not found");
+}
+
+void OWLOntology::retractNamedIndividual(const OWLNamedIndividual::Ptr& individual)
+{
+    std::map<OWLNamedIndividual::Ptr, std::vector<OWLAxiom::Ptr> >::const_iterator it = mNamedIndividualAxioms.find(individual);
+    if(it != mNamedIndividualAxioms.end())
+    {
+        std::vector<OWLAxiom::Ptr> axioms = it->second;
+
+        std::vector<OWLAxiom::Ptr>::const_iterator cit = axioms.begin();
+        for(; cit != axioms.end(); ++cit)
+        {
+            LOG_DEBUG_S << "Retracting Axiom: " << (*cit)->toString();
+            removeAxiom(*cit);
+        }
+        mNamedIndividualAxioms.erase(it->first);
+        mNamedIndividuals.erase(individual->getIRI());
+    }
+}
+
+void OWLOntology::retractAnonymousIndividual(const OWLAnonymousIndividual::Ptr& individual)
+{
+    std::map<OWLAnonymousIndividual::Ptr, std::vector<OWLAxiom::Ptr> >::const_iterator it = mAnonymousIndividualAxioms.find(individual);
+    if(it != mAnonymousIndividualAxioms.end())
+    {
+        std::vector<OWLAxiom::Ptr> axioms = it->second;
+
+        std::vector<OWLAxiom::Ptr>::const_iterator cit = axioms.begin();
+        for(; cit != axioms.end(); ++cit)
+        {
+            LOG_DEBUG_S << "Retracting Axiom: " << (*cit)->toString();
+            removeAxiom(*cit);
+        }
+        mAnonymousIndividualAxioms.erase(it->first);
+        mAnonymousIndividuals.erase(individual->getReferenceID());
+    }
+}
+
 void OWLOntology::retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property)
 {
     OWLNamedIndividual::Ptr namedIndividual = dynamic_pointer_cast<OWLNamedIndividual>(individual);
@@ -149,6 +213,19 @@ void OWLOntology::addImportsDocument(const IRI& iri)
     {
         mImportsDocuments.push_back(iri);
     }
+}
+
+OWLAxiom::PtrList OWLOntology::getReferencingAxioms(const OWLEntity::Ptr& entity, bool excludeImports)
+{
+    OWLAxiom::PtrList axioms;
+
+    return axioms;
+}
+
+ChangeApplied OWLOntology::applyChange(const OWLOntologyChange::Ptr& change)
+{
+    OWLOntologyChangeFilter::Ptr filter(new OWLOntologyChangeFilter());
+    return change->accept(filter);
 }
 
 } // end namespace model

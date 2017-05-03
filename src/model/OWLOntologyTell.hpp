@@ -191,6 +191,8 @@ public:
     void ontology(const IRI& ontology);
     void datatype(const IRI& datatype);
 
+    void removeIndividual(const IRI& instance);
+
 };
 
 } // end namespace model

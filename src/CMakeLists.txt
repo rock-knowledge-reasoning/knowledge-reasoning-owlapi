@@ -52,6 +52,9 @@ rock_library(owlapi
         model/OWLRestriction.cpp
         model/OWLSubClassOfAxiom.cpp
         model/URI.cpp
+        model/RemoveAxiom.cpp
+        model/OWLAxiomChange.cpp
+        model/OWLOntologyChange.cpp
         reasoner/factpp/Types.cpp
     HEADERS
         Exceptions.hpp
@@ -159,6 +162,10 @@ rock_library(owlapi
         model/OWLTransitiveObjectPropertyAxiom.hpp
         model/OWLUnaryPropertyAxiom.hpp
         model/URI.hpp
+        model/RemoveAxiom.hpp
+        model/OWLAxiomChange.hpp
+        model/OWLOntologyChange.hpp
+        model/OWLOntologyChangeVisitor.hpp
         reasoner/factpp/AxiomVisitor.hpp
         reasoner/factpp/Types.hpp
         vocabularies/OWL.hpp
