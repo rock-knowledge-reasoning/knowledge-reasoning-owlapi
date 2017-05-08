@@ -56,7 +56,11 @@
 #include <base-logging/Logging.hpp>
 
 #define AXIOM_VISITOR_VISIT(X) \
-    virtual void visit(const X& axiom) { LOG_INFO_S << "OWLAxiomVisitor::visit not implemented for '" #X "' "; }
+    virtual void visit(const X& axiom) = 0;
+
+#define NO_IMPL_AXIOM_VISITOR_VISIT(X) \
+    virtual void visit(const X& axiom) { LOG_WARN_S << "No implementation of visitor for : '" #X "'"; }
+
 
 namespace owlapi {
 namespace model {
@@ -68,7 +72,7 @@ namespace model {
  */
 class OWLAxiomVisitor
 {
-public: 
+public:
     virtual ~OWLAxiomVisitor() {}
 
     AXIOM_VISITOR_VISIT(OWLDeclarationAxiom);
