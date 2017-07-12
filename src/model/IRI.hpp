@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <owlapi/model/URI.hpp>
+#include <boost/serialization/string.hpp>
 
 namespace owlapi {
 namespace model {
@@ -110,15 +111,22 @@ public:
     static IRI create(const URI& uri) { return IRI::create(uri.toString()); }
 
     bool empty() const { return toString().empty(); }
-   
+
     /**
      * Equals operator
      */
     bool operator==(const IRI& other) const;
 
     bool operator!=(const IRI& other) const { return !(*this == other); }
- 
+
     bool operator<(const IRI& other) const { return toString() < other.toString(); }
+
+    template<class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar & mPrefix;
+        ar & mRemainder;
+    }
 };
 
 /**
