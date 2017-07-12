@@ -73,6 +73,7 @@ rock_library(owlapi
         io/OWLWriter.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
+        model/ChangeApplied.hpp
         model/HasAnnotations.hpp
         model/HasIRI.hpp
         model/IRI.hpp
