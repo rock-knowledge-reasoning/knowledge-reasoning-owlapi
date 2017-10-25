@@ -209,6 +209,12 @@ bool OWLOntologyAsk::isSubClassOf(const IRI& iri, const IRI& superclass) const
     return mpOntology->kb()->isSubClassOf(iri, superclass);
 }
 
+bool OWLOntologyAsk::isDirectSubClassOf(const IRI& iri, const IRI& superclass) const
+{
+    IRIList list = allSubClassesOf(superclass, true);
+    return list.end() != std::find(list.begin(), list.end(), iri);
+}
+
 bool OWLOntologyAsk::isSubClassOf(const OWLClassExpression::Ptr& subclass, const OWLClassExpression::Ptr& superclass) const
 {
     IRI subclassIRI;
@@ -240,6 +246,43 @@ IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct) const
 IRIList OWLOntologyAsk::allSubClassesOf(const IRI& classType, bool direct) const
 {
     return mpOntology->kb()->allSubClassesOf(classType, direct);
+}
+
+std::vector<IRIList> OWLOntologyAsk::allSubClassesOfWithDistance(const IRI& classType) const
+{
+    std::vector<IRIList> list;
+    IRIList allDirectSubclasses = allSubClassesOf(classType, true);
+    list.push_back(allDirectSubclasses);
+
+    while(!allDirectSubclasses.empty())
+    {
+        IRIList subclasses;
+        for(const IRI& iri : allDirectSubclasses)
+        {
+            IRIList directSubclasses = allSubClassesOf(iri, true);
+            subclasses.insert(subclasses.begin(), directSubclasses.begin(), directSubclasses.end());
+        }
+        list.push_back(subclasses);
+        allDirectSubclasses = subclasses;
+    }
+    return list;
+}
+
+IRIList OWLOntologyAsk::allUnderivedSubClassesOf(const IRI& classType) const
+{
+    IRIList noChildrenSubclass;
+    IRIList subclasses = allSubClassesOf(classType, false);
+    IRIList::const_iterator cit = subclasses.begin();
+    for(; cit != subclasses.end(); ++cit)
+    {
+        const IRI& subclass = *cit;
+        IRIList subclassesOfSubclass = allSubClassesOf(subclass, true);
+        if(subclassesOfSubclass.empty())
+        {
+            noChildrenSubclass.push_back(subclass);
+        }
+    }
+    return noChildrenSubclass;
 }
 
 IRIList OWLOntologyAsk::allInstances() const

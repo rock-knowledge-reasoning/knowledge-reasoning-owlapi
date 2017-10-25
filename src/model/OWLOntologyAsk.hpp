@@ -130,6 +130,13 @@ public:
     bool isSubClassOf(const IRI& iri, const IRI& superclass) const;
 
     /**
+     * Check if object identified by iri is a direct subclass of the given superclass
+     * \param iri
+     * \param superclass
+     */
+    bool isDirectSubClassOf(const IRI& iri, const IRI& superclass) const;
+
+    /**
      * Check if given class expression is subclass of superclass
      * \return true if superclass is parent of subclass
      */
@@ -157,6 +164,19 @@ public:
      * \return list of all subclasses
      */
     IRIList allSubClassesOf(const IRI& klass, bool direct = false) const;
+
+    /**
+     * Retrieve all subclasses of a given klass
+     * \return hierachical list of all subclasses with increasing link distance
+     */
+    std::vector<IRIList> allSubClassesOfWithDistance(const IRI& klass) const;
+
+    /**
+     * Retrieve all underived subclasses, i.e. the leaves in the inheritance
+     * tree
+     * \return the list of underived subclassed of a particular class type
+     */
+    IRIList allUnderivedSubClassesOf(const IRI& classType) const;
 
     /**
      * Retrieve all known instance of the given class type
