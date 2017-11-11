@@ -85,6 +85,8 @@ public:
 
     static OWLLiteral::Ptr doubleValue(double value);
 
+    virtual unsigned int getNonNegativeInteger() const;
+
     virtual int getInteger() const;
 
     virtual double getDouble() const;

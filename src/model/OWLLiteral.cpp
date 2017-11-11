@@ -87,6 +87,16 @@ OWLLiteral::Ptr OWLLiteral::doubleValue(double value)
     return OWLLiteral::Ptr(new OWLLiteralDouble(value));
 }
 
+unsigned int OWLLiteral::getNonNegativeInteger() const
+{
+    try {
+        return boost::lexical_cast<unsigned int>(mValue);
+    } catch(const std::bad_cast& e)
+    {
+        throw std::runtime_error("OWLLiteral::getNonNegativeInteger not implemented for '" + mValue + "' and given type: '" + mType + "'");
+    }
+}
+
 int OWLLiteral::getInteger() const
 {
     try {
