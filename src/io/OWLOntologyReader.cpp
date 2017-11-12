@@ -437,7 +437,7 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
         IRI predicate = it[Predicate()];
         if(predicate == vocabulary::OWL::onProperty())
         {
-            OWLObjectProperty::Ptr oProperty( new OWLObjectProperty( it[Object()] ));
+            OWLObjectProperty::Ptr oProperty = ask.getOWLObjectProperty( it[Object()] );
 
             OWLRestriction* r = &restrictionMap[restriction];
             if (r->getProperty())
