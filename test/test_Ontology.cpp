@@ -30,6 +30,20 @@ BOOST_AUTO_TEST_CASE(load_restrictions)
         }
     }
     {
+        std::vector<IRI> klasses;
+        IRI sherpa("http://www.rock-robotics.org/2014/01/om-schema#Sherpa");
+        IRI propertyHas("http://www.rock-robotics.org/2014/01/om-schema#has");
+        klasses.push_back(sherpa);
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(klasses, propertyHas);
+        BOOST_REQUIRE(restrictions.size() > 0);
+
+        std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+        for(; cit != restrictions.end(); ++cit)
+        {
+            BOOST_TEST_MESSAGE("Restriction: " << (*cit)->toString());
+        }
+    }
+    {
         IRI iri("http://www.rock-robotics.org/2014/01/om-schema#PayloadCamera");
         std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(iri);
         BOOST_CHECK_MESSAGE(restrictions.size() > 2, "PayloadCamera should inherit restrictions");

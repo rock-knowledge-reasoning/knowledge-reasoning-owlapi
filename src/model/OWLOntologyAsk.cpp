@@ -78,8 +78,14 @@ OWLDataProperty::Ptr OWLOntologyAsk::getOWLDataProperty(const IRI& iri) const
     throw std::runtime_error("OWLOntologyAsk::getOWLDataProperty: '" + iri.toString() + "' is not a known OWLDataProperty");
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce, const IRI& objectProperty) const
 {
+    owlapi::model::OWLProperty::Ptr property;
+    if(objectProperty != IRI())
+    {
+        property = getOWLObjectProperty(objectProperty);
+    }
+
     // In order to find a restriction for a given class
     //    1. check class assertions for individuals
     // -> 2. check subclass axioms for classes
@@ -107,8 +113,15 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::DATA_MAX_CARDINALITY:
             {
                 OWLCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
+                // Only handle restriction which are matching the object
+                // property
+                if(property && restriction->getProperty() != property)
+                {
+                    // property is not equal
+                    break;
+                }
 
-                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getQualification());
+                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getQualification(), objectProperty);
 
                 if(inheritedRestrictions.empty())
                 {
@@ -126,7 +139,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             }
             case OWLClassExpression::OWL_CLASS:
             {
-                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass);
+                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass, objectProperty);
                 restrictions = OWLCardinalityRestriction::intersection(restrictions, inheritedRestrictions);
             }
             default:
@@ -136,7 +149,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     return OWLCardinalityRestriction::compact(restrictions);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& iri) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& iri, const IRI& objectProperty) const
 {
     // In order to find a restriction for a given class
     //    1. check class assertions for individuals
@@ -144,10 +157,10 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     //      - find superclass definitions, collect all restrictions
     //        - (including the ones for the superclasses -- identify restrictions)
     OWLClass::Ptr klass = getOWLClass(iri);
-    return getCardinalityRestrictions(klass);
+    return getCardinalityRestrictions(klass, objectProperty);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses,
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses, const IRI& objectProperty,
         OWLCardinalityRestriction::OperationType operationType) const
 {
     std::vector<IRI>::const_iterator cit = klasses.begin();
@@ -156,32 +169,33 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     for(; cit != klasses.end(); ++cit)
     {
         IRI iri = *cit;
-        std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri);
+        std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri, objectProperty);
         restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions, operationType);
     }
     return restrictions;
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& klass,
+        const IRI& objectProperty,
         const IRI& qualificationKlass,
         bool direct) const
 {
     IRIList klasses;
     klasses.push_back(klass);
-    return getCardinalityRestrictions(klasses, qualificationKlass, direct);
+    return getCardinalityRestrictions(klasses, objectProperty, qualificationKlass, direct);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRI& qualificationKlass, bool direct) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRI& objectProperty, const IRI& qualificationKlass, bool direct) const
 {
     IRIList qualificationKlasses;
     qualificationKlasses.push_back(qualificationKlass);
-    return getCardinalityRestrictions(klasses, qualificationKlasses, direct);
+    return getCardinalityRestrictions(klasses, objectProperty, qualificationKlasses, direct);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRIList& qualificationKlasses, bool direct) const
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRIList& klasses, const IRI& objectProperty, const IRIList& qualificationKlasses, bool direct) const
 {
     std::vector<OWLCardinalityRestriction::Ptr> filteredRestrictions;
-    std::vector<OWLCardinalityRestriction::Ptr> restrictions = getCardinalityRestrictions(klasses);
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions = getCardinalityRestrictions(klasses, objectProperty);
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator rit = restrictions.begin();
     for(; rit != restrictions.end(); ++rit)
     {
@@ -198,6 +212,28 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
                 {
                     filteredRestrictions.push_back(restriction);
                 }
+        }
+    }
+    return filteredRestrictions;
+}
+
+std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictionsForTarget(const IRI& klass,
+        const IRI& objectProperty,
+        const IRI& targetKlass) const
+{
+    std::vector<OWLCardinalityRestriction::Ptr> filteredRestrictions;
+    owlapi::model::OWLProperty::Ptr property = getOWLObjectProperty(objectProperty);
+
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions = getCardinalityRestrictions(klass);
+    for(const OWLCardinalityRestriction::Ptr& r : restrictions)
+    {
+        if( r->getProperty() == property)
+        {
+            const IRI& qualification = r->getQualification();
+            if(isSubClassOf(targetKlass, qualification))
+            {
+                filteredRestrictions.push_back(r);
+            }
         }
     }
     return filteredRestrictions;

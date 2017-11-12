@@ -67,20 +67,23 @@ public:
 
     /**
      * Retrieve the cardinality restrictions of a given class expression
+     * \param ce
+     * \param op
      * \return a compact list of cardinality restrictions
      * \param e OWLClassExpression
      * \see OWLCardinalityRestriction::compact
      */
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce, const IRI& op = IRI()) const;
 
     /**
      * Retrieve the cardinality restrictions of a given class (by IRI)
      * \param iri IRI identifying the class
+     * \param objectProperty object property to account for
      * \throws std::invalid_argument if class cannot be identified
      * \return a compact list of cardinality restrictions
      * \see OWLCardinalityRestriction::compact
      */
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri, const IRI& objectProperty = IRI()) const;
 
     /**
      * Retrieve the cardinality restrictions for a given set of classes
@@ -92,6 +95,7 @@ public:
      * \see OWLCardinalityRestriction::join
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses,
+            const IRI& objectProperty = IRI(),
             OWLCardinalityRestriction::OperationType operationType = OWLCardinalityRestriction::SUM_OP) const;
 
     /* Get all cardinality restrictions whose qualification is a (direct)
@@ -100,6 +104,7 @@ public:
      * \return filtered list
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& klass,
+            const IRI& objectProperty,
             const IRI& qualificationKlass,
             bool direct = false) const;
 
@@ -109,6 +114,7 @@ public:
      * \return filtered list
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRIList& klasses,
+            const IRI& objectProperty,
             const IRI& qualificationKlass,
             bool direct = false) const;
 
@@ -118,8 +124,21 @@ public:
      * \return filtered list
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRIList& klasses,
+            const IRI& objectProperty,
             const IRIList& qualificationKlasses,
             bool direct = false) const;
+
+    /**
+     * Get all cardinality restrictions which are set for a given object
+     * property and which should apply to a given klass/instance
+     * \param klass
+     * \param objectProperty
+     * \param applicationKlass
+     * \param direct
+     */
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictionsForTarget(const IRI& klass,
+            const IRI& objectProperty,
+            const IRI& targetKlass) const;
 
 
     /**
