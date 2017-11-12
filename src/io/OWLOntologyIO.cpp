@@ -61,6 +61,11 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         ontology->setAbsolutePath(path);
     }
 
+    if(ontology->getIRI().empty() && !ontologyIRI.empty())
+    {
+        ontology->setIRI(ontologyIRI);
+    }
+
     // load from the file set for the ontology
     ontology = reader.open(ontology->getAbsolutePath());
     reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
