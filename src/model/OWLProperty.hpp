@@ -22,6 +22,8 @@ public:
     {}
 
     virtual ~OWLProperty() {}
+
+    virtual std::string toString() const override { return OWLLogicalEntity::toString(); }
 };
 
 } // end namespace model
