@@ -57,20 +57,13 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
             }
         }
 
-        // load from IRI
-        try {
-            std::string path = retrieve(ontology->getIRI());
-            ontology = reader.open(path);
-            reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
-        } catch(const std::exception& e)
-        {
-            LOG_INFO_S << "Empty ontology document";
-        }
-    } else {
-        // load from given file
-        ontology = reader.open(ontology->getAbsolutePath());
-        reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+        std::string path = retrieve(ontology->getIRI());
+        ontology->setAbsolutePath(path);
     }
+
+    // load from the file set for the ontology
+    ontology = reader.open(ontology->getAbsolutePath());
+    reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
 
     IRIList unprocessed = ontology->getDirectImportsDocuments();
     IRIList processed;
@@ -78,6 +71,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
 
     typedef std::map<OWLOntology::Ptr, OWLOntologyReader*> ReadersMap;
     ReadersMap readersMap;
+    std::map<IRI, IRISet> dependencies;
 
     // load declarations and imports
     while(!unprocessed.empty())
@@ -120,6 +114,8 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         // load the individual ontology to identity direct imports
         importReader->loadDeclarationsAndImports(importedOntology, true /*directImport*/);
         IRIList directImports = importedOntology->getDirectImportsDocuments();
+        dependencies[iri] = IRISet(directImports.begin(), directImports.end());
+
         unprocessed.insert(unprocessed.begin(), directImports.begin(), directImports.end());
         unprocessed.push_back(iri);
 
@@ -129,42 +125,58 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         processed.push_back(iri);
     }
 
-    // Process the imported ontologies in reverse order of import to
+
+    LOG_WARN_S << "unprocessed: " << unprocessed;
+    LOG_WARN_S << "processed: " << processed;
+
+    // Process the imported ontologies in dependency order of import to
     // make sure all types are properly defined
     IRIList loaded;
-    if(!processed.empty())
+    while(!dependencies.empty())
     {
-        IRIList::iterator it = processed.end()-1;
-        for(; it != processed.begin(); --it)
-        {
-            IRI iri = *it;
-            if(loaded.end() != std::find(loaded.begin(), loaded.end(), iri))
-            {
-                // skip already loaded ontologies
-                continue;
-            }
-
-            // Find reader by given iri
-            ReadersMap::iterator rit = readersMap.begin();
-            for(; rit != readersMap.end(); ++rit)
-            {
-                if(rit->first->getIRI() == iri)
+        // Find ontology that has no remaining dependencies
+        std::map<IRI, IRISet>::iterator it = std::find_if(dependencies.begin(), dependencies.end(),
+                [](const std::pair<IRI,IRISet>& v)
                 {
-                    break;
-                }
-            }
-            OWLOntologyReader* importReader = rit->second;
+                    return v.second.empty();
+                });
 
-            LOG_INFO_S << "Importing declarations from '" << importReader->getAbsolutePath()
-                << "' into ontology " << ontology->getIRI();
-
-            // Load the full ontology
-            importReader->loadDeclarationsAndImports(ontology, false);
-            importReader->loadAxioms(ontology);
-            delete importReader;
-
-            loaded.push_back(iri);
+        // Find reader by given iri
+        IRI iri = it->first;
+        ReadersMap::iterator rit = std::find_if(readersMap.begin(), readersMap.end(),
+                [iri](const ReadersMap::value_type& v)
+                {
+                    return v.first->getIRI() == iri;
+                });
+        if(rit == readersMap.end())
+        {
+            throw std::runtime_error("owlapi::io::OWLOntologyIO::load: failed to find reader for '" + iri.toString() + "'");
         }
+
+        OWLOntologyReader* importReader = rit->second;
+
+        LOG_INFO_S << "Importing declarations from '" << importReader->getAbsolutePath()
+            << "' into ontology " << ontology->getIRI();
+
+        // Load the full ontology
+        importReader->loadDeclarationsAndImports(ontology, false);
+        importReader->loadAxioms(ontology);
+        delete importReader;
+
+        // Remove iri from list of dependencies
+        dependencies.erase(it);
+        std::map<IRI, IRISet>::iterator dit = dependencies.begin();
+        for(; dit != dependencies.end(); ++dit)
+        {
+            IRISet& iriSet = dit->second;
+            IRISet::iterator sit = iriSet.find(iri);
+            if(sit != iriSet.end())
+            {
+                iriSet.erase(sit);
+            }
+        }
+
+        loaded.push_back(iri);
     }
 
     // If the top level is loaded from file make sure the
@@ -174,7 +186,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         reader.loadAxioms(ontology);
     }
 
-    LOG_INFO_S << "Processed all imports: " << processed;
+    LOG_INFO_S << "Processed all imports: " << loaded;
     return ontology;
 }
 
