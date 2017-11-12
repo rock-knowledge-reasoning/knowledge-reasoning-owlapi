@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_ONTOLOGY_HPP
 
 #include <map>
+#include <algorithm>
 #include "OWLClass.hpp"
 #include "OWLNamedIndividual.hpp"
 #include "OWLAnonymousIndividual.hpp"
@@ -12,6 +13,7 @@
 #include "OWLDeclarationAxiom.hpp"
 #include "OWLSubClassOfAxiom.hpp"
 #include "ChangeApplied.hpp"
+#include "OWLAxiomRetractVisitor.hpp"
 
 /**
  * \mainpage OWL API in C++
@@ -170,9 +172,11 @@ class OWLOntology
     friend class io::OWLOntologyIO;
     friend class io::OWLOntologyReader;
     friend class io::RedlandWriter;
+    friend class OWLAxiomRetractVisitor;
+    friend class OWLAxiomAddVisitor;
 
 protected:
-    /// Mapping of iri to types
+    /// Mapping of IRI to types
     /// All existing classes
     std::map<IRI, OWLClass::Ptr> mClasses;
     /// All named individuals
@@ -222,6 +226,22 @@ protected:
 
     shared_ptr<KnowledgeBase> kb() { return mpKnowledgeBase; }
 
+    template<typename LIST, typename A>
+    void removeAxiomFromMap(LIST& list, const A* axiom)
+    {
+        typename LIST::iterator it = std::find_if(list.begin(), list.end(), [axiom](const typename LIST::value_type& ptr)
+                {
+                    return axiom == ptr.get();
+                });
+
+        if(it != list.end())
+        {
+            list.erase(it);
+            return;
+        }
+        throw std::runtime_error("owlapi::model::OWLOntology: failed to remove axiom from list");
+    }
+
 protected:
 
     OWLClass::Ptr getClass(const IRI& iri) const;
@@ -232,10 +252,12 @@ protected:
     void addAxiom(const OWLAxiom::Ptr& axiom);
     void removeAxiom(const OWLAxiom::Ptr& axiom);
 
-    void retractIndividual(const OWLIndividual::Ptr& individual);
-    void retractNamedIndividual(const OWLNamedIndividual::Ptr& namedIndividual);
-    void retractAnonymousIndividual(const OWLAnonymousIndividual::Ptr& anonymousIndividual);
     void retractValueOf(const OWLIndividual::Ptr& individual, const OWLDataProperty::Ptr& property);
+
+    /**
+     * Remove an existing individual
+     */
+    void retractIndividual(const IRI& iri);
 
     void setAbsolutePath(const std::string& path) { mAbsolutePath = path; }
 
@@ -244,6 +266,12 @@ public:
     typedef std::vector< Ptr > PtrList;
 
     void refresh();
+
+    /**
+     * Trigger cleanup and garbage collection of axioms that are marked for
+     * retraction
+     */
+    void cleanup();
 
     /**
      * Default constructor

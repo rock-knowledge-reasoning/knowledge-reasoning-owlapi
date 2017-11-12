@@ -83,6 +83,7 @@ public:
     OWLAxiom(AxiomType type, const OWLAnnotationList annotations)
         : HasAnnotations(annotations)
         , mAxiomType(type)
+        , mRetract(false)
     {}
 
     virtual ~OWLAxiom() {}
@@ -208,10 +209,19 @@ public:
      */
     const IRI& getOrigin() const { return mOrigin; }
 
+    /**
+     * Check if axiom is marked for retraction
+     */
+    bool isMarkedForRetraction() const { return mRetract; }
+
+    void markForRetraction() const { mRetract = true; }
+
 private:
     AxiomType mAxiomType;
 
     IRI mOrigin;
+
+    mutable bool mRetract;
 };
 
 } // end namespace model

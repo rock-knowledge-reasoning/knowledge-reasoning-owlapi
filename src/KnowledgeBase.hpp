@@ -34,6 +34,8 @@ typedef std::map<IRI, reasoner::factpp::DataPropertyExpression > IRIDataProperty
 typedef std::map<IRI, reasoner::factpp::DataTypeName > IRIDataTypeMap;
 typedef std::map< std::pair<IRI, IRI>, reasoner::factpp::Axiom::List> DataValueMap;
 
+typedef std::map<owlapi::model::OWLAxiom::Ptr, reasoner::factpp::Axiom::List> ReferencedAxiomsMap;
+
 enum Representation { UNKNOWN = 0, LISP = 1 };
 
 /**
@@ -57,6 +59,7 @@ class KnowledgeBase
     IRIDataTypeMap mDataTypes;
 
     DataValueMap mValueOfAxioms;
+    ReferencedAxiomsMap mReferencedAxiomsMap;
 
     bool hasClass(const IRI& klass) const { return mClasses.count(klass); }
 
@@ -141,7 +144,7 @@ public:
      */
     bool isReflexiveProperty(const IRI& property);
     /**
-     * Define an irreflexive object property 
+     * Define an irreflexive object property
      */
     reasoner::factpp::Axiom irreflexiveProperty(const IRI& property);
     /**
@@ -327,7 +330,7 @@ public:
     /**
      * Define one of a class relationship
      * (enumerated classes): Classes can be described by enumeration of the individuals that make up the class. The members of the class are exactly the set of enumerated individuals; no more, no less. For example, the class of daysOfTheWeek can be described by simply enumerating the individuals Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday. From this a reasoner can deduce the maximum cardinality (7) of any property that has daysOfTheWeek as its allValuesFrom
-     * restriction. 
+     * restriction.
      *
      * \param instanceList list of classes
      * \return corresponding class expression
@@ -434,13 +437,13 @@ public:
      * \return list of all classes
      */
     IRIList allClasses(bool excludeBottomClass = true) const;
-   
+
     /**
      * Retrieve all subclasses of a given klass
      * \return list of all subclasses
      */
     IRIList allSubClassesOf(const IRI& klass, bool direct = false);
-    
+
     /**
      * Retrieve all ancestors of a given klass
      * \return list of all ancestors
@@ -547,7 +550,7 @@ public:
      * \param instance Instance where this relation is bound to
      * \param relationProperty Property for this relation (which will be inverted)
      * \param klass Optional filter klass for the result list, check if result is instance of given klass
-     * \return list of instance that are related to instance via the inverse of the given 
+     * \return list of instance that are related to instance via the inverse of the given
      * relationProperty
      */
     IRIList allInverseRelatedInstances(const IRI& instance, const IRI& relationProperty, const IRI& klass = IRI());
@@ -644,6 +647,16 @@ public:
     void retract(const reasoner::factpp::Axiom& a);
 
     /**
+     * Remove all axioms which are related to/referenced by the given axiom
+     */
+    void retractRelated(const owlapi::model::OWLAxiom::Ptr& a);
+
+    /**
+     * Add a reference between the frontend axiom and the knowledge base axiom
+     */
+    void addReference(const owlapi::model::OWLAxiom::Ptr& modelAxiom, const reasoner::factpp::Axiom& kbAxiom);
+
+    /**
      * Test relation i.e. check if knowledge base remains consistent and add result if successfully asserted
      * \return true if relation has been successfully been added
      */
@@ -657,7 +670,7 @@ public:
 
     /**
      * Print the ontology
-     * \return 
+     * \return
      */
     std::string toString(representation::Type representation = representation::LISP) const;
 
@@ -680,6 +693,10 @@ public:
      */
     reasoner::factpp::DataPropertyExpressionList getRelatedDataProperties(const IRI& klass);
 
+    /**
+     * Cleanup all axiom that have been marked for retraction
+     */
+    void cleanup();
 };
 
 } // namespace owlapi

@@ -98,7 +98,8 @@ OWLNamedIndividual::Ptr OWLOntologyTell::namedIndividual(const IRI& iri)
         mpOntology->kb()->getInstanceLazy(iri);
 
         OWLEntity::Ptr entity = OWLEntity::namedIndividual(iri);
-        addAxiom( OWLAxiom::declare(entity) );
+        OWLAxiom::Ptr axiom = OWLAxiom::declare(entity);
+        addAxiom(axiom);
 
         return individual;
     }
@@ -220,10 +221,18 @@ OWLAxiom::Ptr OWLOntologyTell::addAxiom(const OWLAxiom::Ptr& axiom)
     return axiom;
 }
 
+OWLAxiom::Ptr OWLOntologyTell::addAxiom(const OWLAxiom::Ptr& axiom, const reasoner::factpp::Axiom& kbAxiom)
+{
+    mpOntology->kb()->addReference(axiom, kbAxiom);
+    addAxiom(axiom);
+    return axiom;
+}
+
+
 OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, const IRI& classType)
 {
     // Update reasoner kb
-    mpOntology->kb()->instanceOf(instance, classType);
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->instanceOf(instance, classType);
 
     // ClassAssertion
     OWLNamedIndividual::Ptr e_individual = namedIndividual(instance);
@@ -237,7 +246,8 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
 
     LOG_DEBUG_S << "NamedIndividual '" << instance << "' of class: '" << classType << "'";
 
-    addAxiom( axiom );
+    addAxiom( axiom, kb_axiom );
+
     return axiom;
 }
 
@@ -507,8 +517,7 @@ void OWLOntologyTell::datatype(const IRI& iri)
 
 void OWLOntologyTell::removeIndividual(const IRI& iri)
 {
-    OWLIndividual::Ptr individual = mAsk.getOWLIndividual(iri);
-    mpOntology->retractIndividual(individual);
+    mpOntology->retractIndividual(iri);
 }
 
 } // end namespace model

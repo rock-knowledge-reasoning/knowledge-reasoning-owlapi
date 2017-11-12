@@ -9,6 +9,13 @@
 #include <owlapi/model/OWLSubPropertyAxiom.hpp>
 
 namespace owlapi {
+namespace reasoner {
+namespace factpp {
+
+class Axiom;
+
+} // end namespace factpp
+} // end namespace reasoner
 namespace model {
 
 /**
@@ -21,6 +28,11 @@ class OWLOntologyTell
     OWLOntologyAsk mAsk;
 
     IRI mOrigin;
+
+    /**
+     * Add an axiom and the axiom it referenced in the knowledgebase
+     */
+    OWLAxiom::Ptr addAxiom(const OWLAxiom::Ptr& axiom, const owlapi::reasoner::factpp::Axiom& kbAxiom);
 
 public:
     typedef shared_ptr<OWLOntologyTell> Ptr;

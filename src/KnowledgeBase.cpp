@@ -1095,7 +1095,7 @@ IRIList KnowledgeBase::allEquivalentDataProperties(const IRI& propertyRelation)
     Actor actor;
     actor.needConcepts();
     mKernel->getEquivalentRoles(e_relation.get(), actor);
-    
+
     return getResult(actor);
 }
 
@@ -1201,6 +1201,25 @@ IRIList KnowledgeBase::uniqueList(const IRIList& individuals)
 void KnowledgeBase::retract(const Axiom& a)
 {
     mKernel->retract(const_cast<TDLAxiom*>(a.get()));
+}
+
+void KnowledgeBase::retractRelated(const owlapi::model::OWLAxiom::Ptr& a)
+{
+    ReferencedAxiomsMap::iterator it = mReferencedAxiomsMap.find(a);
+    if(it != mReferencedAxiomsMap.end())
+    {
+        reasoner::factpp::Axiom::List& axioms = it->second;
+        reasoner::factpp::Axiom::List::iterator ait = axioms.begin();
+        for(; ait != axioms.end(); ++ait)
+        {
+            retract(*ait);
+        }
+    }
+}
+
+void KnowledgeBase::addReference(const owlapi::model::OWLAxiom::Ptr& modelAxiom, const reasoner::factpp::Axiom& kbAxiom)
+{
+    mReferencedAxiomsMap[modelAxiom].push_back(kbAxiom);
 }
 
 bool KnowledgeBase::assertAndAddRelation(const IRI& instance, const IRI& relation, const IRI& otherInstance)
@@ -1317,6 +1336,22 @@ DataPropertyExpressionList KnowledgeBase::getRelatedDataProperties(const IRI& kl
     }
 
     return relatedDataProperties;
+}
+
+void KnowledgeBase::cleanup()
+{
+    ReferencedAxiomsMap::iterator it = mReferencedAxiomsMap.begin();
+    for(; it != mReferencedAxiomsMap.end(); ++it)
+    {
+        //owlapi::model::OWLAxiom::Ptr& axiom = it->first;
+        if(it->first->isMarkedForRetraction())
+        {
+            retractRelated(it->first);
+        }
+    }
+
+    // Cleanup cache as well
+    mInstances.clear();
 }
 
 } // end namespace owlapi

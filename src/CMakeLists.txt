@@ -56,6 +56,8 @@ rock_library(owlapi
         model/URI.cpp
         model/RemoveAxiom.cpp
         model/OWLAxiomChange.cpp
+        model/OWLAxiomRetractVisitor.cpp
+        model/OWLAxiomAddVisitor.cpp
         model/OWLOntologyChange.cpp
         reasoner/factpp/Types.cpp
     HEADERS
@@ -90,6 +92,8 @@ rock_library(owlapi
         model/OWLAsymmetricObjectPropertyAxiom.hpp
         model/OWLAxiom.hpp
         model/OWLAxiomVisitor.hpp
+        model/OWLAxiomRetractVisitor.hpp
+        model/OWLAxiomAddVisitor.hpp
         model/OWLCardinalityRestriction.hpp
         model/OWLClass.hpp
         model/OWLClassAssertionAxiom.hpp

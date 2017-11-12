@@ -58,6 +58,9 @@
 #define AXIOM_VISITOR_VISIT(X) \
     virtual void visit(const X& axiom) = 0;
 
+#define AXIOM_VISITOR_VISIT_DECL(X) \
+    virtual void visit(const X& axiom);
+
 #define NO_IMPL_AXIOM_VISITOR_VISIT(X) \
     virtual void visit(const X& axiom) { LOG_WARN_S << "No implementation of visitor for : '" #X "'"; }
 
@@ -69,6 +72,19 @@ namespace model {
  * An interface for objects that can accept visits from axioms.
  *
  * Implementation based on the visitor pattern
+ *\verbatim
+
+    // Visit all axioms that are part of an ontology
+    const owlapi::model::OWLAxiom::PtrList& axioms = ontology->getAxioms();
+
+    OWLAxiom::PtrList::const_iterator cit = axioms.begin();
+    for(; cit != axioms.end(); ++cit)
+    {
+        const OWLAxiom::Ptr& axiom = *cit;
+        axiom->accept(&visitor);
+    }
+ \endverbatim
+ *
  */
 class OWLAxiomVisitor
 {
