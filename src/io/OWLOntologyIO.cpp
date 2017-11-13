@@ -194,7 +194,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
 owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filename)
 {
     OWLOntologyReader reader;
-    owlapi::model::OWLOntology::Ptr ontology = reader.fromFile(filename);
+    owlapi::model::OWLOntology::Ptr ontology = reader.open(filename);
     std::string absolutePath = boost::filesystem::canonical(filename).string();
     ontology->setAbsolutePath(absolutePath);
 
