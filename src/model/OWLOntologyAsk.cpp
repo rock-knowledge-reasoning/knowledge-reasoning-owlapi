@@ -83,7 +83,14 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     owlapi::model::OWLProperty::Ptr property;
     if(objectProperty != IRI())
     {
-        property = getOWLObjectProperty(objectProperty);
+        try {
+            property = getOWLObjectProperty(objectProperty);
+        } catch(const std::runtime_error& e)
+        {
+            throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions: "
+                    "could not retrieve restriction since object property '" + objectProperty.toString() + "'"
+                    " does not exist -- " + e.what());
+        }
     }
 
     // In order to find a restriction for a given class
@@ -222,7 +229,16 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
         const IRI& targetKlass) const
 {
     std::vector<OWLCardinalityRestriction::Ptr> filteredRestrictions;
-    owlapi::model::OWLProperty::Ptr property = getOWLObjectProperty(objectProperty);
+
+    owlapi::model::OWLProperty::Ptr property;
+    try {
+        property = getOWLObjectProperty(objectProperty);
+    } catch(const std::runtime_error& e)
+    {
+        throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictionsForTarget: "
+                "could not retrieve restriction since object property '" + objectProperty.toString() + "'"
+                " does not exist -- " + e.what());
+    }
 
     std::vector<OWLCardinalityRestriction::Ptr> restrictions = getCardinalityRestrictions(klass);
     for(const OWLCardinalityRestriction::Ptr& r : restrictions)
