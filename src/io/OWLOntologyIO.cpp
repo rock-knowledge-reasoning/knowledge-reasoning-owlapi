@@ -130,10 +130,6 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         processed.push_back(iri);
     }
 
-
-    LOG_WARN_S << "unprocessed: " << unprocessed;
-    LOG_WARN_S << "processed: " << processed;
-
     // Process the imported ontologies in dependency order of import to
     // make sure all types are properly defined
     IRIList loaded;
