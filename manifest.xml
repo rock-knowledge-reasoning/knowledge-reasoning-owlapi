@@ -4,8 +4,9 @@
       It supports reasoning with this data using FaCT++.
   </description>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
+  <maintainer>Thomas Roehr/thomas.roehr@dfki.de</maintainer>
   <license></license>
-  <url>http://www.rock-robotics.org</url>
+  <url>https://git.hb.dfki.de/dfki-libraries/owlapi</url>
   <logo>http://</logo>
   <depend package="base/cmake" />
   <depend package="boost" />
@@ -16,4 +17,17 @@
   <depend package="redland" />
   <depend package="raptor2" />
   <depend package="utilmm" />
+  <tag>stable</tag>
+  <keywords>
+      <keyword>reasoning</keyword>
+      <keyword>representation</keyword>
+  </keywords>
+  <stage>0</stage>
+  <use>single project</use>
+  <activity>active</activity>
+  <classifiers>
+      <classifier>c++</classifier>
+      <classifier>rock</classifier>
+      <classifier>owl</classifier>
+  </classifiers>
 </package>
