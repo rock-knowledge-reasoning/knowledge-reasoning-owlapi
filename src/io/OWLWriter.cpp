@@ -10,6 +10,11 @@ OWLWriter::OWLWriter(const std::string& defaultFormat)
 
 void OWLWriter::setFormat(const std::string& format)
 {
+    if(!supportsFormat(format))
+    {
+        throw std::invalid_argument("owlapi::io::OWLWriter::setFormat: format '"
+                + format + "' is not supported");
+    }
     mFormat = format;
 }
 
