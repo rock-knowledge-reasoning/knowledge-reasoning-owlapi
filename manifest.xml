@@ -5,9 +5,8 @@
   </description>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
   <maintainer>Thomas Roehr/thomas.roehr@dfki.de</maintainer>
-  <license></license>
+  <license>LGPL-2.1-or-later</license>
   <url>https://git.hb.dfki.de/dfki-libraries/owlapi</url>
-  <logo>http://</logo>
   <depend package="base/cmake" />
   <depend package="boost" />
   <depend package="base/logging" />

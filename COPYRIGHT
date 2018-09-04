@@ -1,0 +1,6 @@
+This library reimplements owlapi (https://github.com/owlcs/owlapi) functionality
+for C++ projects.
+It does not (yet) support the full feature set of the original JAVA-based owlapi
+implementation, but a significant subset.
+
+Copyright (C) 2013-2018, Thomas M Roehr, DFKI GmbH Robotics Innovation Center
