@@ -167,9 +167,10 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
 
 void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
 {
-    LOG_DEBUG_S << "Loading axioms from path: " << mAbsolutePath;
+    LOG_DEBUG_S << "Loading axioms from path: " << mAbsolutePath << " ontology:"
+        " iri: " << ontology->getIRI();
 
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     {
@@ -285,7 +286,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 {
     LOG_DEBUG_S << "Loading properties from path: " << mAbsolutePath;
 
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     // Properties
@@ -398,7 +399,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 
 void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
 {
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     // Example: Cardinality Restrictions
@@ -610,7 +611,7 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
 
 void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
 {
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     using namespace db::query;
@@ -685,7 +686,7 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
 
 void OWLOntologyReader::loadObjectProperties(OWLOntology::Ptr& ontology)
 {
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     using namespace db::query;
