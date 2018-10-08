@@ -157,6 +157,7 @@ public:
      */
     OWLAxiom::Ptr addAxiom(const OWLAxiom::Ptr& axiom);
 
+    OWLAxiom::Ptr equivalentProperty(const IRI& propertyA, const IRI& propertyB);
     OWLAxiom::Ptr inverseFunctionalProperty(const IRI& property);
     OWLAxiom::Ptr reflexiveProperty(const IRI& property);
     OWLAxiom::Ptr irreflexiveProperty(const IRI& property);

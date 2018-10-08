@@ -193,6 +193,12 @@ public:
      */
     reasoner::factpp::Axiom subClassOf(const IRI& subclass, const reasoner::factpp::ClassExpression& parentClass);
 
+    reasoner::factpp::Axiom equals(const IRI& klass,
+            const IRI& otherKlass);
+
+    reasoner::factpp::Axiom equals(const reasoner::factpp::ClassExpression& klass,
+            const reasoner::factpp::ClassExpression& otherklass);
+
     /**
      * Define intersection of classes under a given alias
      * \param alias Equivalent concept the intersection of classes

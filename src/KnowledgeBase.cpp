@@ -445,6 +445,24 @@ Axiom KnowledgeBase::subDataPropertyOf(const IRI& subProperty, const DataPropert
     return Axiom( mKernel->impliesDRoles(e_property.get(), parentProperty.get()) );
 }
 
+Axiom KnowledgeBase::equals(const IRI& klass, const IRI& otherKlass)
+{
+    ClassExpression e_class = getClassLazy(klass);
+    ClassExpression e_other_class = getClassLazy(otherKlass);
+    return equals(e_class, e_other_class);
+}
+
+Axiom KnowledgeBase::equals(const reasoner::factpp::ClassExpression& klass,
+            const reasoner::factpp::ClassExpression& otherklass)
+{
+    getExpressionManager()->newArgList();
+    getExpressionManager()->addArg(klass.get());
+    getExpressionManager()->addArg(otherklass.get());
+
+    return Axiom( mKernel->equalConcepts() );
+
+}
+
 ClassExpression KnowledgeBase::intersectionOf(const IRI& klass, const IRI& otherKlass)
 {
     IRIList klasses;

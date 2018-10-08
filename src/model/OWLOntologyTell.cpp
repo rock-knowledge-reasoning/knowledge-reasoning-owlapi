@@ -29,6 +29,7 @@ void OWLOntologyTell::initializeDefaultClasses()
 
     IRIList defaultProperties = {
         vocabulary::OWL::FunctionalProperty(),
+        vocabulary::OWL::EquivalentProperty()
     };
 
     for(const IRI& iri : defaultProperties)
@@ -274,6 +275,17 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
     addAxiom( axiom, kb_axiom );
 
     return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::equivalentProperty(const IRI& a, const IRI& b)
+{
+    mpOntology->kb()->equals(a,b);
+
+    OWLClassExpressionPtrList e_klasses;
+    e_klasses.push_back( klass(a) );
+    e_klasses.push_back( klass(b) );
+
+    return make_shared<OWLEquivalentClassesAxiom>(e_klasses, OWLAnnotationList());
 }
 
 OWLAxiom::Ptr OWLOntologyTell::inverseFunctionalProperty(const IRI& property)

@@ -382,6 +382,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
             {
                 // validate that subject and object have the same property type
                 // add axiom to assert superproperty
+                tell.equivalentProperty(subject, object);
             } else if(predicate == vocabulary::OWL::inverseOf())
             {
                 // check that subject and object are object properties, if not
