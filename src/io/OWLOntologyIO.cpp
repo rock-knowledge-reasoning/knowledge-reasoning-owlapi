@@ -32,11 +32,20 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(const owlapi::model::IRI& on
 {
     using namespace owlapi::model;
     OWLOntology::Ptr ontology = make_shared<OWLOntology>();
-    load(ontology, ontologyIRI);
+    load(ontology, ontologyIRI, false);
     return ontology;
 }
 
-owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology, const owlapi::model::IRI& ontologyIRI)
+owlapi::model::OWLOntology::Ptr OWLOntologyIO::loadNew(owlapi::model::OWLOntology::Ptr& ontology,
+       const owlapi::model::IRI& ontologyIRI)
+{
+    return load(ontology, ontologyIRI, true);
+}
+
+owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::Ptr& ontology,
+        const owlapi::model::IRI& ontologyIRI,
+        bool isEmptyTopOntology
+        )
 {
     using namespace owlapi::model;
 
@@ -57,8 +66,11 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
             }
         }
 
-        std::string path = retrieve(ontology->getIRI());
-        ontology->setAbsolutePath(path);
+        if(!isEmptyTopOntology)
+        {
+            std::string path = retrieve(ontology->getIRI());
+            ontology->setAbsolutePath(path);
+        }
     }
 
     if(ontology->getIRI().empty() && !ontologyIRI.empty())
@@ -66,9 +78,12 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         ontology->setIRI(ontologyIRI);
     }
 
-    // load from the file set for the ontology
-    ontology = reader.open(ontology->getAbsolutePath());
-    reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+    if(!isEmptyTopOntology)
+    {
+        // load from the file set for the ontology
+        ontology = reader.open(ontology->getAbsolutePath());
+        reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+    }
 
     IRIList unprocessed = ontology->getDirectImportsDocuments();
     IRIList processed;
@@ -198,7 +213,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filen
     std::string absolutePath = boost::filesystem::canonical(filename).string();
     ontology->setAbsolutePath(absolutePath);
 
-    return load(ontology);
+    return load(ontology,"",false);
 }
 
 std::string OWLOntologyIO::getOntologyPath()
@@ -243,8 +258,10 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
     {
         std::string cmd = "wget " + iri.toString() + " -O " + absoluteFilename + " -q";
         LOG_DEBUG_S << "Trying to retrieve document with command '" << cmd << "'";
-        if(-1 == system(cmd.c_str()) )
+        if( system(cmd.c_str()) != 0)
         {
+            // cleanup
+            boost::filesystem::remove( boost::filesystem::path(absoluteFilename));
             throw std::runtime_error("owlapi::io::OWLOntologyIO::retrieve: failed to retrieve document using the following command: '" + cmd + "'");
         }
     }

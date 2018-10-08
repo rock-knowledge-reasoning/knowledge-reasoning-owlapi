@@ -27,6 +27,31 @@ void OWLOntologyTell::initializeDefaultClasses()
     klass(vocabulary::RDFS::Resource());
     klass(vocabulary::RDFS::Datatype());
 
+    IRIList defaultProperties = {
+        vocabulary::OWL::FunctionalProperty(),
+    };
+
+    for(const IRI& iri : defaultProperties)
+    {
+        klass(iri);
+        subClassOf(iri, vocabulary::RDF::Property());
+    }
+
+    IRIList defaultObjectProperties = {
+        vocabulary::OWL::ReflexiveProperty(),
+        vocabulary::OWL::IrreflexiveProperty(),
+        vocabulary::OWL::SymmetricProperty(),
+        vocabulary::OWL::AsymmetricProperty(),
+        vocabulary::OWL::TransitiveProperty(),
+        vocabulary::OWL::TransitiveProperty(),
+        vocabulary::OWL::InverseFunctionalProperty() };
+
+    for(const IRI& iri : defaultObjectProperties)
+    {
+        klass(iri);
+        objectProperty(iri);
+    }
+
 //    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
 //    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
 //    OWLClass thing(vocabulary::OWL::Thing());

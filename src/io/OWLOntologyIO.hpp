@@ -57,7 +57,7 @@ public:
     static owlapi::model::OWLOntology::Ptr load(const owlapi::model::IRI& ontologyIRI);
 
     /**
-     * Load an ontology which has only been defined through imported documents
+     * Load an new ontology, which is only defined through its imported documents
      * \param ontology Ontology object to load and populate
      * \param ontologyIRI ontology iri that should be assigned to the document if no iri
      * is given in the document
@@ -65,7 +65,24 @@ public:
      * axioms)
      * \return Pointer to the OWLOntology instance
      */
-    static owlapi::model::OWLOntology::Ptr load(owlapi::model::OWLOntology::Ptr& ontology, const owlapi::model::IRI& ontologyIRI = "");
+    static owlapi::model::OWLOntology::Ptr loadNew(owlapi::model::OWLOntology::Ptr&
+            ontology,
+            const owlapi::model::IRI& ontologyIRI = "");
+
+    /**
+     * Load an ontology which has only been defined through imported documents
+     * \param ontology Ontology object to load and populate
+     * \param ontologyIRI ontology iri that should be assigned to the document if no iri
+     * is given in the document
+     * \param allowEmptyTopOntology Allow the top ontology to be empty
+     * \throws if this ontology has already been loaded (checking on any existing
+     * axioms)
+     * \return Pointer to the OWLOntology instance
+     */
+    static owlapi::model::OWLOntology::Ptr load(owlapi::model::OWLOntology::Ptr&
+            ontology,
+            const owlapi::model::IRI& ontologyIRI = "",
+            bool isEmptyTopOntology = false);
 
     /**
      * Retrieve the Ontology document and provide path to the document

@@ -4,6 +4,8 @@
 #include <owlapi/io/RedlandWriter.hpp>
 #include "test_utils.hpp"
 
+#define BOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
+
 using namespace owlapi::model;
 using namespace owlapi::io;
 
@@ -68,7 +70,7 @@ BOOST_AUTO_TEST_CASE(create_with_builtin)
     ontology->addDirectImportsDocument(iri);
 
     BOOST_REQUIRE_THROW(OWLOntologyIO::load(ontology), std::invalid_argument);
-    BOOST_REQUIRE_NO_THROW(ontology = OWLOntologyIO::load(ontology, "http://test/owlapi/create_with_builtin") );
+    BOOST_REQUIRE_NO_THROW(ontology = OWLOntologyIO::loadNew(ontology, "http://test/owlapi/create_with_builtin") );
     BOOST_REQUIRE_MESSAGE(ontology->getAxioms().empty(), "Ontology is empty -- after importing only builtin vocabularies");
 }
 
@@ -86,7 +88,7 @@ BOOST_AUTO_TEST_CASE(create_with_custom)
     BOOST_TEST_MESSAGE("Check if the custom model can be loaded -- if that fails, then you have to check whether"
             " you really used RDF/XML and not OWL/XML(!) -- sopranos serializer segfaults otherwise");
     IRI ontologyIRI("http://test/owlapi/create_with_custom");
-    ontology = OWLOntologyIO::load(ontology, ontologyIRI);
+    ontology = OWLOntologyIO::loadNew(ontology, ontologyIRI);
     BOOST_REQUIRE_MESSAGE(ontology->getIRI()  == ontologyIRI, "Ontology has assigned iri: " << ontologyIRI);
     BOOST_REQUIRE_MESSAGE(!ontology->getAxioms().empty(), "Ontology is not empty after importing custom vocabularies");
 

@@ -56,7 +56,20 @@ void OWLOntologyReader::load(OWLOntology::Ptr& ontology)
 
 void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, bool directImport)
 {
-    OWLOntologyTell tell(ontology, mAbsolutePath);
+    Results results = findAll(Subject(), vocabulary::RDF::type(), vocabulary::OWL::Ontology());
+    ResultsIterator it(results);
+    while(it.next())
+    {
+        IRI subject = it[Subject()];
+        LOG_DEBUG_S << "Ontology identified: '" << subject << "' loading from: " << mAbsolutePath;
+
+        if(directImport)
+        {
+            ontology->setIRI(subject);
+        }
+    }
+
+    OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
 
     tell.initializeDefaultClasses();
@@ -129,12 +142,27 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                     // delayed handling
                 } else if( object == vocabulary::OWL::InverseFunctionalProperty())
                 {
+                    tell.objectProperty(subject);
+                    // delayed handling
+                } else if(object == vocabulary::OWL::AsymmetricProperty())
+                {
+                    tell.objectProperty(subject);
                     // delayed handling
                 } else if(object == vocabulary::OWL::SymmetricProperty())
                 {
+                    tell.objectProperty(subject);
+                    // delayed handling
+                } else if(object == vocabulary::OWL::ReflexiveProperty())
+                {
+                    tell.objectProperty(subject);
+                    // delayed handling
+                } else if(object == vocabulary::OWL::IrreflexiveProperty())
+                {
+                    tell.objectProperty(subject);
                     // delayed handling
                 } else if(object == vocabulary::OWL::TransitiveProperty())
                 {
+                    tell.objectProperty(subject);
                     // delayed handling
                 } else if( object == vocabulary::OWL::AnnotationProperty())
                 {
@@ -143,14 +171,9 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                 {
                     // delayed handling
                     mRestrictions.push_back(subject);
-                } else if(object == vocabulary::OWL::Ontology())
+                } else if( object == vocabulary::OWL::Ontology() )
                 {
-                    LOG_DEBUG_S << "Ontology identified: '" << subject << "' loading from: " << mAbsolutePath;
                     tell.ontology(subject);
-                    if(directImport)
-                    {
-                        ontology->setIRI(subject);
-                    }
                 }
             } else if(predicate == vocabulary::OWL::imports())
             {
@@ -312,15 +335,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
             IRI object = it[Object()];
             if(object == vocabulary::OWL::FunctionalProperty())
             {
-                if( ask.isObjectProperty(subject))
-                {
-                    tell.functionalObjectProperty(subject);
-                } else if ( ask.isDataProperty(subject) )
-                {
-                    tell.functionalDataProperty(subject);
-                } else {
-                    throw std::invalid_argument("owlapi::io::OWLOntologyReader::loadProperties: property '" + subject.toString() + "' is not a known object or data property");
-                }
+                // delayed handling to deal with subproperties
             } else if( object == vocabulary::OWL::InverseFunctionalProperty())
             {
                 tell.inverseFunctionalProperty(subject);
@@ -392,6 +407,34 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
                 // add the axiom Class(x complete complementOf(nt))
                 // where nt is the translation of object, if nt is not a class
                 // description raise
+            }
+        }
+    }
+
+    {
+        db::query::Results results = findAll(Subject(), Predicate(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI predicate = it[Predicate()];
+            IRI object = it[Object()];
+
+            if(object == vocabulary::OWL::FunctionalProperty())
+            {
+                if( ask.isObjectProperty(subject))
+                {
+                    tell.functionalObjectProperty(subject);
+                } else if ( ask.isDataProperty(subject) )
+                {
+                    tell.functionalDataProperty(subject);
+                } else {
+                    throw
+                        std::invalid_argument("owlapi::io::OWLOntologyReader::loadProperties:"
+                                " property '" + subject.toString() + "' is not a"
+                                " known object or data property -- cannot define"
+                                " functional property");
+                }
             }
         }
     }

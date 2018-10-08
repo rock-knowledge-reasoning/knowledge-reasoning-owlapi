@@ -25,6 +25,7 @@ public:
     VOCABULARY_ADD_WORD(DatatypeProperty);
     VOCABULARY_ADD_WORD(DeprecatedClass);
     VOCABULARY_ADD_WORD(DeprecatedProperty);
+    VOCABULARY_ADD_WORD(EquivalentProperty);
     VOCABULARY_ADD_WORD(FunctionalProperty);
     VOCABULARY_ADD_WORD(InverseFunctionalProperty);
     VOCABULARY_ADD_WORD(ReflexiveProperty);
