@@ -8,6 +8,7 @@
 #include <factpp/tOntologyPrinterLISP.h>
 
 #include "Vocabulary.hpp"
+#include "vocabularies/OWL.hpp"
 
 using namespace owlapi::reasoner::factpp;
 
@@ -178,10 +179,11 @@ KnowledgeBase::KnowledgeBase()
 {
     mKernel->setVerboseOutput(false);
     mKernel->newKB();
-    mKernel->setTopBottomRoleNames ( "http://www.w3.org/2002/07/owl#topObjectProperty", \
-        "http://www.w3.org/2002/07/owl#bottomObjectProperty", \
-        "http://www.w3.org/2002/07/owl#topDataProperty", \
-        "http://www.w3.org/2002/07/owl#bottomDataProperty");
+    mKernel->setTopBottomRoleNames (
+            vocabulary::OWL::topObjectProperty().toString().c_str(),
+            vocabulary::OWL::bottomObjectProperty().toString().c_str(),
+            vocabulary::OWL::topDataProperty().toString().c_str(),
+            vocabulary::OWL::bottomDataProperty().toString().c_str());
 
     // registry
     // default data types

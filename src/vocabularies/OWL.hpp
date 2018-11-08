@@ -67,6 +67,10 @@ public:
     VOCABULARY_ADD_WORD(unionOf);
     VOCABULARY_ADD_WORD(versionInfo);
     VOCABULARY_ADD_WORD(deprecated);
+    VOCABULARY_ADD_WORD(topObjectProperty);
+    VOCABULARY_ADD_WORD(bottomObjectProperty);
+    VOCABULARY_ADD_WORD(topDataProperty);
+    VOCABULARY_ADD_WORD(bottomDataProperty);
 
     // OWL 2
     VOCABULARY_ADD_WORD(NamedIndividual);

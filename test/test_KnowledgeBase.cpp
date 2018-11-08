@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include <owlapi/KnowledgeBase.hpp>
+#include <owlapi/vocabularies/OWL.hpp>
 
 #include <factpp/Kernel.h>
 #include <factpp/Actor.h>
@@ -70,6 +71,16 @@ BOOST_AUTO_TEST_CASE(class_hierarchy)
 
     IRIList klasses = kb.allClasses();
     BOOST_REQUIRE_MESSAGE( klasses.size() == 3, "Number of classes is '" << klasses.size() << "' expected 3");
+}
+
+BOOST_AUTO_TEST_CASE(property_hierarchy)
+{
+    using namespace reasoner::factpp;
+
+    KnowledgeBase kb;
+    kb.setVerbose();
+    ObjectPropertyExpression oe = kb.objectProperty(vocabulary::OWL::topObjectProperty());
+    kb.subPropertyOf("DerivedProperty", vocabulary::OWL::topObjectProperty());
 
 }
 

@@ -27,6 +27,22 @@ void OWLOntologyTell::initializeDefaultClasses()
     klass(vocabulary::RDFS::Resource());
     klass(vocabulary::RDFS::Datatype());
 
+    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
+    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
+    //  vocabulary::OWL::Thing()
+    // vocabulary::OWL::Nothing()
+    // ObjectProperty
+    // vocabulary::OWL::topObjectProperty()
+    // vocabulary::OWL::bottomObjectProperty()
+    // DataProperty
+    // vocubulary::OWL::topDataProperty()
+    // vocabulary::OWL::bottomDataProperty()
+    // Datatypes:
+    // vocabulary::RDFS::Literal()
+    // ... each datatype in OWL 2
+    // AnnotationProperty
+    // vocabulary::OWL::AnnotationProperty()
+
     IRIList defaultProperties = {
         vocabulary::OWL::FunctionalProperty(),
         vocabulary::OWL::EquivalentProperty()
@@ -53,25 +69,11 @@ void OWLOntologyTell::initializeDefaultClasses()
         objectProperty(iri);
     }
 
-//    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
-//    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
-//    OWLClass thing(vocabulary::OWL::Thing());
-//    // vocabulary::OWL::Nothing()
-//    // ObjectProperty
-//    // vocabulary::OWL::topObjectProperty()
-//    // vocabulary::OWL::bottomObjectProperty()
-//    // DataProperty
-//    // vocubulary::OWL::topDataProperty()
-//    // vocabulary::OWL::bottomDataProperty()
-//    // Datatypes:
-//    // vocabulary::RDFS::Literal()
-//    // ... each datatype in OWL 2
-//    // AnnotationProperty
-//    // vocabulary::OWL::AnnotationProperty()
-//
-//    // Trigger instanciation of the following classes
-//    getClassLazy(vocabulary::OWL::Class());
-
+    // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
+    // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
+    klass(vocabulary::OWL::AnnotationProperty());
+    klass(vocabulary::OWL::Nothing());
+    klass(vocabulary::RDFS::Literal());
 }
 
 OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
