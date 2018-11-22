@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(punning)
 
 BOOST_AUTO_TEST_CASE(retract)
 {
-    OWLOntology::Ptr ontology(new OWLOntology());
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
     OWLOntologyAsk ask(ontology);
     OWLOntologyTell tell(ontology);
 
@@ -164,6 +164,31 @@ BOOST_AUTO_TEST_CASE(retract)
 
     BOOST_REQUIRE_THROW(ask.isInstanceOf(instance, klass), std::invalid_argument);
     BOOST_REQUIRE_MESSAGE( ask.allInstancesOf(klass).empty(), "No instances remaining of klass " << klass);
+}
+
+BOOST_AUTO_TEST_CASE(equivalence)
+{
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    IRI klass0("http://my-classes#class-0");
+    IRI klass1("http://my-classes/#class-1");
+    IRI subclass("http://my-classes/#subclass-0");
+
+    tell.klass(klass0);
+    tell.klass(klass1);
+    tell.klass(subclass);
+    tell.subClassOf(subclass, klass0);
+
+    BOOST_REQUIRE_MESSAGE( ask.isDirectSubClassOf(subclass, klass0), "Subclass"
+            " is subclass of original class");
+    BOOST_REQUIRE_MESSAGE( !ask.isDirectSubClassOf(subclass, klass1), "Subclass"
+            " is not subclass of other class");
+
+    tell.equalClasses({klass0, klass1});
+    BOOST_REQUIRE_MESSAGE( ask.isDirectSubClassOf(subclass, klass1), "Subclass"
+            " is subclass of equivalent class");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

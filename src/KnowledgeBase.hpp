@@ -250,6 +250,16 @@ public:
      */
     reasoner::factpp::Axiom intersectionOf(const IRI& alias, const reasoner::factpp::ClassExpression& expression);
 
+    /**
+     * Define equivalent klasses
+     * \param list of klasses that are equivalent
+     * \return corresponding axiom
+     */
+    reasoner::factpp::Axiom equalClasses(const IRIList& klasses);
+
+    reasoner::factpp::Axiom equalObjectProperties(const IRIList& properties);
+
+    reasoner::factpp::Axiom equalDataProperties(const IRIList& properties);
 
     /**
      * Define an alias for a given class expression
@@ -282,6 +292,39 @@ public:
      * \return corresponding axiom
      */
     reasoner::factpp::Axiom disjoint(const IRIList& klassesOrInstances, EntityType type);
+
+    /**
+     * Define classes to be disjoint
+     * \param klasses List of concepts that are declared disjoint
+     * \return axiom
+     */
+    reasoner::factpp::Axiom disjointClasses(const IRIList& klasses) { return disjoint(klasses, CLASS); }
+
+    /**
+     * Define object property to be disjoint / or instance
+     * \param properties List of properties that will be declared disjoint
+     * \return corresponding axiom
+     */
+    reasoner::factpp::Axiom disjointObjectProperties(const IRIList& properties);
+
+    /**
+     * Define data property to be disjoint / or instance
+     * \param properties List of properties that will be declared disjoint
+     * \return corresponding axiom
+     */
+    reasoner::factpp::Axiom disjointDataProperties(const IRIList& properties);
+
+    /**
+     * Define a klass which represents the disjoint union of a set of classes
+     * \param klass The klass name for the union
+     * \param disjointKlasses List of disjoint classes
+     * \see https://www.w3.org/TR/owl2-syntax/#Disjoint_Union_of_Class_Expressions
+     * \verbatim
+        DisjointUnion(a:Child a:Boy a:Girl)
+     * \endverbatim
+     */
+    reasoner::factpp::Axiom disjointUnion(const IRI& klass, const IRIList&
+            disjointKlasses);
 
     /**
      * Define an instance of a concept / class

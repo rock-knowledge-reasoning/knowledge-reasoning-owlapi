@@ -9,12 +9,14 @@ namespace model {
 class OWLDisjointClassesAxiom : public OWLNaryClassAxiom
 {
 public:
-    OWLDisjointClassesAxiom(OWLClassExpressionPtrList classExpressions, OWLAnnotationList annotations = OWLAnnotationList())
+    typedef shared_ptr<OWLDisjointClassesAxiom> Ptr;
+
+    OWLDisjointClassesAxiom(OWLClassExpression::PtrList classExpressions,
+            OWLAnnotationList annotations = OWLAnnotationList())
         : OWLNaryClassAxiom(classExpressions, DisjointClasses, annotations)
     {}
 
     virtual ~OWLDisjointClassesAxiom() {}
-
 };
 
 } // end namespace model

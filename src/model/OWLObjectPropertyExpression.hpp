@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_OBJECT_PROPERTY_EXPRESSION_HPP
 
 #include <stdexcept>
+#include <vector>
 #include <owlapi/model/OWLPropertyExpression.hpp>
 
 namespace owlapi {
@@ -14,6 +15,7 @@ class OWLObjectPropertyExpression : public virtual OWLPropertyExpression
 {
 public:
     typedef shared_ptr< OWLObjectPropertyExpression > Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     virtual ~OWLObjectPropertyExpression() {}
 

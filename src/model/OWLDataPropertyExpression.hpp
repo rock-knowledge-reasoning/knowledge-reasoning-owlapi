@@ -1,6 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_DATA_PROPERTY_EXPRESSION_HPP
 #define OWLAPI_MODEL_OWL_DATA_PROPERTY_EXPRESSION_HPP
 
+#include <vector>
 #include <owlapi/model/OWLPropertyExpression.hpp>
 
 namespace owlapi {
@@ -10,6 +11,7 @@ class OWLDataPropertyExpression : public virtual OWLPropertyExpression // SWRLPr
 {
 public:
     typedef shared_ptr<OWLDataPropertyExpression> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     virtual ~OWLDataPropertyExpression() {}
 };

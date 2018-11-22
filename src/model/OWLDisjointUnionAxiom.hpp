@@ -14,7 +14,7 @@ namespace model {
 class OWLDisjointUnionAxiom : public OWLClassAxiom
 {
 public: 
-    OWLDisjointUnionAxiom(OWLClass::Ptr owlClass, OWLClassExpressionPtrList classExpressions, OWLAnnotationList annotations = OWLAnnotationList())
+    OWLDisjointUnionAxiom(OWLClass::Ptr owlClass, OWLClassExpression::PtrList classExpressions, OWLAnnotationList annotations = OWLAnnotationList())
         : OWLClassAxiom(DisjointUnion, annotations)
     {}
 

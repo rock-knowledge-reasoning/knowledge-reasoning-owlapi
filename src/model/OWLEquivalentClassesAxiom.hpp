@@ -11,10 +11,11 @@ namespace model {
 
 class OWLEquivalentClassesAxiom : public OWLClassAxiom
 {
-    OWLClassExpressionPtrList mClassExpressions;
+    OWLClassExpression::PtrList mClassExpressions;
 
 public:
-    OWLEquivalentClassesAxiom(OWLClassExpressionPtrList classExpressions, OWLAnnotationList annotations)
+    OWLEquivalentClassesAxiom(OWLClassExpression::PtrList classExpressions,
+            OWLAnnotationList annotations = OWLAnnotationList())
         : OWLClassAxiom(EquivalentClasses, annotations)
         , mClassExpressions(classExpressions)
     {}

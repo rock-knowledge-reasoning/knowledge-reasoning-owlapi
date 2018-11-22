@@ -394,6 +394,39 @@ bool KnowledgeBase::isAsymmetricProperty(const IRI& property)
     return mKernel->isAsymmetric(e_property.get());
 }
 
+Axiom KnowledgeBase::equalClasses(const IRIList& klasses)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& iri : klasses)
+    {
+        ClassExpression e_class = getClassLazy(iri);
+        getExpressionManager()->addArg(e_class.get());
+    }
+    return Axiom(mKernel->equalConcepts());
+}
+
+Axiom KnowledgeBase::equalObjectProperties(const IRIList& properties)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& iri : properties)
+    {
+        ObjectPropertyExpression e_property = getObjectPropertyLazy(iri);
+        getExpressionManager()->addArg(e_property.get());
+    }
+    return Axiom(mKernel->equalORoles());
+}
+
+Axiom KnowledgeBase::equalDataProperties(const IRIList& properties)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& iri : properties)
+    {
+        DataPropertyExpression e_property = getDataPropertyLazy(iri);
+        getExpressionManager()->addArg(e_property.get());
+    }
+    return Axiom(mKernel->equalORoles());
+}
+
 Axiom KnowledgeBase::subClassOf(const IRI& subclass, const IRI& parentClass)
 {
     ClassExpression ce = getClassLazy(subclass);
@@ -601,7 +634,42 @@ Axiom KnowledgeBase::disjoint(const IRIList& klassesOrInstances, KnowledgeBase::
     }
 
     throw std::runtime_error("owlapi::KnowledgeBase::disjoint requires either list of classes or instances");
+}
 
+Axiom KnowledgeBase::disjointObjectProperties(const IRIList& properties)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& iri : properties)
+    {
+        ObjectPropertyExpression e_property = getObjectPropertyLazy(iri);
+        getExpressionManager()->addArg(e_property.get());
+    }
+    return Axiom(mKernel->disjointORoles());
+}
+
+Axiom KnowledgeBase::disjointDataProperties(const IRIList& properties)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& iri : properties)
+    {
+        DataPropertyExpression e_property = getDataPropertyLazy(iri);
+        getExpressionManager()->addArg(e_property.get());
+    }
+    return Axiom(mKernel->disjointORoles());
+}
+
+Axiom KnowledgeBase::disjointUnion(const IRI& klass, const IRIList& disjointClasses)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& disjointClass : disjointClasses)
+    {
+        ClassExpression d_class = getClass(disjointClass);
+        getExpressionManager()->addArg(d_class.get());
+    }
+
+    ClassExpression e_class = getClass(klass);
+    TDLAxiom* axiom = mKernel->disjointUnion(e_class.get());
+    return Axiom(axiom);
 }
 
 Axiom KnowledgeBase::instanceOf(const IRI& individual, const IRI& klass)

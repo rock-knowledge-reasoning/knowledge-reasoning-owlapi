@@ -1,7 +1,14 @@
 #include "OWLOntologyTell.hpp"
-#include <owlapi/KnowledgeBase.hpp>
-#include <owlapi/OWLApi.hpp>
-#include <owlapi/model/OWLDataType.hpp>
+#include "../OWLApi.hpp"
+#include "../KnowledgeBase.hpp"
+#include "OWLDataType.hpp"
+#include "OWLEquivalentClassesAxiom.hpp"
+#include "OWLDisjointClassesAxiom.hpp"
+#include "OWLDisjointUnionAxiom.hpp"
+#include "OWLEquivalentObjectPropertiesAxiom.hpp"
+#include "OWLEquivalentDataPropertiesAxiom.hpp"
+#include "OWLDisjointObjectPropertiesAxiom.hpp"
+#include "OWLDisjointDataPropertiesAxiom.hpp"
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
@@ -256,6 +263,105 @@ OWLAxiom::Ptr OWLOntologyTell::addAxiom(const OWLAxiom::Ptr& axiom, const reason
     return axiom;
 }
 
+OWLAxiom::Ptr OWLOntologyTell::equalClasses(const IRIList& klasses)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->equalClasses(klasses);
+    OWLClassExpression::PtrList pKlasses;
+    for(const IRI& classType : klasses)
+    {
+        OWLClassExpression::Ptr pKlass = klass(classType);
+        pKlasses.push_back(pKlass);
+    }
+    OWLEquivalentClassesAxiom::Ptr axiom = make_shared<OWLEquivalentClassesAxiom>(pKlasses);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::equalObjectProperties(const IRIList& properties)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->equalObjectProperties(properties);
+    OWLObjectPropertyExpression::PtrList pProperties;
+    for(const IRI& p : properties)
+    {
+        OWLObjectPropertyExpression::Ptr pProperty = objectProperty(p);
+        pProperties.push_back(pProperty);
+    }
+    OWLEquivalentObjectPropertiesAxiom::Ptr axiom = make_shared<OWLEquivalentObjectPropertiesAxiom>(pProperties);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::equalDataProperties(const IRIList& properties)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->equalDataProperties(properties);
+    OWLDataPropertyExpression::PtrList pProperties;
+    for(const IRI& p : properties)
+    {
+        OWLDataPropertyExpression::Ptr pProperty = dataProperty(p);
+        pProperties.push_back(pProperty);
+    }
+    OWLEquivalentDataPropertiesAxiom::Ptr axiom = make_shared<OWLEquivalentDataPropertiesAxiom>(pProperties);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::disjointObjectProperties(const IRIList& properties)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->disjointObjectProperties(properties);
+    OWLObjectPropertyExpression::PtrList pProperties;
+    for(const IRI& p : properties)
+    {
+        OWLObjectPropertyExpression::Ptr pProperty = objectProperty(p);
+        pProperties.push_back(pProperty);
+    }
+    OWLDisjointObjectPropertiesAxiom::Ptr axiom = make_shared<OWLDisjointObjectPropertiesAxiom>(pProperties);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::disjointDataProperties(const IRIList& properties)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->disjointDataProperties(properties);
+    OWLDataPropertyExpression::PtrList pProperties;
+    for(const IRI& p : properties)
+    {
+        OWLDataPropertyExpression::Ptr pProperty = dataProperty(p);
+        pProperties.push_back(pProperty);
+    }
+    OWLDisjointDataPropertiesAxiom::Ptr axiom = make_shared<OWLDisjointDataPropertiesAxiom>(pProperties);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::disjointClasses(const IRIList& klasses)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->disjoint(klasses, KnowledgeBase::CLASS);
+    OWLClassExpression::PtrList pKlasses;
+    for(const IRI& classType : klasses)
+    {
+        OWLClassExpression::Ptr pKlass = klass(classType);
+        pKlasses.push_back(pKlass);
+    }
+    OWLDisjointClassesAxiom::Ptr axiom = make_shared<OWLDisjointClassesAxiom>(pKlasses);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
+OWLAxiom::Ptr OWLOntologyTell::disjointUnion(const IRI& unionClass, const IRIList& disjointKlasses)
+{
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->disjointUnion(unionClass, disjointKlasses);
+    OWLClassExpression::PtrList pKlasses;
+    for(const IRI& classType : disjointKlasses)
+    {
+        OWLClassExpression::Ptr pKlass = klass(classType);
+        pKlasses.push_back(pKlass);
+    }
+
+    OWLDisjointUnionAxiom::Ptr axiom = make_shared<OWLDisjointUnionAxiom>(klass(unionClass), pKlasses);
+    addAxiom(axiom, kb_axiom);
+    return axiom;
+}
+
 
 OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, const IRI& classType)
 {
@@ -265,7 +371,7 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
     // ClassAssertion
     OWLNamedIndividual::Ptr e_individual = namedIndividual(instance);
     OWLClassExpression::Ptr e_class = klass(classType);
-    OWLClassAssertionAxiom::Ptr axiom(new OWLClassAssertionAxiom(e_individual, e_class));
+    OWLClassAssertionAxiom::Ptr axiom = make_shared<OWLClassAssertionAxiom>(e_individual, e_class);
 
     // Register
     mpOntology->mClassAssertionAxiomsByClass[e_class].push_back(axiom);
@@ -277,17 +383,6 @@ OWLClassAssertionAxiom::Ptr OWLOntologyTell::instanceOf(const IRI& instance, con
     addAxiom( axiom, kb_axiom );
 
     return axiom;
-}
-
-OWLAxiom::Ptr OWLOntologyTell::equivalentProperty(const IRI& a, const IRI& b)
-{
-    mpOntology->kb()->equals(a,b);
-
-    OWLClassExpressionPtrList e_klasses;
-    e_klasses.push_back( klass(a) );
-    e_klasses.push_back( klass(b) );
-
-    return make_shared<OWLEquivalentClassesAxiom>(e_klasses, OWLAnnotationList());
 }
 
 OWLAxiom::Ptr OWLOntologyTell::inverseFunctionalProperty(const IRI& property)

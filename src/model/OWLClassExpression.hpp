@@ -45,6 +45,7 @@ public:
     };
 
     typedef shared_ptr<OWLClassExpression> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     static std::map<ClassExpressionType, std::string> TypeTxt;
 
@@ -72,8 +73,6 @@ public:
      */
     virtual std::string toString() const { return "ClassExpression: " + TypeTxt[getClassExpressionType()]; }
 };
-
-typedef std::vector<OWLClassExpression::Ptr> OWLClassExpressionPtrList;
 
 } // end namespace model
 } // end namespace owlapi

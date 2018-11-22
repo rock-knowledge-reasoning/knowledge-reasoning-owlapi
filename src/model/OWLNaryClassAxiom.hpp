@@ -10,10 +10,10 @@ namespace model {
 
 class OWLNaryClassAxiom : public OWLClassAxiom, public OWLNaryAxiom
 {
-    OWLClassExpressionPtrList mClassExpressions;
+    OWLClassExpression::PtrList mClassExpressions;
 
 public:
-    OWLNaryClassAxiom(OWLClassExpressionPtrList classExpressions, AxiomType type, OWLAnnotationList annotations)
+    OWLNaryClassAxiom(OWLClassExpression::PtrList classExpressions, AxiomType type, OWLAnnotationList annotations)
         : OWLClassAxiom(type, annotations)
         , OWLNaryAxiom()
     {}
@@ -21,8 +21,8 @@ public:
     virtual ~OWLNaryClassAxiom() {}
 
     bool contains(OWLClassExpression::Ptr ce) { throw std::runtime_error("OWLNaryClassAxiom::contains not implemented"); }
-    OWLClassExpressionPtrList getClassExpressions() { throw std::runtime_error("OWLNaryClassAxiom::getClassExpressions not implemented"); }
-    OWLClassExpressionPtrList getClassExpressionsMinus(OWLClassExpressionPtrList classExpressions) { throw std::runtime_error("OWLNaryClassAxiom::getClassExpressionsMinus not implemented"); }
+    OWLClassExpression::PtrList getClassExpressions() { throw std::runtime_error("OWLNaryClassAxiom::getClassExpressions not implemented"); }
+    OWLClassExpression::PtrList getClassExpressionsMinus(OWLClassExpression::PtrList classExpressions) { throw std::runtime_error("OWLNaryClassAxiom::getClassExpressionsMinus not implemented"); }
 
     std::vector<OWLAxiom::Ptr> asPairwiseAxioms() { // Compute combinations of the ClassExpressions 
         throw std::runtime_error("OWLNaryClassAxiom::asPairwiseAxioms not implemented"); }

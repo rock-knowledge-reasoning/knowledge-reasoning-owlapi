@@ -109,11 +109,13 @@ rock_library(owlapi
         model/OWLDataType.hpp
         model/OWLDeclarationAxiom.hpp
         model/OWLDisjointClassesAxiom.hpp
-        model/OWLDisjointObjectProperties.hpp
+        model/OWLDisjointObjectPropertiesAxiom.hpp
+        model/OWLDisjointDataPropertiesAxiom.hpp
         model/OWLDisjointUnionAxiom.hpp
         model/OWLEntity.hpp
         model/OWLEquivalentClassesAxiom.hpp
         model/OWLEquivalentObjectPropertiesAxiom.hpp
+        model/OWLEquivalentDataPropertiesAxiom.hpp
         model/OWLExactCardinalityRestriction.hpp
         model/OWLFunctionalDataPropertyAxiom.hpp
         model/OWLFunctionalObjectPropertyAxiom.hpp

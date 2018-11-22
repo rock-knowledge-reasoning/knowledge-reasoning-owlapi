@@ -157,7 +157,16 @@ public:
      */
     OWLAxiom::Ptr addAxiom(const OWLAxiom::Ptr& axiom);
 
-    OWLAxiom::Ptr equivalentProperty(const IRI& propertyA, const IRI& propertyB);
+    /**
+     * Define two concept to be equal
+     */
+    OWLAxiom::Ptr equalClasses(const IRIList& klasses);
+    OWLAxiom::Ptr equalObjectProperties(const IRIList& properties);
+    OWLAxiom::Ptr equalDataProperties(const IRIList& properties);
+    OWLAxiom::Ptr disjointClasses(const IRIList& klasses);
+    OWLAxiom::Ptr disjointObjectProperties(const IRIList& properties);
+    OWLAxiom::Ptr disjointDataProperties(const IRIList& properties);
+    OWLAxiom::Ptr disjointUnion(const IRI& klass, const IRIList& klasses);
     OWLAxiom::Ptr inverseFunctionalProperty(const IRI& property);
     OWLAxiom::Ptr reflexiveProperty(const IRI& property);
     OWLAxiom::Ptr irreflexiveProperty(const IRI& property);

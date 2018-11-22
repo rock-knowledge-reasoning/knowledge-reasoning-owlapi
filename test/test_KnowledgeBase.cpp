@@ -81,7 +81,47 @@ BOOST_AUTO_TEST_CASE(property_hierarchy)
     kb.setVerbose();
     ObjectPropertyExpression oe = kb.objectProperty(vocabulary::OWL::topObjectProperty());
     kb.subPropertyOf("DerivedProperty", vocabulary::OWL::topObjectProperty());
+}
 
+BOOST_AUTO_TEST_CASE(equivalence)
+{
+    using namespace reasoner::factpp;
+
+    KnowledgeBase kb;
+    kb.setVerbose();
+    kb.subClassOf("Base","Test");
+    kb.subClassOf("OtherBase","Test");
+    kb.equalClasses({ owlapi::model::IRI("Base"),owlapi::model::IRI("OtherBase")});
+
+    BOOST_REQUIRE_MESSAGE(kb.isEquivalentClass("Base","OtherBase"), "Base and"
+            " other base should be equivalent");
+
+    kb.objectProperty("aProperty");
+    kb.objectProperty("bProperty");
+    kb.equalObjectProperties({ owlapi::model::IRI("aProperty"),
+            owlapi::model::IRI("bProperty") });
+
+    kb.getInstanceLazy("aInstance");
+    kb.getInstanceLazy("bInstance");
+    kb.relatedTo("aInstance", "aProperty", "bInstance");
+    BOOST_REQUIRE_MESSAGE(kb.isRelatedTo("aInstance", "aProperty", "bInstance"),
+            "a and b are related via aProperty");
+    BOOST_REQUIRE_MESSAGE(kb.isRelatedTo("aInstance", "bProperty", "bInstance"),
+            "a and b are related via bProperty - since aProperty is equivalent to bProperty");
+}
+
+BOOST_AUTO_TEST_CASE(disjointness)
+{
+    using namespace reasoner::factpp;
+
+    KnowledgeBase kb;
+    kb.setVerbose();
+    kb.subClassOf("Base","Test");
+    kb.subClassOf("OtherBase","Test");
+    kb.disjointClasses({ owlapi::model::IRI("Base"),owlapi::model::IRI("OtherBase")});
+
+    BOOST_REQUIRE_MESSAGE(kb.isDisjointClass("Base","OtherBase"), "Base and"
+            " other base should be disjoint");
 }
 
 BOOST_AUTO_TEST_CASE(data_value)

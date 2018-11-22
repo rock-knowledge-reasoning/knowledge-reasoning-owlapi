@@ -270,8 +270,20 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
             {
                 // validate that subject and object have the same property type
                 // add axiom to assert superproperty
+
+                // treated in loadProperties
             } else if(predicate == vocabulary::OWL::equivalentProperty())
             {
+                if(ask.isObjectProperty(subject) &&
+                        ask.isObjectProperty(object))
+                {
+                    tell.equalObjectProperties({subject, object});
+                }
+                if(ask.isDataProperty(subject) &&
+                        ask.isDataProperty(object))
+                {
+                    tell.equalDataProperties({subject, object});
+                }
                 // validate that subject and object have the same property type
                 // add axiom to assert superproperty
             } else if(predicate == vocabulary::OWL::inverseOf())
@@ -298,6 +310,39 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
                 // add the axiom Class(x complete complementOf(nt))
                 // where nt is the translation of object, if nt is not a class
                 // description raise
+            } else if(predicate == vocabulary::OWL::equivalentClass())
+            {
+                if(!ask.isOWLClass(object))
+                {
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
+                            " equivalentClass: object '" + object.toString() + "'"
+                            " is not a known class");
+                }
+                if(!ask.isOWLClass(subject))
+                {
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
+                            " equivalentClass: subject '" + subject.toString() + "'"
+                            " is not a known class");
+                }
+
+                tell.equalClasses({ subject, object});
+
+            } else if(predicate == vocabulary::OWL::disjointWith())
+            {
+                if(!ask.isOWLClass(object))
+                {
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
+                            " disjointWith: object '" + object.toString() + "'"
+                            " is not a known class");
+                }
+                if(!ask.isOWLClass(subject))
+                {
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
+                            " disjointWith: subject '" + subject.toString() + "'"
+                            " is not a known class");
+                }
+
+                tell.disjointClasses({ subject, object});
             }
         }
     }
@@ -382,7 +427,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
             {
                 // validate that subject and object have the same property type
                 // add axiom to assert superproperty
-                tell.equivalentProperty(subject, object);
+                // treated in loadAxioms
             } else if(predicate == vocabulary::OWL::inverseOf())
             {
                 // check that subject and object are object properties, if not
