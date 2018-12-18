@@ -145,6 +145,8 @@ public:
      *      MIN + MIN = 2*MIN
      *      EXACT + EXACT = 2*EXACT
      * \see areOverlapping
+     * \param a List of cardinality restrictions
+     * \param b Cardinality restriction to be joined with a
      * \param operationType SUM_OP to use the sum of cardinalities, MAX_OP to
      * use the maximum of cardinalities and MIN_OP to use the minimum of
      * cardinalities
@@ -157,8 +159,8 @@ public:
      * Join overlapping restrictions of two compact (!) lists of restrictions,
      * \see areOverlapping
      * \see join
-     * \param a
-     * \param b
+     * \param a List of cardinality restrictions
+     * \param b List of cardinality restrictions to be joined with a
      * \param operationType One of SUM_OP, MIN_OP, or MAX_OP
      */
     static std::vector<OWLCardinalityRestriction::Ptr> join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
@@ -168,7 +170,8 @@ public:
     /**
      * Create a compact representation of cardinality restrictions by joining
      * the existing cardinalities with the provided
-     * \parapm operationType operationType to use for joining cardinalities
+     * \param a List of cardinality restrictions
+     * \param operationType operationType to use for joining cardinalities
      */
     static std::vector<OWLCardinalityRestriction::Ptr> compact(const std::vector<OWLCardinalityRestriction::Ptr>& a, OperationType operationType = SUM_OP);
 

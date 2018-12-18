@@ -34,24 +34,78 @@ Either install all dependencies by hand, then:
     make
 ```
 
-or use the existing Rock infrastructure:
+## Installation from GitLab (internal)
+
+Create a new Rock-based installation in a development folder, here called dev.
+You can use the default values for the configuration questions.
 
 ```
-    sudo apt install ruby wget
-    mkdir your_workspace_dir
-    cd your_workspace_dir
+    mkdir dev
+    cd dev
     wget http://www.rock-robotics.org/master/autoproj_bootstrap
     ruby autoproj_bootstrap
 ```
 
-and add the following package to autoproj/manifest
+
+Add the following to autoproj/init.rb:
 ```
+  Autoproj.gitorious_server_configuration('DFKIGIT', 'git.hb.dfki.de', :fallback_to_http => false, :default => 'ssh,ssh')
+```
+
+
+In autoproj/manifest add the respective manifest and add the package to the
+layout section:
+```
+    package_set:
+        - dfkigit: rock-dfki/package_set
+
+    layout:
+        - knowledge_reasoning/owlapi
+```
+
+In order to speed up the installation process you can opt to add the existing
+Debian packages for Rock. To do that, just add the following to the
+autoproj/manifest.
+
+```
+    package_set:
+        - github: rock-core/rock-osdeps-package_set
+
+```
+
+Then you can trigger the installation:
+```
+$>source env.sh
+$>autoproj update
+$>autoproj osdeps
+$>amake knowledge_reasoning/owlapi
+```
+
+## Installation from GitHub
+
+Create a new Rock-based installation in a development folder, here called dev:
+```
+    mkdir dev
+    cd dev
+    wget http://www.rock-robotics.org/master/autoproj_bootstrap
+    ruby autoproj_bootstrap
+```
+
+In autoproj/manifest add the respective manifest and add the package to the
+layout section:
+```
+    package_set:
+        - github: rock-core/rock-package_set
+
     layout:
         - knowledge_reasoning/owlapi
 ```
 
 ```
-    $amake knowledge_reasoning/owlapi
+$>source env.sh
+$>autoproj update
+$>autoproj osdeps
+$>amake knowledge_reasoning/owlapi
 ```
 
 ## Documentation
@@ -66,13 +120,135 @@ checkout to generate the doxygen-based documentation:
     make doc
 ```
 
-Open the doxygen documentation with a browser: build/doc/index.html
+Open the doxygen documentation with a browser:
+
+```
+    browse build/doc/index.html
+```
+
 The doxygen documentation contains all information on how to start
 using the library along with the general API documentation.
 
+### General Documentation
+In general we recommend the usage of the OWL editor protége: http://protege.stanford.edu
+in case you want to edit/create OWL model files.
+Make sure you export as RDF/XML -- this is currently the only supported
+format for import.
+
+Currently this library supports a limit modelling capability, i.e., the main
+limitations arises from the fact that modelling from user level is done
+mainly through NamedInvididuals.
+Thus, anonymous classes and complex constructs such as Collections, OneOf,
+UnionOf classes is currently not supported.
+
+#### Examples
+The following examples shall help you to understand the user interface and
+applicability.
+
+```
+#include <owlapi/model/OWLOntology.hpp>
+
+using namespace owlapi::model;
+
+OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile("om-schema-v0.6.owl");
+
+// Add information to ontology
+OWLOntologyTell tell(ontology);
+OWLClass::Ptr robotKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
+OWLClass::Ptr cameraKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Camera")
+OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics.org/2014/01/om-schema#has");
+
+// either
+{
+    OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
+}
+// or
+{
+    OWLCardinalityRestriction::Ptr restriction = tell->cardinalityRestriction(oProperty, 10, cameraKlass.getIRI(), OWLCardinalityRestriction::MAX);
+    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
+}
+
+// Retrieve information from ontology
+OWLOntologyAsk ask(ontology);
+IRI robot("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
+std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCardinalityRestrictions(robot);
+```
+
+#### Vocabularies
+ 
+ To facilitate the handling of OWL statements, you can use inbuilt
+ vocabularies or define your own -- see owlapi/vocabularies/OWL.hpp
+ for a starting example including some macros that facilitate the definition
+ of new vocabularies.
+ To define a custom vocabulary:
+ 
+ ```
+ #include <owlapi/Vocabulary.hpp>
+
+ owlapi::vocabulary::Custom custom("http://base-url/");
+ owlapi::model::IRI iri = custom.resolve("my-instance");
+ ```
+
+ Use an existing vocabulary. Note that the iri for types which collide
+ with C++ inbuilt types/keyword have to rely on the 'resolve' function, e.g.,
+ double, float, int
+
+ ```
+ #include <owlapi/Vocabulary.hpp>
+
+ owlapi::model::IRI iriThing = owlapi::vocabulary::OWL::Thing();
+ owlapi::model::IRI iriDouble = owlapi::vocabulary::OWL::resolve("double");
+ ```
+ 
+ 
+#### DataProperties Handling of DataProperties
+ 
+Retrieving values of data properties, e.g.,
+when the datatype for the property is known as 'double'
+
+```
+IRI instance = owlapi::vocabulary::OM::resolve("MyRobot");
+IRI property = owlapi::vocabulary::OM::resolve("mass");
+
+OWLLiteral::Ptr value = ask.getDataValue(instance, property);
+double robotMass = value->getDouble();
+```
+
+Setting values of data properties, e.g.,
+when the datatype for the property is known as 'double'
+
+```
+IRI instance = owlapi::vocabulary::OM::resolve("MyRobot");
+IRI property = owlapi::vocabulary::OM::resolve("mass");
+
+OWLLiteral::Ptr value = OWLLiteral::create("0.5", owlapi::vocabulary::XSD::resolve("double"));
+tell.valueOf(instance, property, literal);
+```
+
+ 
+### Architecture
+ 
+This library is a C++-Clone of the JAVA-based owlapi: http://owlapi.sourceforge.net.
+The motivation for implementation is to allow a consistent application of
+C/C++-based programs on robotic systems -- especially since we are intending
+to target small/embedded devices.
+
+Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.2) is actually written in C++
+and thus can be accessed almost directly.
+This implementation is not as complete as the orignal JAVA-based
+one.
+Among other things it does not support processing of construcst like, DataOneOf, DataComplementOf
+It provides, however, core features to handle ontologies and supports also some
+more complex modelling using qualified cardinality restrictions.
+ 
+The user can load the model from file, and manipulate the resulting ontology
+using two separate accessor classes: the OWLOntologyTell and the OWLOntologyAsk interface --
+similar to the DIG Interface (http://dl.kr.org/dig/interface.html).
+
 ## Tests
 To run the tests you have to enable the testing suite first.
-Either by explicitly setting ROCK_TEST_ENABLE, or by
+Either by explicitly setting ROCK_TEST_ENABLED to ON, or by
 calling
 ```
     autoproj test enable knowledge_reasoning/owlapi
@@ -80,7 +256,7 @@ calling
 ```
 
 Tests are based on Boost Testing.
-They can be run with the following command with the project folder, after
+They can be run with the following command within the project folder, after
 building the project.
 
 ```
@@ -88,8 +264,6 @@ export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
 ./build/test/owlapi-test
 
 ```
-
-
 
 ## COPYRIGHT
 Copyright (c) 2013-2018 Thomas M Roehr, DFKI GmbH Robotics Innovation Center

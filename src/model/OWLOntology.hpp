@@ -15,134 +15,6 @@
 #include "ChangeApplied.hpp"
 #include "OWLAxiomRetractVisitor.hpp"
 
-/**
- * \mainpage OWL API in C++
- * \mainsection Managing Web Ontology Language (OWL) based information in C++
- *
- * In general we recommend the usage of the OWL editor protége: http://protege.stanford.edu
- * in case you want to edit/create OWL model files.
- * Make sure you export as RDF/XML -- this is currently the only supported
- * format for import.
- *
- * Currently this library supports a limit modelling capability, i.e., the main
- * limitations arises from the fact that modelling from user level is done
- * mainly through NamedInvididuals.
- * Thus, anonymous classes and complex constructs such as Collections, OneOf,
- * UnionOf classes is currently not supported.
- *
- * \section Examples
- * The following examples shall help you to understand the user interface and
- * applicability.
- *
- * \verbatim
-#include <owlapi/model/OWLOntology.hpp>
-
-using namespace owlapi::model;
-
-OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile("om-schema-v0.6.owl");
-
-// Add information to ontology
-OWLOntologyTell tell(ontology);
-OWLClass::Ptr robotKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
-OWLClass::Ptr cameraKlass = tell->klass("http:://www.rock-robotics.org/2014/01/om-schema#Camera")
-OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics.org/2014/01/om-schema#has");
-
-// either
-{
-    OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
-    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
-}
-// or
-{
-    OWLCardinalityRestriction::Ptr restriction = tell->cardinalityRestriction(oProperty, 10, cameraKlass.getIRI(), OWLCardinalityRestriction::MAX);
-    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
-}
-
-
-// Retrieve information from ontology
-OWLOntologyAsk ask(ontology);
-IRI robot("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
-std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCardinalityRestrictions(robot);
- \endverbatim
-
- * \subsection Vocabularies
- *
- * To facilitate the handling of OWL statements, you can use inbuilt
- * vocabularies or define your own -- see owlapi/vocabularies/OWL.hpp
- * for a starting example including some macros that facilitate the definition
- * of new vocabularies.
- *
- * Define a custom vocabulary
- * \verbatim
- #include <owlapi/Vocabulary.hpp>
-
- owlapi::vocabulary::Custom custom("http://base-url/");
- owlapi::model::IRI iri = custom.resolve("my-instance");
- \endverbatim
- *
- * Use an existing vocabulary. Note that the iri for types which collide
- * with C++ inbuilt types/keyword have to rely on the 'resolve' function, e.g.,
- * double, float, int
- *
- * \verbatim
- #include <owlapi/Vocabulary.hpp>
-
- owlapi::model::IRI iriThing = owlapi::vocabulary::OWL::Thing();
- owlapi::model::IRI iriDouble = owlapi::vocabulary::OWL::resolve("double");
- \endverbatim
- *
- *
- * \subsection DataProperties Handling of DataProperties
- *
- * Retrieving values of data properties, e.g.,
- * when the datatype for the property is known as 'double'
- *
- * \verbatim
-
- IRI instance = owlapi::vocabulary::OM::resolve("MyRobot");
- IRI property = owlapi::vocabulary::OM::resolve("mass");
-
- OWLLiteral::Ptr value = ask.getDataValue(instance, property);
- double robotMass = value->getDouble();
-
- \endverbatim
- *
- * Setting values of data properties, e.g.,
- * when the datatype for the property is known as 'double'
- * \verbatim
-
- IRI instance = owlapi::vocabulary::OM::resolve("MyRobot");
- IRI property = owlapi::vocabulary::OM::resolve("mass");
-
- OWLLiteral::Ptr value = OWLLiteral::create("0.5", owlapi::vocabulary::XSD::resolve("double"));
- tell.valueOf(instance, property, literal);
-
- \endverbatim
- *
- * \section Architecture
- *
- * This library is a C++-Clone of the JAVA-based owlapi: http://owlapi.sourceforge.net.
- * The motivation for implementation is to allow a consistent application of
- * C/C++-based programs on robotic systems -- especially since we are intending
- * to target small/embedded devices.
- *
- * Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.2) is actually written in C++
- * and thus can be accessed almost directly.
- * This implementation is not as complete as the orignal JAVA-based
- * one, but provides core features to handle ontologies and supports also some more complex
- * modelling using qualified cardinality restrictions.
- *
- * The user can load the model from file, and manipulate the resulting ontology
- * using two separate accessor classes: the Tell and the Ask interface --
- * inspiration has been taken from the DIG Interface
- * (http://dl.kr.org/dig/interface.html) to use this split.
- *
- * \section Todos
- * - support modularization of ontologies for export as well (import is already
- *   supported
- * - address rendering of 'anonymous' statements, e.g. DataOneOf, DataComplementOf
- *
- */
 namespace owlapi {
 
 class KnowledgeBase;
@@ -333,14 +205,14 @@ public:
 // * Represents an OWL 2 <a
 // * href="http://www.w3.org/TR/owl2-syntax/#Ontologies">Ontology</a> in the OWL 2
 // * specification. <br>
-// * An {@code OWLOntology} consists of a possibly empty set of
+// * An OWLOntology consists of a possibly empty set of
 // * {@link org.semanticweb.owlapi.model.OWLAxiom}s and a possibly empty set of
 // * {@link OWLAnnotation}s. An ontology can have an ontology IRI which can be
 // * used to identify the ontology. If it has an ontology IRI then it may also
 // * have an ontology version IRI. Since OWL 2, an ontology need not have an
 // * ontology IRI. (See the <a href="http://www.w3.org/TR/owl2-syntax/">OWL 2
 // * Structural Specification</a> An ontology cannot be modified directly. Changes
-// * must be applied via its {@code OWLOntologyManager}.
+// * must be applied via its OWLOntologyManager.
 // *
 // * @author Matthew Horridge, The University Of Manchester, Bio-Health
 // *         Informatics Group
@@ -404,8 +276,8 @@ public:
 //     * anonymous if it does not have an ontology IRI. In this case,
 //     * getOntologyID().getOntologyIRI() will return an Optional.absent.
 //     *
-//     * @return {@code true} if this ontology is anonymous, otherwise
-//     *         {@code false}
+//     * @return true if this ontology is anonymous, otherwise
+//     *         false
 //     */
 //    boolean isAnonymous();
 //
@@ -520,7 +392,7 @@ public:
 //     * and it does not have any annotations (i.e. {@link #getAnnotations()}
 //     * returns the empty set).
 //     *
-//     * @return {@code true} if the ontology is empty, otherwise {@code false}.
+//     * @return true if the ontology is empty, otherwise false.
 //     */
 //    boolean isEmpty();
 //
@@ -571,9 +443,9 @@ public:
 //     * <ul>
 //     * <li>Subclass axioms that have a complex class as the subclass</li>
 //     * <li>Equivalent class axioms that don't contain any named classes (
-//     * {@code OWLClass}es)</li>
+//     * OWLClasses)</li>
 //     * <li>Disjoint class axioms that don't contain any named classes (
-//     * {@code OWLClass}es)</li>
+//     * OWLClasses)</li>
 //     * </ul>
 //     *
 //     * @return The set that is returned is a copy of the axioms in the ontology
@@ -592,7 +464,7 @@ public:
 //     * "http://www.w3.org/TR/owl2-syntax/#Entities.2C_Literals.2C_and_Anonymous_Individuals"
 //     * >The OWL 2 Structural Specification</a>)
 //     *
-//     * @return A set of {@code OWLEntity} objects. The set that is returned is a
+//     * @return A set of OWLEntity objects. The set that is returned is a
 //     *         copy - it will not be updated if the ontology changes. It is
 //     *         therefore safe to apply changes to this ontology while iterating
 //     *         over this set.
@@ -614,7 +486,7 @@ public:
 //     *
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
-//     * @return A set of {@code OWLEntity} objects. The set that is returned is a
+//     * @return A set of OWLEntity objects. The set that is returned is a
 //     *         copy - it will not be updated if the ontology changes. It is
 //     *         therefore safe to apply changes to this ontology while iterating
 //     *         over this set.
@@ -632,8 +504,8 @@ public:
 //     *
 //     * @param owlEntity
 //     *        The entity to be tested for
-//     * @return {@code true} if the ontology contains a declaration for the
-//     *         specified entity, otherwise {@code false}.
+//     * @return true if the ontology contains a declaration for the
+//     *         specified entity, otherwise false.
 //     */
 //    boolean isDeclared(@Nonnull OWLEntity owlEntity);
 //
@@ -645,8 +517,8 @@ public:
 //     *        The entity to be tested for
 //     * @param includeImportsClosure
 //     *        if INCLUDED, the imports closure is included.
-//     * @return {@code true} if the ontology or its imports closure contains a
-//     *         declaration for the specified entity, otherwise {@code false}.
+//     * @return true if the ontology or its imports closure contains a
+//     *         declaration for the specified entity, otherwise false.
 //     */
 //    boolean isDeclared(@Nonnull OWLEntity owlEntity,
 //            @Nonnull Imports includeImportsClosure);

@@ -30,7 +30,7 @@ public:
 
     Axiom(TDLAxiom* axiom);
 
-    const TDLAxiom* get() const { return mAxiom; } 
+    const TDLAxiom* get() const { return mAxiom; }
     TDLAxiom* get() { return mAxiom; }
 };
 
@@ -88,7 +88,8 @@ public:
 
     /**
      * Convert value to double if possible
-     * \throw
+     * \throw if conversion fails
+     * \return Double value
      */
     double toDouble() const;
 };

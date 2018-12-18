@@ -22,7 +22,7 @@ namespace model {
  *  abbreviated in the functional-style syntax, and other concrete syntaxes to
  *  "abc". Literals of the form "abc@langTag"^^rdf:PlainLiteral where "langTag"
  *  is not empty are abbreviated in functional-style syntax documents (and other
- *  concrete syntaxes) to "abc"@langTag whenever possible
+ *  concrete syntaxes) to "abc" whenever possible
  */
 class OWLLiteral : public OWLPropertyAssertionObject //OWLAnnotationObject, OWLAnnotationValue
 {

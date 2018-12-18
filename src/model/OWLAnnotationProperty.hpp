@@ -18,20 +18,20 @@ public:
 
     /**
      * Determines if this annotation property has an IRI corresponding to
-     * {@code rdfs:comment}
+     * rdfs:comment
      */
     bool isComment() const { return getIRI() == vocabulary::RDFS::comment(); }
 
 
     /**
      * Determines if this annotation property has an IRI corresponding to
-     * {@code owl:deprecated}
+     * owl:deprecated
      */
     bool isDeprecated() const { return getIRI() == vocabulary::OWL::deprecated(); }
 
     /**
      * Determines if this annotation property has an IRI corresponding to
-      {@code rdfs:label}.
+      rdfs:label.
      */
     bool isLabel() const { return getIRI() == vocabulary::RDFS::label(); }
 };

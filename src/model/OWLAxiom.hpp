@@ -94,58 +94,12 @@ public:
      */
     void accept(OWLAxiomVisitor* visitor) const;
 
-//    /**
-//     * Gets the annotations that annotate this axiom and whose annotation
-//     * property is equal to {@code annotationProperty}.
-//     *
-//     * \param annotationProperty
-//     *        The annotation property that will be equal to the annotation
-//     *        property of each returned annotation.
-//     * \return A set of annotations that annotate this axiom, each of whose
-//     *         annotation properties is equals to {\code annotationProperty//     */
-//    //OWLAnnotationPtrList getAnnotations(const OWLAnnotationProperty& annotationProperty) const;
-////
-//    /**
-//     * Gets an axiom that is structurally equivalent to this axiom without
-//     * annotations. This essentially returns a version of this axiom stripped of
-//     * any annotations
-//     *
-//     * @return The annotationless version of this axiom
-//     */
-//    OWLAxiom getAxiomWithoutAnnotations() const;
-//
-//    /**
-//     * Gets a copy of this axiom that is annotated with the specified
-//     * annotations. If this axiom has any annotations on it they will be merged
-//     * with the specified set of annotations. Note that this axiom will not be
-//     * modified (or remove from any ontologies).
-//     *
-//     * @param annotations
-//     *        The annotations that will be added to existing annotations to
-//     *        annotate the copy of this axiom
-//     * @return A copy of this axiom that has the specified annotations plus any
-//     *         existing annotations returned by the
-//     *         {@code OWLAxiom#getAnnotations()} method.
-//     */
-//    OWLAxiom getAnnotatedAxiom(const OWLAnnotation::Set& annotations) const;
-//
-//    /**
-//     * Determines if another axiom is equal to this axiom not taking into
-//     * consideration the annotations on the axiom
-//     *
-//     * @param axiom
-//     *        The axiom to test if equal
-//     * @return {@code true} if {@code axiom} without annotations is equal to
-//     *         this axiom without annotations otherwise {@code false}.
-//     */
-//    bool equalsIgnoreAnnotations(const OWLAxiom& axiom) const;
-//
     /**
      * Determines if this axiom is a logical axiom. Logical axioms are defined
      * to be axioms other than both declaration axioms (including imports
      * declarations) and annotation axioms.
      *
-     * \return {@code true} if the axiom is a logical axiom, {@code false} if
+     * \return True if the axiom is a logical axiom, False if
      *         the axiom is not a logical axiom.
      */
     virtual bool isLogicalAxiom() const { return false; }
@@ -154,8 +108,8 @@ public:
      * Determines if this axioms in an annotation axiom (an instance of
      * OWLAnnotationAxiom)
      *
-     * \return {\code true} if this axiom is an instance of
-     *         {\code OWLAnnotationAxiom}, otherwise {\code false}.
+     * \return True if this axiom is an instance of
+     *         OWLAnnotationAxiom, otherwise false.
      */
      virtual bool isAnnotationAxiom() const { return false; }
 
@@ -165,34 +119,25 @@ public:
      */
     AxiomType getAxiomType() const { return mAxiomType; }
 
-     /**
-      * Determines if this axiom is one of the specified types
-      *
-      * @param axiomTypes
-      *        The axiom type to check for
-      * @return {@code true} if this axiom is one of the specified types,
-      *         otherwise {@code false}
-      */
-     bool isOfType(AxiomType axiomType) const { return axiomType == mAxiomType; }
+    /**
+     * Determines if this axiom is one of the specified types
+     *
+     * \param axiomType
+     *        The axiom type to check for
+     * \return True, if this axiom is one of the specified types,
+     *         otherwise false
+     */
+    bool isOfType(AxiomType axiomType) const { return axiomType == mAxiomType; }
 
-     /**
-      * Determines if this axiom is one of the specified types
-      *
-      * \param types
-      *        The axiom types to check for
-      * \return {\code true} if this axioms is one of the specified types,
-      *         otherwise {\code false}
-      */
-     bool isOfType(const std::set<AxiomType>& types) const { return types.end() != types.find(mAxiomType); }
-
-//
-//    /**
-//     * Gets this axioms in negation normal form. i.e. any class expressions
-//     * involved in this axiom are converted into negation normal form.
-//     *
-//     * @return The axiom in negation normal form.
-//     */
-//    OWLAxiom getNNF();
+    /**
+     * Determines if this axiom is one of the specified types
+     *
+     * \param types
+     *        The axiom types to check for
+     * \return True if this axioms is one of the specified types,
+     *         otherwise false
+     */
+    bool isOfType(const std::set<AxiomType>& types) const { return types.end() != types.find(mAxiomType); }
 
     virtual std::string toString() const;
 

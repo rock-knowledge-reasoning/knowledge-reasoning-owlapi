@@ -39,7 +39,8 @@ typedef std::map<owlapi::model::OWLAxiom::Ptr, reasoner::factpp::Axiom::List> Re
 enum Representation { UNKNOWN = 0, LISP = 1 };
 
 /**
- * \class KnowledgeBase represent the core class that manages OWL based
+ * \class KnowledgeBase
+ * \brief This class represent the core class that manages OWL based
  * information
  * \details In its current form the KnowledgeBase wrap the Fact++ Reasoner
  * in order to provide its main functionality
@@ -201,7 +202,6 @@ public:
 
     /**
      * Define intersection of classes under a given alias
-     * \param alias Equivalent concept the intersection of classes
      * \param klass A concept identifier
      * \param otherKlass Another's concept identifier
      * \return corresponding anonymous class expression
@@ -212,19 +212,23 @@ public:
 
     /**
      * Define intersection of classes under a given alias
-     * \param alias Equivalent concept the intersection of classes
-     * \param klass A concept identifier
-     * \param otherKlass Another's concept identifier
+     * \param klasses List of concept identifiers to compute the intersection
+     * from
      * \return corresponding anonymous class expression
      */
     reasoner::factpp::ClassExpression intersectionOf(const IRIList& klasses);
 
+    /**
+     * Define intersection of classes under a given alias
+     * \param klasses List of concept expressions to compute the intersection
+     * from
+     * \return corresponding anonymous class expression
+     */
     reasoner::factpp::ClassExpression intersectionOf(const std::vector<reasoner::factpp::ClassExpression>& klasses);
 
 
     /**
      * Define disjunction of classes under a given alias
-     * \param alias Equivalent concept the disjunction of classes
      * \param klass A concept identifier
      * \param otherKlass Another's concept identifier
      * \return corresponding anonymous class expression
@@ -233,9 +237,7 @@ public:
 
     /**
      * Define disjunction of classes under a given alias
-     * \param alias Equivalent concept the disjunction of classes
-     * \param klass A concept identifier
-     * \param otherKlass Another's concept identifier
+     * \param klasses List of concept identifiers
      * \return corresponding anonymous class expression
      */
     reasoner::factpp::ClassExpression disjunctionOf(const IRIList& klasses);
@@ -243,8 +245,7 @@ public:
     /**
      * Define intersection of classes under a given alias
      * \param alias Equivalent concept the intersection of classes
-     * \param klass A concept identifier
-     * \param otherKlass Another's concept identifier
+     * \param expression Expression decribing the class
      * \return corresponding axiom
      */
     reasoner::factpp::Axiom intersectionOf(const IRI& alias, const reasoner::factpp::ClassExpression& expression);
@@ -268,7 +269,8 @@ public:
     /**
      * Define classes to be disjoint
      * \param klassOrInstance One concept or instance identifier
-     * \param another concept or instance identifier
+     * \param otherKlassOrInstance concept or instance identifier
+     * \param type Type of entity
      * \return corresponding axiom
      */
     reasoner::factpp::Axiom disjoint(const IRI& klassOrInstance, const IRI& otherKlassOrInstance, EntityType type);
@@ -276,14 +278,15 @@ public:
     /**
      * Define classes to be disjoint / or instance
      * \param klassesOrInstances List of concepts or instances that will be declared disjoint
+     * \param type Type of entity
      * \return corresponding axiom
      */
     reasoner::factpp::Axiom disjoint(const IRIList& klassesOrInstances, EntityType type);
 
     /**
      * Define an instance of a concept / class
-     * \param instance
-     * \param klass
+     * \param instance IRI of the instance which shall be created
+     * \param klass Class type of the instance to be created
      * \return corresponding axiom
      */
     reasoner::factpp::Axiom instanceOf(const IRI& instance, const IRI& klass);
@@ -310,26 +313,35 @@ public:
 
     /**
      * Define an object relation / role and its domain
-     * \param relation
-     * \param domain Type of subject for this relation
+     * \param property The property for which the domain shall be specified
+     * \param domain Domain of this property
+     * \param propertyType Type of the property (Data, Object)
      */
-    reasoner::factpp::Axiom domainOf(const IRI& property, const IRI& domain, PropertyType PropertyType);
+    reasoner::factpp::Axiom domainOf(const IRI& property, const IRI& domain, PropertyType propertyType);
 
     /**
      * Define an object relation / role and its range
-     * \param relation
-     * \param range Type of subject for this relation
+     * \param property The property for which the range shall be specified
+     * \param range Range type for this relation
+     * \param propertyType Type of the property (Data, Object)
      */
-    reasoner::factpp::Axiom rangeOf(const IRI& property, const IRI& domain, PropertyType PropertyType);
+    reasoner::factpp::Axiom rangeOf(const IRI& property, const IRI& range, PropertyType propertyType);
 
     /**
      * Define associated value of an individual
-     * \param value of
+     * \param individual The IRI of the individual
+     * \param property The property for which a value shall be set
+     * \param dataValue The data value to set
+     * \return axiom representing the valueOf assertion
      */
     reasoner::factpp::Axiom valueOf(const IRI& individual, const IRI& property, const reasoner::factpp::DataValue& dataValue);
 
     /**
      * Define a dataType using a value and the corresponding datatype
+     * \param value The 'raw' string representation as found in a serialized
+     * ontology
+     * \param dataType The datatype of the value
+     * \return A datavalue as tuple of string and datatype
      */
     reasoner::factpp::DataValue dataValue(const std::string& value, const std::string& dataType);
 
@@ -345,6 +357,8 @@ public:
 
     /**
      * Define inverse of a given object property
+     * \param baseProperty A property
+     * \param inverseProperty The corresponding inverse property
      */
     reasoner::factpp::Axiom inverseOf(const IRI& baseProperty, const IRI& inverseProperty);
 
@@ -414,13 +428,14 @@ public:
      * Test if instances are related via given a given property
      * \param instance Instance identifier
      * \param relationProperty relation identifier:
+     * \param otherInstance Identifier of the related instance
      */
     bool isRelatedTo(const IRI& instance, const IRI& relationProperty, const IRI& otherInstance);
 
     /**
      * Test if instances are referring to the same
-     * \param instance
-     * \param otherInstance
+     * \param instance Instance IRI
+     * \param otherInstance Another IRI for checking
      * \return true upon success, false otherwise
      */
     bool isSameInstance(const IRI& instance, const IRI& otherInstance);
@@ -473,14 +488,13 @@ public:
     /**
      * Retrieve instance  and perform lazy initialization if requested
      * \param instance
-     * \param lazyInitialization If set to true will initialized the instance
-     * \throw if the instance cannot be found and will not be lazily initalized
+     * \throw if the instance cannot be found and will not be lazily initialized
      * \return InstanceExpression for that instance
      */
     reasoner::factpp::InstanceExpression getInstance(const IRI& instance) const;
 
     /**
-     * Get existing InstanceExpression for a given IRI or initializ if it does not exist yet
+     * Get existing InstanceExpression for a given IRI or initialize if it does not exist yet
      * \param instance Identifer of instance
      * \return InstanceExpression for that instance
      */
@@ -630,30 +644,34 @@ public:
 
     /**
      * Get the direct type of a given instance
+     * \param instance Instance name
      * \return klassname for the type of this instance if known
      */
     IRI typeOf(const IRI& instance) const;
 
     /**
      * Resolve an alias / instance name
-     * \param inverse in order to find an alias for a given instance set to true
+     * \param instanceOrAlias  IRI to find an alias for a given instance
      * \return Resolved aliases or a list containing only the instance name if there is no alias
      */
     IRIList getSameAs(const IRI& instanceOrAlias);
 
     /**
      * Make the list of instances unique, i.e., remove redundant information (aliases)
-     * \return list of unique IRI
+     * \param instances List of instances (not necessarily a set)
+     * \return list of unique IRI, i.e. a set
      */
     IRIList uniqueList(const IRIList& instances);
 
     /**
      * Remove axiom from the knowledge base
+     * \param a Axiom to retract
      */
     void retract(const reasoner::factpp::Axiom& a);
 
     /**
      * Remove all axioms which are related to/referenced by the given axiom
+     * \param a Axiom to retract related ones for
      */
     void retractRelated(const owlapi::model::OWLAxiom::Ptr& a);
 

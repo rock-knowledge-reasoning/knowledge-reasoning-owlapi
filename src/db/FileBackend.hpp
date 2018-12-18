@@ -6,6 +6,9 @@
 namespace owlapi {
 namespace db {
 
+/**
+ * A Sparql-based query interface for a file-based ontology
+ */
 class FileBackend : public query::SparqlInterface
 {
 public:
@@ -13,6 +16,12 @@ public:
 
     virtual ~FileBackend() {}
 
+    /**
+     * Query the filebackend
+     * \param query The query string, sparql
+     * \param bindings The bindings for which results can be later retrieved
+     * \return Results of the query
+     */
     virtual query::Results query(const std::string& query, const query::Bindings& bindings) const { throw std::runtime_error("owlapi::FileBackend: query interface not implemented"); }
 
 protected:

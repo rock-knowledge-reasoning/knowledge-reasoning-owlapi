@@ -87,7 +87,7 @@ public:
     /**
      * Add a prefix
      * \param prefix
-     * \param uri Uri this prefix maps to
+     * \param iri Iri this prefix maps to
      */
     Query& prefix(const std::string& prefix, const owlapi::model::IRI& iri);
 

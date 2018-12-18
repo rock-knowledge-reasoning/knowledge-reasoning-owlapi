@@ -46,7 +46,7 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
             QList<Soprano::Statement> allStatements = it.allStatements();
             if(allStatements.empty())
             {
-                throw std::runtime_error("owlapi::db::rdf::SopranoDB:fromFile " + filename + 
+                throw std::runtime_error("owlapi::db::rdf::SopranoDB:fromFile " + filename +
                         " no statements found using parser format: '" + format + "'. Trying other parser.");
             }
             LOG_INFO_S << "Successfully parsed '" << filename << "' using format: " << format;
@@ -89,139 +89,6 @@ query::Results SopranoDB::query(const std::string& query, const query::Bindings&
 
     return queryResults;
 }
-
-
-
-
-
-
-//    //PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-//    //PREFIX owl: <http://www.w3.org/2002/07/owl#>
-//    //PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-//    //PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-//    //SELECT ?subject ?object
-//    //  WHERE { ?subject rdfs:subClassOf ?object }
-//
-//    using namespace owlapi;
-//    std::string prefix = "PREFIX rdf:<" + vocabulary::RDF::BaseUri() +">\n";
-//    prefix += "PREFIX owl: <" + vocabulary::OWL::BaseUri() + ">\n";
-//    prefix += "PREFIX rdfs: <" + vocabulary::RDFS::BaseUri() + ">\n";
-//
-//    // Loading the model specification
-//    Registry& registry = RDFModelFactory::getRegistry();
-//    {
-//        std::string query = prefix + " select ?r where { ?r rdf:type owl:Class . }";
-//        Soprano::QueryResultIterator qit = sopranoModel->executeQuery(QString(query.c_str()), Soprano::Query::QueryLanguageSparql);
-//        while( qit.next())
-//        {
-//            std::string classUri = qit.binding("r").toString().toStdString();
-//            registry.registerClass( classUri, owlapi::Class::Ptr( new owlapi::Class( classUri ) ) );
-//        }
-//    }
-//
-//    // Update subclass relationships
-//    {
-//        std::string query = prefix + " select ?s ?o where { ?s rdfs:subClassOf ?o .}";
-//        Soprano::QueryResultIterator qit = sopranoModel->executeQuery(QString(query.c_str()), Soprano::Query::QueryLanguageSparql);
-//
-//        while( qit.next())
-//        {
-//            std::string subject = qit.binding("s").toString().toStdString();
-//            std::string object = qit.binding("o").toString().toStdString();
-//
-//            LOG_DEBUG_S << "Subject " << subject << " subclassOf " << object;
-//
-//            Class::Ptr subjectKlass = registry.getClass(subject);
-//            Class::Ptr objectKlass = registry.getClass(object);
-//            subjectKlass->addSuperClass(objectKlass);
-//        }
-//    }
-//
-//    {
-//        std::string query = prefix + " select ?r where { ?r rdf:type owl:ObjectProperty . }";
-//        Soprano::QueryResultIterator qit = sopranoModel->executeQuery(QString(query.c_str()), Soprano::Query::QueryLanguageSparql);
-//        while( qit.next())
-//        {
-//            LOG_DEBUG_S << qit.binding("r").toString().toStdString();
-//            std::string propertyUri = qit.binding("r").toString().toStdString();
-//            registry.registerProperty( propertyUri, owlapi::Property::Ptr( new owlapi::ObjectProperty( propertyUri ) ) );
-//        }
-//    }
-//
-//    {
-//        std::string query = prefix + " select ?r where { ?r rdf:type owl:DatatypeProperty . }";
-//        Soprano::QueryResultIterator qit = sopranoModel->executeQuery(QString(query.c_str()), Soprano::Query::QueryLanguageSparql);
-//        while( qit.next())
-//        {
-//            LOG_DEBUG_S << qit.binding("r").toString().toStdString();
-//            std::string propertyUri = qit.binding("r").toString().toStdString();
-//            registry.registerProperty( propertyUri, owlapi::Property::Ptr( new owlapi::DatatypeProperty( propertyUri ) ) );
-//        }
-//    }
-//
-//
-//    // Describing the model instance
-//    Model model;
-//    {
-//        std::string query = prefix + " select ?r where { ?r rdf:type owl:NamedIndividual . }";
-//        std::vector<std::string> individuals;
-//        Soprano::QueryResultIterator qit = sopranoModel->executeQuery(QString(query.c_str()), Soprano::Query::QueryLanguageSparql);
-//        while( qit.next())
-//        {
-//            individuals.push_back( qit.binding("r").toString().toStdString() );
-//        }
-//
-//        std::vector<std::string>::const_iterator cit = individuals.begin();
-//        for(; cit != individuals.end(); ++cit)
-//        {
-//            owlapi::vocabulary::SplitUri splitUri = owlapi::vocabulary::Utils::extractBaseUri(*cit);
-//            std::string prefixIndividual = prefix + " PREFIX custom: <" + splitUri.baseUri +">\n";
-//            std::string iQuery = prefixIndividual + " select ?o where { custom:" + splitUri.name + " rdf:type ?o . }";
-//
-//            LOG_DEBUG_S << "iQuery: " << iQuery;
-//
-//            Soprano::QueryResultIterator iit = sopranoModel->executeQuery(QString(iQuery.c_str()), Soprano::Query::QueryLanguageSparql);
-//            while( iit.next())
-//            {
-//                std::string uri = iit.binding("o").toString().toStdString();
-//                if(uri != owlapi::vocabulary::OWL::NamedIndividual())
-//                {
-//                    OrganizationElement::Ptr element = RDFModelFactory::getInstanceOf( splitUri.fullName(), uri);
-//                    model.add(element);
-//                }
-//            }
-//        }
-//    }
-//
-//    LOG_WARN_S << registry.toString();
-//
-//
-//    //Q_FOREACH( Soprano::Statement s, allStatements)
-//    //{
-//    //    Soprano::Node subject = s.subject();
-//    //    Soprano::Node predicate = s.predicate();
-//    //    Soprano::Node object = s.object();
-//
-//    //    printf("s: %s p: %s o: %s\n", subject.toString().toStdString().c_str(),
-//    //            predicate.toString().toStdString().c_str(),
-//    //            object.toString().toStdString().c_str());
-//
-//
-//    //    try {
-//    //        OrganizationElement::Ptr element = RDFModelFactory::getInstanceOf(subject.toString().toStdString().c_str());
-//
-//    //        // How to identify individual elements i.e. id?!
-//
-//    //        //model.add(element);
-//    //        LOG_WARN("SopranoDB: adding vertex for %s", subject.toString().toStdString().c_str());
-//    //    } catch(const std::runtime_error& e)
-//    //    {
-//    //        LOG_DEBUG("SopranoDB: error on adding vertex %s", e.what());
-//    //    }
-//
-//    //}
-//    return model;
-//}
 
 } // end namespace db
 } // end namespace owlapi

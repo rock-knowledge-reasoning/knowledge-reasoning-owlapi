@@ -67,13 +67,14 @@ public:
 
     /**
      * Retrieve the cardinality restrictions of a given class expression
-     * \param ce
-     * \param op
+     * \param ce Classexpression
+     * \param objectProperty IRI of the relation that this restriction applies to
      * \return a compact list of cardinality restrictions
-     * \param e OWLClassExpression
      * \see OWLCardinalityRestriction::compact
      */
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce, const IRI& op = IRI()) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const
+            owlapi::model::OWLClassExpression::Ptr& ce,
+            const IRI& objectProperty = IRI()) const;
 
     /**
      * Retrieve the cardinality restrictions of a given class (by IRI)
@@ -83,13 +84,16 @@ public:
      * \return a compact list of cardinality restrictions
      * \see OWLCardinalityRestriction::compact
      */
-    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri, const IRI& objectProperty = IRI()) const;
+    std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri,
+            const IRI& objectProperty = IRI()) const;
 
     /**
      * Retrieve the cardinality restrictions for a given set of classes
      * Will retrieve the restrictions per class and then join the (potentially
      * overlapping results)
      * \param klasses Set of klasses to get restrictions for
+     * \param objectProperty The object property to which the cardinality
+     * restriction applies to
      * \param operationType Use the given operation type to join the set of
      * restrictions
      * \see OWLCardinalityRestriction::join
@@ -131,10 +135,11 @@ public:
     /**
      * Get all cardinality restrictions which are set for a given object
      * property and which should apply to a given klass/instance
-     * \param klass
-     * \param objectProperty
-     * \param applicationKlass
-     * \param direct
+     * \param klass The qualification of the cardinality restriction
+     * \param objectProperty The objectProperty for this description
+     * \param targetKlass The queried target class/instance to identify applied
+     * restrictions
+     * \return The list of restrictions that are applied to the targetKlass
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictionsForTarget(const IRI& klass,
             const IRI& objectProperty,
@@ -143,15 +148,17 @@ public:
 
     /**
      * Check if object identified by iri is a subclass of the given superclass
-     * \param iri
-     * \param superclass
+     * \param iri A class identifier
+     * \param superclass Another class
+     * \return If iri is a subclass of superclass
      */
     bool isSubClassOf(const IRI& iri, const IRI& superclass) const;
 
     /**
      * Check if object identified by iri is a direct subclass of the given superclass
-     * \param iri
-     * \param superclass
+     * \param iri A class identifier
+     * \param superclass Another class
+     * \return If iri is a direct subclass of superclass
      */
     bool isDirectSubClassOf(const IRI& iri, const IRI& superclass) const;
 
@@ -224,6 +231,9 @@ public:
      * Test if instances are related via given a given property
      * \param instance Instance identifier
      * \param relationProperty relation identifier:
+     * \param otherInstance Another instance
+     * \return True if instance is related with otherInstance via
+     * relationProperty
      */
     bool isRelatedTo(const IRI& instance, const IRI& relationProperty, const IRI& otherInstance) const;
 

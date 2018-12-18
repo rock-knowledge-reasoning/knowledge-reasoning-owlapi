@@ -13,8 +13,10 @@
 
 namespace owlapi {
 namespace vocabulary {
-/** 
- * \class Custom vocabulary
+/**
+ * \class Custom
+ * \brief A class to quickly provide a custom vocabulary, by providing only
+ * the base URL of the ontology
  */
 class Custom
 {

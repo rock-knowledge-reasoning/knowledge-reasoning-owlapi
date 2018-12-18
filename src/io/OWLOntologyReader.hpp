@@ -5,7 +5,7 @@
 #include <owlapi/db/rdf/SparqlInterface.hpp>
 
 namespace owlapi {
-namespace model { 
+namespace model {
 
 class OWLOntologyTell;
 class OWLOntologyAsk;
@@ -51,8 +51,8 @@ public:
 
     /**
      * Load declarations and imports for this ontology
-     * \param ontology
-     * \param directImport Set to true if this a direct import false otherwise
+     * \param ontology The ontology to load declarations and imports for
+     * \param directImports Set to true if this a direct import false otherwise
      */
     void loadDeclarationsAndImports(owlapi::model::OWLOntology::Ptr& ontology, bool directImports);
 

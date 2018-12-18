@@ -74,7 +74,7 @@ public:
      * \param ontology Ontology object to load and populate
      * \param ontologyIRI ontology iri that should be assigned to the document if no iri
      * is given in the document
-     * \param allowEmptyTopOntology Allow the top ontology to be empty
+     * \param isEmptyTopOntology Mark the top ontology as being empty
      * \throws if this ontology has already been loaded (checking on any existing
      * axioms)
      * \return Pointer to the OWLOntology instance

@@ -27,34 +27,6 @@ public:
 
     OWLOntology::Ptr getOntology() const { return mpOntology; }
 
-// public abstract OWLOntologyChangeData getChangeData();
-//
-//    /**
-//     * Gets a {@link OWLOntologyChangeRecord} that is derived from this
-//     * {@code OWLOntologyChange}'s {@link OWLOntologyID} and it's
-//     * {@link OWLOntologyChangeData}.
-//     *
-//     * @return An {@link OWLOntologyChangeRecord} containing an
-//     *         {@link OWLOntologyID} equal to the {@link OWLOntologyID} of this
-//     *         {@code OWLOntologyChange}'s {@link OWLOntology}. Not {@code null}
-//     *         .
-//     */
-//    @Nonnull
-//    public OWLOntologyChangeRecord getChangeRecord() {
-//        return new OWLOntologyChangeRecord(ont.getOntologyID(), getChangeData());
-//    }
-//
-//    /**
-//     * Gets the signature of this ontology change. That is, the set of entities
-//     * appearing in objects in this change.
-//     *
-//     * @return A set of entities that correspond to the signature of this
-//     *         object. The set is a copy, changes are not reflected back.
-//     */
-//    @Override
-//    @Nonnull
-//    public abstract Set<OWLEntity> getSignature();
-
     virtual ChangeApplied accept(const OWLOntologyChangeVisitor::Ptr& visitor) = 0;
 };
 
