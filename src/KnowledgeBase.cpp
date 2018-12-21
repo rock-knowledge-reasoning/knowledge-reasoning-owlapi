@@ -1067,7 +1067,12 @@ IRIList KnowledgeBase::allObjectProperties() const
     IRIObjectPropertyExpressionMap::const_iterator cit = mObjectProperties.begin();
     for(; cit != mObjectProperties.end(); ++cit)
     {
-        properties.push_back(cit->first);
+        const owlapi::model::IRI& iri = cit->first;
+        if(iri == vocabulary::OWL::topObjectProperty())
+        {
+            continue;
+        }
+        properties.push_back(iri);
     }
     return properties;
 }
@@ -1158,6 +1163,11 @@ IRIList KnowledgeBase::allDataProperties() const
     IRIDataPropertyExpressionMap::const_iterator cit = mDataProperties.begin();
     for(; cit != mDataProperties.end(); ++cit)
     {
+        const owlapi::model::IRI& iri = cit->first;
+        if(iri == vocabulary::OWL::topDataProperty())
+        {
+            continue;
+        }
         properties.push_back(cit->first);
     }
     return properties;

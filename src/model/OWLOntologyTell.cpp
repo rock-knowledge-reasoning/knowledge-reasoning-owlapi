@@ -68,12 +68,24 @@ void OWLOntologyTell::initializeDefaultClasses()
         vocabulary::OWL::AsymmetricProperty(),
         vocabulary::OWL::TransitiveProperty(),
         vocabulary::OWL::TransitiveProperty(),
-        vocabulary::OWL::InverseFunctionalProperty() };
+        vocabulary::OWL::InverseFunctionalProperty(),
+        vocabulary::OWL::topObjectProperty()
+    };
 
     for(const IRI& iri : defaultObjectProperties)
     {
         klass(iri);
         objectProperty(iri);
+    }
+
+    IRIList defaultDataProperties = {
+        vocabulary::OWL::topDataProperty()
+    };
+
+    for(const IRI& iri : defaultDataProperties)
+    {
+        klass(iri);
+        dataProperty(iri);
     }
 
     // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
@@ -500,14 +512,14 @@ OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, 
         OWLObjectProperty::Ptr subOProperty = mpOntology->getObjectProperty(subProperty);
         OWLObjectProperty::Ptr superOProperty = mpOntology->getObjectProperty(parentProperty);
 
-        axiom = OWLSubPropertyAxiom::Ptr(new OWLSubObjectPropertyOfAxiom(subOProperty, superOProperty));
+        axiom = make_shared<OWLSubObjectPropertyOfAxiom>(subOProperty, superOProperty);
     } else {
         dataProperty(subProperty);
 
         OWLDataProperty::Ptr subDProperty = mpOntology->getDataProperty(subProperty);
         OWLDataProperty::Ptr superDProperty = mpOntology->getDataProperty(parentProperty);
 
-        axiom = OWLSubPropertyAxiom::Ptr(new OWLSubDataPropertyOfAxiom(subDProperty, superDProperty));
+        axiom = make_shared<OWLSubDataPropertyOfAxiom>(subDProperty, superDProperty);
     }
 
     addAxiom(axiom);
