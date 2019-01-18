@@ -143,6 +143,32 @@ BOOST_AUTO_TEST_CASE(punning)
         BOOST_REQUIRE_THROW(ask.getDataValue(actor, property), std::invalid_argument);
         BOOST_REQUIRE_THROW( ask.getDataPropertyDomain(property, true), std::invalid_argument);
     }
+
+    {
+        // Try setting of value for parent class via punning
+        // Should be inherited to subclasses (and punning instances thereof)
+        IRI actor = OM.resolve("Actor");
+        IRI property = OM.resolve("probabilityOfFailure");
+
+        OWLLiteral::Ptr defaultProbabilityOfFailure = OWLLiteral::create("0.5", owlapi::vocabulary::XSD::resolve("double"));
+        tell.instanceOf(actor, actor);
+        tell.valueOf(actor, property, defaultProbabilityOfFailure);
+
+        OWLLiteral::Ptr value = ask.getDataValue(actor, property);
+        BOOST_REQUIRE_MESSAGE(value->getDouble() == 0.5, "Data value of " << actor << " for " << property << " is found: " << value->getDouble());
+
+        IRI arobot = OM.resolve("ARobot");
+        tell.subClassOf(arobot, actor);
+        tell.instanceOf(arobot, arobot);
+        value = ask.getDataValue(arobot, property);
+
+        BOOST_REQUIRE_MESSAGE(value->getDouble() == 0.5, "Data value of " << actor << " for " << property << " is found: " << value->getDouble());
+
+        OWLLiteral::Ptr probabilityOfFailure = OWLLiteral::create("0.8", owlapi::vocabulary::XSD::resolve("double"));
+        tell.valueOf(arobot, property, probabilityOfFailure);
+        value = ask.getDataValue(arobot, property);
+        BOOST_REQUIRE_MESSAGE(value->getDouble() == 0.8, "Data value of " << actor << " for " << property << " is found: " << value->getDouble());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(retract)
@@ -189,6 +215,34 @@ BOOST_AUTO_TEST_CASE(equivalence)
     tell.equalClasses({klass0, klass1});
     BOOST_REQUIRE_MESSAGE( ask.isDirectSubClassOf(subclass, klass1), "Subclass"
             " is subclass of equivalent class");
+}
+
+BOOST_AUTO_TEST_CASE(ranges)
+{
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    IRI klass("http://my-classes#class");
+    IRI instance("http://my-classes/#instance");
+    IRI property("http://my-classes/#property");
+    IRI subproperty0("http://my-classes/#subproperty0");
+    IRI subproperty1("http://my-classes/#subproperty1");
+
+    tell.klass(klass);
+    tell.instanceOf(instance, klass);
+    tell.dataProperty(property);
+    tell.subPropertyOf(subproperty0, property);
+    tell.subPropertyOf(subproperty1, property);
+
+    tell.dataPropertyRangeOf(property, vocabulary::XSD::resolve("double"));
+    tell.dataPropertyRangeOf(subproperty0, vocabulary::XSD::resolve("double"));
+    tell.dataPropertyRangeOf(subproperty1, vocabulary::XSD::resolve("double"));
+
+    OWLLiteral::Ptr value = OWLLiteral::create("7.3", owlapi::vocabulary::XSD::resolve("double"));
+    BOOST_REQUIRE_NO_THROW( tell.valueOf(instance, property, value) );
+    BOOST_REQUIRE_NO_THROW( tell.valueOf(instance, subproperty0, value) );
+    BOOST_REQUIRE_NO_THROW( tell.valueOf(instance, subproperty1, value) );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

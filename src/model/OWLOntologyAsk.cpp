@@ -394,17 +394,51 @@ IRIList OWLOntologyAsk::allInverseRelatedInstances(const IRI& instance, const IR
 }
 
 
-OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance, const IRI& dataProperty) const
+OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance,
+        const IRI& dataProperty,
+        bool includeAncestors) const
 {
-    reasoner::factpp::DataValue dataValue = mpOntology->kb()->getDataValue(instance, dataProperty);
+    std::string msg;
+    try {
+        reasoner::factpp::DataValue dataValue = mpOntology->kb()->getDataValue(instance, dataProperty);
 
-    std::string valueRepresentation = dataValue.getValue();
-    if(!dataValue.getType().empty())
+        std::string valueRepresentation = dataValue.getValue();
+        if(dataValue.getType().empty())
+        {
+            valueRepresentation += "^^" + dataValue.getType();
+        }
+        return OWLLiteral::create(valueRepresentation);
+    } catch(const std::runtime_error& e)
     {
-        valueRepresentation += "^^" + dataValue.getType();
+        // ignore
     }
 
-    return OWLLiteral::create(valueRepresentation);
+    // check for parent value when punning is active
+    // and perform a greedy match
+    if(includeAncestors && isOWLClass(instance))
+    {
+        IRIList parentClasses = ancestors(instance);
+        LOG_DEBUG_S << "For instance: " << instance
+            << " check datavalue : " << dataProperty
+            << " of ancestors: " << parentClasses;
+        for(const IRI& parentClass : parentClasses)
+        {
+            try {
+                OWLLiteral::Ptr literal = getDataValue(parentClass, dataProperty, false);
+                return literal;
+            } catch(const std::exception& e)
+            {
+                // ignore
+            }
+        }
+        throw std::runtime_error("owlapi::model:OWLOntologyAsk::getDataValue: "
+                "meta modelling instance " + instance.toQuotedString() + " has no value related via "
+                + dataProperty.toQuotedString());
+    } else {
+        throw std::runtime_error("owlapi::model:OWLOntologyAsk::getDataValue: "
+                "instance " + instance.toQuotedString() + " has no value related via "
+                + dataProperty.toQuotedString());
+    }
 }
 
 IRIList OWLOntologyAsk::getDataPropertyDomain(const IRI& dataProperty, bool direct) const
@@ -455,7 +489,13 @@ IRIList OWLOntologyAsk::getObjectPropertyDomain(const IRI& objectProperty, bool 
 
 IRIList OWLOntologyAsk::ancestors(const IRI& instance) const
 {
-    return mpOntology->kb()->typesOf(instance);
+    if(isOWLClass(instance))
+    {
+        return mpOntology->kb()->allAncestorsOf(instance, false);
+    } else {
+        throw std::invalid_argument("owlapi::model::OWLOntology::ancestors: '"
+                + instance.toString() + "' is not a known class");
+    }
 }
 
 bool OWLOntologyAsk::isObjectProperty(const IRI& property) const

@@ -265,9 +265,14 @@ public:
 
     /**
      * Retrieve data value associated with instance
+     * \param instance Name of the instance to get the data property for
+     * \param dataProperty Name of the dataProperty to check the relation for
+     * \param includeAncestors When using punning allow to retrieve associated
+     * property from a parent class
      * \return data value
      */
-    OWLLiteral::Ptr getDataValue(const IRI& instance, const IRI& dataProperty) const;
+    OWLLiteral::Ptr getDataValue(const IRI& instance, const IRI& dataProperty,
+            bool includeAncestors = true) const;
 
     /**
      * Get the data domain for the given data propery
