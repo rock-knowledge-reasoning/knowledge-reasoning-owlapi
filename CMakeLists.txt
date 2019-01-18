@@ -11,3 +11,8 @@ install(FILES
     modules/owlapi.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/owlapi-config.cmake
     DESTINATION share/owlapi/cmake)
+
+include(modules/owlapi.cmake)
+owlapi_install_ontology("http://www.rock-robotics.org/2019/01/owlapi/test/create-with-custom"
+    "test/data/owlapi-test-with-custom.owl")
+

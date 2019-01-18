@@ -74,13 +74,23 @@ BOOST_AUTO_TEST_CASE(create_with_builtin)
     BOOST_REQUIRE_MESSAGE(ontology->getAxioms().empty(), "Ontology is empty -- after importing only builtin vocabularies");
 }
 
+BOOST_AUTO_TEST_CASE(create_from_unknown)
+{
+    OWLOntology::Ptr ontology = owlapi::make_shared<OWLOntology>();
+    IRI iri("http://rock-robotics.org/2019/01/owlapi/test");
+    std::string canonizedName = owlapi::io::OWLOntologyIO::canonizeForOfflineUsage(iri);
+    ontology->addDirectImportsDocument(iri);
+
+    IRI ontologyIRI("http://test/owlapi/create_from_unknown");
+    BOOST_REQUIRE_THROW( OWLOntologyIO::loadNew(ontology, ontologyIRI),
+            std::invalid_argument );
+}
+
 BOOST_AUTO_TEST_CASE(create_with_custom)
 {
     OWLOntology::Ptr ontology = owlapi::make_shared<OWLOntology>();
     {
-        //IRI iri("http://www.linkedmodel.org/1.2/schema/vaem");
-        //IRI iri("http://qudt.org/1.1/vocab/quantity");
-        IRI iri("http://www.rock-robotics.org/2015/12/robots/Sherpa");
+        IRI iri("http://www.rock-robotics.org/2019/01/owlapi/test/create-with-custom");
         std::string canonizedName = owlapi::io::OWLOntologyIO::canonizeForOfflineUsage(iri);
         ontology->addDirectImportsDocument(iri);
     }

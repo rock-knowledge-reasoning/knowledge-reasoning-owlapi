@@ -133,6 +133,8 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
 
         // load the individual ontology to identity direct imports
         importReader->loadDeclarationsAndImports(importedOntology, true /*directImport*/);
+        iri = importedOntology->getIRI();
+
         IRIList directImports = importedOntology->getDirectImportsDocuments();
         dependencies[iri] = IRISet(directImports.begin(), directImports.end());
 
@@ -140,7 +142,6 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         unprocessed.push_back(iri);
 
         readersMap[importedOntology] = importReader;
-
         // register IRI and ontology
         processed.push_back(iri);
     }
