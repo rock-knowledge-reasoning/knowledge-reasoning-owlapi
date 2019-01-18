@@ -173,6 +173,7 @@ OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics
 OWLOntologyAsk ask(ontology);
 IRI robot("http:://www.rock-robotics.org/2014/01/om-schema#Sherpa")
 std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCardinalityRestrictions(robot);
+
 ```
 
 #### Vocabularies
@@ -183,23 +184,23 @@ std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = ask.getCar
  of new vocabularies.
  To define a custom vocabulary:
  
- ```
- #include <owlapi/Vocabulary.hpp>
+```
+  #include <owlapi/Vocabulary.hpp>
 
- owlapi::vocabulary::Custom custom("http://base-url/");
- owlapi::model::IRI iri = custom.resolve("my-instance");
- ```
+  owlapi::vocabulary::Custom custom("http://base-url/");
+  owlapi::model::IRI iri = custom.resolve("my-instance");
+```
 
  Use an existing vocabulary. Note that the iri for types which collide
  with C++ inbuilt types/keyword have to rely on the 'resolve' function, e.g.,
  double, float, int
 
- ```
+```
  #include <owlapi/Vocabulary.hpp>
 
  owlapi::model::IRI iriThing = owlapi::vocabulary::OWL::Thing();
  owlapi::model::IRI iriDouble = owlapi::vocabulary::OWL::resolve("double");
- ```
+```
  
  
 #### DataProperties Handling of DataProperties
@@ -236,10 +237,10 @@ to target small/embedded devices.
 
 Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.2) is actually written in C++
 and thus can be accessed almost directly.
-This implementation is not as complete as the orignal JAVA-based
-one.
-Among other things it does not support processing of construcst like, DataOneOf, DataComplementOf
-It provides, however, core features to handle ontologies and supports also some
+This implementation of owlapi is not as complete as the orignal JAVA-based one.
+Among other things it does not fully support is processing of construct such as DataComplementOf.
+DataOneOf is supported however.
+This library provides core features to handle ontologies and supports also some
 more complex modelling using qualified cardinality restrictions.
  
 The user can load the model from file, and manipulate the resulting ontology
@@ -252,21 +253,27 @@ Either by explicitly setting ROCK_TEST_ENABLED to ON, or by
 calling
 ```
     autoproj test enable knowledge_reasoning/owlapi
-    autoproj rebuild knowledge_reasoning/owlapi
+    amake knowledge_reasoning/owlapi
 ```
 
 Tests are based on Boost Testing.
 They can be run with the following command within the project folder, after
 building the project.
 
+Either via CTest with
 ```
-export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
+make -C build test
+
+```
+or directly
+
+```
 ./build/test/owlapi-test
 
 ```
 
 ## COPYRIGHT
-Copyright (c) 2013-2018 Thomas M Roehr, DFKI GmbH Robotics Innovation Center
+Copyright (c) 2013-2019 Thomas M Roehr, DFKI GmbH Robotics Innovation Center
 
 ## LICENSE
 This project is licensed under [LGPL v2.1 or later](https://www.gnu.org/licenses/lgpl-2.1.txt)
