@@ -9,6 +9,7 @@
 #include "OWLEquivalentDataPropertiesAxiom.hpp"
 #include "OWLDisjointObjectPropertiesAxiom.hpp"
 #include "OWLDisjointDataPropertiesAxiom.hpp"
+#include "OWLDataOneOf.hpp"
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
@@ -103,14 +104,14 @@ OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
     {
         return it->second;
     } else {
-        OWLClass::Ptr klass(new OWLClass(iri));
+        OWLClass::Ptr klass = make_shared<OWLClass>(iri);
         mpOntology->mClasses[iri] = klass;
 
         // Update kb
         mpOntology->kb()->getClassLazy(iri);
 
         OWLEntity::Ptr entity = OWLEntity::klass(iri);
-        OWLAxiom::Ptr axiom(new OWLDeclarationAxiom(entity));
+        OWLAxiom::Ptr axiom = make_shared<OWLDeclarationAxiom>(entity);
         addAxiom(axiom);
 
         return klass;
@@ -125,7 +126,7 @@ OWLAnonymousIndividual::Ptr OWLOntologyTell::anonymousIndividual(const IRI& iri)
         return it->second;
     } else {
         NodeID node(iri.toString(), true);
-        OWLAnonymousIndividual::Ptr individual(new OWLAnonymousIndividual(node));
+        OWLAnonymousIndividual::Ptr individual = make_shared<OWLAnonymousIndividual>(node);
         mpOntology->mAnonymousIndividuals[iri] = individual;
         return individual;
     }
@@ -138,7 +139,7 @@ OWLNamedIndividual::Ptr OWLOntologyTell::namedIndividual(const IRI& iri)
     {
         return it->second;
     } else {
-        OWLNamedIndividual::Ptr individual(new OWLNamedIndividual(iri));
+        OWLNamedIndividual::Ptr individual = make_shared<OWLNamedIndividual>(iri);
         mpOntology->mNamedIndividuals[iri] = individual;
 
         //Update kb
@@ -170,7 +171,7 @@ OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
     {
         return it->second;
     } else {
-        OWLObjectProperty::Ptr property(new OWLObjectProperty(iri));
+        OWLObjectProperty::Ptr property = make_shared<OWLObjectProperty>(iri);
         mpOntology->mObjectProperties[iri] = property;
 
         //Update kb
@@ -244,7 +245,7 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClass::Ptr subclass, OWLC
 
 OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression)
 {
-    OWLSubClassOfAxiom::Ptr axiom(new OWLSubClassOfAxiom(subclassExpression, superclassExpression));
+    OWLSubClassOfAxiom::Ptr axiom = make_shared<OWLSubClassOfAxiom>(subclassExpression, superclassExpression);
     mpOntology->mSubClassAxiomBySubPosition[subclassExpression].push_back(axiom);
     mpOntology->mSubClassAxiomBySuperPosition[superclassExpression].push_back(axiom);
 
@@ -481,18 +482,18 @@ OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation
 
     if(mAsk.isObjectProperty(relation))
     {
-        OWLObjectPropertyAssertionAxiom::Ptr axiom(new OWLObjectPropertyAssertionAxiom(
+        OWLObjectPropertyAssertionAxiom::Ptr axiom = make_shared<OWLObjectPropertyAssertionAxiom>(
                     individual,
                     mpOntology->getObjectProperty(relation),
-                    assertionObject));
+                    assertionObject);
         return addAxiom(axiom);
 
     } else if(mAsk.isDataProperty(relation))
     {
-        OWLDataPropertyAssertionAxiom::Ptr axiom(new OWLDataPropertyAssertionAxiom(
+        OWLDataPropertyAssertionAxiom::Ptr axiom = make_shared<OWLDataPropertyAssertionAxiom>(
                     individual,
                     mpOntology->getDataProperty(relation),
-                    dynamic_pointer_cast<OWLLiteral>(assertionObject) ));
+                    dynamic_pointer_cast<OWLLiteral>(assertionObject) );
         return addAxiom(axiom);
     } else {
         throw std::runtime_error("owlapi::model::OWLOntologyTell::relatedTo: "
@@ -534,7 +535,7 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const I
     OWLClassExpression::Ptr domain = mpOntology->getClass(classType);
 
     OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
-    OWLDataPropertyDomainAxiom::Ptr axiom(new OWLDataPropertyDomainAxiom(e_dataProperty, domain));
+    OWLDataPropertyDomainAxiom::Ptr axiom = make_shared<OWLDataPropertyDomainAxiom>(e_dataProperty, domain);
     return addAxiom(axiom);
 }
 
@@ -544,12 +545,32 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IR
     // mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
 
     OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
-    OWLDataRange::Ptr range(new OWLDataType(classType));
-    dataProperty->addRange(range);
 
-    OWLDataPropertyExpression::Ptr e_dataProperty = dynamic_pointer_cast<OWLDataPropertyExpression>(dataProperty);
-    OWLDataPropertyRangeAxiom::Ptr axiom(new OWLDataPropertyRangeAxiom(e_dataProperty, range));
-    return addAxiom(axiom);
+    std::map<IRI, OWLDataRange::PtrList>::const_iterator cit = mpOntology->mAnonymousDataRanges.find(classType);
+    if(cit != mpOntology->mAnonymousDataRanges.end())
+    {
+        OWLDataRange::PtrList ranges = cit->second;
+        for(const OWLDataRange::Ptr& range : ranges)
+        {
+            dataProperty->addRange(range);
+            if(range->getDataRangeType() == OWLDataRange::ONE_OF)
+            {
+                OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(range);
+                reasoner::factpp::DataRange range = mpOntology->kb()->dataOneOf(oneOf->getLiterals());
+                mpOntology->kb()->dataRangeOf(property, range);
+                return addAxiom( make_shared<OWLDataPropertyRangeAxiom>(
+                            dataProperty,
+                            oneOf) );
+            }
+        }
+        return OWLAxiom::Ptr();
+    } else{
+        OWLDataRange::Ptr range = make_shared<OWLDataType>(classType);
+        dataProperty->addRange(range);
+        OWLDataPropertyExpression::Ptr e_dataProperty = dynamic_pointer_cast<OWLDataPropertyExpression>(dataProperty);
+        OWLDataPropertyRangeAxiom::Ptr axiom = make_shared<OWLDataPropertyRangeAxiom>(e_dataProperty, range);
+        return addAxiom(axiom);
+    }
 }
 
 OWLAxiom::Ptr OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const IRI& classType)
@@ -559,18 +580,18 @@ OWLAxiom::Ptr OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const
     OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(relation);
     OWLClassExpression::Ptr klass = mpOntology->getClass(classType);
 
-    OWLObjectPropertyDomainAxiom::Ptr axiom(new OWLObjectPropertyDomainAxiom(oProperty, klass));
+    OWLObjectPropertyDomainAxiom::Ptr axiom = make_shared<OWLObjectPropertyDomainAxiom>(oProperty, klass);
     return addAxiom(axiom);
 }
 
 OWLAxiom::Ptr OWLOntologyTell::objectPropertyRangeOf(const IRI& relation, const IRI& classType)
 {
-    mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
+    mpOntology->kb()->objectRangeOf(relation, classType);
 
     OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(relation);
     OWLClassExpression::Ptr klass = mpOntology->getClass(classType);
 
-    OWLObjectPropertyRangeAxiom::Ptr axiom(new OWLObjectPropertyRangeAxiom(oProperty, klass));
+    OWLObjectPropertyRangeAxiom::Ptr axiom = make_shared<OWLObjectPropertyRangeAxiom>(oProperty, klass);
     return addAxiom(axiom);
 }
 
@@ -583,7 +604,7 @@ OWLAxiom::Ptr OWLOntologyTell::inverseOf(const IRI& relation, const IRI& inverse
         OWLObjectProperty::Ptr first = mpOntology->getObjectProperty(relation);
         OWLObjectProperty::Ptr second = mpOntology->getObjectProperty(inverseRelation);
 
-        OWLInverseObjectPropertiesAxiom::Ptr axiom(new OWLInverseObjectPropertiesAxiom(first, second));
+        OWLInverseObjectPropertiesAxiom::Ptr axiom = make_shared<OWLInverseObjectPropertiesAxiom>(first, second);
         return addAxiom(axiom);
     } else {
         throw std::invalid_argument("owlapi::model::OWLOntologyTell::inverseOf: '" + relation.toString() + "'"
@@ -598,7 +619,7 @@ OWLAxiom::Ptr OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataPrope
 
     OWLIndividual::Ptr individual = mAsk.getOWLIndividual(instance);
     OWLDataProperty::Ptr property = mAsk.getOWLDataProperty(dataProperty);
-    OWLDataPropertyAssertionAxiom::Ptr axiom(new OWLDataPropertyAssertionAxiom(individual, property, literal));
+    OWLDataPropertyAssertionAxiom::Ptr axiom = make_shared<OWLDataPropertyAssertionAxiom>(individual, property, literal);
 
     mpOntology->retractValueOf(individual, property);
     return addAxiom(axiom);
@@ -660,6 +681,14 @@ void OWLOntologyTell::datatype(const IRI& iri)
     //
     subClassOf(iri, vocabulary::RDFS::Datatype());
 }
+
+void OWLOntologyTell::dataOneOf(const IRI& id, const IRIList& iris)
+{
+    OWLDataOneOf::Ptr dataRange =
+        make_shared<OWLDataOneOf>(iris);
+    mpOntology->mAnonymousDataRanges[id].push_back(dataRange);
+}
+
 
 void OWLOntologyTell::removeIndividual(const IRI& iri)
 {

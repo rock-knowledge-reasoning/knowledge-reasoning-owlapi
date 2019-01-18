@@ -38,6 +38,7 @@ protected:
 
 public:
     typedef shared_ptr<OWLLiteral> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     virtual ~OWLLiteral() {}
 
@@ -63,7 +64,7 @@ public:
     bool isDouble() const { return mType == vocabulary::XSD::resolve("double").toString(); }
     bool isFloat() const { return mType == vocabulary::XSD::resolve("float").toString(); }
     bool isInteger() const { return mType == vocabulary::XSD::integer().toString(); }
-    bool isPlainLiteral() const { return mType == vocabulary::RDF::PlainLiteral().toString(); }
+    bool isPlainLiteral() const { return mType == vocabulary::RDF::PlainLiteral().toString() || mType.empty(); }
 
     /**
      * Create a literal based on the given type information
@@ -90,6 +91,8 @@ public:
     virtual int getInteger() const;
 
     virtual double getDouble() const;
+
+    static IRIList toIRIList(const OWLLiteral::PtrList& literals);
 };
 
 } // end namespace model

@@ -285,6 +285,13 @@ public:
     OWLDataRange::PtrList getDataRange(const IRI& dataProperty) const;
 
     /**
+     * Get the data type for the given data property and a particular value
+     * based on the available data ranges (if available)
+     * \throw std::invalid_argument if data property is not known
+     */
+    OWLDataType getDataType(const IRI& dataProperty, const std::string& value) const;
+
+    /**
      * Get the object domain for the given propery
      * \param objectProperty name of the propery
      * \param direct set to true if only the direct domain association should be

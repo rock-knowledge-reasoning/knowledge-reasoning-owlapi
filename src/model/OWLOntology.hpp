@@ -61,6 +61,8 @@ protected:
     std::map<IRI, OWLDataProperty::Ptr> mDataProperties;
     /// All annotation properties
     std::map<IRI, OWLAnnotationProperty::Ptr> mAnnotationProperties;
+    /// For data range list ONE_OF, UNION_OF ...
+    std::map<IRI, std::vector<OWLDataRange::Ptr> > mAnonymousDataRanges;
 
     /// General axiom map
     AxiomMap mAxiomsByType;
@@ -75,7 +77,6 @@ protected:
     /// Map of anonymous individual to all axioms the individual is involved into
     std::map<OWLAnonymousIndividual::Ptr, std::vector<OWLAxiom::Ptr> > mAnonymousIndividualAxioms;
     std::map<OWLEntity::Ptr, std::vector<OWLDeclarationAxiom::Ptr> > mDeclarationsByEntity;
-
 
     /// Map to access subclass axiom by a given subclass
     std::map<OWLClassExpression::Ptr, std::vector<OWLSubClassOfAxiom::Ptr> > mSubClassAxiomBySubPosition;

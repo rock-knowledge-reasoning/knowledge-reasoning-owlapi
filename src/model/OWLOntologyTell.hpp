@@ -212,6 +212,11 @@ public:
      */
     void ontology(const IRI& ontology);
     void datatype(const IRI& datatype);
+    /**
+     * Register a oneOf construct for a data (literal) list
+     * with an (anonymous) id
+     */
+    void dataOneOf(const IRI& id, const IRIList& iris);
 
     void removeIndividual(const IRI& instance);
 

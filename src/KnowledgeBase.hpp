@@ -368,8 +368,25 @@ public:
      * \param range Range type for this relation
      * \param propertyType Type of the property (Data, Object)
      */
-    reasoner::factpp::Axiom rangeOf(const IRI& property, const IRI& range, PropertyType propertyType);
+    reasoner::factpp::Axiom objectRangeOf(const IRI& property,
+            const IRI& range);
 
+    /**
+     * Define an object relation / role and its range
+     * \param property The property for which the range shall be specified
+     * \param range type for this relation
+     * \param propertyType Type of the property (Data, Object)
+     */
+    reasoner::factpp::Axiom objectRangeOf(const IRI& property,
+            const reasoner::factpp::ClassExpression& expression);
+
+    /**
+     * Define a data relation / role and its range
+     * \param property The data property for which the range shall be specified
+     * \param range Data range type for
+     */
+    reasoner::factpp::Axiom dataRangeOf(const IRI& property,
+            reasoner::factpp::DataRange& range);
     /**
      * Define associated value of an individual
      * \param individual The IRI of the individual
@@ -397,6 +414,11 @@ public:
      * \return corresponding class expression
      */
     reasoner::factpp::ClassExpression oneOf(const IRIList& instanceList);
+
+    /**
+     * Define a oneOf relationship
+     */
+    reasoner::factpp::DataRange dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals);
 
     /**
      * Define inverse of a given object property

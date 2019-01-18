@@ -28,6 +28,9 @@ class OWLOntologyReader
     std::map<owlapi::model::IRI, owlapi::model::OWLCardinalityRestriction> mCardinalityRestrictions;
     std::map<owlapi::model::IRI, owlapi::model::OWLValueRestriction> mValueRestrictions;
 
+    typedef std::pair<owlapi::model::IRI, owlapi::model::IRI> HeadTail;
+    std::map<owlapi::model::IRI, HeadTail > mAnonymousLists;
+
     /// The currently opened path
     std::string mAbsolutePath;
 
@@ -42,6 +45,8 @@ protected:
     void loadRestrictions(owlapi::model::OWLOntology::Ptr& ontology);
     void loadObjectProperties(owlapi::model::OWLOntology::Ptr& ontology);
     void loadDataProperties(owlapi::model::OWLOntology::Ptr& ontology);
+    void loadAnonymousLists(owlapi::model::OWLOntology::Ptr& ontology);
+    owlapi::model::IRIList getList(const owlapi::model::IRI& anonymousId);
 
 public:
     /**

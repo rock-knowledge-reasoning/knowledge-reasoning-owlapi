@@ -31,12 +31,36 @@ BOOST_AUTO_TEST_CASE(tell_and_ask)
         IRI instance("instance");
         kb.instanceOf(instance, derived);
 
-        kb.rangeOf(has, derived, KnowledgeBase::OBJECT);
+        kb.objectRangeOf(has, derived);
         kb.domainOf(has, derived, KnowledgeBase::OBJECT);
 
         reasoner::factpp::ObjectPropertyExpressionList list = kb.getRelatedObjectProperties(derived);
         kb.classify();
         BOOST_TEST_MESSAGE("Experimental evaluation of related object properties returned: " << list.size() << " properties");
+
+        IRI numericValue("numericValue");
+        kb.dataProperty(numericValue);
+
+        owlapi::model::OWLLiteral::PtrList literals;
+        OWLDataType doubleType( vocabulary::XSD::resolve("double") );
+        literals.push_back(OWLLiteral::create("1.0",doubleType));
+        literals.push_back(OWLLiteral::create("2.0",doubleType));
+        literals.push_back(OWLLiteral::create("3.0",doubleType));
+
+        reasoner::factpp::DataRange range = kb.dataOneOf(literals);
+        kb.dataRangeOf(numericValue, range);
+
+        reasoner::factpp::DataValue value = kb.dataValue("1.0", vocabulary::XSD::resolve("double").toString());
+        reasoner::factpp::Axiom axiom = kb.valueOf(instance, numericValue, value);
+        BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "Using data range is valid");
+
+        // Set invalid value
+        kb.retract(axiom);
+        reasoner::factpp::DataValue invalidValue = kb.dataValue("4.0",
+                vocabulary::XSD::resolve("double").toString());
+        kb.valueOf(instance, numericValue, invalidValue);
+        BOOST_REQUIRE_MESSAGE(!kb.isConsistent(), "Using element outside of data range is invalid");
+
     }
 }
 

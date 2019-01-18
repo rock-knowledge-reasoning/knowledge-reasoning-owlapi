@@ -1,7 +1,6 @@
 #include "OWLOntologyAsk.hpp"
-#include <owlapi/KnowledgeBase.hpp>
-
-#include <owlapi/Vocabulary.hpp>
+#include "../KnowledgeBase.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
@@ -422,6 +421,30 @@ OWLDataRange::PtrList OWLOntologyAsk::getDataRange(const IRI& dataProperty) cons
         return property->getDataRanges();
     }
     throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataRange: "
+            " no data property '" + dataProperty.toString() + "' found");
+}
+
+OWLDataType OWLOntologyAsk::getDataType(const IRI& dataProperty, const std::string& value) const
+{
+    OWLDataRange::PtrList dataRanges = getDataRange(dataProperty);
+    for(const OWLDataRange::Ptr& range : dataRanges)
+    {
+        OWLDataRange::Type rangeType = range->getDataRangeType();
+        switch(rangeType)
+        {
+            case OWLDataRange::DATATYPE:
+            case OWLDataRange::ONE_OF:
+                return OWLDataType::fromRange(range, value);
+            case OWLDataRange::UNION_OF:
+            case OWLDataRange::COMPLEMENT_OF:
+            case OWLDataRange::INTERSECTION_OF:
+            case OWLDataRange::DATATYPE_RESTRICTION:
+                throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataType: "
+                        " data range '" + OWLDataRange::TypeTxt[rangeType] + "' for '" + dataProperty.toString() + "' is unsupported");
+        }
+    }
+
+    throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataType: "
             " no data property '" + dataProperty.toString() + "' found");
 }
 

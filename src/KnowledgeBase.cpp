@@ -195,6 +195,7 @@ KnowledgeBase::KnowledgeBase()
 
     using namespace owlapi::vocabulary;
 
+    mDataTypes[vocabulary::RDF::PlainLiteral()] = getExpressionManager()->getStrDataType();
     mDataTypes[XSD::resolve("double")] = getExpressionManager()->getRealDataType();
     mDataTypes[XSD::resolve("float")] = getExpressionManager()->getRealDataType();
 
@@ -628,7 +629,6 @@ Axiom KnowledgeBase::disjoint(const IRIList& klassesOrInstances, KnowledgeBase::
         return Axiom(axiom);
     } else if(type == INSTANCE)
     {
-        LOG_WARN("PROCESS DIFFERENT");
         TDLAxiom* axiom = mKernel->processDifferent();
         return Axiom(axiom);
     }
@@ -719,26 +719,24 @@ Axiom KnowledgeBase::domainOf(const IRI& property, const IRI& domain, PropertyTy
     }
 }
 
-Axiom KnowledgeBase::rangeOf(const IRI& property, const IRI& range, PropertyType propertyType)
+Axiom KnowledgeBase::objectRangeOf(const IRI& property, const IRI& range)
 {
-    switch(propertyType)
-    {
-        case OBJECT:
-        {
-            ObjectPropertyExpression e_role = getObjectPropertyLazy(property);
-            ClassExpression e_range = getClassLazy(range);
+    ObjectPropertyExpression e_role = getObjectProperty(property);
+    ClassExpression e_range = getClassLazy(range);
+    return Axiom( mKernel->setORange(e_role.get(), e_range.get()) );
+}
 
-            return Axiom( mKernel->setORange(e_role.get(), e_range.get()) );
-        }
-        case DATA:
-        {
-            throw std::runtime_error("KnowledgeBase::rangeOf not implemented for data property");
-        }
-        default:
-        {
-            throw std::invalid_argument("Invalid property type '" + PropertyTypeTxt[propertyType] + "' for domainOf");
-        }
-    }
+Axiom KnowledgeBase::objectRangeOf(const IRI& property, const ClassExpression& expression)
+{
+    ObjectPropertyExpression e_role = getObjectProperty(property);
+    return Axiom( mKernel->setORange(e_role.get(), expression.get()) );
+}
+
+reasoner::factpp::Axiom KnowledgeBase::dataRangeOf(const IRI& property,
+        reasoner::factpp::DataRange& range)
+{
+    DataPropertyExpression e_role = getDataProperty(property);
+    return Axiom( mKernel->setDRange(e_role.get(), range.get()) );
 }
 
 Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const DataValue& dataValue)
@@ -775,7 +773,7 @@ DataValue KnowledgeBase::dataValue(const std::string& value, const std::string& 
     IRIDataTypeMap::const_iterator cit = mDataTypes.find(dataType);
     if(cit == mDataTypes.end())
     {
-        throw std::invalid_argument("owlapi::KnowledgeBase::dataValue: dataType '" + dataType + "' is unkown");
+        throw std::invalid_argument("owlapi::KnowledgeBase::dataValue: dataType '" + dataType + "' is unknown");
     }
 
     DataTypeName dataTypeName = cit->second;
@@ -802,6 +800,17 @@ ClassExpression KnowledgeBase::oneOf(const IRIList& instanceList)
         getExpressionManager()->addArg(e_instance.get());
     }
     return ClassExpression( getExpressionManager()->OneOf() );
+}
+
+DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals)
+{
+    getExpressionManager()->newArgList();
+    for(const owlapi::model::OWLLiteral::Ptr& literal : literals)
+    {
+        DataValue dValue = dataValue(literal->getValue(), literal->getType());
+        getExpressionManager()->addArg(dValue.get());
+    }
+    return DataRange( getExpressionManager()->DataOneOf() );
 }
 
 ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type, const IRI& relationProperty, const IRI& klassOrInstance, int cardinality)

@@ -30,6 +30,7 @@ rock_library(owlapi
         model/OWLClass.cpp
         model/OWLClassAssertionAxiom.cpp
         model/OWLClassExpression.cpp
+        model/OWLDataOneOf.cpp
         model/OWLDataProperty.cpp
         model/OWLDataPropertyAssertionAxiom.cpp
         model/OWLDataRange.cpp
@@ -99,6 +100,7 @@ rock_library(owlapi
         model/OWLClassAssertionAxiom.hpp
         model/OWLClassAxiom.hpp
         model/OWLClassExpression.hpp
+        model/OWLDataOneOf.hpp
         model/OWLDataProperty.hpp
         model/OWLDataPropertyAssertionAxiom.hpp
         model/OWLDataPropertyAxiom.hpp

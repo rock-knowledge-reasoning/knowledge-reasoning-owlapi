@@ -2,6 +2,7 @@
 #define OWLAPI_MODEL_OWL_DATA_RANGE_HPP
 
 #include <vector>
+#include <map>
 #include <owlapi/model/OWLPropertyRange.hpp>
 
 namespace owlapi {
@@ -20,6 +21,8 @@ public:
         DATATYPE,
         DATATYPE_RESTRICTION
     };
+
+    static std::map<Type,std::string> TypeTxt;
 
 
     OWLDataRange(Type type = DATATYPE);

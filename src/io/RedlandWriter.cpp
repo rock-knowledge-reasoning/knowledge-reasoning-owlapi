@@ -1,6 +1,7 @@
 #include "RedlandWriter.hpp"
 #include <base-logging/Logging.hpp>
-#include <owlapi/OWLApi.hpp>
+#include "../OWLApi.hpp"
+#include "../model/OWLDataOneOf.hpp"
 
 
 using namespace owlapi::model;
@@ -383,12 +384,32 @@ void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom
     IRI propertyIRI = dynamic_pointer_cast<OWLDataProperty>(axiom.getProperty())->getIRI();
 
     OWLDataRange::Ptr e_range = axiom.getRange();
-    if(e_range->isDatatype())
+    OWLDataRange::Type dataRangeType = e_range->getDataRangeType();
+    switch(dataRangeType)
     {
-        OWLDataType::Ptr dataType = dynamic_pointer_cast<OWLDataType>(e_range);
-        writeTriple(propertyIRI, vocabulary::RDFS::range(), dataType->getIRI());
-    } else {
-        throw std::runtime_error("owlapi::io::RedlandVisitor:visit: no support for datarange export");
+        case OWLDataRange::DATATYPE:
+        {
+            OWLDataType::Ptr dataType = dynamic_pointer_cast<OWLDataType>(e_range);
+            writeTriple(propertyIRI, vocabulary::RDFS::range(), dataType->getIRI());
+            break;
+        }
+        case OWLDataRange::ONE_OF:
+        {
+            OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(e_range);
+
+            raptor_term* typeId = raptor_new_term_from_blank(mWorld, NULL);
+            writeAnonymous(propertyIRI, vocabulary::RDFS::range(), typeId);
+            writeAnonymous(typeId, vocabulary::RDF::type(), vocabulary::RDFS::Datatype());
+            IRIList iris = OWLLiteral::toIRIList( oneOf->getLiterals() );
+            raptor_term* term = writeSequence(iris);
+            writeAnonymous(typeId, vocabulary::OWL::oneOf(), term);
+            break;
+        }
+        default:
+            throw std::runtime_error("owlapi::io::RedlandVisitor:visit: no "
+                    "support for datarange type: "
+                    + OWLDataRange::TypeTxt[dataRangeType]);
+            break;
     }
 
 }

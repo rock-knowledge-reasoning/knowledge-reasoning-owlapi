@@ -10,6 +10,7 @@ namespace owlapi {
 namespace model {
 
 OWLLiteral::OWLLiteral()
+    : mType(vocabulary::RDF::PlainLiteral().toString())
 {}
 
 OWLLiteral::OWLLiteral(const std::string& value, const std::string& type)
@@ -26,12 +27,13 @@ OWLLiteral::OWLLiteral(const std::string& value)
         mType = value.substr(pos+2);
     } else {
         mValue = value;
+        mType = vocabulary::RDF::PlainLiteral().toString();
     }
 }
 
 bool OWLLiteral::isTyped() const
 {
-    return !mType.empty();
+    return !isPlainLiteral();
 }
 
 bool OWLLiteral::hasType(const IRI& typeIRI) const
@@ -41,7 +43,7 @@ bool OWLLiteral::hasType(const IRI& typeIRI) const
 
 std::string OWLLiteral::toString() const
 {
-    if(mType.empty())
+    if(isPlainLiteral())
     {
         return mValue;
     } else {
@@ -115,6 +117,17 @@ double OWLLiteral::getDouble() const
     {
         throw std::runtime_error("OWLLiteral::getDouble not implemented for '" + mValue + "' and given type: '" + mType + "'");
     }
+}
+
+IRIList OWLLiteral::toIRIList(const OWLLiteral::PtrList& literals)
+{
+    IRIList iris;
+    for(const OWLLiteral::Ptr& literal : literals)
+    {
+        IRI iri(literal->toString());
+        iris.push_back(iri);
+    }
+    return iris;
 }
 
 } // end namespace model

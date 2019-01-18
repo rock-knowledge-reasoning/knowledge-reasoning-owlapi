@@ -1,5 +1,6 @@
 #include "OWLDataType.hpp"
-#include <owlapi/Vocabulary.hpp>
+#include "../Vocabulary.hpp"
+#include "OWLDataOneOf.hpp"
 
 namespace owlapi {
 namespace model {
@@ -9,16 +10,41 @@ OWLDataType::OWLDataType(const IRI& iri, OWLDataRange::Type type)
     , OWLLogicalEntity(iri, OWLEntity::DATATYPE)
 {}
 
-OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range)
+OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range, const std::string& value)
 {
-    OWLDataType::Ptr ptr = dynamic_pointer_cast<OWLDataType>(range);
-    if(ptr)
+    switch(range->getDataRangeType())
     {
-        return *ptr.get();
-    } else {
-        throw std::invalid_argument("owlapi::model::OWLDataType::fromRange: "
-                " range cannot be casted to an OWLDataType object");
+        case OWLDataRange::DATATYPE:
+            return *dynamic_pointer_cast<OWLDataType>(range);
+        case OWLDataRange::ONE_OF:
+        {
+            OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(range);
+            if(oneOf)
+            {
+                for(const OWLLiteral::Ptr& literal : oneOf->getLiterals())
+                {
+                    if(literal->getValue() == value)
+                    {
+                        return OWLDataType(literal->getType());
+                    }
+                }
+                throw std::invalid_argument("owlapi::model::OWLDataType::fromRange:"
+                    " failed to find literal '" + value + "' in data range");
+            } else {
+                throw std::invalid_argument("owlapi::model::OWLDataType::fromRange:"
+                        " failed to cast range into OWLDataOneOf object");
+            }
+
+        }
+        case OWLDataRange::UNION_OF:
+        case OWLDataRange::COMPLEMENT_OF:
+        case OWLDataRange::INTERSECTION_OF:
+        case OWLDataRange::DATATYPE_RESTRICTION:
+            break;
     }
+
+    throw std::invalid_argument("owlapi::model::OWLDataType::fromRange: "
+                " range cannot be turned into an OWLDataType object");
 }
 
 bool OWLDataType::isBoolean() const

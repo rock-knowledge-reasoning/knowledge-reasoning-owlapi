@@ -15,7 +15,7 @@ public:
     OWLDataType(const IRI& iri, OWLDataRange::Type type = OWLDataRange::DATATYPE);
     virtual ~OWLDataType() {}
 
-    static OWLDataType fromRange(const OWLDataRange::Ptr& range);
+    static OWLDataType fromRange(const OWLDataRange::Ptr& range, const std::string& value = "");
 
     // OWL2DataType getBuiltInDataType() const;
 

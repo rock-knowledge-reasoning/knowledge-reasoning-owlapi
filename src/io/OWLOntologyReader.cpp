@@ -1,13 +1,14 @@
 #include "OWLOntologyReader.hpp"
 
-#include <owlapi/model/OWLOntologyTell.hpp>
-#include <owlapi/db/rdf/SopranoDB.hpp>
-#include <owlapi/db/rdf/Sparql.hpp>
-#include <owlapi/Vocabulary.hpp>
 #include <base-logging/Logging.hpp>
 #include <utilmm/configfile/pkgconfig.hh>
 #include <boost/filesystem.hpp>
 #include <fstream>
+
+#include "../model/OWLOntologyTell.hpp"
+#include "../db/rdf/SopranoDB.hpp"
+#include "../db/rdf/Sparql.hpp"
+#include "../Vocabulary.hpp"
 
 using namespace owlapi::db::query;
 using namespace owlapi::model;
@@ -135,7 +136,7 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                     }
                 } else if(object == vocabulary::RDF::Property())
                 {
-                    LOG_DEBUG_S << "owlapi::model::OWLOntologyReader::loadDeclarationsAndImports: Property '" << subject.toString() << "' neither object nor data property";
+                    tell.subClassOf(subject, vocabulary::RDF::Property());
                 } else if(object == vocabulary::OWL::DatatypeProperty())
                 {
                     tell.dataProperty(subject);
@@ -415,6 +416,8 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 
     loadRestrictions(ontology);
 
+    loadAnonymousLists(ontology);
+
     loadObjectProperties(ontology);
     loadDataProperties(ontology);
 
@@ -443,26 +446,6 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
                 // check that subject and object are object properties, if not
                 // raise, else
                 tell.inverseOf(subject, object);
-            } else if(predicate == vocabulary::OWL::oneOf())
-            {
-                // object is a node representing a list of named individuals
-                // if l is not a list (of named individuals) raise
-            } else if(predicate == vocabulary::OWL::intersectionOf())
-            {
-                // add the axiom Class(x complete lt1 lt2 .. ltn)
-                // where lt1 ... ltn ard the translated descriptions in the list
-                // l
-                // if l is not a list (of class descriptions) raise an error
-
-            } else if(predicate == vocabulary::OWL::unionOf())
-            {
-                // add the axiom Class(x complete unionOf(lt1 lt2 ..ltn)
-                // otherwise same as intersectionOf
-            } else if(predicate == vocabulary::OWL::complementOf())
-            {
-                // add the axiom Class(x complete complementOf(nt))
-                // where nt is the translation of object, if nt is not a class
-                // description raise
             }
         }
     }
@@ -707,6 +690,130 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
     }
 }
 
+void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
+{
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    {
+        Results results = findAll(Subject(), vocabulary::RDF::type(), vocabulary::RDF::List());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            mAnonymousLists[subject] = HeadTail();
+        }
+    }
+
+    // _:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Datatype> .
+    // _:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "DC_External" .
+    // _:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Li-NMC" .
+    // _:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Li-ion" .
+    // _:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "LiFePO4" .
+    // _:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "Ni-MH" .
+    // _:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+    // _:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "NiMH" .
+    // _:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+    // _:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid7 .
+    // _:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid6 .
+    // _:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid5 .
+    // _:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid4 .
+    // _:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid3 .
+    // _:genid1 <http://www.w3.org/2002/07/owl#oneOf> _:genid2 .
+    {
+        Results results = findAll(Subject(), vocabulary::RDF::first(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            mAnonymousLists[ subject ].first = it[Object()];
+        }
+    }
+
+    {
+        Results results = findAll(Subject(), vocabulary::RDF::rest(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            mAnonymousLists[ subject ].second = it[Object()];
+        }
+    }
+
+    {
+        db::query::Results results = findAll(Subject(), Predicate(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI predicate = it[Predicate()];
+            IRI object = it[Object()];
+
+            if(predicate == vocabulary::OWL::oneOf())
+            {
+                // object is a node representing a list of named individuals
+                // if l is not a list (of named individuals) raise
+                if( ask.isSubClassOf(subject, vocabulary::RDFS::Datatype() ))
+                {
+                    owlapi::model::IRIList list = getList(object);
+                    tell.dataOneOf(subject, list);
+
+                }
+            } else if(predicate == vocabulary::OWL::intersectionOf())
+            {
+                // add the axiom Class(x complete lt1 lt2 .. ltn)
+                // where lt1 ... ltn ard the translated descriptions in the list
+                // l
+                // if l is not a list (of class descriptions) raise an error
+
+            } else if(predicate == vocabulary::OWL::unionOf())
+            {
+                // add the axiom Class(x complete unionOf(lt1 lt2 ..ltn)
+                // otherwise same as intersectionOf
+            } else if(predicate == vocabulary::OWL::complementOf())
+            {
+                // add the axiom Class(x complete complementOf(nt))
+                // where nt is the translation of object, if nt is not a class
+                // description raise
+            }
+        }
+    }
+}
+
+owlapi::model::IRIList OWLOntologyReader::getList(const owlapi::model::IRI& anonymousId)
+{
+    owlapi::model::IRIList list;
+    IRI id = anonymousId;
+    while(true)
+    {
+        std::map<IRI, HeadTail>::const_iterator cit = mAnonymousLists.find(id);
+
+        if(cit == mAnonymousLists.end())
+        {
+            throw std::runtime_error("owlapi::model::OWLOntologyReader::getList"
+                    " failed to identify list for id '" + anonymousId.toString()
+                    + "'");
+        }
+        HeadTail headTail = cit->second;
+        if(headTail.second == vocabulary::RDF::nil())
+        {
+            return list;
+        } else {
+            list.push_back(headTail.first);
+            id = headTail.second;
+        }
+    }
+
+    throw std::runtime_error("owlapi::model::OWLOntologyReader::getList"
+            " failed to generate list for id '" + anonymousId.toString()
+            + "'");
+}
+
 
 void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
 {
@@ -765,19 +872,20 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
 
             // Setting of DataPropertyAssertions
             LOG_DEBUG_S << subject << " " << relation << " " << object;
-
-            OWLDataRange::PtrList ranges = ask.getDataRange(relation);
-            if(!ranges.empty())
-            {
-                OWLDataType dataType = OWLDataType::fromRange(ranges[0]);
+            try {
+                // TDB: Plaing data type
+                OWLDataType dataType = ask.getDataType(relation, object.toString());
                 OWLLiteral::Ptr literal = OWLLiteral::create(object.toString(), dataType);
                 tell.valueOf(subject, relation, literal);
-            } else {
-                throw std::runtime_error("owlapi::model::OWLOntologyReader::fromFile: "
+            } catch(const std::invalid_argument& e)
+            {
+                std::string msg = "owlapi::model::OWLOntologyReader::fromFile: "
                         " '" + mAbsolutePath + "' "
                         " cannot set data property: " + relation.toString() + " on"
-                        " '" + subject.toString() + "' since data range is not specified"
-                        " for this property");
+                        " '" + subject.toString() + "' since data range is not "
+                        "specified or unsupported"
+                        " for this property -- " + e.what();
+                LOG_WARN_S << msg;
             }
         }
     }
