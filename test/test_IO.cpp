@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(retrieve)
     BOOST_TEST_MESSAGE("Find iri: '" << iri << " -- if the following test fails: give the following "
             " options when running the test: --catch_system_errors=no");
     std::string fileName;
-    BOOST_REQUIRE_NO_THROW(fileName = owlapi::io::OWLOntologyIO::retrieve(iri))
+    BOOST_REQUIRE_NO_THROW(fileName = owlapi::io::OWLOntologyIO::retrieve(iri));
     BOOST_TEST_MESSAGE("Retrieved iri '" << iri << "', absolute path: " << fileName);
 }
 
