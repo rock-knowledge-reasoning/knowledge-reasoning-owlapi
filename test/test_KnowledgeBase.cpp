@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(class_hierarchy)
 
     BOOST_REQUIRE_THROW(kb.refresh(), std::exception);
     kb.retract(a);
-    BOOST_REQUIRE_NO_THROW(kb.refresh()) //, "Kb inconsistent if inverses relation both apply" );
+    BOOST_REQUIRE_NO_THROW(kb.refresh()); //, "Kb inconsistent if inverses relation both apply" );
 
     BOOST_REQUIRE_MESSAGE( kb.isRelatedTo("A", "sibling", "B"), "A and B are related");
     BOOST_REQUIRE_THROW( !kb.isRelatedTo("A", "unknown", "B"), std::exception);
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(data_value)
 
     {
         reasoner::factpp::DataValue dataValueString = kb.dataValue("foo","string");
-        BOOST_REQUIRE_THROW( dataValueString.toDouble(), std::runtime_error)
+        BOOST_REQUIRE_THROW( dataValueString.toDouble(), std::runtime_error);
     }
 
     kb.subClassOf("Robot","TOP");
