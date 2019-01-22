@@ -196,10 +196,14 @@ rock_library(owlapi
         icu-le
         icu-lx
         icu-uc
+    DEPS_PLAIN
+        Boost_PROGRAM_OPTIONS
+        Boost_REGEX
+        Boost_SYSTEM
+        Boost_FILESYSTEM
 )
 
 target_include_directories(owlapi PUBLIC ${Boost_INCLUDE_DIR})
-target_link_libraries(owlapi PUBLIC ${Boost_LIBRARIES})
 
 rock_executable(owlapi-ontology_reader
     SOURCES utils/OntologyReaderMain.cpp
