@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(create_from_unknown)
 
     IRI ontologyIRI("http://test/owlapi/create_from_unknown");
     BOOST_REQUIRE_THROW( OWLOntologyIO::loadNew(ontology, ontologyIRI),
-            std::invalid_argument );
+            owlapi::io::OWLOntologyNotFound );
 }
 
 BOOST_AUTO_TEST_CASE(create_with_custom)

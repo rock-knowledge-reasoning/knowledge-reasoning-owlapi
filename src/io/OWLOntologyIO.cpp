@@ -263,7 +263,7 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
         {
             // cleanup
             boost::filesystem::remove( boost::filesystem::path(absoluteFilename));
-            throw std::runtime_error("owlapi::io::OWLOntologyIO::retrieve: failed to retrieve document using the following command: '" + cmd + "'");
+            throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::retrieve: failed to retrieve document using the following command: '" + cmd + "'");
         }
     }
 

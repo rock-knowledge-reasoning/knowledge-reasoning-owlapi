@@ -9,6 +9,7 @@
 #include "../db/rdf/SopranoDB.hpp"
 #include "../db/rdf/Sparql.hpp"
 #include "../Vocabulary.hpp"
+#include "OWLOntologyIO.hpp"
 
 using namespace owlapi::db::query;
 using namespace owlapi::model;
@@ -27,7 +28,7 @@ OWLOntology::Ptr OWLOntologyReader::open(const std::string& filename)
     std::ifstream file(filename);
     if(file.peek() == std::ifstream::traits_type::eof())
     {
-        throw std::invalid_argument("owlapi::io::OWLOntologyReader::open: file '"
+        throw OWLOntologyNotFound("owlapi::io::OWLOntologyReader::open: file '"
                 + filename + "' is empty. Please check the iri/file you tried to"
                 " load and remove the current file.");
     }

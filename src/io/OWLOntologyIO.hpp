@@ -7,6 +7,16 @@
 namespace owlapi {
 namespace io {
 
+class OWLOntologyNotFound : public std::runtime_error
+{
+public:
+    OWLOntologyNotFound(const std::string& message)
+        : std::runtime_error(message.c_str())
+    {}
+
+    virtual ~OWLOntologyNotFound() {}
+};
+
 enum Format { UNKNOWN = 0,
         RDFXML,
         END_FORMAT
