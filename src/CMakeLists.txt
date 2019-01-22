@@ -1,14 +1,5 @@
 find_package(Boost REQUIRED regex system filesystem program_options
     serialization)
-set(ICU_LIBS icutu
-    icudata
-    icui18n
-    icuio
-    icule
-    iculx
-    icutest
-    icuuc
-)
 
 rock_library(owlapi
     SOURCES
@@ -196,10 +187,15 @@ rock_library(owlapi
         redland
         raptor2
         utilmm
+        icu-i18n
+        icu-io
+        icu-le
+        icu-lx
+        icu-uc
 )
 
-include_directories(${Boost_INCLUDE_DIR})
-target_link_libraries(owlapi ${Boost_LIBRARIES} ${ICU_LIBS})
+target_include_directories(owlapi PUBLIC ${Boost_INCLUDE_DIR})
+target_link_libraries(owlapi PUBLIC ${Boost_LIBRARIES})
 
 rock_executable(owlapi-ontology_reader
     SOURCES utils/OntologyReaderMain.cpp
