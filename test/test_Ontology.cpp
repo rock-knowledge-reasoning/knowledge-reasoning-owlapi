@@ -52,6 +52,51 @@ BOOST_AUTO_TEST_CASE(load_restrictions)
         {
             BOOST_TEST_MESSAGE("Restriction: " << (*cit)->toString());
         }
+
+        std::pair<OWLCardinalityRestriction::PtrList, bool> cachedResult =  ontology->getQueryCache().getCardinalityRestrictions(klasses, IRI(), OWLCardinalityRestriction::SUM_OP);
+        BOOST_REQUIRE_MESSAGE(cachedResult.second && cachedResult.first ==
+                restrictions, "Query results have been cached");
+    }
+    {
+        std::vector<IRI> klasses;
+        IRI sherpa("http://www.rock-robotics.org/2014/01/om-schema#Sherpa");
+        IRI propertyHas("http://www.rock-robotics.org/2014/01/om-schema#has");
+        klasses.push_back(sherpa);
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(klasses, propertyHas);
+        BOOST_REQUIRE(restrictions.size() > 0);
+
+        std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+        for(; cit != restrictions.end(); ++cit)
+        {
+            BOOST_TEST_MESSAGE("Restriction: " << (*cit)->toString());
+        }
+    }
+    {
+        IRI iri("http://www.rock-robotics.org/2014/01/om-schema#PayloadCamera");
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(iri);
+        BOOST_CHECK_MESSAGE(restrictions.size() > 2, "PayloadCamera should inherit restrictions");
+
+        std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+        for(; cit != restrictions.end(); ++cit)
+        {
+            BOOST_TEST_MESSAGE("Restrictions: " << (*cit)->toString());
+        }
+    }
+
+    // Subsequent calls should benefit from cache
+    BOOST_TEST_MESSAGE("Caching active");
+    {
+        std::vector<IRI> klasses;
+        IRI sherpa("http://www.rock-robotics.org/2014/01/om-schema#Sherpa");
+        klasses.push_back(sherpa);
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions = ask.getCardinalityRestrictions(klasses);
+        BOOST_REQUIRE(restrictions.size() > 0);
+
+        std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
+        for(; cit != restrictions.end(); ++cit)
+        {
+            BOOST_TEST_MESSAGE("Restriction: " << (*cit)->toString());
+        }
     }
     {
         std::vector<IRI> klasses;

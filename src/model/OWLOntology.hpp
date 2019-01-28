@@ -14,6 +14,7 @@
 #include "OWLSubClassOfAxiom.hpp"
 #include "ChangeApplied.hpp"
 #include "OWLAxiomRetractVisitor.hpp"
+#include "QueryCache.hpp"
 
 namespace owlapi {
 
@@ -116,6 +117,7 @@ protected:
     }
 
 protected:
+    QueryCache mQueryCache;
 
     OWLClass::Ptr getClass(const IRI& iri) const;
     OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
@@ -186,6 +188,10 @@ public:
 
     ChangeApplied applyChange(const shared_ptr<OWLOntologyChange>& change);
 
+    /**
+      * Get acces to the query cache object
+      */
+    QueryCache& getQueryCache() { return mQueryCache; }
 };
 
 } // ane namespace model

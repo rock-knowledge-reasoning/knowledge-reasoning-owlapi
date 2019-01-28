@@ -162,23 +162,46 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     // -> 2. check subclass axioms for classes
     //      - find superclass definitions, collect all restrictions
     //        - (including the ones for the superclasses -- identify restrictions)
-    OWLClass::Ptr klass = getOWLClass(iri);
-    return getCardinalityRestrictions(klass, objectProperty);
+    std::pair<OWLCardinalityRestriction::PtrList, bool> result = mpOntology->mQueryCache.getCardinalityRestrictions(iri, objectProperty);
+
+    if(result.second)
+    {
+        return result.first;
+    } else {
+        OWLClass::Ptr klass = getOWLClass(iri);
+        OWLCardinalityRestriction::PtrList restrictions =
+            getCardinalityRestrictions(klass, objectProperty);
+        mpOntology->mQueryCache.cacheCardinalityRestrictions(iri, objectProperty, restrictions);
+        return restrictions;
+    }
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses, const IRI& objectProperty,
         OWLCardinalityRestriction::OperationType operationType) const
 {
-    std::vector<IRI>::const_iterator cit = klasses.begin();
-    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
-
-    for(; cit != klasses.end(); ++cit)
+    std::pair<OWLCardinalityRestriction::PtrList, bool> result =
+        mpOntology->mQueryCache.getCardinalityRestrictions(klasses,
+                objectProperty,
+                operationType);
+    if(result.second)
     {
-        IRI iri = *cit;
-        std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri, objectProperty);
-        restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions, operationType);
+        return result.first;
+    } else {
+        std::vector<IRI>::const_iterator cit = klasses.begin();
+        std::vector<OWLCardinalityRestriction::Ptr> restrictions;
+
+        for(; cit != klasses.end(); ++cit)
+        {
+            IRI iri = *cit;
+            std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri, objectProperty);
+            restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions, operationType);
+        }
+        mpOntology->mQueryCache.cacheCardinalityRestrictions(klasses,
+                objectProperty,
+                operationType,
+                restrictions);
+        return restrictions;
     }
-    return restrictions;
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& klass,
@@ -257,7 +280,19 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
 
 bool OWLOntologyAsk::isSubClassOf(const IRI& iri, const IRI& superclass) const
 {
-    return mpOntology->kb()->isSubClassOf(iri, superclass);
+    std::pair<bool, bool> result = mpOntology->mQueryCache.isSubClassOf(iri, superclass);
+    if(result.second)
+    {
+        return result.first;
+    } else {
+        result.first = mpOntology->kb()->isSubClassOf(iri, superclass);
+        result.second = true;
+
+        mpOntology->mQueryCache.cacheIsSubClassOf(iri, superclass,
+                result.first);
+
+        return result.first;
+    }
 }
 
 bool OWLOntologyAsk::isDirectSubClassOf(const IRI& iri, const IRI& superclass) const
