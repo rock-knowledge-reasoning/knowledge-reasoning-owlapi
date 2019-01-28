@@ -22,6 +22,10 @@ class Custom
 {
     owlapi::model::IRI mBase;
 public:
+    // Default Constructor to allow for the use in lists
+    Custom()
+    {}
+
     Custom(const std::string& prefix)
         : mBase(prefix,"")
     {
