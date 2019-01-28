@@ -27,6 +27,7 @@ class OWLCardinalityRestriction : public OWLQualifiedRestriction
 
 public:
     typedef shared_ptr<OWLCardinalityRestriction> Ptr;
+    typedef std::vector<Ptr> PtrList;
     typedef std::pair<uint32_t, uint32_t> MinMax;
 
     // Allow to select the operation type for join operations
