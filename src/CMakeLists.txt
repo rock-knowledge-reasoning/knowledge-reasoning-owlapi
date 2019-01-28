@@ -45,6 +45,7 @@ rock_library(owlapi
         model/OWLRestriction.cpp
         model/OWLSubClassOfAxiom.cpp
         model/OWLValueRestriction.cpp
+        model/QueryCache.cpp
         model/URI.cpp
         model/RemoveAxiom.cpp
         model/OWLAxiomChange.cpp
@@ -172,6 +173,7 @@ rock_library(owlapi
         model/OWLTransitiveObjectPropertyAxiom.hpp
         model/OWLUnaryPropertyAxiom.hpp
         model/OWLValueRestriction.hpp
+        model/QueryCache.hpp
         model/URI.hpp
         model/RemoveAxiom.hpp
         model/OWLAxiomChange.hpp

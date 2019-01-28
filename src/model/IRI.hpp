@@ -4,8 +4,10 @@
 #include <stdexcept>
 #include <vector>
 #include <set>
+#include <functional>
 #include <owlapi/model/URI.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/functional/hash.hpp>
 
 namespace owlapi {
 namespace model {
@@ -151,4 +153,28 @@ std::ostream& operator<<(std::ostream& os, const std::vector< IRIList >& iris);
 
 } // end namespace model
 } // end namespace owlapi
+
+// Enable usage of IRI as key in unordered maps
+namespace std {
+template<>
+struct hash<owlapi::model::IRI>
+{
+    size_t operator()(const owlapi::model::IRI& iri) const
+    {
+        return std::hash<std::string>()(iri.toString());
+    }
+};
+
+template<>
+struct hash< pair<owlapi::model::IRI, owlapi::model::IRI> >
+{
+    size_t operator()(const pair<owlapi::model::IRI, owlapi::model::IRI>& p) const
+    {
+        size_t seed = 0;
+        boost::hash_combine(seed, p.first.toString());
+        boost::hash_combine(seed, p.second.toString());
+        return seed;
+    }
+};
+} // end namespace std
 #endif // OWLAPI_MODEL_IRI_HPP

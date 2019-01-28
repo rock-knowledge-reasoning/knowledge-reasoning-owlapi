@@ -4,6 +4,7 @@
 #include <owlapi/OWLApi.hpp>
 #include <owlapi/Vocabulary.hpp>
 #include <boost/regex.hpp>
+#include <unordered_map>
 
 using namespace owlapi::model;
 
@@ -94,6 +95,19 @@ BOOST_AUTO_TEST_CASE(iris)
         BOOST_REQUIRE_MESSAGE(regex_match(iri.toString(), r), "IRI correctly escaped -- positive test: regex is: " << r.str());
         BOOST_REQUIRE_MESSAGE(!regex_match(iriFail.toString(), r), "IRI correctly escaped -- negative test");
     }
+}
+BOOST_AUTO_TEST_CASE(iri_unordered_maps)
+{
+    owlapi::model::IRI iri("http://test/iri");
+    owlapi::model::IRI otherIri("http://test/otherIri");
+    size_t iriHashValue = std::hash<owlapi::model::IRI>()(iri);
+    size_t otherIriHashValue = std::hash<owlapi::model::IRI>()(otherIri);
+    BOOST_REQUIRE_MESSAGE(iriHashValue != otherIriHashValue, "Hash values differ");
+    std::unordered_map<owlapi::model::IRI, size_t> iriMap = { { iri, 1 },
+        {otherIri, 2 } };
+
+    BOOST_REQUIRE_MESSAGE(iriMap[iri] == 1, "Iri retrieval: expected 1");
+    BOOST_REQUIRE_MESSAGE(iriMap[otherIri] == 2, "Iri retrieval: expected 2");
 }
 
 BOOST_AUTO_TEST_CASE(property_expressions)
