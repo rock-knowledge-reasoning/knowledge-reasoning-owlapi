@@ -12,6 +12,11 @@
 namespace owlapi {
 namespace model {
 
+std::map<OWLCardinalityRestriction::OperationType, std::string> OWLCardinalityRestriction::OperationTypeTxt = boost::assign::map_list_of
+    (SUM_OP, "SUM_OP")
+    (MIN_OP, "MIN_OP")
+    (MAX_OP, "MAX_OP");
+
 std::map<OWLCardinalityRestriction::CardinalityRestrictionType, std::string> OWLCardinalityRestriction::CardinalityRestrictionTypeTxt = boost::assign::map_list_of
     (UNKNOWN, "UNKNOWN")
     (MIN, "MIN")
@@ -67,22 +72,28 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::clone() const
 
 std::string OWLCardinalityRestriction::toString() const
 {
+    return OWLCardinalityRestriction::toString(0);
+}
+
+std::string OWLCardinalityRestriction::toString(size_t indent) const
+{
+    std::string hspace(indent,' ');
     std::stringstream ss;
-    ss << "OWLCardinalityRestriction:" << std::endl;
-    ss << "    property: " << getProperty()->toString() << std::endl;
-    ss << "    cardinality: " << getCardinality() << std::endl;
-    ss << "    qualification: " << getQualification().toString() << std::endl;
-    ss << "    type: " << CardinalityRestrictionTypeTxt[getCardinalityRestrictionType()] << std::endl;
+    ss << hspace << "OWLCardinalityRestriction:" << std::endl;
+    ss << hspace << "    property: " << getProperty()->toString() << std::endl;
+    ss << hspace << "    cardinality: " << getCardinality() << std::endl;
+    ss << hspace << "    qualification: " << getQualification().toString() << std::endl;
+    ss << hspace << "    type: " << CardinalityRestrictionTypeTxt[getCardinalityRestrictionType()] << std::endl;
     return ss.str();
 }
 
-std::string OWLCardinalityRestriction::toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
+std::string OWLCardinalityRestriction::toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions, size_t indent)
 {
     std::stringstream ss;
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
     for(; cit != restrictions.end(); ++cit)
     {
-        ss << (*cit)->toString();
+        ss << (*cit)->toString(indent);
     }
     return ss.str();
 }
@@ -399,7 +410,12 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
     }
     // At this point the vector restrictions contains all intersectiond ones from a,
     // but left one of b have still to be added
-    restrictions.insert(restrictions.begin(), b.begin(), b.end());
+    OWLCardinalityRestriction::PtrList::const_iterator bit = b.begin();
+    for(; bit != b.end(); ++bit)
+    {
+        // make sure we create an indepenant result set
+        restrictions.push_back((*bit)->clone());
+    }
     return restrictions;
 }
 

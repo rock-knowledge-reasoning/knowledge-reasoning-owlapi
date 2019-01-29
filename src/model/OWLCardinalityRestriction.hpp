@@ -34,6 +34,7 @@ public:
     enum OperationType { SUM_OP, MIN_OP, MAX_OP };
     enum CardinalityRestrictionType { UNKNOWN, MIN, MAX, EXACT };
 
+    static std::map<OperationType, std::string> OperationTypeTxt;
     static std::map<CardinalityRestrictionType, std::string> CardinalityRestrictionTypeTxt;
 
     /**
@@ -68,7 +69,15 @@ public:
 
     virtual std::string toString() const;
 
-    static std::string toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions);
+    std::string toString(size_t indent) const;
+
+    /**
+     * Stringify list of restriction
+     * \param indent number of space for indentation
+     * \return stringified list
+     */
+    static std::string toString(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions,
+            size_t indent = 0);
 
     /**
      * Convert to exact mapping
