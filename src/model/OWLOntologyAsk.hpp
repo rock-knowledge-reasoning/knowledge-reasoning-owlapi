@@ -354,6 +354,11 @@ public:
      * \see http://www.w3.org/TR/owl2-syntax/#Imports
      */
     IRIList imports() const;
+
+    /**
+      * Retrieve the underlying ontology reference
+      */
+    const OWLOntology::Ptr& getOntology() const { return mpOntology; }
 };
 
 } // end namespace model
