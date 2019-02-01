@@ -132,14 +132,14 @@ using the library along with the general API documentation.
 ### General Documentation
 In general we recommend the usage of the OWL editor protége: http://protege.stanford.edu
 in case you want to edit/create OWL model files.
-Make sure you export as RDF/XML -- this is currently the only supported
-format for import.
+Make sure you export as RDF/XML (.owl) or in Turtle Syntax (.ttl) -- as supported
+formats for import.
 
 Currently this library supports a limit modelling capability, i.e., the main
 limitations arises from the fact that modelling from user level is done
 mainly through NamedInvididuals.
-Thus, anonymous classes and complex constructs such as Collections, OneOf,
-UnionOf classes is currently not supported.
+Anonymous classes and classes representing collections of OneOf,
+UnionOf classes are currently not supported.
 
 #### Examples
 The following examples shall help you to understand the user interface and

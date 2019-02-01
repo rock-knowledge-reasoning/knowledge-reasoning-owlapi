@@ -18,9 +18,23 @@ public:
 };
 
 enum Format { UNKNOWN = 0,
+        /// RDF/XML
         RDFXML,
+        /// Turtle Terse RDF Triple Language
+        TURTLE,
+        /// N-Triples
+        NTRIPLES,
+        /// TriG - Turtle with Named Graphs
+        TRIG,
+        /// RDF/JSON (either Triples or Resource-Centric)
+        JSON,
+        /// N-Quads
+        NQUADS,
         END_FORMAT
         };
+
+extern std::map<Format, std::string> FormatTxt;
+extern std::map<Format, std::string> FormatSuffixes;
 
 /**
  * \class OWLOntologyIO
@@ -44,6 +58,7 @@ enum Format { UNKNOWN = 0,
 class OWLOntologyIO
 {
 public:
+
     static void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, Format format = RDFXML);
 
     /**
@@ -119,6 +134,12 @@ public:
      * \return the default suffix for owl files
      */
     static std::string getOWLSuffix() { return ".owl"; }
+
+    /**
+     * Get the supported file formats
+     * \return the list of supported file formats
+     */
+    static std::vector<std::string> getFormatSuffixes();
 
 };
 

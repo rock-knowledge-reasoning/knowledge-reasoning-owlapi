@@ -3,6 +3,7 @@
 #include "OWLOntologyReader.hpp"
 #include <utilmm/configfile/pkgconfig.hh>
 #include <algorithm>
+#include <fstream>
 #include <boost/filesystem.hpp>
 
 #include <owlapi/Vocabulary.hpp>
@@ -10,13 +11,39 @@
 namespace owlapi {
 namespace io {
 
+std::map<Format, std::string> FormatTxt =
+{
+    { RDFXML, "rdfxml" },
+    { TURTLE, "turtle" },
+    { NTRIPLES, "ntriples" },
+    { TRIG, "trig" },
+    { JSON, "json" },
+    { NQUADS, "nquads" }
+};
+
+std::map<Format, std::string> FormatSuffixes =
+{
+    { RDFXML, ".owl" },
+    { TURTLE, ".ttl" },
+    { NTRIPLES, ".nt" },
+    { TRIG, ".trig" },
+    { JSON, ".json" },
+    { NQUADS, ".nquads" }
+};
+
 void OWLOntologyIO::write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, Format format)
 {
     switch(format)
     {
         case RDFXML:
+        case TURTLE:
+        case NTRIPLES:
+        case TRIG:
+        case JSON:
+        case NQUADS:
         {
             RedlandWriter redlandWriter;
+            redlandWriter.setFormat( FormatTxt[format] );
             redlandWriter.write(filename, ontology);
             break;
         }
@@ -254,23 +281,59 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
         boost::filesystem::create_directories(ontologyPath);
     }
 
-    std::string absoluteFilename = ontologyPath + canonizeForOfflineUsage(iri) + getOWLSuffix();
-    if( !boost::filesystem::exists( absoluteFilename ) )
+    std::vector<std::string> formatSuffixes = getFormatSuffixes();
+    for(const std::string& suffix : formatSuffixes)
     {
+        std::string absoluteFilename = ontologyPath +
+            canonizeForOfflineUsage(iri) + suffix;
+        if(boost::filesystem::exists( absoluteFilename ) )
+        {
+            return absoluteFilename;
+        }
+    }
+    // file is not locally available, so trying to retrieve
+    for(const std::string& suffix : formatSuffixes)
+    {
+        std::string absoluteFilename = ontologyPath +
+            canonizeForOfflineUsage(iri) + suffix;
         std::string cmd = "wget " + iri.toString() + " -O " + absoluteFilename + " -q";
         LOG_DEBUG_S << "Trying to retrieve document with command '" << cmd << "'";
+
         if( system(cmd.c_str()) != 0)
         {
             // cleanup
             boost::filesystem::remove( boost::filesystem::path(absoluteFilename));
-            throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::retrieve: failed to retrieve document using the following command: '" + cmd + "'");
+            continue;
         }
+        // Check if file is empty
+        std::ifstream file(absoluteFilename);
+        if(file.peek() == std::ifstream::traits_type::eof())
+        {
+            // cleanup
+            boost::filesystem::remove( boost::filesystem::path(absoluteFilename));
+            continue;
+        }
+
+        // seems we succeeded
+        return absoluteFilename;
     }
 
-    // document is (now) available
-    return absoluteFilename;
+    throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::retrieve: failed to"
+            " retrieve document for iri: '" + iri.toString() + "'");
 }
 
+std::vector<std::string> OWLOntologyIO::getFormatSuffixes()
+{
+    std::vector<std::string> suffixes;
+    for(const std::map<Format, std::string>::value_type& v : FormatSuffixes)
+    {
+        if(v.first != UNKNOWN && v.first != END_FORMAT)
+        {
+            suffixes.push_back( v.second );
+        }
+    }
+    return suffixes;
+}
 
 } // end namespace io
 } // end namespace owlapi

@@ -10,7 +10,7 @@ using namespace owlapi::model;
 using namespace owlapi::io;
 
 // NOTE:
-// whan running test either do:
+// when running test either do:
 //     export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
 // or use argument: --catch_system_errors=no
 //
@@ -43,6 +43,45 @@ BOOST_AUTO_TEST_CASE(redland)
     }
     {
         OWLOntology::Ptr ontology = OWLOntology::fromFile("/tmp/test_file-ntriples.owl" );
+    }
+}
+
+BOOST_AUTO_TEST_CASE(formats)
+{
+    using namespace owlapi::io;
+    for(int i = RDFXML; i < END_FORMAT; ++i)
+    {
+        Format format = static_cast<Format>(i);
+        // not support for import
+        if(format == TRIG || format == JSON)
+        {
+            continue;
+        }
+
+        std::string suffix = FormatSuffixes[format];
+        std::string baseFile = getRootDir() + "/test/data/om-schema-v0.9.owl";
+        std::string outFile = "/tmp/test-owlapi-io-format" + suffix;
+        std::string cmd = "rapper " + baseFile
+            + " -o " + FormatTxt[format] + " > " + outFile;
+        BOOST_REQUIRE_MESSAGE( system(cmd.c_str()) == 0, "Failed to create test file: " <<
+                outFile << ": command: '" + cmd + "'");
+
+        OWLOntology::Ptr ontology;
+        BOOST_TEST_MESSAGE("Testing: format " << FormatTxt[format] << ": " << outFile);
+        try {
+            ontology = OWLOntology::fromFile( outFile );
+        } catch(const std::exception& e)
+        {
+            BOOST_REQUIRE_MESSAGE(false, e.what());
+        }
+
+        std::string filename = "/tmp/test-owlapi-io-format-export" + suffix;
+        OWLOntologyIO::write(filename,
+                ontology,
+                static_cast<Format>(i));
+
+        BOOST_REQUIRE_NO_THROW(ontology = OWLOntology::fromFile( filename) );
+        BOOST_REQUIRE(!ontology->getAxioms().empty());
     }
 }
 
