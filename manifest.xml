@@ -14,6 +14,7 @@
   <depend package="knowledge_reasoning/factpp" />
   <depend package="uriparser" />
   <depend package="soprano" />
+  <depend package="qt4" />
   <depend package="redland" />
   <depend package="raptor2" />
   <depend package="utilmm" />
