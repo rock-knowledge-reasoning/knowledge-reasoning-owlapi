@@ -290,4 +290,21 @@ BOOST_AUTO_TEST_CASE(ranges)
     BOOST_REQUIRE_NO_THROW( tell.valueOf(instance, subproperty1, value) );
 }
 
+BOOST_AUTO_TEST_CASE(turtle_value_types)
+{
+    std::string filename =  getRootDir() +
+        "test/data/test-turtle-value_types.ttl";
+
+    OWLOntology::Ptr ontology = io::OWLOntologyIO::fromFile( filename );
+    OWLOntologyAsk ask(ontology);
+
+    owlapi::vocabulary::Custom custom("http://www.rock-robotics.org/test/turtle/value_types#");
+
+    {
+        OWLLiteral::Ptr literal = ask.getDataValue( custom.resolve("AClass"),
+                custom.resolve("datapropertyA"));
+        BOOST_REQUIRE_MESSAGE(literal->getDouble() == 1.0, "Get datapropertyA from TTL");
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

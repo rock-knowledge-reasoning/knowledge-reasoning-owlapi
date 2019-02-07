@@ -904,11 +904,22 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
             IRI object = it[Object()];
 
             // Setting of DataPropertyAssertions
-            LOG_DEBUG_S << subject << " " << relation << " " << object;
             try {
-                // TDB: Plaing data type
-                OWLDataType dataType = ask.getDataType(relation, object.toString());
-                OWLLiteral::Ptr literal = OWLLiteral::create(object.toString(), dataType);
+                std::string value = object.toString();
+                if(value.empty())
+                {
+                    LOG_WARN_S << "Encountered empty property value for subject: " << subject
+                        << " and relation: " << relation;
+                    continue;
+                }
+
+                OWLLiteral::Ptr literal = OWLLiteral::create(value);
+                if(!literal->isTyped())
+                {
+                    // check if range type is known
+                    OWLDataType dataType = ask.getDataType(relation, value);
+                    literal = OWLLiteral::create(object.toString(), dataType);
+                }
                 tell.valueOf(subject, relation, literal);
             } catch(const std::invalid_argument& e)
             {

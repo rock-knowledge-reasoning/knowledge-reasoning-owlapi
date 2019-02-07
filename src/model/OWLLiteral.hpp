@@ -50,6 +50,12 @@ public:
 
     bool hasType(const IRI& typeIRI) const;
 
+    /**
+      * Set the type for the literal
+      * \param type as full IRI string, e.g., http://www.w3.org/2001/XMLSchema#nonNegativeInteger
+      */
+    void setType(const std::string& type) { mType = type; }
+
     std::string getType() const { return mType; }
 
     std::string getValue() const { return mValue; }
