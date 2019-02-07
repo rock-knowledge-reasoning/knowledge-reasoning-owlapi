@@ -1,4 +1,5 @@
 <package>
+  <name>owlapi</name>
   <description brief="C++ based owlapi implementation">
       This library allows to work with data represented in Web Ontology Language (OWL2). 
       It supports reasoning with this data using FaCT++.
