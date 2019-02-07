@@ -46,7 +46,7 @@ int main(int argc, char** argv)
                 std::string filename = dirIt->path().string();
                 owlapi::io::OWLOntologyReader reader;
                 owlapi::model::OWLOntology::Ptr ontology = reader.open(filename);
-                reader.loadDeclarationsAndImports(ontology, true);
+                reader.loadImports(ontology, true);
                 std::cout << "ontology: " << ontology->getIRI() << ", file: " << filename << std::endl;
             }
         }

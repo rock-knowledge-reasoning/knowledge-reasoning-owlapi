@@ -55,11 +55,16 @@ public:
     owlapi::model::OWLOntology::Ptr open(const std::string& filename);
 
     /**
+     * Only identify the imports
+     */
+    void loadImports(owlapi::model::OWLOntology::Ptr& ontology, bool directImports);
+
+    /**
      * Load declarations and imports for this ontology
      * \param ontology The ontology to load declarations and imports for
      * \param directImports Set to true if this a direct import false otherwise
      */
-    void loadDeclarationsAndImports(owlapi::model::OWLOntology::Ptr& ontology, bool directImports);
+    void loadDeclarations(owlapi::model::OWLOntology::Ptr& ontology, bool directImports);
 
     /**
      * Load 'the rest' after declarations and import definitions

@@ -62,11 +62,50 @@ db::query::Results OWLOntologyReader::findAll(const db::query::Variable& subject
 
 void OWLOntologyReader::load(OWLOntology::Ptr& ontology)
 {
-    loadDeclarationsAndImports(ontology, true);
+    loadImports(ontology, true);
+    loadDeclarations(ontology, true);
     loadAxioms(ontology);
 }
 
-void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, bool directImport)
+void OWLOntologyReader::loadImports(OWLOntology::Ptr& ontology, bool directImport)
+{
+    Results results = findAll(Subject(), vocabulary::RDF::type(), vocabulary::OWL::Ontology());
+    ResultsIterator it(results);
+    while(it.next())
+    {
+        IRI subject = it[Subject()];
+        LOG_DEBUG_S << "Ontology identified: '" << subject << "' loading from: " << mAbsolutePath;
+
+        if(directImport)
+        {
+            ontology->setIRI(subject);
+        }
+    }
+
+    OWLOntologyTell tell(ontology);
+    OWLOntologyAsk ask(ontology);
+
+    tell.initializeDefaultClasses();
+
+    {
+        db::query::Results results = findAll(Subject(), vocabulary::OWL::imports(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI object = it[Object()];
+
+            if(directImport)
+            {
+                tell.directlyImports(object);
+            } else {
+                tell.imports(object);
+            }
+        } // end while
+    }
+}
+
+void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool directImport)
 {
     Results results = findAll(Subject(), vocabulary::RDF::type(), vocabulary::OWL::Ontology());
     ResultsIterator it(results);
@@ -186,14 +225,6 @@ void OWLOntologyReader::loadDeclarationsAndImports(OWLOntology::Ptr& ontology, b
                 } else if( object == vocabulary::OWL::Ontology() )
                 {
                     tell.ontology(subject);
-                }
-            } else if(predicate == vocabulary::OWL::imports())
-            {
-                if(directImport)
-                {
-                    tell.directlyImports(object);
-                } else {
-                    tell.imports(object);
                 }
             }
         } // end while

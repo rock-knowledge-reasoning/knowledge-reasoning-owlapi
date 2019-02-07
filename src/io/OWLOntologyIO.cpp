@@ -109,7 +109,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
     {
         // load from the file set for the ontology
         ontology = reader.open(ontology->getAbsolutePath());
-        reader.loadDeclarationsAndImports(ontology, true /*directImport*/);
+        reader.loadImports(ontology, true /*directImport*/);
     }
 
     IRIList unprocessed = ontology->getDirectImportsDocuments();
@@ -159,7 +159,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         importedOntology->setIRI(iri);
 
         // load the individual ontology to identity direct imports
-        importReader->loadDeclarationsAndImports(importedOntology, true /*directImport*/);
+        importReader->loadImports(importedOntology, true /*directImport*/);
         iri = importedOntology->getIRI();
 
         IRIList directImports = importedOntology->getDirectImportsDocuments();
@@ -203,7 +203,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
             << "' into ontology " << ontology->getIRI();
 
         // Load the full ontology
-        importReader->loadDeclarationsAndImports(ontology, false);
+        importReader->loadDeclarations(ontology, false);
         importReader->loadAxioms(ontology);
         delete importReader;
 
@@ -223,12 +223,17 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         loaded.push_back(iri);
     }
 
+    if(!isEmptyTopOntology)
+    {
+        reader.loadDeclarations(ontology, true /*directImport*/);
+    }
     // If the top level is loaded from file make sure the
     // axioms are loaded after all imports have been processed
     if(!ontology->getAbsolutePath().empty())
     {
         reader.loadAxioms(ontology);
     }
+
 
     LOG_INFO_S << "Processed all imports: " << loaded;
     return ontology;
