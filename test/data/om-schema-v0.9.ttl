@@ -1,0 +1,368 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/2014/01/om-schema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.rock-robotics.org/2014/01/om-schema#>
+    a owl:Ontology .
+
+:Actor
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:comment "An actor is a physical or logical entity that can act, i.e. perform actions which have an effect" ;
+    rdfs:subClassOf :Resource .
+
+:BaseCamps
+    a owl:Class ;
+    rdfs:subClassOf :Actor, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "6"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiActive ;
+        owl:onProperty :has
+    ] .
+
+:CREX
+    a owl:Class ;
+    rdfs:subClassOf :Actor, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Power ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :MoveTo ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Camera ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiPassive ;
+        owl:onProperty :has
+    ] .
+
+:CREX_0
+    a :CREX, owl:NamedIndividual .
+
+:Camera
+    a owl:Class ;
+    rdfs:subClassOf :PhysicalEntity .
+
+:Capability
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:comment "Capabililties represent 'soft' resources that need to be available to provide services of perform actions" ;
+    rdfs:subClassOf :Resource .
+
+:CompositeActor
+    a owl:Class ;
+    rdfs:subClassOf :Actor, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Link ;
+        owl:onProperty :has
+    ] .
+
+:ElectricalInterface
+    a owl:Class ;
+    rdfs:subClassOf :Interface .
+
+:ElectroMechanicalInterface
+    a owl:Class ;
+    rdfs:subClassOf :ElectricalInterface, :MechanicalInterface .
+
+:EmiActive
+    :compatibleWith :EmiPassive ;
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :ElectroMechanicalInterface ;
+    owl:disjointWith :EmiPassive .
+
+:EmiPassive
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :ElectroMechanicalInterface .
+
+:EmiPowerProvider
+    a owl:Class ;
+    rdfs:subClassOf :Service, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Power ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ElectroMechanicalInterface ;
+        owl:onProperty :has
+    ] .
+
+:ImageProvider
+    a owl:Class ;
+    rdfs:subClassOf :Service, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Camera ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Power ;
+        owl:onProperty :has
+    ] .
+
+:Interface
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :Resource .
+
+:Link
+    a owl:Class ;
+    rdfs:subClassOf :Resource, [
+        a owl:Restriction ;
+        owl:onClass :Interface ;
+        owl:onProperty :has ;
+        owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger
+    ] .
+
+:Localization
+    a owl:Class ;
+    rdfs:subClassOf :Capability .
+
+:Location
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:LocationImageProvider
+    a owl:Class ;
+    rdfs:subClassOf :Service, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ImageProvider ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :MoveTo ;
+        owl:onProperty :has
+    ] .
+
+:Locomotion
+    a owl:Class ;
+    rdfs:subClassOf :Capability .
+
+:Mapping
+    a owl:Class ;
+    rdfs:subClassOf :Capability .
+
+:MechanicalInterface
+    a owl:Class ;
+    rdfs:subClassOf :Interface .
+
+:Mission
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:MoveTo
+    a owl:Class ;
+    rdfs:subClassOf :Capability, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Locomotion ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Power ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Mapping ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Localization ;
+        owl:onProperty :has
+    ] .
+
+:Payload
+    a owl:Class ;
+    rdfs:subClassOf :Actor, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiPassive ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiActive ;
+        owl:onProperty :has
+    ] .
+
+:PayloadCamera
+    a owl:Class ;
+    rdfs:subClassOf :Payload, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Camera ;
+        owl:onProperty :has
+    ] .
+
+:PhysicalEntity
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:Power
+    a owl:Class ;
+    rdfs:subClassOf :PhysicalEntity .
+
+:Requirement
+    a owl:Class .
+
+:Resource
+    a owl:Class, owl:NamedIndividual .
+
+:Service
+    a owl:Class, owl:NamedIndividual ;
+    rdfs:comment """A service is an offer to potential consumers.
+
+There is always only one instance of a service an actor can provide, e.g,
+a StereoImageProvider service cannot depends upon two instances of ImageProvider but need to associated directly with two camera""" ;
+    rdfs:subClassOf :Resource .
+
+:Sherpa
+    :avgEnergyConsumption 0.8 ;
+    :maxAccelleration 0.1 ;
+    :maxEnergyCapacity 8.4 ;
+    :maxVelocity 1.0 ;
+    :minAccelleration -0.1 ;
+    :minVelocity -1.0 ;
+    :probabilityOfFailure 0.5 ;
+    a :Sherpa, owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :Actor, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Mapping ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+        owl:onClass :Camera ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Localization ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Power ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiActive ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "4"^^xsd:nonNegativeInteger ;
+        owl:onClass :EmiPassive ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :Locomotion ;
+        owl:onProperty :has
+    ] .
+
+:StereoImageProvider
+    a owl:Class ;
+    rdfs:subClassOf :Service, [
+        a owl:Restriction ;
+        owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+        owl:onClass :Camera ;
+        owl:onProperty :has
+    ] .
+
+:avgEnergyConsumption
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :energyProperty .
+
+:compatibleWith
+    a owl:ObjectProperty, owl:SymmetricProperty .
+
+:dependsOn
+    a owl:ObjectProperty, owl:TransitiveProperty .
+
+:energyProperty
+    a owl:DatatypeProperty ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:double ;
+    owl:propertyDisjointWith :locomotionProperty, :safetyProperty .
+
+:fulfills
+    a owl:ObjectProperty .
+
+:has
+    a owl:ObjectProperty, owl:TransitiveProperty .
+
+:locomotionProperty
+    a owl:DatatypeProperty ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:double ;
+    owl:propertyDisjointWith :safetyProperty .
+
+:maxAccelleration
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :locomotionProperty .
+
+:maxEnergyCapacity
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :energyProperty .
+
+:maxVelocity
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :locomotionProperty .
+
+:minAccelleration
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :locomotionProperty .
+
+:minVelocity
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :locomotionProperty .
+
+:modelledBy
+    a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain :Resource ;
+    owl:inverseOf :models .
+
+:models
+    a owl:ObjectProperty ;
+    rdfs:range :Resource .
+
+:probabilityOfFailure
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range xsd:double ;
+    rdfs:subPropertyOf :safetyProperty .
+
+:provides
+    a owl:ObjectProperty, owl:TransitiveProperty .
+
+:safetyProperty
+    a owl:DatatypeProperty ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:double .
+
+:uses
+    a owl:ObjectProperty, owl:TransitiveProperty .
+
