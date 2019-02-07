@@ -13,15 +13,15 @@ This library depends on the following packages:
 
 | Name       | Description |
 |--------|-----|
-| [boost](https://www.boost.org/users/license.html) | Boost: protable C++ source libraries            |
-| [base/cmake](http://github.com/rock-core/base-cmake.git) | Essential CMake Macros for simplication of the build management            |
+| [boost](https://www.boost.org/users/license.html) | Boost: portable C++ source libraries            |
+| [base/cmake](http://github.com/rock-core/base-cmake.git) | Essential CMake Macros for simplification of the build management            |
 | [base/logging](https://github.com/rock-core/base-logging) | C++ Logging Library |
 | [knowledge_reasoning/fact++](https://bitbucket.org/dtsarkov/factplusplus)  | Description Logic (DL) Reasoner |
 | [uriparser](https://uriparser.github.io/) | Library for RFC 3986 compliant URI parsing |
-| [soprano](http://soprano.sourceforge.net) | A Qt-based framwork for RDF data |
-| [redland](http://librdf.org/LICENSE.html) | Resource Description Framework (RDF) handling, including (de)serialization and inmemory representation |
-| [raptor2](http://librdf.org/LICENSE.html) | RDF handling as part of the redland libraries |
-| [utilmm](https://github.com/orocos-toolchain/utilmm) | C++-helper libraries, here use a C++-Wrapper for pkg-config |
+| [soprano](http://soprano.sourceforge.net) | A Qt-based framework for RDF data |
+| [redland](http://librdf.org/LICENSE.html) | Resource Description Framework (RDF) handling, including (de)serialization and in memory representation |
+| [raptor2](http://librdf.org/LICENSE.html) | RDF handling as part of the Redland libraries |
+| [utilmm](https://github.com/orocos-toolchain/utilmm) | C++-helper libraries, here using a C++-Wrapper for pkg-config |
 
 
 ### Installation
@@ -32,53 +32,6 @@ Either install all dependencies by hand, then:
     cd build
     cmake ..
     make
-```
-
-## Installation from GitLab (internal)
-
-Create a new Rock-based installation in a development folder, here called dev.
-You can use the default values for the configuration questions.
-
-```
-    mkdir dev
-    cd dev
-    wget http://www.rock-robotics.org/master/autoproj_bootstrap
-    ruby autoproj_bootstrap
-```
-
-
-Add the following to autoproj/init.rb:
-```
-  Autoproj.gitorious_server_configuration('DFKIGIT', 'git.hb.dfki.de', :fallback_to_http => false, :default => 'ssh,ssh')
-```
-
-
-In autoproj/manifest add the respective manifest and add the package to the
-layout section:
-```
-    package_set:
-        - dfkigit: rock-dfki/package_set
-
-    layout:
-        - knowledge_reasoning/owlapi
-```
-
-In order to speed up the installation process you can opt to add the existing
-Debian packages for Rock. To do that, just add the following to the
-autoproj/manifest.
-
-```
-    package_set:
-        - github: rock-core/rock-osdeps-package_set
-
-```
-
-Then you can trigger the installation:
-```
-$>source env.sh
-$>autoproj update
-$>autoproj osdeps
-$>amake knowledge_reasoning/owlapi
 ```
 
 ## Installation from GitHub
@@ -235,9 +188,9 @@ The motivation for implementation is to allow a consistent application of
 C/C++-based programs on robotic systems -- especially since we are intending
 to target small/embedded devices.
 
-Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.2) is actually written in C++
+Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.3) is actually written in C++
 and thus can be accessed almost directly.
-This implementation of owlapi is not as complete as the orignal JAVA-based one.
+This implementation of owlapi is not as complete as the original JAVA-based one.
 Among other things it does not fully support is processing of construct such as DataComplementOf.
 DataOneOf is supported however.
 This library provides core features to handle ontologies and supports also some
@@ -273,7 +226,7 @@ or directly
 ```
 
 ## COPYRIGHT
-Copyright (c) 2013-2019 Thomas M Roehr, DFKI GmbH Robotics Innovation Center
+Copyright (c) 2013-2019 Thomas M Roehr and Contributors, DFKI GmbH Robotics Innovation Center
 
 ## LICENSE
 This project is licensed under [LGPL v2.1 or later](https://www.gnu.org/licenses/lgpl-2.1.txt)
