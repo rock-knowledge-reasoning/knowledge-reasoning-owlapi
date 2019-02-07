@@ -7,6 +7,7 @@
 
 #include "../model/OWLOntologyTell.hpp"
 #include "../db/rdf/SopranoDB.hpp"
+#include "../db/rdf/Redland.hpp"
 #include "../db/rdf/Sparql.hpp"
 #include "../Vocabulary.hpp"
 #include "OWLOntologyIO.hpp"
@@ -33,7 +34,7 @@ OWLOntology::Ptr OWLOntologyReader::open(const std::string& filename)
                 " load and remove the current file.");
     }
 
-    mSparqlInterface = new db::SopranoDB(filename);
+    mSparqlInterface = new db::Redland(filename);
 
     mAbsolutePath = boost::filesystem::absolute(filename).string();
     ontology->setAbsolutePath(mAbsolutePath);

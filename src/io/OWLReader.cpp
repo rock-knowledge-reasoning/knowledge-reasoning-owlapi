@@ -1,14 +1,14 @@
-#include "OWLWriter.hpp"
+#include "OWLReader.hpp"
 #include <algorithm>
 
 namespace owlapi {
 namespace io {
 
-OWLWriter::OWLWriter(const std::string& defaultFormat)
+OWLReader::OWLReader(const std::string& defaultFormat)
     : OWLIOBase(defaultFormat)
 {}
 
-OWLWriter::~OWLWriter()
+OWLReader::~OWLReader()
 {}
 
 } // end namespace io

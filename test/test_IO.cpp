@@ -2,6 +2,7 @@
 #include <owlapi/OWLApi.hpp>
 #include <owlapi/io/OWLOntologyIO.hpp>
 #include <owlapi/io/RedlandWriter.hpp>
+#include <owlapi/io/RedlandReader.hpp>
 #include "test_utils.hpp"
 
 #define BOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
@@ -20,21 +21,23 @@ using namespace owlapi::io;
 
 BOOST_AUTO_TEST_SUITE(io)
 
-BOOST_AUTO_TEST_CASE(redland)
+BOOST_AUTO_TEST_CASE(redland_writer)
 {
     {
         OWLOntology::Ptr ontology = OWLOntology::fromFile( getRootDir() + "/test/data/om-schema-v0.9.owl");
 
         owlapi::io::RedlandWriter writer;
         writer.setFormat("rdfxml");
-        writer.write("/tmp/test_file-rdfxml.owl", ontology);
+        writer.write("/tmp/test_file-rdfxml" + FormatSuffixes[RDFXML], ontology);
 
-        writer.setFormat("ntriples");
-        writer.write("/tmp/test_file-ntriples.owl", ontology);
+        writer.setFormat("turtle");
+        writer.write("/tmp/test_file-turtle" + FormatSuffixes[TURTLE], ontology);
     }
 
     {
-        OWLOntology::Ptr ontology = OWLOntology::fromFile("/tmp/test_file-rdfxml.owl" );
+        OWLOntology::Ptr ontology =
+            OWLOntology::fromFile("/tmp/test_file-rdfxml"
+                    + FormatSuffixes[RDFXML] );
         OWLAxiom::PtrList axioms = ontology->getAxioms();
         BOOST_REQUIRE(!axioms.empty());
         IRI origin = axioms.back()->getOrigin();
@@ -42,7 +45,26 @@ BOOST_AUTO_TEST_CASE(redland)
 
     }
     {
-        OWLOntology::Ptr ontology = OWLOntology::fromFile("/tmp/test_file-ntriples.owl" );
+        OWLOntology::Ptr ontology =
+            OWLOntology::fromFile("/tmp/test_file-turtle" +
+                    FormatSuffixes[TURTLE] );
+        OWLAxiom::PtrList axioms = ontology->getAxioms();
+        BOOST_REQUIRE(!axioms.empty());
+        IRI origin = axioms.back()->getOrigin();
+        BOOST_REQUIRE_MESSAGE(origin != IRI(), "Origin of axiom is: " << origin);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(redland_reader)
+{
+    {
+        owlapi::io::RedlandReader reader;
+        reader.setFormat("turtle");
+        reader.read( getRootDir() + "test/data/test-turtle-value_types.ttl");
+
+        librdf_model* model = reader.getModel();
+        BOOST_REQUIRE_MESSAGE(librdf_model_size(model) == 15,
+                "Redland Reader has read model in turtle syntax");
     }
 }
 

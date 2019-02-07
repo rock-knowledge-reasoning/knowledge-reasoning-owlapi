@@ -5,13 +5,17 @@ rock_library(owlapi
     SOURCES
         KnowledgeBase.cpp
         db/FileBackend.cpp
+        db/rdf/Redland.cpp
         db/rdf/SopranoDB.cpp
         db/rdf/Sparql.cpp
         db/rdf/SparqlInterface.cpp
         db/rdf/Variable.cpp
         io/OWLOntologyIO.cpp
         io/OWLOntologyReader.cpp
+        io/OWLIOBase.cpp
+        io/OWLReader.cpp
         io/OWLWriter.cpp
+        io/RedlandReader.cpp
         io/RedlandWriter.cpp
         io/XMLUtils.cpp
         model/IRI.cpp
@@ -60,13 +64,17 @@ rock_library(owlapi
         SharedPtr.hpp
         Vocabulary.hpp
         db/FileBackend.hpp
+        db/rdf/Redland.hpp
         db/rdf/SopranoDB.hpp
         db/rdf/Sparql.hpp
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
         io/OWLOntologyIO.hpp
         io/OWLOntologyReader.hpp
+        io/OWLIOBase.hpp
+        io/OWLReader.hpp
         io/OWLWriter.hpp
+        io/RedlandReader.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
         model/ChangeApplied.hpp

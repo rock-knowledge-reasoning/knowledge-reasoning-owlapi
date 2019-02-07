@@ -340,5 +340,24 @@ std::vector<std::string> OWLOntologyIO::getFormatSuffixes()
     return suffixes;
 }
 
+Format OWLOntologyIO::guessFormat(const std::string& filename)
+{
+    std::string suffix;
+    size_t pos = filename.find_last_of(".");
+    if(pos != std::string::npos)
+    {
+        suffix = filename.substr(pos);
+        for(const std::pair<Format, std::string>& v : FormatSuffixes)
+        {
+            if(v.second == suffix)
+            {
+                return v.first;
+            }
+        }
+    }
+    throw std::runtime_error("owlapi::model::OWLOntologyIO::guessFormat:"
+            "failed to guess format from '" + filename + "', found suffix: '" + suffix + "'");
+}
+
 } // end namespace io
 } // end namespace owlapi

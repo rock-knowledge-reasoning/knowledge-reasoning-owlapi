@@ -27,6 +27,7 @@ Soprano::Model* SopranoDB::fromFile(const std::string& filename, const std::stri
 
     std::vector<Soprano::RdfSerialization> serializationFormats;
     serializationFormats.push_back(Soprano::SerializationRdfXml);
+    serializationFormats.push_back(Soprano::SerializationTurtle);
 // Segfault here in redland
 //    serializationFormats.push_back(Soprano::SerializationN3);
     serializationFormats.push_back(Soprano::SerializationNTriples);

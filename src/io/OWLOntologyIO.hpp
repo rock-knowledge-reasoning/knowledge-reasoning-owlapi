@@ -141,6 +141,11 @@ public:
      */
     static std::vector<std::string> getFormatSuffixes();
 
+    /**
+     * Guess the format from the filename suffix
+     */
+    static Format guessFormat(const std::string& filename);
+
 };
 
 

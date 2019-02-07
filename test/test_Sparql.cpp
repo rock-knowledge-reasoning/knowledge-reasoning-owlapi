@@ -3,19 +3,75 @@
 #include <owlapi/model/OWLOntology.hpp>
 #include <owlapi/db/rdf/SopranoDB.hpp>
 #include <owlapi/db/rdf/Sparql.hpp>
+#include <owlapi/db/rdf/Redland.hpp>
 #include "test_utils.hpp"
+#include <boost/mpl/list.hpp>
 
 using namespace owlapi;
 using namespace owlapi::model;
 
 extern std::string rdfTestFiles[];
+typedef boost::mpl::list<owlapi::db::Redland, owlapi::db::SopranoDB> dbTypes;
 
 BOOST_AUTO_TEST_SUITE(sparql)
 
-BOOST_AUTO_TEST_CASE(query_db_with_sparql)
+// Soprano is not properly supporting turtle syntax
+BOOST_AUTO_TEST_CASE(query_turtle)
+{
+    std::string baseUri = "http://www.rock-robotics.org/2018/08/om-schema#";
+    db::Redland db(getRootDir() + "test/data/test-turtle-value_types.ttl",
+            baseUri);
+    {
+        db::rdf::sparql::Query query;
+        query.select(db::query::Subject()).select(db::query::Any("type")) \
+            .beginWhere() \
+                .triple(db::query::Subject(),vocabulary::RDF::type(), db::query::Any("type")) \
+            .endWhere();
+
+        db::query::Results results = db.query(query.toString(), query.getBindings());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() == 7, "Results retrieved count: " << results.rows.size()
+                << results.toString());
+    }
+
+    {
+        db::query::Results results = db.findAll(db::query::Subject(),
+                db::query::Predicate(),
+                db::query::Object());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() == 15, "Results retrieved count: " << results.rows.size()
+                << results.toString());
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(query_rdfxml, T, dbTypes)
+{
+    std::string baseUri = "http://www.rock-robotics.org/2018/08/om-schema#";
+    T db(getRootDir() + "test/data/test-turtle-value_types.owl",
+            baseUri);
+    {
+        db::rdf::sparql::Query query;
+        query.select(db::query::Subject()).select(db::query::Any("type")) \
+            .beginWhere() \
+                .triple(db::query::Subject(),vocabulary::RDF::type(), db::query::Any("type")) \
+            .endWhere();
+
+        db::query::Results results = db.query(query.toString(), query.getBindings());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() == 7, "Results retrieved count: " << results.rows.size()
+                << results.toString());
+    }
+
+    {
+        db::query::Results results = db.findAll(db::query::Subject(),
+                db::query::Predicate(),
+                db::query::Object());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() == 15, "Results retrieved count: " << results.rows.size()
+                << results.toString());
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(query, T, dbTypes)
 {
     std::string baseUri = "http://www.rock-robotics.org/2013/09/om-schema#";
-    db::SopranoDB db(getRootDir() + rdfTestFiles[0], baseUri);
+    T db(getRootDir() + rdfTestFiles[0], baseUri);
 
     //db::query::Bindings bindings;
     //bindings.push_back("s");
@@ -75,7 +131,8 @@ BOOST_AUTO_TEST_CASE(query_db_with_sparql)
 
         BOOST_TEST_MESSAGE("Display query: " << query.toString() );
         db::query::Results results = db.query(query.toString(), query.getBindings());
-        BOOST_REQUIRE_MESSAGE(results.rows.size() != 0, "Results retrieved count: " << results.rows.size());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() != 0, "Results retrieved count: " << results.rows.size()
+                << results.toString());
     }
 
     {
@@ -87,7 +144,8 @@ BOOST_AUTO_TEST_CASE(query_db_with_sparql)
 
         BOOST_TEST_MESSAGE("Display query: " << query.toString() );
         db::query::Results results = db.query(query.toString(), query.getBindings());
-        BOOST_REQUIRE_MESSAGE(results.rows.size() != 0, "NamedIndividuals retrieved count: " << results.rows.size());
+        BOOST_REQUIRE_MESSAGE(results.rows.size() != 0, "NamedIndividuals retrieved count: " << results.rows.size()
+                << results.toString());
 
         db::query::ResultsIterator it(results);
         while(it.next())
@@ -97,11 +155,11 @@ BOOST_AUTO_TEST_CASE(query_db_with_sparql)
     }
 }
 
-BOOST_AUTO_TEST_CASE(query_anonymous_node)
+BOOST_AUTO_TEST_CASE_TEMPLATE(query_anonymous_node, T, dbTypes)
 {
     {
         std::string baseUri = "http://www.rock-robotics.org/2013/09/om-schema#";
-        db::SopranoDB db(getRootDir() + rdfTestFiles[2], baseUri);
+        T db(getRootDir() + rdfTestFiles[2], baseUri);
         db::rdf::sparql::Query query;
         query.select(db::query::Subject())
             .beginWhere() \
@@ -121,7 +179,7 @@ BOOST_AUTO_TEST_CASE(query_anonymous_node)
 
     {
         std::string baseUri = "http://www.rock-robotics.org/2013/09/om-schema#";
-        db::SopranoDB db(getRootDir() + rdfTestFiles[2], baseUri);
+        T db(getRootDir() + rdfTestFiles[2], baseUri);
         db::rdf::sparql::Query query;
         query.select(db::query::Predicate())
             .select(db::query::Object())

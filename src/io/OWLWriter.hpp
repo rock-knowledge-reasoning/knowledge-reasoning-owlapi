@@ -2,26 +2,16 @@
 #define OWLAPI_IO_OWL_WRITER_HPP
 
 #include <stdexcept>
-#include <owlapi/model/OWLOntology.hpp>
+#include "OWLIOBase.hpp"
 
 namespace owlapi {
 namespace io {
 
-class OWLWriter
+class OWLWriter : public OWLIOBase
 {
 public:
     OWLWriter(const std::string& defaultFormat = "");
-    virtual ~OWLWriter() {}
-
-    /**
-     * Retrieve the supported formats that this writer supports
-     */
-    virtual std::vector<std::string> getSupportedFormats() const { return std::vector<std::string>(); }
-
-    /**
-     * Set the format to use for serialization (if multiple formats are supported by this write)
-     */
-    virtual void setFormat(const std::string& format);
+    virtual ~OWLWriter();
 
     /**
      * Write the ontology to a given file
@@ -30,15 +20,6 @@ public:
      * \param includeImports If set to true, write also the imports to the same file -- by default set to false
      */
     virtual void write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, bool includeImports = false) const { throw std::runtime_error("owlapi::io::OWLWriter: write not implemented"); }
-
-    /**
-     * Check if the writer supports the given format
-     * \return True if the writer supports the format, false otherwise
-     */
-    bool supportsFormat(const std::string& format) const;
-
-protected:
-    std::string mFormat;
 };
 
 } // end namespace io
