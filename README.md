@@ -215,12 +215,14 @@ building the project.
 
 Either via CTest with
 ```
+export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
 make -C build test
 
 ```
 or directly
 
 ```
+export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
 ./build/test/owlapi-test
 
 ```

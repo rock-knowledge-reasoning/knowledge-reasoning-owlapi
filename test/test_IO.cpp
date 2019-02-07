@@ -147,6 +147,10 @@ BOOST_AUTO_TEST_CASE(create_from_unknown)
             owlapi::io::OWLOntologyNotFound );
 }
 
+// This test case requires
+// export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
+// since otherwise the underlying failing system call
+// of 'wget' will fail the whole test
 BOOST_AUTO_TEST_CASE(create_with_custom)
 {
     OWLOntology::Ptr ontology = owlapi::make_shared<OWLOntology>();

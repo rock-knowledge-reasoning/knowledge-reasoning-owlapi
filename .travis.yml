@@ -14,4 +14,4 @@
 
     # overwrite the default build command
     script:
-        - docker run rock/owlapi /bin/bash -c "source /home/docker/rock_test/env.sh; make -C knowledge_reasoning/owlapi/build test"
+        - docker run rock/owlapi /bin/bash -c "source /home/docker/rock_test/env.sh; BOOST_TEST_CATCH_SYSTEM_ERRORS=\"no\" make -C knowledge_reasoning/owlapi/build test"
