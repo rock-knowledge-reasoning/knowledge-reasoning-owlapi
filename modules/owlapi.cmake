@@ -1,7 +1,10 @@
 find_program(OWLAPI owlapi-utils)
+
 if(NOT OWLAPI)
-    message(FATAL "Could not find program: 'owlapi-utils' -- did you install 'owlapi' (and updated you environmental variables)")
-endif(NOT OWLAPI)
+    message(SEND_ERROR "Could not find program: 'owlapi-utils' -- did you install 'owlapi' (and updated you environmental variables)")
+else()
+    message("Found 'owlapi-utils': ${OWLAPI}")
+endif()
 
 # Install an ontology into the share folder
 # by renaming the file to a canonized filename
