@@ -1,4 +1,7 @@
-# owlapi
+# owlapi: A C++-based owlapi implementation
+[![Build
+Status](https://travis-ci.org/rock-knowledge-reasoning/knowledge-reasoning-owlapi.svg?branch=master)](https:///travis-ci.org/rock-knowledge-reasoning/knowledge-reasoning-owlapi)
+
 
 This library reimplements owlapi (https://github.com/owlcs/owlapi) functionality
 for C++ projects.
