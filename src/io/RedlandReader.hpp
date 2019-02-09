@@ -34,10 +34,14 @@ public:
     librdf_world* getWorld() { return mpWorld; }
     librdf_model* getModel() { return mpModel; }
 
+    static int consumeBlankNodeId() { return ++msBlankNodeId; }
+
 private:
     librdf_world* mpWorld;
     librdf_storage *mpStorage;
     librdf_model* mpModel;
+
+    static int msBlankNodeId;
 };
 
 } // end namespace io

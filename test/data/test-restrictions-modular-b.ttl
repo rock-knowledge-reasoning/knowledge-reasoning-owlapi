@@ -1,0 +1,49 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions-modular-b#> .
+@prefix om: <http://www.rock-robotics.org/test/turtle/restrictions-modular#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+om:RobotA
+    a owl:Class ;
+    rdfs:subClassOf om:Agent, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceA ;
+        owl:onProperty om:has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceB ;
+        owl:onProperty om:has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceC ;
+        owl:onProperty om:has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceD ;
+        owl:onProperty om:has
+    ] .
+
+om:ResourceE
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:RobotB
+    a owl:Class ;
+    rdfs:subClassOf om:RobotA, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceE ;
+        owl:onProperty om:has
+    ] .
+
+<http://www.rock-robotics.org/test/turtle/restrictions-modular-b#>
+    a owl:Ontology ;
+    owl:imports <http://www.rock-robotics.org/test/turtle/restrictions-modular-a#> .
+
+

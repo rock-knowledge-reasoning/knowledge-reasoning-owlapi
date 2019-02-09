@@ -1,0 +1,25 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions-modular-c#> .
+@prefix om: <http://www.rock-robotics.org/test/turtle/restrictions-modular#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+om:ResourceF
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:RobotC
+    a owl:Class ;
+    rdfs:subClassOf om:RobotB, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass om:ResourceF ;
+        owl:onProperty om:has
+    ] .
+
+<http://www.rock-robotics.org/test/turtle/restrictions-modular-c#>
+    a owl:Ontology ;
+    owl:imports <http://www.rock-robotics.org/test/turtle/restrictions-modular-b#> .
+
+

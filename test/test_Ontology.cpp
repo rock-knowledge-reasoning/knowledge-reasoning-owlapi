@@ -307,4 +307,48 @@ BOOST_AUTO_TEST_CASE(turtle_value_types)
     }
 }
 
+BOOST_AUTO_TEST_CASE(restrictions_monolithic)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile( getRootDir() +
+            "/test/data/test-restrictions.ttl");
+
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+
+    OWLOntologyAsk ask(ontology);
+    OWLCardinalityRestriction::PtrList restrictions;
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotA"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 4,
+                "RobotA has 4 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotB"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 5,
+                "RobotB has 5 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotC"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 6,
+                "RobotB has 6 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+}
+
+BOOST_AUTO_TEST_CASE(restrictions_modular)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile( getRootDir() +
+            "/test/data/test-restrictions-modular-c.ttl");
+
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions-modular#");
+
+    OWLOntologyAsk ask(ontology);
+    OWLCardinalityRestriction::PtrList restrictions;
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotA"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 4,
+                "RobotA has 4 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotB"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 5,
+                "RobotB has 5 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+
+    restrictions = ask.getCardinalityRestrictions(vocab.resolve("RobotC"), vocab.resolve("has"));
+    BOOST_REQUIRE_MESSAGE( restrictions.size() == 6,
+                "RobotB has 6 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

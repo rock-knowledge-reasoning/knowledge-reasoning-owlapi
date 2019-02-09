@@ -1,0 +1,44 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions-modular-a#> .
+@prefix om: <http://www.rock-robotics.org/test/turtle/restrictions-modular#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+om:Agent
+    a owl:Class .
+
+om:Resource
+    a owl:Class .
+
+om:ResourceA
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:ResourceB
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:ResourceC
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:ResourceD
+    a owl:Class ;
+    rdfs:subClassOf om:Resource .
+
+om:has
+    a owl:ObjectProperty .
+
+om:typeOfPowerSource
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:oneOf ("DC_External"
+            "Li-NMC"
+            "Li-ion"
+            "LiFePO4"
+            "Ni-MH"
+            "NiMH"
+        )
+    ] .

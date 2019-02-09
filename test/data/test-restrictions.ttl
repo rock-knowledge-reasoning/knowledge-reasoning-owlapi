@@ -1,0 +1,94 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:Agent
+    a owl:Class .
+
+:Resource
+    a owl:Class .
+
+:ResourceA
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:ResourceB
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:ResourceC
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:ResourceD
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:ResourceE
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:ResourceF
+    a owl:Class ;
+    rdfs:subClassOf :Resource .
+
+:has
+    a owl:ObjectProperty .
+
+
+:RobotA
+    a owl:Class ;
+    rdfs:subClassOf :Agent, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceA ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceB ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceC ;
+        owl:onProperty :has
+    ], [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceD ;
+        owl:onProperty :has
+    ] .
+
+:RobotB
+    a owl:Class ;
+    rdfs:subClassOf :RobotA, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceE ;
+        owl:onProperty :has
+    ] .
+
+:RobotC
+    a owl:Class ;
+    rdfs:subClassOf :RobotB, [
+        a owl:Restriction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass :ResourceF ;
+        owl:onProperty :has
+    ] .
+
+:typeOfPowerSource
+    a owl:DatatypeProperty ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:oneOf ("DC_External"
+            "Li-NMC"
+            "Li-ion"
+            "LiFePO4"
+            "Ni-MH"
+            "NiMH"
+        )
+    ] .

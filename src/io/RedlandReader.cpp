@@ -1,8 +1,32 @@
 #include "RedlandReader.hpp"
 #include "OWLOntologyIO.hpp"
+#include <raptor2.h>
+#include <cstdlib>
 
 namespace owlapi {
 namespace io {
+
+unsigned char* blankNodeHandler(void *user_data, unsigned char* user_bnodeid)
+{
+  raptor_world *world = (raptor_world*)user_data;
+  int id;
+  unsigned char *buffer;
+  size_t id_length;
+
+  if(user_bnodeid)
+    return user_bnodeid;
+
+  id = RedlandReader::consumeBlankNodeId();
+  std::stringstream ss;
+  ss << "genid" << id;
+  std::string blankNodeId = ss.str();
+
+  buffer = static_cast<unsigned char*>( calloc(sizeof(unsigned char*), blankNodeId.size() + 1) );
+  memcpy(buffer, blankNodeId.c_str(), blankNodeId.size());
+  return buffer;
+}
+
+int RedlandReader::msBlankNodeId = 0;
 
 ParsingFailed::ParsingFailed(const std::string& message)
     : std::runtime_error(message)
@@ -78,6 +102,7 @@ void RedlandReader::read(const std::string& filename, const std::string& format)
     unsigned char* uri_string = raptor_uri_filename_to_uri_string(filename.c_str());
     librdf_uri* base_uri = librdf_new_uri(mpWorld, uri_string);
     raptor_world* raptorWorld = librdf_world_get_raptor(mpWorld);
+    raptor_world_set_generate_bnodeid_handler(raptorWorld, NULL, blankNodeHandler);
 
     std::string parserName = format;
     if(format.empty())
