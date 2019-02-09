@@ -71,7 +71,6 @@ query::Results Redland::query(const std::string& query, const query::Bindings& b
                         break;
                     case LIBRDF_NODE_TYPE_RESOURCE:
                     {
-                        //LOG_WARN_S << "RESOURCE";
                         librdf_uri* uri = librdf_node_get_uri(node);
                         unsigned char* uriStr = librdf_uri_to_string(uri);
 
@@ -83,7 +82,6 @@ query::Results Redland::query(const std::string& query, const query::Bindings& b
                     }
                     case LIBRDF_NODE_TYPE_LITERAL:
                     {
-                        //LOG_WARN_S << "LITERAL";
                         unsigned char* valueStr = librdf_node_get_literal_value(node);
                         if(valueStr == NULL || strlen((const char*) valueStr) == 0)
                         {
@@ -107,7 +105,6 @@ query::Results Redland::query(const std::string& query, const query::Bindings& b
                     }
                     case LIBRDF_NODE_TYPE_BLANK:
                     {
-                        //LOG_WARN_S << "BLANK";
                         unsigned char* valueStr = librdf_node_get_blank_identifier(node);
                         owlapi::model::IRI valueIri((const char*) valueStr);
                         row[variable] = valueIri;
@@ -116,28 +113,6 @@ query::Results Redland::query(const std::string& query, const query::Bindings& b
                     default:
                         break;
                 }
-
-                //unsigned char* valueStr = NULL;
-                //librdf_node* node = values[i];
-                //raptor_iostream* iostr = raptor_new_iostream_to_string(node->world,
-                //        (void**) &valueStr,
-                //        NULL,
-                //        malloc);
-
-                //if(iostr)
-                //{
-                //    int rc = librdf_node_write(values[i],
-                //            iostr);
-                //    raptor_free_iostream(iostr);
-
-                //    if(!rc)
-                //    {
-                //        owlapi::model::IRI value((const char*) valueStr);
-                //        row[variable] = value;
-                //    }
-                //    raptor_free_memory(valueStr);
-                //    valueStr = NULL;
-                //}
                 librdf_free_node(values[i]);
             }
             results.rows.push_back(row);

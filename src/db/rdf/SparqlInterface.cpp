@@ -79,7 +79,6 @@ owlapi::model::IRI ResultsIterator::operator[](const Variable& variable) const
 
 Results SparqlInterface::findAll(const Variable& subject, const Variable& predicate, const Variable& object) const
 {
-    LOG_DEBUG_S << "Find all for: subject '" << subject << "', predicate: '" << predicate << "', object '" << object << "'";
     using namespace owlapi::db::rdf::sparql;
     Query query;
     bool doThrow = false;
@@ -91,7 +90,6 @@ Results SparqlInterface::findAll(const Variable& subject, const Variable& predic
         .endWhere();
 
     std::string queryTxt = query.toString();
-    LOG_DEBUG_S << "Sending query: " << queryTxt;
     return this->query(queryTxt, query.getBindings());
 }
 

@@ -57,7 +57,6 @@ OWLOntologyReader::~OWLOntologyReader()
 db::query::Results OWLOntologyReader::findAll(const db::query::Variable& subject, const db::query::Variable& predicate, const db::query::Variable& object) const
 {
     db::query::Results results = mSparqlInterface->findAll(subject, predicate, object);
-    LOG_DEBUG_S << "Results: " << results.toString();
     return results;
 }
 
@@ -563,16 +562,13 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
                 throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
             }
             r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
-            continue;
-        }
-        else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())
+        } else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
 
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::MIN);
-            continue;
         } else if(predicate == vocabulary::OWL::maxCardinality() || predicate == vocabulary::OWL::maxQualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
@@ -580,7 +576,6 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::MAX);
-            continue;
         } else if(predicate == vocabulary::OWL::cardinality() || predicate == vocabulary::OWL::qualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
@@ -588,28 +583,24 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
             uint32_t cardinality = OWLLiteral::create( it[Object()].toString() )->getInteger();
             cardinalityRestrictionPtr->setCardinality(cardinality);
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::EXACT);
-            continue;
         } else if(predicate == vocabulary::OWL::someValuesFrom())
         {
             OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
 
             valueRestrictionPtr->setQualification(it[Object()]);
             valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::SOME);
-            continue;
         } else if(predicate == vocabulary::OWL::allValuesFrom())
         {
             OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
 
             valueRestrictionPtr->setQualification(it[Object()]);
             valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
-            continue;
         } else if(predicate == vocabulary::OWL::hasSelf())
         {
             // FIXME: hasSelf is not a qualified restriction but a value restriction?!?
             OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
 
             valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
-            continue;
         } else if(predicate == vocabulary::OWL::hasValue())
         {
             OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
@@ -617,7 +608,6 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
             // FIXME: the object is a rdfs::resource!!! -> setQualification?
             valueRestrictionPtr->setQualification(it[Object()]);
             valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::HAS);
-            continue;
         } else if(predicate == vocabulary::OWL::onClass())
         {
             // NOTE: This is only needed and valid if we have a cardinality restriction
@@ -631,7 +621,6 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
                 ss << "Restriction '" << restriction << "' could not be qualified";
                 throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
             }
-            continue;
         }
     }  // while(it.next())
 
