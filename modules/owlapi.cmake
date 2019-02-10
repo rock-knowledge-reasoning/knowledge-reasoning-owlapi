@@ -14,7 +14,8 @@ exec_program(${OWLAPI}
     ARGS "-c ${URL}"
     OUTPUT_VARIABLE URL_OWL)
 
+get_filename_component(OWL_SUFFIX ${OWL_FILE} EXT)
 INSTALL(FILES ${OWL_FILE}
     DESTINATION share/ontologies
-    RENAME ${URL_OWL}.owl)
+    RENAME ${URL_OWL}${OWL_SUFFIX})
 endfunction(owlapi_install_ontology)
