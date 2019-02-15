@@ -331,7 +331,7 @@ bool KnowledgeBase::isFunctionalProperty(const IRI& property)
         return false;
     }
 
-    LOG_WARN_S << "KnowledgeBase::isFunctionalProperty: Property '" << property.toString() << "' is not a known data or object property";
+    LOG_INFO_S << "KnowledgeBase::isFunctionalProperty: Property '" << property.toString() << "' is not a known data or object property";
     throw std::invalid_argument("KnowledgeBase::isFunctionalProperty: Property '" + property.toString() + "' is not a known data or object property");
 }
 
@@ -1404,7 +1404,22 @@ ExplorationNode KnowledgeBase::getExplorationNode(const IRI& klass)
     return e;
 }
 
-ObjectPropertyExpressionList KnowledgeBase::getRelatedObjectProperties(const IRI& klass)
+owlapi::model::IRISet KnowledgeBase::getRelatedObjectProperties(const IRI& instance, bool needInverse)
+{
+    owlapi::model::IRISet relatedProperties;
+    InstanceExpression e_instance = getInstance(instance);
+    bool isDataProperty = false;
+
+    std::vector<const TNamedEntry*> names;
+    mKernel->getRelatedRoles(e_instance.get(), names, isDataProperty, needInverse);
+    for(const TNamedEntry* entry : names)
+    {
+        relatedProperties.insert( owlapi::model::IRI( entry->getName() ) );
+    }
+    return relatedProperties;
+}
+
+reasoner::factpp::ObjectPropertyExpressionList KnowledgeBase::getRelatedObjectPropertiesByKlass(const IRI& klass)
 {
     ExplorationNode e_node = getExplorationNode(klass);
     ReasoningKernel::TCGRoleSet result;
@@ -1425,7 +1440,35 @@ ObjectPropertyExpressionList KnowledgeBase::getRelatedObjectProperties(const IRI
     return relatedObjectProperties;
 }
 
-DataPropertyExpressionList KnowledgeBase::getRelatedDataProperties(const IRI& klass)
+owlapi::model::IRISet KnowledgeBase::getRelatedDataProperties(const IRI& instance,
+        bool needInverse)
+{
+    owlapi::model::IRISet dataProperties;
+
+    for(const DataValueMap::value_type v : mValueOfAxioms)
+    {
+        if(v.first.first == instance)
+        {
+            dataProperties.insert(v.first.second);
+        }
+    }
+    return dataProperties;
+
+    // Factpp has the user API for requesting data property relations, but
+    // it has not been implemented
+    //
+    //InstanceExpression e_instance = getInstance(instance);
+    //bool isDataProperty = true;
+    //std::vector<const TNamedEntry*> names;
+    //mKernel->getRelatedRoles(e_instance.get(), names, isDataProperty, needInverse);
+
+    //for(const TNamedEntry* entry : names)
+    //{
+    //    dataProperties.push_back( entry->getName() );
+    //}
+}
+
+DataPropertyExpressionList KnowledgeBase::getRelatedDataPropertiesByKlass(const IRI& klass)
 {
     ExplorationNode e_node = getExplorationNode(klass);
     ReasoningKernel::TCGRoleSet result;
@@ -1441,7 +1484,6 @@ DataPropertyExpressionList KnowledgeBase::getRelatedDataProperties(const IRI& kl
         const DataPropertyExpression e_property(dynamic_cast<TDLDataRoleExpression*>(role));
         relatedDataProperties.push_back(e_property);
     }
-
     return relatedDataProperties;
 }
 

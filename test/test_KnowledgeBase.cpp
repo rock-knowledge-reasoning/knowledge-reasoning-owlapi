@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(tell_and_ask)
         kb.objectRangeOf(has, derived);
         kb.domainOf(has, derived, KnowledgeBase::OBJECT);
 
-        reasoner::factpp::ObjectPropertyExpressionList list = kb.getRelatedObjectProperties(derived);
+        reasoner::factpp::ObjectPropertyExpressionList list = kb.getRelatedObjectPropertiesByKlass(derived);
         kb.classify();
         BOOST_TEST_MESSAGE("Experimental evaluation of related object properties returned: " << list.size() << " properties");
 
@@ -227,6 +227,56 @@ BOOST_AUTO_TEST_CASE(data_value)
     {
         reasoner::factpp::DataValue dataValue = kb.getDataValue("CREX","hasWeight");
         BOOST_TEST_MESSAGE( "DataValue: " << dataValue.getType() << " - " << dataValue.getValue());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(data_properties)
+{
+    {
+        KnowledgeBase kb;
+        kb.setVerbose();
+
+        IRI derived("Derived");
+        IRI has("has");
+        IRI geometricProperty("geometricProperty");
+        IRI minLength("minLength");
+        IRI maxLength("maxLength");
+
+        kb.subClassOf("Base", "Test");
+        kb.subClassOf(derived, "Base");
+
+        kb.objectProperty(has);
+
+        kb.dataProperty(geometricProperty);
+
+        kb.dataProperty(minLength);
+        kb.subClassOf(minLength, geometricProperty);
+
+        kb.dataProperty(maxLength);
+        kb.subClassOf(maxLength, geometricProperty);
+
+        kb.functionalProperty(minLength, KnowledgeBase::DATA);
+        kb.functionalProperty(maxLength, KnowledgeBase::DATA);
+
+        IRI instance("instance");
+        IRI otherInstance("otherInstance");
+        kb.instanceOf(instance, derived);
+        kb.instanceOf(otherInstance, derived);
+        kb.relatedTo(instance, has, otherInstance);
+
+        reasoner::factpp::DataValue minValue = kb.dataValue("1.0", vocabulary::XSD::resolve("double").toString());
+        reasoner::factpp::DataValue maxValue = kb.dataValue("1.0", vocabulary::XSD::resolve("double").toString());
+        reasoner::factpp::Axiom axiomMinLength = kb.valueOf(instance, minLength, minValue);
+        reasoner::factpp::Axiom axiomMaxLength = kb.valueOf(instance, maxLength, maxValue);
+
+        owlapi::model::IRISet list = kb.getRelatedObjectProperties(instance);
+        BOOST_CHECK_MESSAGE(list.size() == 1, "Found '" << list.size()
+                << "' related object properties: " << list);
+
+        owlapi::model::IRISet dlist = kb.getRelatedDataProperties(instance);
+        BOOST_REQUIRE_MESSAGE(dlist.size() == 2, "Found '" << dlist.size()
+                << "' related data properties "
+                << dlist);
     }
 }
 

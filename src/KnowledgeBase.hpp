@@ -772,15 +772,29 @@ public:
     reasoner::factpp::ExplorationNode getExplorationNode(const IRI& klass);
 
     /**
+     * Retrieve object properties that are related to the given instance
+     * \param instance Name of the instance
+     * \param needInverse True if the inverse relation should be included, false otherwise
+     * \return List of object properties
+     */
+    owlapi::model::IRISet getRelatedObjectProperties(const IRI& instance, bool needInverse = false);
+
+    /**
      * Retrieve object properties that are related to the given class
      * NOTE: not sure whether that is what Fact++ actually provides here
      */
-    reasoner::factpp::ObjectPropertyExpressionList getRelatedObjectProperties(const IRI& klass);
+    reasoner::factpp::ObjectPropertyExpressionList getRelatedObjectPropertiesByKlass(const IRI& klass);
+
     /**
      * Retrieve data properties
+     */
+    owlapi::model::IRISet getRelatedDataProperties(const IRI& instance, bool needInverse = false);
+
+    /**
+     * Retrieve object properties that are related to the given class
      * NOTE: not sure whether that is what Fact++ actually provides here
      */
-    reasoner::factpp::DataPropertyExpressionList getRelatedDataProperties(const IRI& klass);
+    reasoner::factpp::DataPropertyExpressionList getRelatedDataPropertiesByKlass(const IRI& klass);
 
     /**
      * Cleanup all axiom that have been marked for retraction

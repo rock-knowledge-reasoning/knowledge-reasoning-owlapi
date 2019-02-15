@@ -339,6 +339,20 @@ public:
     IRIList getDataPropertiesForDomain(const IRI& klass) const;
 
     /**
+     * Get the object properties that are related to a given instance
+     * \param instance Instance IRI
+     * \return list of object properties
+     */
+    IRISet getRelatedObjectProperties(const IRI& instance, bool needInverse = false) const;
+
+    /**
+     * Get the data properties that are related to a given instance
+     * \param instance Instance IRI
+     * \return list of data properties
+     */
+    IRISet getRelatedDataProperties(const IRI& instance) const;
+
+    /**
      * Test if klass is a subclass of intersection of classes
      * \return true if it does, false otherwise
      */

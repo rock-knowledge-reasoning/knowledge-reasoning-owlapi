@@ -589,6 +589,17 @@ IRIList OWLOntologyAsk::getDataPropertiesForDomain(const IRI& domain) const
     return validProperties;
 }
 
+
+IRISet OWLOntologyAsk::getRelatedObjectProperties(const IRI& instance, bool needInverse) const
+{
+    return mpOntology->kb()->getRelatedObjectProperties(instance, needInverse);
+}
+
+IRISet OWLOntologyAsk::getRelatedDataProperties(const IRI& instance) const
+{
+    return mpOntology->kb()->getRelatedDataProperties(instance);
+}
+
 bool OWLOntologyAsk::isSubClassOfIntersection(const IRI& klass, const IRIList& intersection) const
 {
     // TODO: Proper check on intersection
