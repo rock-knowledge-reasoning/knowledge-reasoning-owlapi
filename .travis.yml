@@ -9,8 +9,9 @@
 
     install:
         - docker build -t rock/owlapi .
-        - docker run -d rock/owlapi tail -f /dev/null
-        - docker ps -a
+                --build-arg PKG_NAME="knowledge_reasoning/owlapi"
+                --build-arg PKG_BRANCH="${TRAVIS_BRANCH}"
+                --build-arg PKG_PULL_REQUEST="${TRAVIS_PULL_REQUEST}"
 
     # overwrite the default build command
     script:
