@@ -29,6 +29,11 @@ execute_process(
 if(RAPPER_EXIT_STATUS EQUAL 0)
     message(STATUS "Conversion of ontology file ${OWL_FILE} to rdfxml "
         "succeeded -- your ontology appears to be well formatted")
+    if(NOT ${OWL_SUFFIX} EQUAL "owl")
+        INSTALL(FILES ${CMAKE_BINARY_DIR}/${URL_OWL}.rdf
+            DESTINATION share/ontologies
+            RENAME ${URL_OWL}.owl)
+    endif()
 else()
     message(SEND_ERROR "Conversion of ontology file ${OWL_FILE} to rdfxml "
         "failed -- your ontology seems to be malformatted/invalid")
