@@ -6,7 +6,6 @@
 #include <fstream>
 
 #include "../model/OWLOntologyTell.hpp"
-#include "../db/rdf/SopranoDB.hpp"
 #include "../db/rdf/Redland.hpp"
 #include "../db/rdf/Sparql.hpp"
 #include "../Vocabulary.hpp"

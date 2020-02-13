@@ -1,7 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <owlapi/Vocabulary.hpp>
 #include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/db/rdf/SopranoDB.hpp>
 #include <owlapi/db/rdf/Sparql.hpp>
 #include <owlapi/db/rdf/Redland.hpp>
 #include "test_utils.hpp"
@@ -11,7 +10,7 @@ using namespace owlapi;
 using namespace owlapi::model;
 
 extern std::string rdfTestFiles[];
-typedef boost::mpl::list<owlapi::db::Redland, owlapi::db::SopranoDB> dbTypes;
+typedef boost::mpl::list<owlapi::db::Redland> dbTypes;
 
 BOOST_AUTO_TEST_SUITE(sparql)
 

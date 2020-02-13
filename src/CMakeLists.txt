@@ -6,7 +6,6 @@ rock_library(owlapi
         KnowledgeBase.cpp
         db/FileBackend.cpp
         db/rdf/Redland.cpp
-        db/rdf/SopranoDB.cpp
         db/rdf/Sparql.cpp
         db/rdf/SparqlInterface.cpp
         db/rdf/Variable.cpp
@@ -65,7 +64,6 @@ rock_library(owlapi
         Vocabulary.hpp
         db/FileBackend.hpp
         db/rdf/Redland.hpp
-        db/rdf/SopranoDB.hpp
         db/rdf/Sparql.hpp
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
@@ -197,7 +195,6 @@ rock_library(owlapi
         base-logging
         factpp
         liburiparser
-        soprano
         redland
         raptor2
         utilmm

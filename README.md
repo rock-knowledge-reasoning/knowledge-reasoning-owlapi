@@ -21,7 +21,6 @@ This library depends on the following packages:
 | [base/logging](https://github.com/rock-core/base-logging) | C++ Logging Library |
 | [knowledge_reasoning/fact++](https://bitbucket.org/dtsarkov/factplusplus)  | Description Logic (DL) Reasoner |
 | [uriparser](https://uriparser.github.io/) | Library for RFC 3986 compliant URI parsing |
-| [soprano](http://soprano.sourceforge.net) | A Qt-based framework for RDF data |
 | [redland](http://librdf.org/LICENSE.html) | Resource Description Framework (RDF) handling, including (de)serialization and in memory representation |
 | [raptor2](http://librdf.org/LICENSE.html) | RDF handling as part of the Redland libraries |
 | [utilmm](https://github.com/orocos-toolchain/utilmm) | C++-helper libraries, here using a C++-Wrapper for pkg-config |
