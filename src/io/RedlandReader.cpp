@@ -8,10 +8,9 @@ namespace io {
 
 unsigned char* blankNodeHandler(void *user_data, unsigned char* user_bnodeid)
 {
-  raptor_world *world = (raptor_world*)user_data;
+  //raptor_world *world = (raptor_world*)user_data;
   int id;
   unsigned char *buffer;
-  size_t id_length;
 
   if(user_bnodeid)
     return user_bnodeid;
