@@ -2,6 +2,7 @@
 #define OWLAPI_IO_OWL_ONTOLOGY_IO_HPP
 
 #include <string>
+#include <set>
 #include <owlapi/model/OWLOntology.hpp>
 
 namespace owlapi {
@@ -51,7 +52,7 @@ extern std::map<Format, std::string> FormatSuffixes;
     "test/data/om-schema-v0.15.owl")
  \endverbatim
  *
- * \see OWLOntologyIO::getOntologyPath
+ * \see OWLOntologyIO::getOntologyPaths
  * \todo "Check Canonical Parsing of OWL2 Ontologies"
  * \see http://www.w3.org/TR/2012/REC-owl2-syntax-20121211/#Ontology_Documents
  */
@@ -111,16 +112,48 @@ public:
 
     /**
      * Retrieve the Ontology document and provide path to the document
+     * \param iri IRI of the ontology, which shall be retrieved
      * \return path to the document
-     * \throw std::runtime_error if the document could not be retrieved
+     * \throw OWLOntologyNotFound if the document could not be retrieved
      */
     static std::string retrieve(const owlapi::model::IRI& iri);
+
+    /**
+     * Retrieve the Ontology document and provide path to the document
+     * \param iri IRI of the ontology, which shall be retrieved
+     * \param searchDir Directory to search in for ontologies
+     * \return path to the document
+     * \throw OWLOntologyNotFound if the document could not be retrieved
+     */
+    static std::string retrieve(const owlapi::model::IRI& iri,
+            const std::string& searchDir);
+    /**
+     * Download the Ontology document and provide path to the document
+     * \param iri IRI of the ontology, which shall be retrieved
+     * \param targetDir Directory to save the onntology
+     * \return path to the document
+     * \throw OWLOntologyNotFound if the document could not be retrieved
+     */
+    static std::string download(const owlapi::model::IRI& iri,
+            const std::string& searchDir);
+
+    /**
+     * Get all paths where ontologies are stored in the system
+     * \return All paths where ontologies are stored
+     */
+    static std::set<std::string> getOntologyPaths();
 
     /**
      * Get the default path where ontologies are stored in the system
      * \return Default path for storing ontologies
      */
     static std::string getOntologyPath();
+
+    /**
+      * Get the download directory
+      * \return Path of the download directory
+      */
+    static std::string getOntologiesDownloadDir();
 
     /**
      * \brief Generate a canonized string from an IRI with the intend to generate
@@ -146,6 +179,8 @@ public:
      */
     static Format guessFormat(const std::string& filename);
 
+private:
+    static std::string msDownloadDir;
 };
 
 

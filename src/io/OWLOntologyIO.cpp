@@ -31,6 +31,8 @@ std::map<Format, std::string> FormatSuffixes =
     { NQUADS, ".nquads" }
 };
 
+std::string OWLOntologyIO::msDownloadDir;
+
 void OWLOntologyIO::write(const std::string& filename, const owlapi::model::OWLOntology::Ptr& ontology, Format format)
 {
     switch(format)
@@ -249,6 +251,62 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::fromFile(const std::string& filen
     return load(ontology,"",false);
 }
 
+std::string OWLOntologyIO::getOntologiesDownloadDir()
+{
+    if(msDownloadDir.empty())
+    {
+        boost::filesystem::path path = boost::filesystem::temp_directory_path()
+            / "owlapi" / "ontologies";
+        if(!boost::filesystem::exists(path))
+        {
+            boost::filesystem::create_directories(path);
+        }
+        msDownloadDir = path.string();
+    }
+    return msDownloadDir;
+}
+
+std::set<std::string> OWLOntologyIO::getOntologyPaths()
+{
+    char* ontologiesPath_cstr = getenv("OWL_ONTOLOGIES_PATH");
+    std::set<std::string> paths = { getOntologiesDownloadDir() };
+
+    if(ontologiesPath_cstr)
+    {
+        std::string ontologiesPath(ontologiesPath_cstr);
+        size_t startPos = 0;
+        size_t endPos = std::string::npos;
+        bool stop = false;
+        while(!stop)
+        {
+            endPos = ontologiesPath.find_first_of(':',startPos);
+            std::string path;
+            if(endPos == std::string::npos)
+            {
+                path = ontologiesPath.substr(startPos);
+                stop = true;
+                if(path.empty())
+                {
+                    break;
+                }
+            } else {
+                path = ontologiesPath.substr(startPos,endPos-startPos);
+            }
+            startPos = endPos + 1;
+
+            if( boost::filesystem::exists(path) )
+            {
+                    paths.insert(path);
+            } else {
+                LOG_WARN_S << "Path set in OWL_ONTOLOGIES_PATH does not "
+                    << "exist: " << path;
+            }
+        }
+    }
+    paths.insert(getOntologyPath());
+    return paths;
+}
+
 std::string OWLOntologyIO::getOntologyPath()
 {
     try {
@@ -279,28 +337,44 @@ std::string OWLOntologyIO::canonizeForOfflineUsage(const owlapi::model::IRI& iri
 
 std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
 {
-    // First check the local file system
-    std::string ontologyPath = getOntologyPath();
-    if( !boost::filesystem::exists(ontologyPath) )
+    // First check the local file systems
+    for(const std::string& path : getOntologyPaths())
     {
-        boost::filesystem::create_directories(ontologyPath);
-    }
-
-    std::vector<std::string> formatSuffixes = getFormatSuffixes();
-    for(const std::string& suffix : formatSuffixes)
-    {
-        std::string absoluteFilename = ontologyPath +
-            canonizeForOfflineUsage(iri) + suffix;
-        if(boost::filesystem::exists( absoluteFilename ) )
+        try {
+            return retrieve(iri, path);
+        } catch(const OWLOntologyNotFound& e)
         {
-            return absoluteFilename;
+            LOG_DEBUG_S << "Ontology '" << iri << "' not found in directory '"
+                << path << "' -- " << e.what();
         }
     }
-    // file is not locally available, so trying to retrieve
-    for(const std::string& suffix : formatSuffixes)
+
+    try {
+        return download(iri, msDownloadDir);
+    } catch(const OWLOntologyNotFound& e)
     {
-        std::string absoluteFilename = ontologyPath +
-            canonizeForOfflineUsage(iri) + suffix;
+        LOG_DEBUG_S << "Ontology '" << iri << "' could not be downloaded"
+            " into directory '" << msDownloadDir << "' -- " << e.what();
+    }
+
+    throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::retrieve: failed to"
+            " retrieve document for iri: '" + iri.toString() + "'");
+}
+
+std::string OWLOntologyIO::download(const owlapi::model::IRI& iri,
+        const std::string& targetDir)
+{
+    boost::filesystem::path targetPath(targetDir);
+    if( !boost::filesystem::exists(targetPath) )
+    {
+        boost::filesystem::create_directories(targetPath);
+    }
+
+    // file is not locally available, so trying to retrieve
+    for(const std::string& suffix : getFormatSuffixes())
+    {
+        std::string absoluteFilename = (targetPath / (canonizeForOfflineUsage(iri)
+            + suffix)).string();
         std::string cmd = "wget " + iri.toString() + " -O " + absoluteFilename + " -q";
         LOG_DEBUG_S << "Trying to retrieve document with command '" << cmd << "'";
 
@@ -321,6 +395,23 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri)
 
         // seems we succeeded
         return absoluteFilename;
+    }
+    throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::download: failed to"
+            " download document for iri: '" + iri.toString() + "'");
+}
+
+std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri, const
+        std::string& ontologyPath)
+{
+    std::vector<std::string> formatSuffixes = getFormatSuffixes();
+    for(const std::string& suffix : formatSuffixes)
+    {
+        std::string absoluteFilename = ontologyPath +
+            canonizeForOfflineUsage(iri) + suffix;
+        if(boost::filesystem::exists( absoluteFilename ) )
+        {
+            return absoluteFilename;
+        }
     }
 
     throw OWLOntologyNotFound("owlapi::io::OWLOntologyIO::retrieve: failed to"

@@ -1,4 +1,5 @@
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem.hpp>
 #include <owlapi/OWLApi.hpp>
 #include <owlapi/io/OWLOntologyIO.hpp>
 #include <owlapi/io/RedlandWriter.hpp>
@@ -172,5 +173,39 @@ BOOST_AUTO_TEST_CASE(create_with_custom)
     OWLOntologyIO::write("/tmp/owlapi-test-io-create_with_custom-ontology.owl", ontology);
 }
 
+BOOST_AUTO_TEST_CASE(get_paths)
+{
+    std::vector<std::string> test_paths = {
+        "/tmp/owlapi-test-ontologies-a",
+        "/tmp/owlapi-test-ontologies-b"
+    };
+
+    std::string ontologyPath;
+    for(const std::string& path : test_paths)
+    {
+        ontologyPath += path + ":";
+        if(boost::filesystem::exists(path))
+        {
+            boost::filesystem::remove(path);
+        }
+    }
+    setenv("OWL_ONTOLOGIES_PATH",ontologyPath.c_str(),1);
+    std::set<std::string> paths = owlapi::io::OWLOntologyIO::getOntologyPaths();
+    BOOST_REQUIRE(paths.size() == 2);
+
+    for(const std::string& path : test_paths)
+    {
+        if(!boost::filesystem::exists(path))
+        {
+            boost::filesystem::create_directories(path);
+        }
+    }
+    paths = owlapi::io::OWLOntologyIO::getOntologyPaths();
+    for(const std::string& path : test_paths)
+    {
+        BOOST_REQUIRE_MESSAGE( paths.end() != std::find(paths.begin(),
+                    paths.end(), path), "Path " << path << " found ");
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END()
