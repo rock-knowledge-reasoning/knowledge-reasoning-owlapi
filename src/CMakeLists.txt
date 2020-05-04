@@ -1,4 +1,6 @@
-find_package(Boost REQUIRED regex system filesystem program_options
+find_package(Boost REQUIRED system
+    filesystem
+    program_options
     serialization)
 
 rock_library(owlapi
@@ -205,7 +207,6 @@ rock_library(owlapi
         icu-uc
     DEPS_PLAIN
         Boost_PROGRAM_OPTIONS
-        Boost_REGEX
         Boost_SYSTEM
         Boost_FILESYSTEM
 )

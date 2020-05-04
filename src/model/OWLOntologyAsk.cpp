@@ -559,10 +559,8 @@ IRIList OWLOntologyAsk::getObjectPropertiesForDomain(const IRI& domain) const
 {
     IRIList validProperties;
     IRIList objectProperties = mpOntology->kb()->allObjectProperties();
-    IRIList::const_iterator cit = objectProperties.begin();
-    for(; cit != objectProperties.end(); ++cit)
+    for(const IRI& property : objectProperties)
     {
-        const IRI& property = *cit;
         IRIList domains = domainOf(property);
         if( isSubClassOfIntersection(domain, domains) )
         {
@@ -576,10 +574,8 @@ IRIList OWLOntologyAsk::getDataPropertiesForDomain(const IRI& domain) const
 {
     IRIList validProperties;
     IRIList dataProperties = mpOntology->kb()->allDataProperties();
-    IRIList::const_iterator cit = dataProperties.begin();
-    for(; cit != dataProperties.end(); ++cit)
+    for(const IRI& property : dataProperties)
     {
-        const IRI& property = *cit;
         IRIList domains = domainOf(property);
         if(isSubClassOfIntersection(domain, domains) )
         {

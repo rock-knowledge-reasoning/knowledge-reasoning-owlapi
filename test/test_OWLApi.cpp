@@ -3,7 +3,7 @@
 
 #include <owlapi/OWLApi.hpp>
 #include <owlapi/Vocabulary.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <unordered_map>
 
 using namespace owlapi::model;
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE(iris)
         IRI iriFail("http://www.w3.org/2002/07/owl#One+Two+Three[]*");
         std::string escapedIri = iri.toEscapedString();
 
-        boost::regex r(escapedIri);
-        BOOST_REQUIRE_MESSAGE(regex_match(iri.toString(), r), "IRI correctly escaped -- positive test: regex is: " << r.str());
-        BOOST_REQUIRE_MESSAGE(!regex_match(iriFail.toString(), r), "IRI correctly escaped -- negative test");
+        std::regex r(escapedIri);
+        BOOST_REQUIRE_MESSAGE(std::regex_match(iri.toString(), r), "IRI correctly escaped -- positive test: regex is: " << escapedIri);
+        BOOST_REQUIRE_MESSAGE(!std::regex_match(iriFail.toString(), r), "IRI correctly escaped -- negative test");
     }
 }
 BOOST_AUTO_TEST_CASE(iri_unordered_maps)
