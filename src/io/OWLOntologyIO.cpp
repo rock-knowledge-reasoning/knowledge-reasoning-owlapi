@@ -406,11 +406,13 @@ std::string OWLOntologyIO::retrieve(const owlapi::model::IRI& iri, const
     std::vector<std::string> formatSuffixes = getFormatSuffixes();
     for(const std::string& suffix : formatSuffixes)
     {
-        std::string absoluteFilename = ontologyPath +
-            canonizeForOfflineUsage(iri) + suffix;
+        boost::filesystem::path absoluteFilename = boost::filesystem::path(ontologyPath) /
+            boost::filesystem::path(canonizeForOfflineUsage(iri) + suffix);
         if(boost::filesystem::exists( absoluteFilename ) )
         {
-            return absoluteFilename;
+            return absoluteFilename.string();
+        } else {
+            LOG_DEBUG_S << "File '" << absoluteFilename << "' does not exist";
         }
     }
 
