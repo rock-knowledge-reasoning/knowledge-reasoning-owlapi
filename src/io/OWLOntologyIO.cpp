@@ -268,7 +268,7 @@ std::string OWLOntologyIO::getOntologiesDownloadDir()
 
 std::set<std::string> OWLOntologyIO::getOntologyPaths()
 {
-    char* ontologiesPath_cstr = getenv("OWL_ONTOLOGIES_PATH");
+    char* ontologiesPath_cstr = getenv("OWLAPI_ONTOLOGIES_PATH");
     std::set<std::string> paths = { getOntologiesDownloadDir() };
 
     if(ontologiesPath_cstr)
@@ -298,7 +298,7 @@ std::set<std::string> OWLOntologyIO::getOntologyPaths()
             {
                     paths.insert(path);
             } else {
-                LOG_WARN_S << "Path set in OWL_ONTOLOGIES_PATH does not "
+                LOG_WARN_S << "Path set in OWLAPI_ONTOLOGIES_PATH does not "
                     << "exist: " << path;
             }
         }
