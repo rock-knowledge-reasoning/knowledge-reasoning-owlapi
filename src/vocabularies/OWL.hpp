@@ -66,6 +66,7 @@ public:
     VOCABULARY_ADD_WORD(someValuesFrom);
     VOCABULARY_ADD_WORD(unionOf);
     VOCABULARY_ADD_WORD(versionInfo);
+    VOCABULARY_ADD_WORD(versionIRI);
     VOCABULARY_ADD_WORD(deprecated);
     VOCABULARY_ADD_WORD(topObjectProperty);
     VOCABULARY_ADD_WORD(bottomObjectProperty);

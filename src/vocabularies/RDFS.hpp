@@ -17,13 +17,13 @@ public:
     VOCABULARY_ADD_WORD(Datatype);
     VOCABULARY_ADD_WORD(Literal);
     VOCABULARY_ADD_WORD(Resource);
-    VOCABULARY_ADD_WORD(comment);
-    VOCABULARY_ADD_WORD(domain);
-    VOCABULARY_ADD_WORD(isDefinedBy);
-    VOCABULARY_ADD_WORD(label);
+    VOCABULARY_ADD_WORD(comment); // treat as AnnotationProperty
+    VOCABULARY_ADD_WORD(domain); // instance untyped
+    VOCABULARY_ADD_WORD(isDefinedBy); // treat as AnnotationProperty
+    VOCABULARY_ADD_WORD(label); // treat as AnnotationProperty
     VOCABULARY_ADD_WORD(member);
     VOCABULARY_ADD_WORD(range);
-    VOCABULARY_ADD_WORD(seeAlso);
+    VOCABULARY_ADD_WORD(seeAlso); // treat as AnnotationProperty
     VOCABULARY_ADD_WORD(subClassOf);
     VOCABULARY_ADD_WORD(subPropertyOf);
 };
