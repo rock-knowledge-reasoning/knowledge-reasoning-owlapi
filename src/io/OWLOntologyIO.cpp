@@ -8,6 +8,8 @@
 
 #include <owlapi/Vocabulary.hpp>
 
+using namespace owlapi::model;
+
 namespace owlapi {
 namespace io {
 
@@ -180,15 +182,28 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
     IRIList loaded;
     while(!dependencies.empty())
     {
-        // Find ontology that has no remaining dependencies
-        std::map<IRI, IRISet>::iterator it = std::find_if(dependencies.begin(), dependencies.end(),
-                [](const std::pair<IRI,IRISet>& v)
-                {
-                    return v.second.empty();
-                });
 
-        // Find reader by given iri
-        IRI iri = it->first;
+        IRI iri;
+        while(true)
+        {
+            // Find ontology that has no remaining dependencies
+            std::map<IRI, IRISet>::iterator it = std::find_if(dependencies.begin(), dependencies.end(),
+                    [](const std::pair<IRI,IRISet>& v)
+                    {
+                        return v.second.empty();
+                    });
+
+            // Find reader by given iri
+            if(it != dependencies.end())
+            {
+                iri = it->first;
+                break;
+            }
+
+            LOG_WARN_S << "Cycling dependencies for ontology, trying to break";
+            breakCycle(dependencies);
+        }
+
         ReadersMap::iterator rit = std::find_if(readersMap.begin(), readersMap.end(),
                 [iri](const ReadersMap::value_type& v)
                 {
@@ -210,7 +225,7 @@ owlapi::model::OWLOntology::Ptr OWLOntologyIO::load(owlapi::model::OWLOntology::
         delete importReader;
 
         // Remove iri from list of dependencies
-        dependencies.erase(it);
+        dependencies.erase(iri);
         std::map<IRI, IRISet>::iterator dit = dependencies.begin();
         for(; dit != dependencies.end(); ++dit)
         {
@@ -450,6 +465,73 @@ Format OWLOntologyIO::guessFormat(const std::string& filename)
     }
     throw std::runtime_error("owlapi::model::OWLOntologyIO::guessFormat:"
             "failed to guess format from '" + filename + "', found suffix: '" + suffix + "'");
+}
+
+void OWLOntologyIO::breakCycle(std::map<IRI, IRISet>& dependencies)
+{
+    IRIList cycle = findCycle(dependencies);
+    if(cycle.empty())
+    {
+        throw std::runtime_error("owlapi::model::OWLOntologyIO::breakCycle: no"
+                " cycle found");
+    }
+    for(const IRI& depA : cycle)
+    {
+        for(const IRI& depB : cycle)
+        {
+            if(depA != depB)
+            {
+                dependencies[depA].erase(depB);
+            }
+        }
+    }
+}
+
+IRIList OWLOntologyIO::findCycle(const std::map<IRI, IRISet>& dependencies)
+{
+    for(const std::pair<IRI, IRISet>& p : dependencies)
+    {
+        IRISet dependants;
+        findDependants(p.first, dependencies, dependants);
+        // find intersection of p.second and directDependants
+        IRIList intersection = IRI::getIntersection(dependants, p.second);
+        if(!intersection.empty())
+        {
+            // cycle found
+            intersection.push_back(p.first);
+            return intersection;
+        }
+    }
+    // no cycle found
+    return IRIList();
+}
+
+IRIList OWLOntologyIO::findDirectDependants(const IRI& ontology, const std::map<IRI, IRISet>& dependencies)
+{
+    IRIList dependants;
+    for(const std::pair<IRI, IRISet>& p : dependencies)
+    {
+        if( p.second.find(ontology) != p.second.end())
+        {
+            dependants.push_back(p.first);
+        }
+    }
+    return dependants;
+}
+
+void OWLOntologyIO::findDependants(const IRI& ontology, const std::map<IRI,
+        IRISet>& dependencies, IRISet& dependants)
+{
+    IRIList directDependants = findDirectDependants(ontology, dependencies);
+    for(const IRI& d : directDependants)
+    {
+        if( std::find(dependants.begin(), dependants.end(), d) ==
+                dependants.end())
+        {
+            dependants.insert(d);
+            findDependants(d, dependencies, dependants);
+        }
+    }
 }
 
 } // end namespace io

@@ -179,6 +179,25 @@ public:
      */
     static Format guessFormat(const std::string& filename);
 
+    /**
+     * Try to find direct dependants of an ontology
+     */
+    static owlapi::model::IRIList findDirectDependants(const owlapi::model::IRI& ontology, const std::map<owlapi::model::IRI, owlapi::model::IRISet>& dependencies);
+
+    static void findDependants(const owlapi::model::IRI& ontology,
+            const std::map<owlapi::model::IRI, owlapi::model::IRISet>& dependencies,
+            owlapi::model::IRISet& dependants);
+
+    /**
+     * Break cyclic dependencies
+     */
+    static void breakCycle(std::map<owlapi::model::IRI, owlapi::model::IRISet>& dependencies);
+
+    /**
+     * Break cyclic dependencies
+     */
+    static owlapi::model::IRIList findCycle(const std::map<owlapi::model::IRI, owlapi::model::IRISet>& dependencies);
+
 private:
     static std::string msDownloadDir;
 };

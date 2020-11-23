@@ -23,7 +23,7 @@ OWLOntologyReader::OWLOntologyReader()
 
 OWLOntology::Ptr OWLOntologyReader::open(const std::string& filename)
 {
-    OWLOntology::Ptr ontology(new OWLOntology());
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
     // check first if file is empty
     std::ifstream file(filename);
     if(file.peek() == std::ifstream::traits_type::eof())
@@ -142,6 +142,8 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
     // TODO: introduce rdf triple parser
     // http://www.w3.org/TR/owl-parsing/#subsec-streaming
     {
+        std::vector< std::pair<IRI,IRI> > instances;
+
         db::query::Results results = findAll(Subject(), Predicate(), Object());
         ResultsIterator it(results);
         while(it.next())
@@ -224,7 +226,17 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
                 } else if( object == vocabulary::OWL::Ontology() )
                 {
                     tell.ontology(subject);
+                } else {
+                    if(!ask.isOWLClass(object))
+                    {
+                        // Forward declaration encountered
+                        tell.klass(object);
+                    }
+                    tell.instanceOf(subject, object);
                 }
+            } else if(predicate == vocabulary::OWL::versionIRI())
+            {
+                tell.ontology(subject);
             }
         } // end while
     }
@@ -464,7 +476,11 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 
             if(predicate == vocabulary::RDFS::subPropertyOf())
             {
-                // validate that subject and object have the same property type
+                if(!ask.isOWLIndividual(object))
+                {
+                    tell.instanceOf(object, vocabulary::RDF::Property());
+                }
+
                 // add axiom to assert superproperty
                 tell.subPropertyOf(subject, object);
             } else if(predicate == vocabulary::OWL::equivalentProperty())
@@ -852,6 +868,7 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
         ResultsIterator it(results);
 
         // Setting domain of property
+        // currently limited to simple classes, i.e. no expressions permitte
         {
             Results domain = findAll(relation, vocabulary::RDFS::domain(), Object());
             if(!domain.empty())
@@ -861,6 +878,11 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
                 {
                     IRI classType = domainIt[Object()];
                     LOG_DEBUG_S << "tell: " << relation << " rdfs:domain " << classType;
+                    if(!ask.isOWLClass(classType))
+                    {
+                        // Forward declaration of class type
+                        tell.klass(classType);
+                    }
                     tell.dataPropertyDomainOf(relation, classType);
                 }
             }
