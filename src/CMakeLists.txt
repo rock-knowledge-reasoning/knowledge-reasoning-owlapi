@@ -98,7 +98,13 @@ rock_library(owlapi
         model/OWLClassAssertionAxiom.hpp
         model/OWLClassAxiom.hpp
         model/OWLClassExpression.hpp
+        model/OWLDataAllValuesFrom.hpp
+        model/OWLDataExactCardinality.hpp
+        model/OWLDataHasValue.hpp
+        model/OWLDataMinCardinality.hpp
+        model/OWLDataMaxCardinality.hpp
         model/OWLDataOneOf.hpp
+        model/OWLDataSomeValuesFrom.hpp
         model/OWLDataProperty.hpp
         model/OWLDataPropertyAssertionAxiom.hpp
         model/OWLDataPropertyAxiom.hpp
