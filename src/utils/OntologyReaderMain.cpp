@@ -21,7 +21,8 @@ int main(int argc, char** argv)
             "Usage");
     description.add_options()
         ("help,h","describe arguments")
-        ("ontology,o", po::value<std::string>(), "Ontology file name")
+        ("ontology_uri,l", po::value<std::string>(), "Ontology uri to load")
+        ("ontology_file,o", po::value<std::string>(), "Ontology file name")
         ("format,f", po::value<std::string>(), "Output format")
         ("serialize_imports,i", po::bool_switch(&serialize_imports), "Serialize also imports")
         ("outfile", po::value<std::string>(), "Output file")
@@ -50,14 +51,23 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    if(!vm.count("ontology"))
+    if(!vm.count("ontology_file") && !vm.count("ontology_uri"))
     {
+        std::cout << "Please provide either an ontology file or an ontology uri" << std::endl;
         std::cout << description << std::endl;
         exit(1);
     }
 
-    std::string filename = vm["ontology"].as<std::string>();
-    OWLOntology::Ptr ontology = owlapi::io::OWLOntologyIO::fromFile(filename);
+    OWLOntology::Ptr ontology;
+    if(vm.count("ontology_file"))
+    {
+        std::string filename = vm["ontology_file"].as<std::string>();
+        ontology = owlapi::io::OWLOntologyIO::fromFile(filename);
+    } else if(vm.count("ontology_uri"))
+    {
+        owlapi::model::IRI iri(vm["ontology_uri"].as<std::string>());
+        ontology = owlapi::io::OWLOntologyIO::load(iri);
+    }
 
     if( !vm.count("format") )
     {
