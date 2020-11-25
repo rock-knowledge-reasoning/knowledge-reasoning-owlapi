@@ -936,7 +936,7 @@ IRIList KnowledgeBase::allSubClassesOf(const IRI& klass, bool direct)
     Actor actor;
     actor.needConcepts();
     mKernel->getSubConcepts(e_class.get(), direct, actor);
-
+    // vocabulary::OWL::Nothing() is bottom concept, which is represented as "BOTTOM" in Factpp
     return getResult(actor, IRI("BOTTOM"));
 }
 
@@ -1086,7 +1086,7 @@ IRIList KnowledgeBase::allObjectProperties() const
     for(; cit != mObjectProperties.end(); ++cit)
     {
         const owlapi::model::IRI& iri = cit->first;
-        if(iri == vocabulary::OWL::topObjectProperty())
+        if(iri == vocabulary::OWL::topObjectProperty() || iri == vocabulary::OWL::bottomObjectProperty())
         {
             continue;
         }
@@ -1182,7 +1182,7 @@ IRIList KnowledgeBase::allDataProperties() const
     for(; cit != mDataProperties.end(); ++cit)
     {
         const owlapi::model::IRI& iri = cit->first;
-        if(iri == vocabulary::OWL::topDataProperty())
+        if(iri == vocabulary::OWL::topDataProperty() || iri == vocabulary::OWL::bottomDataProperty())
         {
             continue;
         }

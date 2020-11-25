@@ -657,6 +657,7 @@ public:
 
     /**
      * Retrieve all object properties
+     * Note that the top and bottom object properties are excluded from this list
      */
     IRIList allObjectProperties() const;
 
@@ -674,7 +675,8 @@ public:
     bool isDisjointObjectProperties(const IRI& relationProperty0, const IRI& relationProperty1);
 
     /**
-     * Retrieve all data properties
+     * Retrieve all data properties,
+     * Note that the top and bottom data properties are excluded from this list
      */
     IRIList allDataProperties() const;
     /**

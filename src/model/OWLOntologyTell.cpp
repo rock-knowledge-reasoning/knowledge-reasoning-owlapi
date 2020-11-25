@@ -33,6 +33,7 @@ void OWLOntologyTell::initializeDefaultClasses()
     klass(vocabulary::OWL::Class());
     klass(vocabulary::OWL::DeprecatedClass());
     klass(vocabulary::OWL::Thing());
+    subClassOf(vocabulary::OWL::Nothing(), vocabulary::OWL::Thing());
 
     klass(vocabulary::OWL::Ontology());
     klass(vocabulary::RDFS::Resource());
@@ -44,6 +45,9 @@ void OWLOntologyTell::initializeDefaultClasses()
     klass(vocabulary::RDF::Property());
     klass(vocabulary::RDF::Seq());
     klass(vocabulary::RDFS::Class());
+    klass(vocabulary::OWL::ObjectProperty());
+    klass(vocabulary::OWL::DatatypeProperty());
+
     //datatype(vocabulary::RDF::Statement());
     //datatype(vocabulary::RDF::XMLLiteral());
     //klass(vocabulary::RDF::PlainLiteral()); // datatype
@@ -75,7 +79,7 @@ void OWLOntologyTell::initializeDefaultClasses()
         subClassOf(iri, vocabulary::RDF::Property());
     }
 
-    IRIList defaultObjectProperties = {
+    IRIList defaultPropertyClasses = {
         vocabulary::OWL::ReflexiveProperty(),
         vocabulary::OWL::IrreflexiveProperty(),
         vocabulary::OWL::SymmetricProperty(),
@@ -83,7 +87,16 @@ void OWLOntologyTell::initializeDefaultClasses()
         vocabulary::OWL::TransitiveProperty(),
         vocabulary::OWL::TransitiveProperty(),
         vocabulary::OWL::InverseFunctionalProperty(),
+    };
+
+    for(const IRI& iri : defaultPropertyClasses)
+    {
+        klass(iri);
+    }
+
+    IRIList defaultObjectProperties = {
         vocabulary::OWL::topObjectProperty(),
+        vocabulary::OWL::bottomObjectProperty(),
         // Utility Properties: https://www.w3.org/TR/rdf-schema/#ch_utilvocab
         vocabulary::RDFS::isDefinedBy(),
         vocabulary::RDFS::seeAlso(),
@@ -92,17 +105,16 @@ void OWLOntologyTell::initializeDefaultClasses()
 
     for(const IRI& iri : defaultObjectProperties)
     {
-        klass(iri);
         objectProperty(iri);
     }
 
     IRIList defaultDataProperties = {
         vocabulary::OWL::topDataProperty(),
+        vocabulary::OWL::bottomDataProperty(),
     };
 
     for(const IRI& iri : defaultDataProperties)
     {
-        klass(iri);
         dataProperty(iri);
     }
 
@@ -266,7 +278,7 @@ OWLAnnotationProperty::Ptr OWLOntologyTell::annotationProperty(const IRI& iri)
         OWLAnnotationProperty::Ptr property = ptr_cast<OWLAnnotationProperty, OWLEntity>(entity, true);
         mpOntology->mAnnotationProperties[iri] = property;
 
-        instanceOf(iri, vocabulary::OWL::AnnotationProperty());
+        //instanceOf(iri, vocabulary::OWL::AnnotationProperty());
 
         return property;
     }
