@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_DISJOINT_UNION_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_DISJOINT_UNION_AXIOM_HPP
 
-#include <owlapi/model/OWLClass.hpp>
-#include <owlapi/model/OWLClassAxiom.hpp>
+#include "OWLClass.hpp"
+#include "OWLClassAxiom.hpp"
 
 namespace owlapi {
 namespace model {

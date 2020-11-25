@@ -1,10 +1,10 @@
 #ifndef OWLAPI_MODEL_OWL_ONTOLOGY_ASK_HPP
 #define OWLAPI_MODEL_OWL_ONTOLOGY_ASK_HPP
 
-#include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/model/OWLCardinalityRestriction.hpp>
-#include <owlapi/model/OWLLiteral.hpp>
-#include <owlapi/model/OWLDataProperty.hpp>
+#include "OWLOntology.hpp"
+#include "OWLCardinalityRestriction.hpp"
+#include "OWLLiteral.hpp"
+#include "OWLDataProperty.hpp"
 
 namespace owlapi {
 namespace model {

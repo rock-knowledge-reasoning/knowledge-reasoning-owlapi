@@ -1,11 +1,11 @@
 #include "OWLEntity.hpp"
 
-#include <owlapi/model/OWLClass.hpp>
-#include <owlapi/model/OWLAnnotationProperty.hpp>
-#include <owlapi/model/OWLDataProperty.hpp>
-#include <owlapi/model/OWLDataType.hpp>
-#include <owlapi/model/OWLObjectProperty.hpp>
-#include <owlapi/model/OWLNamedIndividual.hpp>
+#include "OWLClass.hpp"
+#include "OWLAnnotationProperty.hpp"
+#include "OWLDataProperty.hpp"
+#include "OWLDataType.hpp"
+#include "OWLObjectProperty.hpp"
+#include "OWLNamedIndividual.hpp"
 
 #include <boost/assign/list_of.hpp>
 

@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_MIN_CARDINALITY_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_MIN_CARDINALITY_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <owlapi/model/OWLMinCardinalityRestriction.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLObjectPropertyExpression.hpp"
+#include "OWLMinCardinalityRestriction.hpp"
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {

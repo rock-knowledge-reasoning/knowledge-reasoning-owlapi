@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_CLASS_HPP
 #define OWLAPI_MODEL_OWL_CLASS_HPP
 
-#include <owlapi/Vocabulary.hpp>
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLLogicalEntity.hpp>
+#include "../Vocabulary.hpp"
+#include "OWLClassExpression.hpp"
+#include "OWLLogicalEntity.hpp"
 
 namespace owlapi {
 namespace model {

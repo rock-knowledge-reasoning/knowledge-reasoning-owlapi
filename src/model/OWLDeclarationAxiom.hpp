@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_DECLARATION_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_DECLARATION_AXIOM_HPP
 
-#include <owlapi/model/OWLEntity.hpp>
-#include <owlapi/model/OWLAxiom.hpp>
+#include "OWLEntity.hpp"
+#include "OWLAxiom.hpp"
 
 namespace owlapi {
 namespace model {

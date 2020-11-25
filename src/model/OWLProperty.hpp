@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_PROPERTY_HPP
 #define OWLAPI_MODEL_OWL_PROPERTY_HPP
 
-#include <owlapi/model/OWLPropertyExpression.hpp>
-#include <owlapi/model/OWLLogicalEntity.hpp>
+#include "OWLPropertyExpression.hpp"
+#include "OWLLogicalEntity.hpp"
 
 namespace owlapi {
 namespace model {

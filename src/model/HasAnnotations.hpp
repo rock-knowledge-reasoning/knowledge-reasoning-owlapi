@@ -2,7 +2,6 @@
 #define OWLAPI_MODEL_HAS_ANNOTATIONS_HPP
 
 #include <vector>
-#include <owlapi/model/OWLAnnotation.hpp>
 
 namespace owlapi {
 namespace model {

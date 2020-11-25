@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_QUALIFIED_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_QUALIFIED_RESTRICTION_HPP
 
-#include <owlapi/model/IRI.hpp>
-#include <owlapi/model/OWLRestriction.hpp>
+#include "IRI.hpp"
+#include "OWLRestriction.hpp"
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {

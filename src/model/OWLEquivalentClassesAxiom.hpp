@@ -2,9 +2,9 @@
 #define OWLAPI_MODEL_OWL_EQUIVALENT_CLASSES_AXIOM_HPP
 
 #include <stdexcept>
-#include <owlapi/model/OWLClassAxiom.hpp>
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLClass.hpp>
+#include "OWLClassAxiom.hpp"
+#include "OWLClassExpression.hpp"
+#include "OWLClass.hpp"
 
 namespace owlapi {
 namespace model {

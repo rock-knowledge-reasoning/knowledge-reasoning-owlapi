@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_ANNOTATION_PROPERTY_HPP
 #define OWLAPI_MODEL_OWL_ANNOTATION_PROPERTY_HPP
 
-#include <owlapi/model/OWLEntity.hpp>
-#include <owlapi/Vocabulary.hpp>
+#include "OWLProperty.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {

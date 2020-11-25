@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include <owlapi/model/OWLPropertyRange.hpp>
+#include "OWLPropertyRange.hpp"
 
 namespace owlapi {
 namespace model {

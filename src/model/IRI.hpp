@@ -5,9 +5,9 @@
 #include <vector>
 #include <set>
 #include <functional>
-#include <owlapi/model/URI.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/functional/hash.hpp>
+#include "URI.hpp"
 
 namespace owlapi {
 namespace model {

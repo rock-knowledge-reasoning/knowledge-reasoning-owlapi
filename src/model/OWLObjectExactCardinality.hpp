@@ -1,10 +1,10 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_EXACT_CARDINALITY_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_EXACT_CARDINALITY_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <owlapi/model/OWLExactCardinalityRestriction.hpp>
-#include <owlapi/Vocabulary.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLObjectPropertyExpression.hpp"
+#include "OWLExactCardinalityRestriction.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {

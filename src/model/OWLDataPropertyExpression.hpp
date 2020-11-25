@@ -2,7 +2,7 @@
 #define OWLAPI_MODEL_OWL_DATA_PROPERTY_EXPRESSION_HPP
 
 #include <vector>
-#include <owlapi/model/OWLPropertyExpression.hpp>
+#include "OWLPropertyExpression.hpp"
 
 namespace owlapi {
 namespace model {

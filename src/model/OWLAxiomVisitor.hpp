@@ -1,57 +1,57 @@
 #ifndef OWLAPI_MODEL_OWL_AXIOM_VISITOR_HPP
 #define OWLAPI_MODEL_OWL_AXIOM_VISITOR_HPP
 
-#include <owlapi/model/OWLDeclarationAxiom.hpp>
-#include <owlapi/model/OWLClassAxiom.hpp>
-#include <owlapi/model/OWLObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLDataPropertyAxiom.hpp>
+#include "OWLDeclarationAxiom.hpp"
+#include "OWLClassAxiom.hpp"
+#include "OWLObjectPropertyAxiom.hpp"
+#include "OWLDataPropertyAxiom.hpp"
 
-//#include <owlapi/model/OWLAssertionAxiom.hpp>
-//#include <owlapi/model/OWLHasKeyAxiom.hpp>
-//#include <owlapi/model/OWLAssertionAxiom.hpp>
+//#include "OWLAssertionAxiom.hpp"
+//#include "OWLHasKeyAxiom.hpp"
+//#include "OWLAnnotationAxiom.hpp"
 
-#include <owlapi/model/OWLSubClassOfAxiom.hpp>
-#include <owlapi/model/OWLEquivalentClassesAxiom.hpp>
-#include <owlapi/model/OWLDisjointClassesAxiom.hpp>
-#include <owlapi/model/OWLDisjointUnionAxiom.hpp>
+#include "OWLSubClassOfAxiom.hpp"
+#include "OWLEquivalentClassesAxiom.hpp"
+#include "OWLDisjointClassesAxiom.hpp"
+#include "OWLDisjointUnionAxiom.hpp"
 
-#include <owlapi/model/OWLEquivalentObjectPropertiesAxiom.hpp>
-//#include <owlapi/model/OWLDisjointObjectPropertiesAxiom.hpp>
-#include <owlapi/model/OWLSubObjectPropertyOfAxiom.hpp>
-#include <owlapi/model/OWLObjectPropertyDomainAxiom.hpp>
-#include <owlapi/model/OWLObjectPropertyRangeAxiom.hpp>
-#include <owlapi/model/OWLInverseObjectPropertiesAxiom.hpp>
-#include <owlapi/model/OWLFunctionalObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLInverseFunctionalObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLReflexiveObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLIrreflexiveObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLSymmetricObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLAsymmetricObjectPropertyAxiom.hpp>
-#include <owlapi/model/OWLTransitiveObjectPropertyAxiom.hpp>
+#include "OWLEquivalentObjectPropertiesAxiom.hpp"
+//#include "OWLDisjointObjectPropertiesAxiom.hpp"
+#include "OWLSubObjectPropertyOfAxiom.hpp"
+#include "OWLObjectPropertyDomainAxiom.hpp"
+#include "OWLObjectPropertyRangeAxiom.hpp"
+#include "OWLInverseObjectPropertiesAxiom.hpp"
+#include "OWLFunctionalObjectPropertyAxiom.hpp"
+#include "OWLInverseFunctionalObjectPropertyAxiom.hpp"
+#include "OWLReflexiveObjectPropertyAxiom.hpp"
+#include "OWLIrreflexiveObjectPropertyAxiom.hpp"
+#include "OWLSymmetricObjectPropertyAxiom.hpp"
+#include "OWLAsymmetricObjectPropertyAxiom.hpp"
+#include "OWLTransitiveObjectPropertyAxiom.hpp"
 
-#include <owlapi/model/OWLSubDataPropertyOfAxiom.hpp>
-//#include <owlapi/model/OWLDisjointDataPropertiesAxiom.hpp>
-//#include <owlapi/model/OWLEquivalentDataPropertiesAxiom.hpp>
-#include <owlapi/model/OWLFunctionalDataPropertyAxiom.hpp>
-#include <owlapi/model/OWLDataPropertyDomainAxiom.hpp>
-#include <owlapi/model/OWLDataPropertyRangeAxiom.hpp>
+#include "OWLSubDataPropertyOfAxiom.hpp"
+//#include "OWLDisjointDataPropertiesAxiom.hpp"
+//#include "OWLEquivalentDataPropertiesAxiom.hpp"
+#include "OWLFunctionalDataPropertyAxiom.hpp"
+#include "OWLDataPropertyDomainAxiom.hpp"
+#include "OWLDataPropertyRangeAxiom.hpp"
 
-#include <owlapi/model/OWLClassAssertionAxiom.hpp>
-//#include <owlapi/model/OWLSameIndividualAxiom.hpp>
-//#include <owlapi/model/OWLDifferentIndividualsAxiom.hpp>
+#include "OWLClassAssertionAxiom.hpp"
+//#include "OWLSameIndividualAxiom.hpp"
+//#include "OWLDifferentIndividualsAxiom.hpp"
 
-#include <owlapi/model/OWLObjectPropertyAssertionAxiom.hpp>
-//#include <owlapi/model/OWLNegativeObjectPropertyAssertion.hpp>
+#include "OWLObjectPropertyAssertionAxiom.hpp"
+//#include "OWLNegativeObjectPropertyAssertion.hpp"
 
-#include <owlapi/model/OWLDataPropertyAssertionAxiom.hpp>
-//#include <owlapi/model/OWLNegativeDataPropertyAssertion.hpp>
+#include "OWLDataPropertyAssertionAxiom.hpp"
+//#include "OWLNegativeDataPropertyAssertion.hpp"
 
-//#include <owlapi/model/OWLSubAnnotationPropertyOfAxiom.hpp>
-//#include <owlapi/model/OWLAnnotationPropertyDomainAxiom.hpp>
-//#include <owlapi/model/OWLAnnotationPropertyRangeAxiom.hpp>
-//#include <owlapi/model/OWLAnnotationAssertionAxiom.hpp>
+#include "OWLSubAnnotationPropertyOfAxiom.hpp"
+#include "OWLAnnotationAssertionAxiom.hpp"
+#include "OWLAnnotationPropertyDomainAxiom.hpp"
+#include "OWLAnnotationPropertyRangeAxiom.hpp"
 
-//#include <owlapi/model/OWLSubPropertyChainOf.hpp>
+//#include "OWLSubPropertyChainOf.hpp"
 
 #include <base-logging/Logging.hpp>
 

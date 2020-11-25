@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_DATA_PROPERTY_ASSERTION_AXIOM_HPP
 #define OWLAPI_MODEL_DATA_PROPERTY_ASSERTION_AXIOM_HPP
 
-#include <owlapi/model/OWLPropertyAssertionAxiom.hpp>
-#include <owlapi/model/OWLLiteral.hpp>
+#include "OWLPropertyAssertionAxiom.hpp"
+#include "OWLLiteral.hpp"
 
 namespace owlapi {
 namespace model {

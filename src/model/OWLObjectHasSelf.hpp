@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_HAS_SELF_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_HAS_SELF_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <owlapi/model/OWLHasSelfRestriction.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLObjectPropertyExpression.hpp"
+#include "OWLHasSelfRestriction.hpp"
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {

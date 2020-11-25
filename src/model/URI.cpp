@@ -1,24 +1,24 @@
 #include "URI.hpp"
 // http://uriparser.sourceforge.net/doc/html/structUriParserStateStructA.html
-#include <boost/assign/list_of.hpp>
 #include <base-logging/Logging.hpp>
 #include <uriparser/Uri.h>
 
 namespace owlapi {
 namespace model {
 
-std::map<int, std::string> URI::ErrorCodeTxt = boost::assign::map_list_of
-    (URI_SUCCESS,      "Success")
-    (URI_ERROR_SYNTAX, "Parsed text violates expected format")
-    (URI_ERROR_NULL,   "One of the params passed was NULL although it mustn't be")
-    (URI_ERROR_MALLOC, "Requested memory could not be allocated")
-    (URI_ERROR_OUTPUT_TOO_LARGE, "Some output is to large for the receiving buffer")
-    (URI_ERROR_NOT_IMPLEMENTED, "The called function is not implemented yet")
-    (URI_ERROR_RANGE_INVALID, "The parameters passed contained invalid ranges")
-    (URI_ERROR_OUTPUT_TOO_LARGE, "URI output too large")
-    (URI_ERROR_ADDBASE_REL_BASE, "Add base relative base: given base is not absolute")
-    (URI_ERROR_REMOVEBASE_REL_BASE, "Remove base relative base: given base is not absolute")
-    (URI_ERROR_REMOVEBASE_REL_SOURCE, "Remove base relative source: given base is not absolute");
+std::map<int, std::string> URI::ErrorCodeTxt = {
+    {URI_SUCCESS,      "Success"},
+    {URI_ERROR_SYNTAX, "Parsed text violates expected format"},
+    {URI_ERROR_NULL,   "One of the params passed was NULL although it mustn't be"},
+    {URI_ERROR_MALLOC, "Requested memory could not be allocated"},
+    {URI_ERROR_OUTPUT_TOO_LARGE, "Some output is to large for the receiving buffer"},
+    {URI_ERROR_NOT_IMPLEMENTED, "The called function is not implemented yet"},
+    {URI_ERROR_RANGE_INVALID, "The parameters passed contained invalid ranges"},
+    {URI_ERROR_OUTPUT_TOO_LARGE, "URI output too large"},
+    {URI_ERROR_ADDBASE_REL_BASE, "Add base relative base: given base is not absolute"},
+    {URI_ERROR_REMOVEBASE_REL_BASE, "Remove base relative base: given base is not absolute"},
+    {URI_ERROR_REMOVEBASE_REL_SOURCE, "Remove base relative source: given base is not absolute"}
+};
 
 URI::URI(const std::string& s)
     : mIsAbsolute(false)

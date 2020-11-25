@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_HPP
 
-#include <owlapi/Exceptions.hpp>
-#include <owlapi/SharedPtr.hpp>
+#include "../Exceptions.hpp"
+#include "../SharedPtr.hpp"
 
 namespace owlapi {
 namespace model {

@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_UNARY_PROPERTY_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_UNARY_PROPERTY_AXIOM_HPP
 
-#include <owlapi/model/OWLAxiom.hpp>
-#include <owlapi/model/OWLPropertyAxiom.hpp>
+#include "OWLAxiom.hpp"
+#include "OWLPropertyAxiom.hpp"
 
 namespace owlapi {
 namespace model {

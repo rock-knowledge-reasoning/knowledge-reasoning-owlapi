@@ -2,7 +2,7 @@
 #define OWLAPI_MODEL_OWL_PROPERTY_RANGE_HPP
 
 #include <vector>
-#include <owlapi/model/OWLObject.hpp>
+#include "OWLObject.hpp"
 
 namespace owlapi {
 namespace model {

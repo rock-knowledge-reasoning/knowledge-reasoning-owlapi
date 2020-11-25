@@ -2,10 +2,10 @@
 #define OWLAPI_MODEL_OWL_LITERAL_HPP
 
 #include <string>
-#include <owlapi/Vocabulary.hpp>
-#include <owlapi/model/IRI.hpp>
-#include <owlapi/model/OWLDataType.hpp>
-#include <owlapi/model/OWLPropertyAssertionObject.hpp>
+#include "../Vocabulary.hpp"
+#include "IRI.hpp"
+#include "OWLDataType.hpp"
+#include "OWLPropertyAssertionObject.hpp"
 
 namespace owlapi {
 namespace model {

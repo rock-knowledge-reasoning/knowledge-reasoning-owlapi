@@ -2,6 +2,11 @@
 #include "OWLObjectExactCardinality.hpp"
 #include "OWLObjectMinCardinality.hpp"
 #include "OWLObjectMaxCardinality.hpp"
+#include "OWLDataPropertyExpression.hpp"
+#include "OWLDataExactCardinality.hpp"
+#include "OWLDataMinCardinality.hpp"
+#include "OWLDataMaxCardinality.hpp"
+#include "OWLAnnotationProperty.hpp"
 #include <algorithm>
 #include <limits>
 #include <math.h>

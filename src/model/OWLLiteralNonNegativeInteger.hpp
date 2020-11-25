@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_LITERAL_NON_NEGATIVE_INTEGER_HPP
 #define OWLAPI_MODEL_OWL_LITERAL_NON_NEGATIVE_INTEGER_HPP
 
-#include <owlapi/model/OWLLiteralNumeric.hpp>
-#include <owlapi/model/OWLLiteral.hpp>
+#include "OWLLiteralNumeric.hpp"
+#include "OWLLiteral.hpp"
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {

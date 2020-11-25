@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_ANONYMOUS_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_ANONYMOUS_INDIVIDUAL_HPP
 
-#include <owlapi/model/OWLObject.hpp>
-#include <owlapi/model/NodeID.hpp>
+#include "OWLObject.hpp"
+#include "NodeID.hpp"
 
 namespace owlapi {
 namespace model {

@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_ANONYMOUS_CLASS_EXPRESSION_HPP
 #define OWLAPI_MODEL_OWL_ANONYMOUS_CLASS_EXPRESSION_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
+#include "OWLClassExpression.hpp"
 
 namespace owlapi {
 namespace model {

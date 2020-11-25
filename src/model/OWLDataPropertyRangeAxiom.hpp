@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_DATA_PROPERTIY_RANGE_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_DATA_PROPERTIY_RANGE_AXIOM_HPP
 
-#include <owlapi/model/OWLDataRange.hpp>
-#include <owlapi/model/OWLUnaryPropertyAxiom.hpp>
-#include <owlapi/model/OWLPropertyRangeAxiom.hpp>
+#include "OWLDataRange.hpp"
+#include "OWLUnaryPropertyAxiom.hpp"
+#include "OWLPropertyRangeAxiom.hpp"
 
 namespace owlapi {
 namespace model {

@@ -1,6 +1,6 @@
 #include "OWLOntology.hpp"
-#include <owlapi/KnowledgeBase.hpp>
-#include <owlapi/io/OWLOntologyIO.hpp>
+#include "../KnowledgeBase.hpp"
+#include "../io/OWLOntologyIO.hpp"
 #include "OWLOntologyChange.hpp"
 #include "OWLOntologyChangeFilter.hpp"
 

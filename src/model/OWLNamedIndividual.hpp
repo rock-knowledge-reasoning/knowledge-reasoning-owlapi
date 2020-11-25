@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_NAMED_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_OWL_NAMED_INDIVIDUAL_HPP
 
-#include <owlapi/model/OWLIndividual.hpp>
-#include <owlapi/model/OWLLogicalEntity.hpp>
+#include "OWLIndividual.hpp"
+#include "OWLLogicalEntity.hpp"
 
 namespace owlapi {
 namespace model {

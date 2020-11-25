@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <sstream>
-#include <owlapi/model/IRI.hpp>
+#include "IRI.hpp"
 
 namespace owlapi {
 namespace model {

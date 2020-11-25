@@ -2,8 +2,9 @@
 #define OWLAPI_MODEL_OWL_AXIOM_HPP
 
 #include <vector>
-#include <owlapi/model/OWLObject.hpp>
-#include <owlapi/model/HasAnnotations.hpp>
+#include "OWLObject.hpp"
+#include "OWLEntity.hpp"
+#include "HasAnnotations.hpp"
 
 namespace owlapi {
 namespace model {

@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_SOME_VALUES_FROM_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_SOME_VALUES_FROM_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <owlapi/model/OWLSomeValuesFromRestriction.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLObjectPropertyExpression.hpp"
+#include "OWLSomeValuesFromRestriction.hpp"
 #include <owlapi/Vocabulary.hpp>
 
 namespace owlapi {

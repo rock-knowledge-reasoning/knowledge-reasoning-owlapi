@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_RESTRICTION_HPP
 
-#include <owlapi/model/OWLAnonymousClassExpression.hpp>
-#include <owlapi/model/OWLPropertyExpression.hpp>
+#include "OWLAnonymousClassExpression.hpp"
+#include "OWLPropertyExpression.hpp"
 
 namespace owlapi {
 namespace io {

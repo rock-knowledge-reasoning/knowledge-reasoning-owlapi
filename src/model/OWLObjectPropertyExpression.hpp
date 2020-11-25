@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 #include <vector>
-#include <owlapi/model/OWLPropertyExpression.hpp>
+#include "OWLPropertyExpression.hpp"
 
 namespace owlapi {
 namespace model {

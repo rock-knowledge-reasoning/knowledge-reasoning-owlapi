@@ -1,7 +1,7 @@
 #ifndef OWLAPI_DB_FILE_BACKEND_HPP
 #define OWLAPI_DB_FILE_BACKEND_HPP
 
-#include <owlapi/db/rdf/SparqlInterface.hpp>
+#include "rdf/SparqlInterface.hpp"
 
 namespace owlapi {
 namespace db {

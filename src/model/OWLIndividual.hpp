@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 
-#include <owlapi/model/OWLPropertyAssertionObject.hpp>
-#include <owlapi/model/IRI.hpp>
+#include "OWLPropertyAssertionObject.hpp"
+#include "IRI.hpp"
 
 namespace owlapi {
 namespace model {

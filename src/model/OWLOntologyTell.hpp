@@ -2,11 +2,11 @@
 #define OWLAPI_MODEL_OWL_ONTOLOGY_TELL_HPP
 
 #include <stdexcept>
-#include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/model/OWLLiteral.hpp>
-#include <owlapi/model/OWLCardinalityRestriction.hpp>
-#include <owlapi/model/OWLOntologyAsk.hpp>
-#include <owlapi/model/OWLSubPropertyAxiom.hpp>
+#include "OWLOntology.hpp"
+#include "OWLLiteral.hpp"
+#include "OWLCardinalityRestriction.hpp"
+#include "OWLOntologyAsk.hpp"
+#include "OWLSubPropertyAxiom.hpp"
 
 namespace owlapi {
 namespace reasoner {

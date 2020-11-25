@@ -1,10 +1,10 @@
 #ifndef OWLAPI_MODEL_PROPERTY_ASSERTION_AXIOM_HPP
 #define OWLAPI_MODEL_PROPERTY_ASSERTION_AXIOM_HPP
 
-#include <owlapi/model/OWLIndividual.hpp>
-#include <owlapi/model/OWLIndividualAxiom.hpp>
-#include <owlapi/model/OWLPropertyExpression.hpp>
-#include <owlapi/model/OWLPropertyAssertionObject.hpp>
+#include "OWLIndividual.hpp"
+#include "OWLIndividualAxiom.hpp"
+#include "OWLPropertyExpression.hpp"
+#include "OWLPropertyAssertionObject.hpp"
 
 namespace owlapi {
 namespace model {

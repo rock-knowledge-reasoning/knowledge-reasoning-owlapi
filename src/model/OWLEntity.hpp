@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_ENTITY_HPP
 #define OWLAPI_MODEL_OWL_ENTITY_HPP
 
-#include <owlapi/model/OWLNamedObject.hpp>
+#include "OWLNamedObject.hpp"
 
 namespace owlapi {
 namespace model {

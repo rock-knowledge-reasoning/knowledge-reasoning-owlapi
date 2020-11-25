@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_ONTOLOGY_READER_HPP
 #define OWLAPI_MODEL_OWL_ONTOLOGY_READER_HPP
 
-#include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/db/rdf/SparqlInterface.hpp>
+#include "../model/OWLOntology.hpp"
+#include "../db/rdf/SparqlInterface.hpp"
 
 namespace owlapi {
 namespace model {

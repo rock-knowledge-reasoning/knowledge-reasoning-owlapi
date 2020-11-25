@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_NARY_CLASS_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_NARY_CLASS_AXIOM_HPP
 
-#include <owlapi/model/OWLNaryAxiom.hpp>
-#include <owlapi/model/OWLClassAxiom.hpp>
-#include <owlapi/model/OWLClassExpression.hpp>
+#include "OWLNaryAxiom.hpp"
+#include "OWLClassAxiom.hpp"
+#include "OWLClassExpression.hpp"
 
 namespace owlapi {
 namespace model {

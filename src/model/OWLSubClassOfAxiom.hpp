@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_SUBCLASS_OF_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_SUBCLASS_OF_AXIOM_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLClassAxiom.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLClassAxiom.hpp"
 
 namespace owlapi {
 namespace model {

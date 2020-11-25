@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_EXACT_CARDINALITY_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_EXACT_CARDINALITY_RESTRICTION_HPP
 
-#include <owlapi/model/OWLCardinalityRestriction.hpp>
+#include "OWLCardinalityRestriction.hpp"
 
 namespace owlapi {
 namespace model {

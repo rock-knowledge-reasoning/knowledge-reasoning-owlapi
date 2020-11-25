@@ -1,10 +1,10 @@
 #ifndef OWLAPI_MODEL_OWL_OBJECT_ALL_VALUES_FROM_HPP
 #define OWLAPI_MODEL_OWL_OBJECT_ALL_VALUES_FROM_HPP
 
-#include <owlapi/model/OWLClassExpression.hpp>
-#include <owlapi/model/OWLObjectPropertyExpression.hpp>
-#include <owlapi/model/OWLAllValuesFromRestriction.hpp>
-#include <owlapi/Vocabulary.hpp>
+#include "OWLClassExpression.hpp"
+#include "OWLObjectPropertyExpression.hpp"
+#include "OWLAllValuesFromRestriction.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {

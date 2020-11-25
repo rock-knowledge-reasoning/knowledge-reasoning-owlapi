@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_DISJOINT_CLASSES_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_DISJOINT_CLASSES_AXIOM_HPP
 
-#include <owlapi/model/OWLNaryClassAxiom.hpp>
+#include "OWLNaryClassAxiom.hpp"
 
 namespace owlapi {
 namespace model {

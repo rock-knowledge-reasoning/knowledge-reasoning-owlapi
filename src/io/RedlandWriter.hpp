@@ -3,9 +3,9 @@
 
 #include <string>
 #include <vector>
-#include <owlapi/io/OWLWriter.hpp>
-#include <owlapi/model/OWLAxiomVisitor.hpp>
-#include <owlapi/model/OWLCardinalityRestriction.hpp>
+#include "OWLWriter.hpp"
+#include "../model/OWLAxiomVisitor.hpp"
+#include "../model/OWLCardinalityRestriction.hpp"
 #include <raptor2/raptor2.h>
 
 namespace owlapi {

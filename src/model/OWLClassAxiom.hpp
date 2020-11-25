@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_CLASS_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_CLASS_AXIOM_HPP
 
-#include <owlapi/model/OWLLogicalAxiom.hpp>
+#include "OWLLogicalAxiom.hpp"
 
 namespace owlapi {
 namespace model {

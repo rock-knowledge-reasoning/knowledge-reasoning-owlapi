@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_PROPERTY_ASSERTION_OBJECT_HPP
 #define OWLAPI_MODEL_OWL_PROPERTY_ASSERTION_OBJECT_HPP
 
-#include <owlapi/model/OWLObject.hpp>
+#include "OWLObject.hpp"
 
 namespace owlapi {
 namespace model {

@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_SUB_OBJECT_PROPERTY_OF_AXIOM_HPP
 #define OWLAPI_MODEL_OWL_SUB_OBJECT_PROPERTY_OF_AXIOM_HPP
 
-#include <owlapi/model/OWLSubPropertyAxiom.hpp>
+#include "OWLSubPropertyAxiom.hpp"
 
 namespace owlapi {
 namespace model {

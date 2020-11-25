@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_ANNOTATION_VALUE_HPP
 #define OWLAPI_MODEL_ANNOTATION_VALUE_HPP
 
-#include <owlapi/model/OWLAnnotationObject.hpp>
+#include "OWLAnnotationObject.hpp"
 
 namespace owlapi {
 namespace model {

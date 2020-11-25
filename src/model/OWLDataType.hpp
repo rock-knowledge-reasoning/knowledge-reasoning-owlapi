@@ -1,8 +1,8 @@
 #ifndef OWLAPI_MODEL_OWL_DATATYPE_HPP
 #define OWLAPI_MODEL_OWL_DATATYPE_HPP
 
-#include <owlapi/model/OWLDataRange.hpp>
-#include <owlapi/model/OWLLogicalEntity.hpp>
+#include "OWLDataRange.hpp"
+#include "OWLLogicalEntity.hpp"
 
 namespace owlapi {
 namespace model {

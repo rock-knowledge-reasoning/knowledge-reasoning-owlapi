@@ -1,7 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_ALL_VALUES_FROM_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_ALL_VALUES_FROM_RESTRICTION_HPP
 
-#include <owlapi/model/OWLValueRestriction.hpp>
+#include "OWLValueRestriction.hpp"
 
 namespace owlapi {
 namespace model {

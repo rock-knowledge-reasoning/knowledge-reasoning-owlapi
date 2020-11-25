@@ -1,9 +1,9 @@
 #ifndef OWLAPI_MODEL_OWL_DATA_PROPERTY_HPP
 #define OWLAPI_MODEL_OWL_DATA_PROPERTY_HPP
 
-#include <owlapi/model/OWLProperty.hpp>
-#include <owlapi/model/OWLDataRange.hpp>
-#include <owlapi/model/OWLDataPropertyExpression.hpp>
+#include "OWLProperty.hpp"
+#include "OWLDataRange.hpp"
+#include "OWLDataPropertyExpression.hpp"
 
 namespace owlapi {
 namespace model {
