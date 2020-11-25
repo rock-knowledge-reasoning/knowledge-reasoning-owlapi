@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(get_paths)
             boost::filesystem::remove(path);
         }
     }
-    setenv("OWL_ONTOLOGIES_PATH",ontologyPath.c_str(),1);
+    setenv("OWLAPI_ONTOLOGIES_PATH",ontologyPath.c_str(),1);
     std::set<std::string> paths = owlapi::io::OWLOntologyIO::getOntologyPaths();
     BOOST_REQUIRE(paths.size() == 2);
 
