@@ -22,7 +22,7 @@ class OWLRestriction : public OWLAnonymousClassExpression
     friend class owlapi::io::OWLOntologyReader;
     OWLPropertyExpression::Ptr mpProperty;
 
-public: 
+public:
     typedef shared_ptr<OWLRestriction> Ptr;
 
     /**
@@ -30,7 +30,7 @@ public:
      */
     OWLRestriction() {}
 
-    OWLRestriction(OWLPropertyExpression::Ptr property)
+    OWLRestriction(const OWLPropertyExpression::Ptr& property)
         : OWLAnonymousClassExpression()
         , mpProperty(property)
     {}

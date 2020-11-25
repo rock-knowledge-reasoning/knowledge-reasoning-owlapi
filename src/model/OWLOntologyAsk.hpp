@@ -64,6 +64,12 @@ public:
      */
     OWLDataProperty::Ptr getOWLDataProperty(const IRI& iri) const;
 
+    /**
+     * Get or create the OWLAnnotationProperty by IRI
+     * \return OWLAnnotationProperty::Ptr
+     * \throw std::runtime_error if object cannot be found in ontology
+     */
+    OWLAnnotationProperty::Ptr getOWLAnnotationProperty(const IRI& iri) const;
 
     /**
      * Retrieve the cardinality restrictions of a given class expression
@@ -174,6 +180,11 @@ public:
     bool isOWLClass(const IRI& iri) const;
 
     /**
+     * Check if iri represent a known individual
+     */
+    bool isOWLIndividual(const IRI& iri) const;
+
+    /**
      * Retrieve all known classes
      * \return list of all classes
      */
@@ -218,6 +229,11 @@ public:
      * Retrieve all known data(type) properties
      */
     IRIList allDataProperties() const;
+
+    /**
+     * Retrieve all known annotation properties
+     */
+    IRIList allAnnotationProperties() const;
 
     /**
      * Test if instance is type of a class
@@ -306,13 +322,24 @@ public:
     IRIList getObjectPropertyDomain(const IRI& objectProperty, bool direct = true) const;
 
     /**
+     * Retrieve annotation value associated with instance
+     * \param instance Name of the instance to get the annotation property for
+     * \param annotationProperty Name of the annotationProperty to check the relation for
+     * \param includeAncestors When using punning allow to retrieve associated
+     * property from a parent class
+     * \return data value
+     */
+    OWLAnnotationValue::Ptr getAnnotationValue(const IRI& instance, const IRI& annotationProperty,
+            bool includeAncestors = true) const;
+
+    /**
      * Retrieve the list of ancestors
      * \return list of ancestors
      */
     IRIList ancestors(const IRI& instance) const;
 
     /**
-     * Check is the given property is an object property, i.e.
+     * Check if the given property is an object property, i.e.
      * check if property is an instance of ObjectProperty
      *
      * \see  http://www.w3.org/TR/owl-ref/
@@ -326,6 +353,14 @@ public:
      * \see http://www.w3.org/TR/owl-ref
      */
     bool isDataProperty(const IRI& property) const;
+
+    /**
+     * Check if the given property is an annotation property, i.e.
+     * check if property is an instance of AnnotationProperty
+     *
+     * \see http://www.w3.org/TR/owl-ref
+     */
+    bool isAnnotationProperty(const IRI& property) const;
 
     /**
      * Retrieve all object properties that apply to a given domain

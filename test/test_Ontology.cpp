@@ -351,4 +351,22 @@ BOOST_AUTO_TEST_CASE(restrictions_modular)
                 "RobotB has 6 restrictions, found: " << OWLCardinalityRestriction::toString(restrictions, 4));
 }
 
+BOOST_AUTO_TEST_CASE(annotations)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile( getRootDir() +
+            "/test/data/test-annotations.ttl");
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/annotations#");
+
+    OWLOntologyAsk ask(ontology);
+    owlapi::model::IRI instance = vocab.resolve("hasValue");
+    owlapi::model::IRI property = vocab.resolve("hasAnnotation");
+    OWLAnnotationValue::Ptr annotationValue = ask.getAnnotationValue(instance, property);
+    BOOST_REQUIRE_MESSAGE(annotationValue->getObjectType() == OWLObject::Literal, "Annotation is Literal ");
+    OWLLiteral::Ptr literal = annotationValue->asLiteral();
+    BOOST_CHECK_MESSAGE(literal, "Is literal " << literal->toString());
+
+    IRI iri = annotationValue->asIRI();
+    BOOST_CHECK_MESSAGE(iri == IRI(), "Is not an IRI " << iri);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

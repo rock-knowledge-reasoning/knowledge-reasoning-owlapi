@@ -130,5 +130,10 @@ IRIList OWLLiteral::toIRIList(const OWLLiteral::PtrList& literals)
     return iris;
 }
 
+OWLLiteral::Ptr OWLLiteral::asLiteral() const
+{
+    return make_shared<OWLLiteral>(*this);
+}
+
 } // end namespace model
 } // end namespace owlapi

@@ -9,11 +9,11 @@ namespace model {
 class OWLSubPropertyAxiom : public OWLPropertyAxiom
 {
 protected:
-    OWLSubPropertyAxiom(const OWLPropertyExpression::Ptr subProperty,
-            const OWLPropertyExpression::Ptr superProperty, 
+    OWLSubPropertyAxiom(const OWLPropertyExpression::Ptr& subProperty,
+            const OWLPropertyExpression::Ptr& superProperty,
             OWLAxiom::AxiomType type,
-            OWLAnnotationList annotations)
-        :  OWLPropertyAxiom(type, annotations) 
+            const OWLAnnotationList& annotations)
+        :  OWLPropertyAxiom(type, annotations)
         , mSubProperty(subProperty)
         , mSuperProperty(superProperty)
     {}

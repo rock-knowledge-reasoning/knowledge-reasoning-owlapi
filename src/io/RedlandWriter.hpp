@@ -53,6 +53,11 @@ public:
     void visit(const owlapi::model::OWLDataPropertyAssertionAxiom& axiom);
     void visit(const owlapi::model::OWLClassAssertionAxiom& axiom);
 
+    void visit(const owlapi::model::OWLSubAnnotationPropertyOfAxiom&);
+    void visit(const owlapi::model::OWLAnnotationPropertyDomainAxiom&);
+    void visit(const owlapi::model::OWLAnnotationPropertyRangeAxiom&);
+    void visit(const owlapi::model::OWLAnnotationAssertionAxiom&);
+
     NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLClassAxiom);
     NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLObjectPropertyAxiom);
     NO_IMPL_AXIOM_VISITOR_VISIT(owlapi::model::OWLDataPropertyAxiom);

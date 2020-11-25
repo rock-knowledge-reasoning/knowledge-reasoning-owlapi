@@ -177,7 +177,10 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
                     }
                 } else if(object == vocabulary::RDF::Property())
                 {
-                    tell.subClassOf(subject, vocabulary::RDF::Property());
+                    // Have to guess the actual type: object, data, annotation,
+                    // ontologyProperty
+                    LOG_WARN_S << "rdf:Property encountered - interpreting as annotationProperty";
+                    tell.annotationProperty(subject);
                 } else if(object == vocabulary::OWL::DatatypeProperty())
                 {
                     tell.dataProperty(subject);
@@ -218,7 +221,7 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
                     // delayed handling
                 } else if( object == vocabulary::OWL::AnnotationProperty())
                 {
-                    LOG_DEBUG_S << "Annotation property '" << subject << "' ignored for reasoning";
+                    tell.annotationProperty(subject);
                 } else if( object == vocabulary::OWL::Restriction() )
                 {
                     // delayed handling
@@ -463,7 +466,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 
     loadObjectProperties(ontology);
     loadDataProperties(ontology);
-
+    loadAnnotationProperties(ontology);
 
     {
         db::query::Results results = findAll(Subject(), Predicate(), Object());
@@ -481,6 +484,7 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
                     tell.instanceOf(object, vocabulary::RDF::Property());
                 }
 
+                // validate/enforce that subject and object have the same property type
                 // add axiom to assert superproperty
                 tell.subPropertyOf(subject, object);
             } else if(predicate == vocabulary::OWL::equivalentProperty())
@@ -567,16 +571,51 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
         IRI predicate = it[Predicate()];
         if(predicate == vocabulary::OWL::onProperty())
         {
-            OWLObjectProperty::Ptr oProperty = ask.getOWLObjectProperty( it[Object()] );
-
-            OWLRestriction* r = &restrictionMap[restriction];
-            if (r->getProperty())
+            IRI property = it[Object()];
+            if(ask.isObjectProperty(property))
             {
-                std::stringstream ss;
-                ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
-                throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+                OWLObjectProperty::Ptr oProperty = ask.getOWLObjectProperty( it[Object()] );
+
+                OWLRestriction* r = &restrictionMap[restriction];
+                if (r->getProperty())
+                {
+                    std::stringstream ss;
+                    ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
+                    throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+                }
+                r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
+            } else if(ask.isDataProperty(property))
+            {
+                OWLDataProperty::Ptr dProperty = ask.getOWLDataProperty( it[Object()] );
+
+                OWLRestriction* r = &restrictionMap[restriction];
+                if (r->getProperty())
+                {
+                    std::stringstream ss;
+                    ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
+                    throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+                }
+                r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(dProperty));
+            } else if(ask.isAnnotationProperty(property))
+            {
+                OWLRestriction* r = &restrictionMap[restriction];
+                if (r->getProperty())
+                {
+                    std::stringstream ss;
+                    ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
+                    throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+                }
+
+                OWLProperty::Ptr aProperty = ask.getOWLAnnotationProperty( it[Object()] );
+                r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(aProperty));
+            } else {
+                throw
+                    std::invalid_argument("owlapi::io::OWLOntologyReader::loadRestrictions:"
+                            " neither object, data nor general property encountered: "
+                             + restriction.toString() + " "
+                             + predicate.toString() + " "
+                             + property.toString());
             }
-            r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(oProperty));
         } else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())
         {
             OWLCardinalityRestriction* cardinalityRestrictionPtr = &mCardinalityRestrictions[restriction];
@@ -1005,6 +1044,104 @@ void OWLOntologyReader::loadObjectProperties(OWLOntology::Ptr& ontology)
                     IRI inverseType = inversesIt[Object()];
                     tell.inverseOf(relation, inverseType);
                 }
+            }
+        }
+    }
+}
+
+void OWLOntologyReader::loadAnnotationProperties(OWLOntology::Ptr& ontology)
+{
+    OWLOntologyTell tell(ontology);
+    OWLOntologyAsk ask(ontology);
+
+    using namespace db::query;
+
+    for(const IRI& relation : ask.allAnnotationProperties())
+    {
+        Results results = findAll(Subject(), relation, Object());
+        ResultsIterator it(results);
+
+        // Setting domain of property
+        // currently limited to simple classes, i.e. no expressions permitte
+        {
+            //Results domain = findAll(relation, vocabulary::RDFS::domain(), Object());
+            //if(!domain.empty())
+            //{
+            //    ResultsIterator domainIt(domain);
+            //    while(domainIt.next())
+            //    {
+            //        IRI classType = domainIt[Object()];
+            //        LOG_DEBUG_S << "tell: " << relation << " rdfs:domain " << classType;
+            //        if(!ask.isOWLClass(classType))
+            //        {
+            //            // Forward declaration of class type
+            //            tell.klass(classType);
+            //        }
+            //        tell.annotationPropertyDomainOf(relation, classType);
+            //    }
+            //}
+        }
+        // Setting range of property
+        {
+            Results range = findAll(relation, vocabulary::RDFS::range(), Object());
+            if(!range.empty())
+            {
+                ResultsIterator rangeIt(range);
+                while(rangeIt.next())
+                {
+                    IRI classType = rangeIt[Object()];
+                    tell.annotationPropertyRangeOf(relation, classType);
+                }
+            }
+        }
+    }
+
+    for(const IRI& relation : ask.allAnnotationProperties())
+    {
+        Results results = findAll(Subject(), relation, Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            OWLAnnotationSubject::Ptr annotationSubject = make_shared<IRI>(it[Subject()]);
+            IRI object = it[Object()];
+
+            // Setting of AnnotationAssertions
+            std::string value = object.toString();
+            if(value.empty())
+            {
+                LOG_WARN_S << "Encountered empty property value for subject: " << annotationSubject
+                    << " and relation: " << relation;
+                continue;
+            }
+
+            try {
+                shared_ptr<IRI> annotationObjectIRI = make_shared<IRI>(value);
+                // TODO: improve checking for IRI
+                annotationObjectIRI->toURI();
+                tell.annotationOf(annotationSubject, relation, annotationObjectIRI);
+            } catch(const std::invalid_argument& e)
+            {
+                LOG_INFO_S << "AnnotationValue is not an IRI (currently limited to URI checking)";
+            }
+
+            try {
+                OWLLiteral::Ptr literal = OWLLiteral::create(value);
+                if(!literal->isTyped())
+                {
+                    // check if range type is known
+                    //OWLDataType dataType = OWLDataType::fromRange(,value);
+                    literal = OWLLiteral::create(object.toString());
+                }
+                tell.annotationOf(annotationSubject, relation, literal);
+            } catch(const std::exception& e)
+            {
+                std::string msg = "owlapi::model::OWLOntologyReader::fromFile: "
+                        " '" + mAbsolutePath + "' "
+                        " cannot set annotation property: " + relation.toString() + " on"
+                        " '" + annotationSubject->toString() + "' since data range is not "
+                        "specified or unsupported"
+                        " for this property -- " + e.what();
+                LOG_WARN_S << msg;
             }
         }
     }

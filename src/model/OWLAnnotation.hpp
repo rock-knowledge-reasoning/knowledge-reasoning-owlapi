@@ -4,16 +4,23 @@
 #include <vector>
 #include "OWLObject.hpp"
 #include "OWLAnnotationProperty.hpp"
+#include "HasAnnotations.hpp"
+#include "HasAnnotationValue.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLAnnotation : public OWLObject
+class OWLAnnotation : public OWLObject, public HasAnnotations, public HasAnnotationValue
 {
-    OWLAnnotationProperty mProperty;
-    OWLAnnotationValue mValue;
+    OWLAnnotationProperty::Ptr mProperty;
+    OWLAnnotationValue::Ptr mValue;
 
 public:
+    OWLAnnotation(const OWLAnnotationValue::Ptr& value,
+            const OWLAnnotationList& annotations = OWLAnnotationList())
+        : HasAnnotations(annotations)
+        , HasAnnotationValue(value)
+    {}
     virtual ~OWLAnnotation() {}
 
 };

@@ -20,9 +20,6 @@ public:
         OWLDataProperty(const IRI& iri);
         virtual ~OWLDataProperty();
 
-        bool isDataPropertyExpression() const { return true; }
-        bool isObjectPropertyExpression() const { return false; }
-
         /**
          * Add a data range
          * \throw std::invalid_argument if given range is not a data range

@@ -8,12 +8,12 @@ namespace owlapi {
 namespace model {
 
 /**
- * Represents a dijoint union axiom 
+ * Represents a dijoint union axiom
  * \see http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Disjoint_Union_of_Class_Expressions
  */
 class OWLDisjointUnionAxiom : public OWLClassAxiom
 {
-public: 
+public:
     OWLDisjointUnionAxiom(OWLClass::Ptr owlClass, OWLClassExpression::PtrList classExpressions, OWLAnnotationList annotations = OWLAnnotationList())
         : OWLClassAxiom(DisjointUnion, annotations)
     {}

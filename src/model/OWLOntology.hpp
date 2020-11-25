@@ -74,6 +74,7 @@ protected:
 
     std::map<OWLDataProperty::Ptr, std::vector<OWLAxiom::Ptr> > mDataPropertyAxioms;
     std::map<OWLObjectProperty::Ptr, std::vector<OWLAxiom::Ptr> > mObjectPropertyAxioms;
+    std::map<OWLAnnotationProperty::Ptr, std::vector<OWLAxiom::Ptr> > mAnnotationAxioms;
     std::map<OWLNamedIndividual::Ptr, std::vector<OWLAxiom::Ptr> > mNamedIndividualAxioms;
     /// Map of anonymous individual to all axioms the individual is involved into
     std::map<OWLAnonymousIndividual::Ptr, std::vector<OWLAxiom::Ptr> > mAnonymousIndividualAxioms;
@@ -122,6 +123,7 @@ protected:
     OWLClass::Ptr getClass(const IRI& iri) const;
     OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
     OWLObjectProperty::Ptr getObjectProperty(const IRI& iri) const;
+    OWLAnnotationProperty::Ptr getAnnotationProperty(const IRI& iri) const;
     OWLIndividual::Ptr getIndividual(const IRI& iri) const;
 
     void addAxiom(const OWLAxiom::Ptr& axiom);

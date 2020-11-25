@@ -3,6 +3,7 @@
 #include "../io/OWLOntologyIO.hpp"
 #include "OWLOntologyChange.hpp"
 #include "OWLOntologyChangeFilter.hpp"
+#include "OWLAnnotationAssertionAxiom.hpp"
 
 namespace owlapi {
 namespace model {
@@ -72,6 +73,17 @@ OWLObjectProperty::Ptr OWLOntology::getObjectProperty(const IRI& iri) const
             " no object property '" + iri.toString() + "' known");
 }
 
+OWLAnnotationProperty::Ptr OWLOntology::getAnnotationProperty(const IRI& iri) const
+{
+    std::map<IRI, OWLAnnotationProperty::Ptr>::const_iterator cit = mAnnotationProperties.find(iri);
+    if(cit != mAnnotationProperties.end())
+    {
+        return cit->second;
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntology::getAnnotationProperty: "
+            " no annotation property '" + iri.toString() + "' known");
+}
+
 OWLIndividual::Ptr OWLOntology::getIndividual(const IRI& iri) const
 {
     {
@@ -94,6 +106,20 @@ OWLIndividual::Ptr OWLOntology::getIndividual(const IRI& iri) const
 void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
 {
     OWLAxiom::PtrList& axioms = mAxiomsByType[axiom->getAxiomType()];
+
+    switch(axiom->getAxiomType())
+    {
+        case OWLAxiom::AnnotationAssertion:
+            {
+                OWLAnnotationAssertionAxiom::Ptr annotationAxiom =
+                    dynamic_pointer_cast<OWLAnnotationAssertionAxiom>(axiom);
+                mAnnotationAxioms[annotationAxiom->getProperty()].push_back(annotationAxiom);
+            }
+            break;
+        default:
+            break;
+
+    }
 
     if( axioms.end() == std::find(axioms.begin(), axioms.end(), axiom) )
     {

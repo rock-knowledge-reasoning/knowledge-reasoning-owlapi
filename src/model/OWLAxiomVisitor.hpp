@@ -136,10 +136,10 @@ public:
     AXIOM_VISITOR_VISIT(OWLDataPropertyAssertionAxiom);
     //AXIOM_VISITOR_VISIT(OWLNegativeDataPropertyAssertion);
 
-    //AXIOM_VISITOR_VISIT(OWLSubAnnotationPropertyOfAxiom);
-    //AXIOM_VISITOR_VISIT(OWLAnnotationPropertyDomainAxiom);
-    //AXIOM_VISITOR_VISIT(OWLAnnotationPropertyRangeAxiom);
-    //AXIOM_VISITOR_VISIT(OWLAnnotationAssertionAxiom);
+    AXIOM_VISITOR_VISIT(OWLSubAnnotationPropertyOfAxiom);
+    AXIOM_VISITOR_VISIT(OWLAnnotationPropertyDomainAxiom);
+    AXIOM_VISITOR_VISIT(OWLAnnotationPropertyRangeAxiom);
+    AXIOM_VISITOR_VISIT(OWLAnnotationAssertionAxiom);
     //
     //AXIOM_VISITOR_VISIT(OWLSubPropertyChainOf),
 };

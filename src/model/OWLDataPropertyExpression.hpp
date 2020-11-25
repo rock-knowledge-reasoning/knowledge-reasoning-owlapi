@@ -14,6 +14,8 @@ public:
     typedef std::vector<Ptr> PtrList;
 
     virtual ~OWLDataPropertyExpression() {}
+
+    OWLObject::Type getObjectType() const { return OWLObject::DataPropertyExpression; }
 };
 
 } // end namespace model

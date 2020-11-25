@@ -45,6 +45,7 @@ protected:
     void loadRestrictions(owlapi::model::OWLOntology::Ptr& ontology);
     void loadObjectProperties(owlapi::model::OWLOntology::Ptr& ontology);
     void loadDataProperties(owlapi::model::OWLOntology::Ptr& ontology);
+    void loadAnnotationProperties(owlapi::model::OWLOntology::Ptr& ontology);
     void loadAnonymousLists(owlapi::model::OWLOntology::Ptr& ontology);
     owlapi::model::IRIList getList(const owlapi::model::IRI& anonymousId);
 

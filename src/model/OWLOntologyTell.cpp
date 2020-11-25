@@ -10,6 +10,8 @@
 #include "OWLDisjointObjectPropertiesAxiom.hpp"
 #include "OWLDisjointDataPropertiesAxiom.hpp"
 #include "OWLDataOneOf.hpp"
+#include "OWLSubAnnotationPropertyOfAxiom.hpp"
+#include "OWLAnnotationAssertionAxiom.hpp"
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
@@ -29,11 +31,22 @@ OWLOntologyTell::OWLOntologyTell(OWLOntology::Ptr ontology, const IRI& origin)
 void OWLOntologyTell::initializeDefaultClasses()
 {
     klass(vocabulary::OWL::Class());
+    klass(vocabulary::OWL::DeprecatedClass());
     klass(vocabulary::OWL::Thing());
 
     klass(vocabulary::OWL::Ontology());
     klass(vocabulary::RDFS::Resource());
     klass(vocabulary::RDFS::Datatype());
+
+    klass(vocabulary::RDF::Alt());
+    klass(vocabulary::RDF::Bag());
+    klass(vocabulary::RDF::List());
+    klass(vocabulary::RDF::Property());
+    klass(vocabulary::RDF::Seq());
+    klass(vocabulary::RDFS::Class());
+    //datatype(vocabulary::RDF::Statement());
+    //datatype(vocabulary::RDF::XMLLiteral());
+    //klass(vocabulary::RDF::PlainLiteral()); // datatype
 
     // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
     // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
@@ -53,7 +66,7 @@ void OWLOntologyTell::initializeDefaultClasses()
 
     IRIList defaultProperties = {
         vocabulary::OWL::FunctionalProperty(),
-        vocabulary::OWL::EquivalentProperty()
+        vocabulary::OWL::EquivalentProperty(),
     };
 
     for(const IRI& iri : defaultProperties)
@@ -70,7 +83,11 @@ void OWLOntologyTell::initializeDefaultClasses()
         vocabulary::OWL::TransitiveProperty(),
         vocabulary::OWL::TransitiveProperty(),
         vocabulary::OWL::InverseFunctionalProperty(),
-        vocabulary::OWL::topObjectProperty()
+        vocabulary::OWL::topObjectProperty(),
+        // Utility Properties: https://www.w3.org/TR/rdf-schema/#ch_utilvocab
+        vocabulary::RDFS::isDefinedBy(),
+        vocabulary::RDFS::seeAlso(),
+        vocabulary::RDF::value()
     };
 
     for(const IRI& iri : defaultObjectProperties)
@@ -80,7 +97,7 @@ void OWLOntologyTell::initializeDefaultClasses()
     }
 
     IRIList defaultDataProperties = {
-        vocabulary::OWL::topDataProperty()
+        vocabulary::OWL::topDataProperty(),
     };
 
     for(const IRI& iri : defaultDataProperties)
@@ -91,9 +108,41 @@ void OWLOntologyTell::initializeDefaultClasses()
 
     // http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Entity_Declarations_and_Typing
     // Declarations for the built-in entities of OWL 2, listed in Table 5, are implicitly present in every OWL 2 ontology.
-    klass(vocabulary::OWL::AnnotationProperty());
+    subClassOf(vocabulary::OWL::AnnotationProperty(), vocabulary::RDF::Property());
     klass(vocabulary::OWL::Nothing());
     klass(vocabulary::RDFS::Literal());
+
+
+    IRIList annotationProperties = {
+        vocabulary::OWL::deprecated(),
+        vocabulary::OWL::incompatibleWith(),
+        vocabulary::OWL::versionInfo(),
+        vocabulary::RDFS::comment(),
+        vocabulary::RDFS::label(),
+        vocabulary::RDFS::isDefinedBy(),
+        vocabulary::RDFS::seeAlso()
+    };
+
+    for(const IRI& iri : annotationProperties)
+    {
+        annotationProperty(iri);
+    }
+
+    // https://www.w3.org/TR/owl-ref/#Header
+    klass(vocabulary::OWL::OntologyProperty());
+    // Instances of owl:OntologyProperty
+    IRIList ontologyProperties = {
+        vocabulary::OWL::backwardCompatibleWith(),
+        vocabulary::OWL::imports(),
+        vocabulary::OWL::incompatibleWith(),
+        vocabulary::OWL::priorVersion(),
+    };
+
+    for(const IRI& iri : ontologyProperties)
+    {
+        // TODO: handle ontologyProperties
+        annotationProperty(iri);
+    }
 }
 
 OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
@@ -211,11 +260,14 @@ OWLAnnotationProperty::Ptr OWLOntologyTell::annotationProperty(const IRI& iri)
         return it->second;
     } else {
 
-        OWLEntity::Ptr entity = OWLEntity::dataProperty(iri);
+        OWLEntity::Ptr entity = OWLEntity::annotationProperty(iri);
         addAxiom( OWLAxiom::declare(entity) );
 
-        OWLAnnotationProperty::Ptr property = ptr_cast<OWLAnnotationProperty, OWLEntity>(entity);
+        OWLAnnotationProperty::Ptr property = ptr_cast<OWLAnnotationProperty, OWLEntity>(entity, true);
         mpOntology->mAnnotationProperties[iri] = property;
+
+        instanceOf(iri, vocabulary::OWL::AnnotationProperty());
+
         return property;
     }
 }
@@ -448,7 +500,14 @@ OWLAxiom::Ptr OWLOntologyTell::functionalDataProperty(const IRI& property)
 
 OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation, const IRI& object)
 {
-    mpOntology->kb()->relatedTo(subject, relation, object);
+    bool isAnnotationProperty = mAsk.isAnnotationProperty(relation);
+    if(!isAnnotationProperty)
+    {
+        mpOntology->kb()->relatedTo(subject, relation, object);
+    } else {
+        throw std::invalid_argument("owlapi::model::OWLOntologyAsk::relatedTo: you cannot use relatedTo to annotate,"
+                " use 'annotationOf' instead");
+    }
 
     LOG_DEBUG_S << "Add relation: " << std::endl
         << "    s: " << subject << std::endl
@@ -503,7 +562,6 @@ OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation
 
 OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, const IRI& parentProperty)
 {
-    mpOntology->kb()->subPropertyOf(subProperty, parentProperty);
 
     OWLSubPropertyAxiom::Ptr axiom;
     if(mAsk.isObjectProperty(parentProperty))
@@ -514,13 +572,41 @@ OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, 
         OWLObjectProperty::Ptr superOProperty = mpOntology->getObjectProperty(parentProperty);
 
         axiom = make_shared<OWLSubObjectPropertyOfAxiom>(subOProperty, superOProperty);
-    } else {
+
+        mpOntology->kb()->subPropertyOf(subProperty, parentProperty);
+    } else if(mAsk.isDataProperty(parentProperty))
+    {
         dataProperty(subProperty);
 
         OWLDataProperty::Ptr subDProperty = mpOntology->getDataProperty(subProperty);
         OWLDataProperty::Ptr superDProperty = mpOntology->getDataProperty(parentProperty);
 
         axiom = make_shared<OWLSubDataPropertyOfAxiom>(subDProperty, superDProperty);
+
+        mpOntology->kb()->subPropertyOf(subProperty, parentProperty);
+
+    } else if(mAsk.isAnnotationProperty(parentProperty))
+    {
+        OWLAnnotationProperty::Ptr subAProperty;
+        try {
+            subAProperty = mpOntology->getAnnotationProperty(subProperty);
+        } catch(const std::invalid_argument& e)
+        {
+            subAProperty = annotationProperty(subProperty);
+        }
+
+        OWLAnnotationProperty::Ptr superAProperty;
+        try {
+            superAProperty = mpOntology->getAnnotationProperty(parentProperty);
+        } catch(const std::invalid_argument& e)
+        {
+            superAProperty = annotationProperty(parentProperty);
+        }
+
+        axiom = make_shared<OWLSubAnnotationPropertyOfAxiom>(subAProperty, superAProperty);
+    } else {
+        throw std::runtime_error("OWLOntologyTell::subPropertyOf: could not identify property type for" +
+                parentProperty.toString());
     }
 
     addAxiom(axiom);
@@ -533,6 +619,18 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const I
 
     OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
     OWLClassExpression::Ptr domain = mpOntology->getClass(classType);
+
+    OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
+    OWLDataPropertyDomainAxiom::Ptr axiom = make_shared<OWLDataPropertyDomainAxiom>(e_dataProperty, domain);
+    return addAxiom(axiom);
+}
+
+OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const OWLClassExpression::Ptr& domain)
+{
+    // TODO: implement ClassExpression support
+    //mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);
+
+    OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
 
     OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
     OWLDataPropertyDomainAxiom::Ptr axiom = make_shared<OWLDataPropertyDomainAxiom>(e_dataProperty, domain);
@@ -595,6 +693,44 @@ OWLAxiom::Ptr OWLOntologyTell::objectPropertyRangeOf(const IRI& relation, const 
     return addAxiom(axiom);
 }
 
+
+//OWLAxiom::Ptr OWLOntologyTell::annotationPropertyDomainOf(const IRI& property, const IRI& classType)
+//{
+//    mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);
+//
+//    OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
+//    OWLClassExpression::Ptr domain = mpOntology->getClass(classType);
+//
+//    OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
+//    OWLDataPropertyDomainAxiom::Ptr axiom = make_shared<OWLDataPropertyDomainAxiom>(e_dataProperty, domain);
+//    return addAxiom(axiom);
+//}
+//
+//OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const OWLClassExpression::Ptr& domain)
+//{
+//    // TODO: implement ClassExpression support
+//    //mpOntology->kb()->domainOf(property, classType, KnowledgeBase::DATA);
+//
+//    OWLDataProperty::Ptr dataProperty = mpOntology->getDataProperty(property);
+//
+//    OWLDataPropertyExpression::Ptr e_dataProperty = ptr_cast<OWLDataPropertyExpression, OWLDataProperty>(dataProperty);
+//    OWLDataPropertyDomainAxiom::Ptr axiom = make_shared<OWLDataPropertyDomainAxiom>(e_dataProperty, domain);
+//    return addAxiom(axiom);
+//}
+
+OWLAxiom::Ptr OWLOntologyTell::annotationPropertyRangeOf(const IRI& property,
+        const IRI& rangeIRI)
+{
+    // cannot use the following since that is not implemented in the reasoner
+    // mpOntology->kb()->rangeOf(relation, classType, KnowledgeBase::OBJECT);
+
+    OWLAnnotationProperty::Ptr annotationProperty = mpOntology->getAnnotationProperty(property);
+    //annotationProperty->addRange(rangeIRI)
+    OWLAnnotationPropertyRangeAxiom::Ptr axiom =
+            make_shared<OWLAnnotationPropertyRangeAxiom>(annotationProperty, rangeIRI);
+    return addAxiom(axiom);
+}
+
 OWLAxiom::Ptr OWLOntologyTell::inverseOf(const IRI& relation, const IRI& inverseRelation)
 {
     if( mAsk.isObjectProperty(relation) || mAsk.isObjectProperty(inverseRelation) )
@@ -622,6 +758,15 @@ OWLAxiom::Ptr OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataPrope
     OWLDataPropertyAssertionAxiom::Ptr axiom = make_shared<OWLDataPropertyAssertionAxiom>(individual, property, literal);
 
     mpOntology->retractValueOf(individual, property);
+    return addAxiom(axiom);
+}
+
+OWLAxiom::Ptr OWLOntologyTell::annotationOf(const OWLAnnotationSubject::Ptr& subject,
+        const IRI& annotationProperty,
+        const OWLAnnotationValue::Ptr& annotationValue)
+{
+    OWLAnnotationProperty::Ptr property = mAsk.getOWLAnnotationProperty(annotationProperty);
+    OWLAnnotationAssertionAxiom::Ptr axiom = make_shared<OWLAnnotationAssertionAxiom>(subject, property, annotationValue);
     return addAxiom(axiom);
 }
 

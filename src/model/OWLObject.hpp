@@ -25,7 +25,21 @@ class OWLObject
 public:
     typedef shared_ptr<OWLObject> Ptr;
 
+    enum Type {
+        /// Unkown type -- for internal use only
+        UNKOWN,
+        AnonymousIndividual,
+        AnnotationProperty,
+        DataPropertyExpression,
+        ObjectPropertyExpression,
+        IRIType,
+        Literal,
+        END
+    };
+
     virtual ~OWLObject() {}
+
+    virtual Type getObjectType() const { return UNKOWN; }
 
     virtual bool isBottomEntity() const;
     virtual bool isTopEntity() const;

@@ -522,6 +522,23 @@ void RedlandVisitor::visit(const owlapi::model::OWLClassAssertionAxiom& axiom)
     writeTriple(individualIRI, vocabulary::RDF::type(), klass->getIRI());
 }
 
+void RedlandVisitor::visit(const owlapi::model::OWLSubAnnotationPropertyOfAxiom& axiom)
+{
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLAnnotationPropertyDomainAxiom& axiom)
+{
+
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLAnnotationPropertyRangeAxiom& axiom)
+{
+}
+
+void RedlandVisitor::visit(const owlapi::model::OWLAnnotationAssertionAxiom& axiom)
+{
+}
+
 raptor_term* RedlandVisitor::termFromIRI(const owlapi::model::IRI& iri) const
 {
     return raptor_new_term_from_uri_string(mWorld, (const unsigned char*) iri.toString().c_str());

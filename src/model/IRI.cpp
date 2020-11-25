@@ -142,6 +142,39 @@ IRI IRI::create(const std::string& prefix, const std::string& suffix)
     }
 }
 
+IRIList IRI::getIntersection(const IRIList& a, const IRIList& b)
+{
+    IRIList intersection;
+    for(const IRI& i : a)
+    {
+        for(const IRI& j : b)
+        {
+            if(j == i)
+            {
+                intersection.push_back(i);
+            }
+        }
+    }
+    return intersection;
+}
+
+IRIList IRI::getIntersection(const IRISet& a, const IRISet& b)
+{
+    IRIList intersection;
+    for(const IRI& i : a)
+    {
+        for(const IRI& j : b)
+        {
+            if(j == i)
+            {
+                intersection.push_back(i);
+            }
+        }
+    }
+    return intersection;
+}
+
+
 
 std::string IRI::toEscapedString() const
 {

@@ -859,8 +859,17 @@ ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type,
 
 bool KnowledgeBase::isSubClassOf(const IRI& subclass, const IRI& parentClass)
 {
-    ClassExpression e_class = getClass(subclass);
-    return isSubClassOf( e_class, parentClass );
+    try {
+        ClassExpression e_class = getClass(subclass);
+        return isSubClassOf( e_class, parentClass );
+    } catch(const std::exception& e)
+    {
+        LOG_WARN_S << "owlapi::KnowledgeBase::isSubClassOf: subclass test failed"
+            << subclass << " isSubClassof " << parentClass
+            << " -- "
+            << e.what();
+        throw;
+    }
 }
 
 bool KnowledgeBase::isSubClassOf(const ClassExpression& subclass, const IRI& parentClass)

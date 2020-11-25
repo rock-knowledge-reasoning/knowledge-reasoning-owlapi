@@ -6,6 +6,7 @@
 #include "IRI.hpp"
 #include "OWLDataType.hpp"
 #include "OWLPropertyAssertionObject.hpp"
+#include "OWLAnnotationValue.hpp"
 
 namespace owlapi {
 namespace model {
@@ -24,7 +25,7 @@ namespace model {
  *  is not empty are abbreviated in functional-style syntax documents (and other
  *  concrete syntaxes) to "abc" whenever possible
  */
-class OWLLiteral : public OWLPropertyAssertionObject //OWLAnnotationObject, OWLAnnotationValue
+class OWLLiteral : public OWLPropertyAssertionObject, public OWLAnnotationValue
 {
 protected:
     std::string mValue;
@@ -59,6 +60,8 @@ public:
     std::string getType() const { return mType; }
 
     std::string getValue() const { return mValue; }
+
+    OWLObject::Type getObjectType() const { return OWLObject::Literal; }
 
     // http://owlapi.sourceforge.net/javadoc/index.html?org/semanticweb/owlapi/model/OWLClassExpression.html
     //OWLDatatype getDatatype()
@@ -99,6 +102,8 @@ public:
     virtual double getDouble() const;
 
     static IRIList toIRIList(const OWLLiteral::PtrList& literals);
+
+    OWLLiteral::Ptr asLiteral() const override;
 };
 
 } // end namespace model

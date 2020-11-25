@@ -21,7 +21,7 @@ public:
     typedef shared_ptr<OWLClass> Ptr;
 
     /**
-     * Default constructor 
+     * Default constructor
      */
     OWLClass(const IRI& iri);
 

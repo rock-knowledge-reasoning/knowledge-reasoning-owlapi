@@ -22,7 +22,11 @@ class OWLPropertyAssertionAxiom : public OWLIndividualAxiom // OWLSubclassOfAxio
 public:
     typedef shared_ptr<OWLPropertyAssertionAxiom> Ptr;
 
-    OWLPropertyAssertionAxiom(OWLIndividual::Ptr subject, OWLPropertyExpression::Ptr property, OWLPropertyAssertionObject::Ptr object, AxiomType type, OWLAnnotationList annotations)
+    OWLPropertyAssertionAxiom(const OWLIndividual::Ptr& subject,
+            const OWLPropertyExpression::Ptr& property,
+            const OWLPropertyAssertionObject::Ptr& object,
+            AxiomType type,
+            const OWLAnnotationList& annotations)
         : OWLIndividualAxiom(type, annotations)
         , mSubject(subject)
         , mProperty(property)
@@ -37,8 +41,15 @@ public:
      */
     OWLIndividual::Ptr getSubject() const { return mSubject; }
 
+    /**
+     * Get the property that related individual (subject) and value (object)
+     * \return Property Expression
+     */
     OWLPropertyExpression::Ptr getProperty() const { return mProperty; }
 
+    /**
+     * Get the assigned value for this property
+     */
     OWLPropertyAssertionObject::Ptr getObject() const { return mObject; }
 };
 

@@ -62,10 +62,10 @@ public:
     NO_IMPL_AXIOM_VISITOR_VISIT(OWLDataPropertyAssertionAxiom);
     //NO_IMPL_AXIOM_VISITOR_VISIT(OWLNegativeDataPropertyAssertion);
 
-    //NO_IMPL_AXIOM_VISITOR_VISIT(OWLSubAnnotationPropertyOfAxiom);
-    //NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationPropertyDomainAxiom);
-    //NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationPropertyRangeAxiom);
-    //NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationAssertionAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(OWLSubAnnotationPropertyOfAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationPropertyDomainAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationPropertyRangeAxiom);
+    NO_IMPL_AXIOM_VISITOR_VISIT(OWLAnnotationAssertionAxiom);
     //
     //NO_IMPL_AXIOM_VISITOR_VISIT(OWLSubPropertyChainOf),
 

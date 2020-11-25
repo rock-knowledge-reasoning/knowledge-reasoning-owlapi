@@ -18,8 +18,6 @@ public:
     {}
 
     virtual ~OWLObjectProperty() {}
-    bool isDataPropertyExpression() const { return false; }
-    bool isObjectPropertyExpression() const { return true; }
 
     /**
      * Convert OWLObjectProperty to a string -- based on the underlying iri

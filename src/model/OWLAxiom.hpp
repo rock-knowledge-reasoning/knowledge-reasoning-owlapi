@@ -26,13 +26,13 @@ public:
                 UNKOWN,
                /// General declaration
                 Declaration = 0,            // TDLAxiomDeclaration
-                ClassAxiom,                 // TDLConceptName
-                ObjectPropertyAxiom,        // TDLObjectRoleName
-                DataPropertyAxiom,          // TDLDataRoleName
+                Class,                 // TDLConceptName
+                ObjectProperty,        // TDLObjectRoleName
+                DataProperty,          // TDLDataRoleName
                 DatatypeDefinition,         // n/a
                 Assertion,                  // n/a
                 HasKey,
-                AnnotationAxiom,            // not part of the reasoner
+                Annotation,            // not part of the reasoner
                 // ClassAxiom:
                 SubClassOf,                 // TDLAxiomConceptInclusion
                 EquivalentClasses,          // TDLAxiomEquivalentConcepts
@@ -76,12 +76,13 @@ public:
                 AnnotationPropertyRange,    // n/a
                 AnnotationAssertion,        // n/a
                 // Not explicitly stated in OWL 2 but for convenience
-                SubPropertyChainOf
+                SubPropertyChainOf,
+                END
     };
 
     static std::map<AxiomType, std::string> AxiomTypeTxt;
 
-    OWLAxiom(AxiomType type, const OWLAnnotationList annotations)
+    OWLAxiom(AxiomType type, const OWLAnnotationList& annotations)
         : HasAnnotations(annotations)
         , mAxiomType(type)
         , mRetract(false)

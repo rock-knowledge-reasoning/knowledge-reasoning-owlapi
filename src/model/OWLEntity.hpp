@@ -20,7 +20,8 @@ public:
         DATATYPE,
         DATA_PROPERTY,
         NAMED_INDIVIDUAL,
-        OBJECT_PROPERTY
+        OBJECT_PROPERTY,
+        END
     };
 
     static std::map<EntityType, std::string> TypeTxt;

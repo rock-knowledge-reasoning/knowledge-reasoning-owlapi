@@ -8,6 +8,9 @@
 namespace owlapi {
 namespace model {
 
+/**
+ * \see https://www.w3.org/TR/owl2-syntax/#Data_Ranges
+ */
 class OWLDataRange : public OWLPropertyRange//, SWRLPredicate
 {
 public:

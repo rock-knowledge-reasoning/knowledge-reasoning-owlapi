@@ -77,6 +77,17 @@ OWLDataProperty::Ptr OWLOntologyAsk::getOWLDataProperty(const IRI& iri) const
     throw std::runtime_error("OWLOntologyAsk::getOWLDataProperty: '" + iri.toString() + "' is not a known OWLDataProperty");
 }
 
+OWLAnnotationProperty::Ptr OWLOntologyAsk::getOWLAnnotationProperty(const IRI& iri) const
+{
+    std::map<IRI, OWLAnnotationProperty::Ptr>::const_iterator it = mpOntology->mAnnotationProperties.find(iri);
+    if(it != mpOntology->mAnnotationProperties.end())
+    {
+        return it->second;
+    }
+
+    throw std::runtime_error("OWLOntologyAsk::getOWLAnnotationProperty: '" + iri.toString() + "' is not a known OWLAnnotationProperty");
+}
+
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce, const IRI& objectProperty) const
 {
     owlapi::model::OWLProperty::Ptr property;
@@ -324,6 +335,17 @@ bool OWLOntologyAsk::isOWLClass(const IRI& iri) const
     return it != mpOntology->mClasses.end();
 }
 
+bool OWLOntologyAsk::isOWLIndividual(const IRI& iri) const
+{
+    try {
+        mpOntology->getIndividual(iri);
+        return true;
+    } catch(...)
+    {
+        return false;
+    }
+}
+
 IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct) const
 {
     return mpOntology->kb()->allInstancesOf(classType, direct);
@@ -403,6 +425,17 @@ IRIList OWLOntologyAsk::allDataProperties() const
     return list;
 }
 
+IRIList OWLOntologyAsk::allAnnotationProperties() const
+{
+    IRIList list;
+    std::map<IRI, OWLAnnotationProperty::Ptr>::const_iterator cit = mpOntology->mAnnotationProperties.begin();
+    for(; cit != mpOntology->mAnnotationProperties.end(); ++cit)
+    {
+        list.push_back(cit->first);
+    }
+    return list;
+}
+
 bool OWLOntologyAsk::isInstanceOf(const IRI& instance, const IRI& klass) const
 {
     return mpOntology->kb()->isInstanceOf(instance, klass);
@@ -428,6 +461,59 @@ IRIList OWLOntologyAsk::allInverseRelatedInstances(const IRI& instance, const IR
     return mpOntology->kb()->allInverseRelatedInstances(instance, relationProperty, klass);
 }
 
+
+OWLAnnotationValue::Ptr OWLOntologyAsk::getAnnotationValue(const IRI& instance,
+        const IRI& annotationProperty,
+        bool includeAncestors) const
+{
+    for(const auto& p : mpOntology->mAnnotationAxioms)
+    {
+        const OWLAnnotationProperty::Ptr& aProperty = p.first;
+        const std::vector<OWLAxiom::Ptr>& axioms = p.second;
+        if(aProperty->getIRI() != annotationProperty)
+        {
+            continue;
+        }
+
+        for(const OWLAxiom::Ptr& axiom : axioms)
+        {
+            OWLAnnotationAssertionAxiom::Ptr assertionAxiom = dynamic_pointer_cast<OWLAnnotationAssertionAxiom>(axiom);
+            if(assertionAxiom)
+            {
+                OWLAnnotationSubject::Ptr subject = assertionAxiom->getSubject();
+                switch(subject->getObjectType())
+                {
+                    case OWLObject::IRIType:
+                    {
+                        IRI target = *dynamic_pointer_cast<IRI>(subject).get();
+                        if(target == instance)
+                        {
+                            return assertionAxiom->annotationValue();
+                        }
+                        break;
+                    }
+                    case OWLObject::AnonymousIndividual:
+                        if(dynamic_pointer_cast<OWLAnonymousIndividual>(subject)->getReferenceID() == instance)
+                        {
+                            return assertionAxiom->annotationValue();
+                        }
+                        break;
+                    default:
+                        throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getAnnotationValue:"
+                                " encountered unknown type for AnnotationSubject");
+                }
+            }
+        }
+        throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getAnnotationValue:"
+                " failed to extract annotation '" +
+                annotationProperty.toString() +
+                "' for " +
+                instance.toString()
+                );
+
+    }
+    return OWLAnnotationValue::Ptr();
+}
 
 OWLLiteral::Ptr OWLOntologyAsk::getDataValue(const IRI& instance,
         const IRI& dataProperty,
@@ -553,6 +639,11 @@ bool OWLOntologyAsk::isDataProperty(const IRI& property) const
     {
         return false;
     }
+}
+
+bool OWLOntologyAsk::isAnnotationProperty(const IRI& property) const
+{
+    return mpOntology->mAnnotationProperties.find(property) != mpOntology->mAnnotationProperties.end();
 }
 
 IRIList OWLOntologyAsk::getObjectPropertiesForDomain(const IRI& domain) const

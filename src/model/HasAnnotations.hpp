@@ -15,20 +15,18 @@ protected:
     OWLAnnotationList mAnnotations;
 
 public:
-    HasAnnotations(OWLAnnotationList annotations)
-        : mAnnotations(annotations)
-    {}
+    HasAnnotations(const OWLAnnotationList& annotations);
 
-    virtual ~HasAnnotations() {}
+    virtual ~HasAnnotations();
 
-    OWLAnnotationList getAnnotations() const { return mAnnotations; }
+    OWLAnnotationList getAnnotations() const;
 
      /**
      * Determines if any annotations exist
      * \return True if this object has annotations on it, otherwise
      *         false
      */
-    bool isAnnotated() const { return !mAnnotations.empty(); }
+    bool isAnnotated() const;
 
 };
 

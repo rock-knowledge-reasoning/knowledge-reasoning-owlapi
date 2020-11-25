@@ -177,10 +177,14 @@ public:
     OWLAxiom::Ptr functionalDataProperty(const IRI& property);
     OWLAxiom::Ptr relatedTo(const IRI& subject, const IRI& relation, const IRI& object);
     OWLAxiom::Ptr dataPropertyDomainOf(const IRI& relation, const IRI& classType);
+    OWLAxiom::Ptr dataPropertyDomainOf(const IRI& property, const OWLClassExpression::Ptr& domain);
     OWLAxiom::Ptr dataPropertyRangeOf(const IRI& relation, const IRI& classType);
     OWLAxiom::Ptr objectPropertyDomainOf(const IRI& relation, const IRI& classType);
     OWLAxiom::Ptr objectPropertyRangeOf(const IRI& relation, const IRI& classType);
 
+    //OWLAxiom::Ptr annotationPropertyDomainOf(const IRI& relation, const IRI& classType);
+    //OWLAxiom::Ptr annotationPropertyDomainOf(const IRI& property, const OWLClassExpression::Ptr& domain);
+    OWLAxiom::Ptr annotationPropertyRangeOf(const IRI& relation, const IRI& classType);
     /**
      * Define a subproperty of an existing property
      * \param subProperty IRI of the subproperty
@@ -205,6 +209,9 @@ public:
      * \param literal Literal containing the value
      */
     OWLAxiom::Ptr valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
+    OWLAxiom::Ptr annotationOf(const OWLAnnotationSubject::Ptr& subject,
+            const IRI& annotationProperty,
+            const OWLAnnotationValue::Ptr& annotationValue);
     OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 
     /**

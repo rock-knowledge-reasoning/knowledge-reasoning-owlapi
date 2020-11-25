@@ -20,7 +20,10 @@ public:
 
     typedef shared_ptr<OWLDataPropertyAssertionAxiom> Ptr;
 
-    OWLDataPropertyAssertionAxiom(OWLIndividual::Ptr subject, OWLPropertyExpression::Ptr property, OWLLiteral::Ptr object, OWLAnnotationList annotations = OWLAnnotationList())
+    OWLDataPropertyAssertionAxiom(const OWLIndividual::Ptr& subject,
+            const OWLPropertyExpression::Ptr& property,
+            const OWLLiteral::Ptr& object,
+            const OWLAnnotationList& annotations = OWLAnnotationList())
             :  OWLPropertyAssertionAxiom(subject, property, object, DataPropertyAssertion, annotations)
     {}
 

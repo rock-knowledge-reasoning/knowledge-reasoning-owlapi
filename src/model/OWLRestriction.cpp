@@ -29,7 +29,7 @@ bool OWLRestriction::isDataRestriction() const
     {
         throw std::runtime_error("owlapi::model::OWLRestriction::isDataRestriction: property has not been set");
     }
-    return  mpProperty->isDataPropertyExpression();
+    return mpProperty->getObjectType() == OWLObject::DataPropertyExpression;
 }
 
 bool OWLRestriction::isObjectRestriction() const
@@ -39,7 +39,7 @@ bool OWLRestriction::isObjectRestriction() const
         throw std::runtime_error("owlapi::model::OWLRestriction::isObjectRestriction: property has not been set");
     }
 
-    return mpProperty->isObjectPropertyExpression();
+    return mpProperty->getObjectType() == OWLObject::ObjectPropertyExpression;
 }
 
 } // end namespace model

@@ -8,14 +8,14 @@
 namespace owlapi {
 namespace model {
 
-class OWLObjectPropertyRangeAxiom : public OWLUnaryPropertyAxiom<OWLObjectPropertyAxiom>, public OWLPropertyRangeAxiom<OWLClassExpression::Ptr> 
+class OWLObjectPropertyRangeAxiom : public OWLUnaryPropertyAxiom<OWLObjectPropertyAxiom>, public OWLPropertyRangeAxiom<OWLClassExpression::Ptr>
 {
 public:
     typedef shared_ptr<OWLObjectPropertyRangeAxiom> Ptr;
 
     OWLObjectPropertyRangeAxiom(const OWLObjectPropertyExpression::Ptr& property,
-            OWLClassExpression::Ptr range,
-            OWLAnnotationList annotations = OWLAnnotationList())
+            const OWLClassExpression::Ptr& range,
+            const OWLAnnotationList& annotations = OWLAnnotationList())
         : OWLUnaryPropertyAxiom<OWLObjectPropertyAxiom>(property, AxiomType::ObjectPropertyRange, annotations)
         , OWLPropertyRangeAxiom<OWLClassExpression::Ptr>(range)
     {}

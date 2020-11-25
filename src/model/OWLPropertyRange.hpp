@@ -24,6 +24,7 @@ public:
 
     virtual bool isDataRange() const { return false; }
     virtual bool isObjectRange() const { return false; }
+    virtual bool isAnnotationRange() const { return false; }
 };
 
 } // end namespace model

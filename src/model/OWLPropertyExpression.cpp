@@ -6,16 +6,6 @@ namespace model {
 OWLPropertyExpression::~OWLPropertyExpression()
 {}
 
-bool OWLPropertyExpression::isDataPropertyExpression() const
-{
-    throw std::runtime_error("OWLPropertyExpression::isDataPropertyExpression: not implemented");
-}
-
-bool OWLPropertyExpression::isObjectPropertyExpression() const
-{
-    throw std::runtime_error("OWLPropertyExpression::isObjectPropertyExpression: not implemented");
-}
-
 void OWLPropertyExpression::setRanges(const std::vector<OWLPropertyRange::Ptr>& ranges)
 {
     mRanges.clear();

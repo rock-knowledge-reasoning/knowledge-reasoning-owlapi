@@ -1,6 +1,5 @@
 #include "OWLAxiom.hpp"
-#include <boost/assign/list_of.hpp>
-#include <owlapi/OWLApi.hpp>
+#include "../OWLApi.hpp"
 
 #define VISIT_CASE_STATEMENT(X,Y) \
         case X: \
@@ -17,51 +16,53 @@
 namespace owlapi {
 namespace model {
 
-std::map<OWLAxiom::AxiomType, std::string> OWLAxiom::AxiomTypeTxt = boost::assign::map_list_of
-                (UNKOWN,                            "UNKNOWN")
-                (Declaration,                       "Declaration")
-                (ClassAxiom,                        "ClassAxiom")
-                (ObjectPropertyAxiom,               "ObjectPropertyAxiom")
-                (DataPropertyAxiom,                 "DataPropertyAxiom")
-                (DatatypeDefinition,                "DatatypeDefinition")
-                (Assertion,                         "Assertion")
-                (HasKey,                            "HasKey")
-                (AnnotationAxiom,                   "AnnotationAxiom")
-                (SubClassOf,                        "SubClassOf")
-                (EquivalentClasses,                 "EquivalentClasses")
-                (DisjointClasses,                   "DisjointClasses")
-                (DisjointUnion,                     "DisjointUnion")
-                (EquivalentObjectProperties,        "EquivalentObjectProperties")
-                (DisjointObjectProperties,          "DisjointObjectProperties")
-                (SubObjectPropertyOf,               "SubObjectPropertyOf")
-                (ObjectPropertyDomain,              "ObjectPropertyDomain")
-                (ObjectPropertyRange,               "ObjectPropertyRange")
-                (InverseObjectProperties,           "InverseObjectProperties")
-                (FunctionalObjectProperty,          "FunctionalObjectProperty")
-                (ReflexiveObjectProperty,           "ReflexiveObjectProperty")
-                (InverseFunctionalObjectProperty,   "InverseFunctionalObjectProperty")
-                (IrreflexiveObjectProperty,         "IrreflexiveObjectProperty")
-                (SymmetricObjectProperty,           "SymmetricObjectProperty")
-                (TransitiveObjectProperty,          "TransitiveObjectProperty")
-                (AsymmetricObjectProperty,          "AsymmetricObjectProperty")
-                (SubDataPropertyOf,                 "SubDataPropertyOf")
-                (DisjointDataProperties,            "DisjointDataProperties")
-                (EquivalentDataProperties,          "EquivalentDataProperties")
-                (FunctionalDataProperty,            "FunctionalDataProperties")
-                (DataPropertyDomain,                "DataPropertyDomain")
-                (DataPropertyRange,                 "DataPropertyRange")
-                (ClassAssertion,                    "ClassAssertion")
-                (SameIndividual,                    "SameIndividual")
-                (DifferentIndividuals,              "DifferentIndividuals")
-                (ObjectPropertyAssertion,           "ObjectPropertyAssertion")
-                (NegativeObjectPropertyAssertion,   "NegativeObjectPropertyAssertion")
-                (DataPropertyAssertion,             "DataPropertyAssertion")
-                (NegativeDataPropertyAssertion,     "NegativeDataPropertyAssertion")
-                (SubAnnotationPropertyOf,           "SubAnnotationPropertyOf")
-                (AnnotationPropertyDomain,          "AnnotationPropertyDomain")
-                (AnnotationPropertyRange,           "AnnotationPropertyRange")
-                (AnnotationAssertion,               "AnnotationAssertion")
-                (SubPropertyChainOf,                "SubPropertyChainOf");
+std::map<OWLAxiom::AxiomType, std::string> OWLAxiom::AxiomTypeTxt = {
+                {UNKOWN,                            "UNKNOWN"},
+                {Declaration,                       "Declaration"},
+                {Class,                             "ClassAxiom"},
+                {ObjectProperty,                    "ObjectPropertyAxiom"},
+                {DataProperty,                      "DataPropertyAxiom"},
+                {DatatypeDefinition,                "DatatypeDefinition"},
+                {Assertion,                         "Assertion"},
+                {HasKey,                            "HasKey"},
+                {Annotation,                        "AnnotationAxiom"},
+                {SubClassOf,                        "SubClassOf"},
+                {EquivalentClasses,                 "EquivalentClasses"},
+                {DisjointClasses,                   "DisjointClasses"},
+                {DisjointUnion,                     "DisjointUnion"},
+                {EquivalentObjectProperties,        "EquivalentObjectProperties"},
+                {DisjointObjectProperties,          "DisjointObjectProperties"},
+                {SubObjectPropertyOf,               "SubObjectPropertyOf"},
+                {ObjectPropertyDomain,              "ObjectPropertyDomain"},
+                {ObjectPropertyRange,               "ObjectPropertyRange"},
+                {InverseObjectProperties,           "InverseObjectProperties"},
+                {FunctionalObjectProperty,          "FunctionalObjectProperty"},
+                {ReflexiveObjectProperty,           "ReflexiveObjectProperty"},
+                {InverseFunctionalObjectProperty,   "InverseFunctionalObjectProperty"},
+                {IrreflexiveObjectProperty,         "IrreflexiveObjectProperty"},
+                {SymmetricObjectProperty,           "SymmetricObjectProperty"},
+                {TransitiveObjectProperty,          "TransitiveObjectProperty"},
+                {AsymmetricObjectProperty,          "AsymmetricObjectProperty"},
+                {SubDataPropertyOf,                 "SubDataPropertyOf"},
+                {DisjointDataProperties,            "DisjointDataProperties"},
+                {EquivalentDataProperties,          "EquivalentDataProperties"},
+                {FunctionalDataProperty,            "FunctionalDataProperties"},
+                {DataPropertyDomain,                "DataPropertyDomain"},
+                {DataPropertyRange,                 "DataPropertyRange"},
+                {ClassAssertion,                    "ClassAssertion"},
+                {SameIndividual,                    "SameIndividual"},
+                {DifferentIndividuals,              "DifferentIndividuals"},
+                {ObjectPropertyAssertion,           "ObjectPropertyAssertion"},
+                {NegativeObjectPropertyAssertion,   "NegativeObjectPropertyAssertion"},
+                {DataPropertyAssertion,             "DataPropertyAssertion"},
+                {NegativeDataPropertyAssertion,     "NegativeDataPropertyAssertion"},
+                {SubAnnotationPropertyOf,           "SubAnnotationPropertyOf"},
+                {AnnotationPropertyDomain,          "AnnotationPropertyDomain"},
+                {AnnotationPropertyRange,           "AnnotationPropertyRange"},
+                {AnnotationAssertion,               "AnnotationAssertion"},
+                {SubPropertyChainOf,                "SubPropertyChainOf"},
+                {END,                               "END"}
+    };
 
 std::string OWLAxiom::toString() const
 {
@@ -74,13 +75,12 @@ void OWLAxiom::accept(OWLAxiomVisitor* visitor) const
     {
         // keep case statements in sync with OWLAxiomVisitor implementations
         VISIT_CASE_STATEMENT(Declaration, OWLDeclarationAxiom);
-        VISIT_CASE_STATEMENT(ClassAxiom, OWLClassAxiom);
-        VISIT_CASE_STATEMENT(ObjectPropertyAxiom, OWLObjectPropertyAxiom);
-        VISIT_CASE_STATEMENT(DataPropertyAxiom, OWLObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(Class, OWLClassAxiom);
+        VISIT_CASE_STATEMENT(ObjectProperty, OWLObjectPropertyAxiom);
+        VISIT_CASE_STATEMENT(DataProperty, OWLDataPropertyAxiom);
 
         //VISIT_CASE_STATEMENT(Assertion, OWLAssertionAxiom);
         //VISIT_CASE_STATEMENT(HasKey, OWLHasKeyAxiom);
-        //VISIT_CASE_STATEMENT(AnnotationAxiom, OWLAnnotationAxiom);
 
         VISIT_CASE_STATEMENT(SubClassOf, OWLSubClassOfAxiom);
         VISIT_CASE_STATEMENT(EquivalentClasses, OWLEquivalentClassesAxiom);
@@ -118,10 +118,10 @@ void OWLAxiom::accept(OWLAxiomVisitor* visitor) const
         VISIT_CASE_STATEMENT(DataPropertyAssertion, OWLDataPropertyAssertionAxiom);
         //VISIT_CASE_STATEMENT(NegativeObjectPropertyAssertion, OWLNegativeDataPropertyAssertion);
 
-        //VISIT_CASE_STATEMENT(SubAnnotationPropertyOf, OWLSubAnnotationPropertyOfAxiom);
-        //VISIT_CASE_STATEMENT(AnnotationPropertyDomain, OWLAnnotationPropertyDomainAxiom);
-        //VISIT_CASE_STATEMENT(AnnotationPropertyRange, OWLAnnotationPropertyRangeAxiom);
-        //VISIT_CASE_STATEMENT(AnnotationAssertion, OWLAnnotationAssertionAxiom);
+        VISIT_CASE_STATEMENT(SubAnnotationPropertyOf, OWLSubAnnotationPropertyOfAxiom);
+        VISIT_CASE_STATEMENT(AnnotationPropertyDomain, OWLAnnotationPropertyDomainAxiom);
+        VISIT_CASE_STATEMENT(AnnotationPropertyRange, OWLAnnotationPropertyRangeAxiom);
+        VISIT_CASE_STATEMENT(AnnotationAssertion, OWLAnnotationAssertionAxiom);
 
         //VISIT_CASE_STATEMENT(SubPropertyChainOf, OWLSubPropertyChainOf),
 
@@ -132,7 +132,7 @@ void OWLAxiom::accept(OWLAxiomVisitor* visitor) const
 
 OWLAxiom::Ptr OWLAxiom::declare(const OWLEntity::Ptr& entity)
 {
-    return Ptr(new OWLDeclarationAxiom(entity));
+    return make_shared<OWLDeclarationAxiom>(entity);
 }
 
 

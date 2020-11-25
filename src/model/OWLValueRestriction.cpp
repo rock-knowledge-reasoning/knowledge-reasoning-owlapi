@@ -1,42 +1,76 @@
 #include "OWLValueRestriction.hpp"
+
 #include "OWLObjectSomeValuesFrom.hpp"
 #include "OWLObjectAllValuesFrom.hpp"
 #include "OWLObjectHasValue.hpp"
 #include "OWLObjectHasSelf.hpp"
+
+#include "OWLDataPropertyExpression.hpp"
+#include "OWLDataAllValuesFrom.hpp"
+#include "OWLDataHasValue.hpp"
+#include "OWLDataSomeValuesFrom.hpp"
 #include <sstream>
-#include <boost/assign/list_of.hpp>
 
 namespace owlapi {
 namespace model {
 
-std::map<OWLValueRestriction::ValueRestrictionType, std::string> OWLValueRestriction::ValueRestrictionTypeTxt = boost::assign::map_list_of
-    (UNKNOWN, "UNKNOWN")
-    (SOME, "SOME")
-    (ALL, "ALL")
-    (SELF, "SELF")
-    (HAS, "HAS");
+std::map<OWLValueRestriction::ValueRestrictionType, std::string>
+    OWLValueRestriction::ValueRestrictionTypeTxt = {
+        {UNKNOWN, "UNKNOWN"},
+        {SOME, "SOME"},
+        {ALL, "ALL"},
+        {SELF, "SELF"},
+        {HAS, "HAS"}
+    };
 
 OWLValueRestriction::Ptr OWLValueRestriction::narrow() const
 {
-    if(getProperty()->isObjectPropertyExpression())
-    {
-        OWLObjectPropertyExpression::Ptr property = dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
+    const OWLPropertyExpression::Ptr& property = getProperty();
 
-        switch(getValueRestrictionType())
-        {
-            case OWLValueRestriction::SOME:
-                return OWLValueRestriction::Ptr( new OWLObjectSomeValuesFrom(property, getQualification()) ) ;
-            case OWLValueRestriction::ALL:
-                return OWLValueRestriction::Ptr(new OWLObjectAllValuesFrom(property, getQualification()) );
-            case OWLValueRestriction::HAS:
-                return OWLValueRestriction::Ptr(new OWLObjectHasValue(property, getQualification()) );
-            case OWLValueRestriction::SELF:
-                return OWLValueRestriction::Ptr(new OWLObjectHasSelf(property, getQualification()) );
-            default:
-                throw std::runtime_error("OWLValueRestriction::narrow: value restriction set to UNKNOWN cannot narrow");
-        }
+    if(!property)
+    {
+        throw std::runtime_error("owlapi::model::OWLValueRestriction::narrow: narrowing failed since property is not set");
     }
-    throw std::runtime_error("OWLValueRestriction::narrow: has not been implemented for data property expression '" + getProperty()->toString() + "'");
+
+    switch(property->getObjectType())
+    {
+        case OWLObject::ObjectPropertyExpression:
+        {
+            OWLObjectPropertyExpression::Ptr oProperty = dynamic_pointer_cast<OWLObjectPropertyExpression>(property);
+
+            switch(getValueRestrictionType())
+            {
+                case OWLValueRestriction::SOME:
+                    return make_shared<OWLObjectSomeValuesFrom>(oProperty, getQualification());
+                case OWLValueRestriction::ALL:
+                    return make_shared<OWLObjectAllValuesFrom>(oProperty, getQualification());
+                case OWLValueRestriction::HAS:
+                    return make_shared<OWLObjectHasValue>(oProperty, getQualification());
+                case OWLValueRestriction::SELF:
+                    return make_shared<OWLObjectHasSelf>(oProperty, getQualification());
+                default:
+                    throw std::runtime_error("OWLValueRestriction::narrow: value restriction set to UNKNOWN cannot narrow");
+            }
+        }
+        case OWLObject::DataPropertyExpression:
+        {
+            OWLDataPropertyExpression::Ptr dProperty = dynamic_pointer_cast<OWLDataPropertyExpression>(property);
+
+            switch(getValueRestrictionType())
+            {
+                case OWLValueRestriction::SOME:
+                    return make_shared<OWLDataSomeValuesFrom>(dProperty, getQualification());
+                case OWLValueRestriction::ALL:
+                    return make_shared<OWLDataAllValuesFrom>(dProperty, getQualification());
+                case OWLValueRestriction::HAS:
+                    return make_shared<OWLDataHasValue>(dProperty, getQualification());
+                default:
+                    throw std::runtime_error("OWLValueRestriction::narrow: value restriction set to UNKNOWN cannot narrow");
+            }
+        }
+        default:
+            throw std::runtime_error("OWLValueRestriction::narrow: has not been implemented for property expression '" + property->toString() + "'");
+    }
 }
 
 OWLValueRestriction::OWLValueRestriction()

@@ -7,20 +7,18 @@
 #include "OWLObjectProperty.hpp"
 #include "OWLNamedIndividual.hpp"
 
-#include <boost/assign/list_of.hpp>
-
 namespace owlapi {
 namespace model {
 
-std::map<OWLEntity::EntityType, std::string> OWLEntity::TypeTxt = boost::assign::map_list_of
-    (UNKNOWN, "Unknown")
-    (ANNOTATION_PROPERTY, "AnnotationProperty")
-    (CLASS, "Class")
-    (DATATYPE, "Datatype")
-    (DATA_PROPERTY, "DataProperty")
-    (NAMED_INDIVIDUAL, "NamedIndividual")
-    (OBJECT_PROPERTY, "ObjectProperty")
-    ;
+std::map<OWLEntity::EntityType, std::string> OWLEntity::TypeTxt = {
+    {UNKNOWN, "Unknown"},
+    {ANNOTATION_PROPERTY, "AnnotationProperty"},
+    {CLASS, "Class"},
+    {DATATYPE, "Datatype"},
+    {DATA_PROPERTY, "DataProperty"},
+    {NAMED_INDIVIDUAL, "NamedIndividual"},
+    {OBJECT_PROPERTY, "ObjectProperty"}
+};
 
 OWLEntity::OWLEntity( const IRI& iri, EntityType type)
     : OWLNamedObject(iri)
@@ -29,7 +27,7 @@ OWLEntity::OWLEntity( const IRI& iri, EntityType type)
 
 OWLEntity::Ptr OWLEntity::annotationProperty(const IRI& iri)
 {
-    return Ptr(new OWLAnnotationProperty(iri));
+    return make_shared<OWLAnnotationProperty>(iri);
 }
 
 OWLEntity::Ptr OWLEntity::klass(const IRI& iri)

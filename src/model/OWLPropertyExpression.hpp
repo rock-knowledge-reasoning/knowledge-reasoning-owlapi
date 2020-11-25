@@ -18,9 +18,6 @@ public:
 
     virtual ~OWLPropertyExpression();
 
-    virtual bool isDataPropertyExpression() const;
-    virtual bool isObjectPropertyExpression() const;
-
     virtual void addRange(const OWLPropertyRange::Ptr& range) { mRanges.push_back(range); }
     void setRanges(const std::vector<OWLPropertyRange::Ptr>& ranges);
 

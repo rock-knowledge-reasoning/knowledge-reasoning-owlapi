@@ -34,24 +34,44 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
     {
         throw std::runtime_error("OWLCardinalityRestriction::narrow: no property defined -- cannot narrow");
     }
-
-    if(getProperty()->isObjectPropertyExpression())
+    switch(getProperty()->getObjectType())
     {
-        OWLObjectPropertyExpression::Ptr property = dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
-
-        switch(getCardinalityRestrictionType())
+        case OWLObject::ObjectPropertyExpression:
         {
-            case OWLCardinalityRestriction::MIN:
-                return OWLCardinalityRestriction::Ptr( new OWLObjectMinCardinality(property, getCardinality(), getQualification()) ) ;
-            case OWLCardinalityRestriction::MAX:
-                return OWLCardinalityRestriction::Ptr(new OWLObjectMaxCardinality(property, getCardinality(), getQualification()) );
-            case OWLCardinalityRestriction::EXACT:
-                return OWLCardinalityRestriction::Ptr(new OWLObjectExactCardinality(property, getCardinality(), getQualification()) );
-            default:
-                throw std::runtime_error("OWLCardinalityRestriction::narrow: cardinality set to UNKNOWN cannot narrow");
+            OWLObjectPropertyExpression::Ptr property = dynamic_pointer_cast<OWLObjectPropertyExpression>( getProperty() );
+
+            switch(getCardinalityRestrictionType())
+            {
+                case OWLCardinalityRestriction::MIN:
+                    return make_shared<OWLObjectMinCardinality>(property, getCardinality(), getQualification());
+                case OWLCardinalityRestriction::MAX:
+                    return make_shared<OWLObjectMaxCardinality>(property, getCardinality(), getQualification());
+                case OWLCardinalityRestriction::EXACT:
+                    return make_shared<OWLObjectExactCardinality>(property, getCardinality(), getQualification());
+                default:
+                    throw std::runtime_error("OWLCardinalityRestriction::narrow: cardinality set to UNKNOWN cannot narrow");
+            }
         }
+        case OWLObject::DataPropertyExpression:
+        {
+            OWLDataPropertyExpression::Ptr property =
+                dynamic_pointer_cast<OWLDataPropertyExpression>( getProperty() );
+
+            switch(getCardinalityRestrictionType())
+            {
+                case OWLCardinalityRestriction::MIN:
+                    return make_shared<OWLDataMinCardinality>(property, getCardinality(), getQualification());
+                case OWLCardinalityRestriction::MAX:
+                    return make_shared<OWLDataMaxCardinality>(property, getCardinality(), getQualification());
+                case OWLCardinalityRestriction::EXACT:
+                    return make_shared<OWLDataExactCardinality>(property, getCardinality(), getQualification());
+                default:
+                    throw std::runtime_error("OWLCardinalityRestriction::narrow: cardinality set to UNKNOWN cannot narrow");
+            }
+        }
+        default:
+            throw std::runtime_error("OWLCardinalityRestriction::narrow: has not been implemented for property expression '" + getProperty()->toString() + "'");
     }
-    throw std::runtime_error("OWLCardinalityRestriction::narrow: has not been implemented for data property expression '" + getProperty()->toString() + "'");
 }
 
 

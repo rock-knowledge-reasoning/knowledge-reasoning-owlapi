@@ -3,6 +3,8 @@
 
 #include "OWLObject.hpp"
 #include "NodeID.hpp"
+#include "OWLAnnotationValue.hpp"
+#include "OWLAnnotationSubject.hpp"
 
 namespace owlapi {
 namespace model {
@@ -12,7 +14,7 @@ namespace model {
  * \brief Represents Anonymous Individuals in the OWL 2 Specification
  * \see http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/#Anonymous_Individuals
  */
-class OWLAnonymousIndividual : public OWLIndividual //, OWLAnnotationValue, OWLAnnotationSubject
+class OWLAnonymousIndividual : public OWLIndividual, public OWLAnnotationValue, public OWLAnnotationSubject
 {
     NodeID mNodeID;
 public:
@@ -24,6 +26,8 @@ public:
     {}
 
     virtual ~OWLAnonymousIndividual() {}
+
+    OWLObject::Type getObjectType() const { return OWLObject::AnonymousIndividual; }
 
     /**
      * Retrieve associated NodeID of this anonymous individual

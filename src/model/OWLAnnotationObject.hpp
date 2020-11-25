@@ -14,6 +14,8 @@ class OWLAnnotationObject : public OWLObject
 public:
     shared_ptr<OWLAnnotationObject> Ptr;
 
+    OWLAnnotationObject() = default;
+
     virtual ~OWLAnnotationObject() {}
 };
 

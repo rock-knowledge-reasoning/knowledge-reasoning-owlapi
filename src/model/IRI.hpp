@@ -8,6 +8,8 @@
 #include <boost/serialization/string.hpp>
 #include <boost/functional/hash.hpp>
 #include "URI.hpp"
+#include "OWLAnnotationValue.hpp"
+#include "OWLAnnotationSubject.hpp"
 
 namespace owlapi {
 namespace model {
@@ -17,7 +19,7 @@ class IRI;
 typedef std::vector<IRI> IRIList;
 typedef std::set<IRI> IRISet;
 
-class IRI
+class IRI : public OWLAnnotationValue, public virtual OWLAnnotationSubject
 {
 protected:
     std::string mPrefix;
@@ -112,6 +114,10 @@ public:
      */
     static IRI create(const URI& uri) { return IRI::create(uri.toString()); }
 
+    static IRIList getIntersection(const IRIList& a, const IRIList& b);
+
+    static IRIList getIntersection(const IRISet& a, const IRISet& b);
+
     bool empty() const { return toString().empty(); }
 
     /**
@@ -129,6 +135,10 @@ public:
         ar & mPrefix;
         ar & mRemainder;
     }
+
+    OWLObject::Type getObjectType() const { return OWLObject::IRIType; }
+
+    IRI asIRI() const { return *this; }
 };
 
 /**

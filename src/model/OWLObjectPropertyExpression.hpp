@@ -29,8 +29,8 @@ public:
      */
     OWLObjectPropertyExpression::Ptr getSimplified() const { throw std::runtime_error("not implemented"); }
 
-    bool isDataPropertyExpression() const { return false; }
-    bool isObjectPropertyExpression() const { return true; }
+    OWLObject::Type getObjectType() const { return OWLObject::ObjectPropertyExpression; }
+
 };
 
 } // end namespace model

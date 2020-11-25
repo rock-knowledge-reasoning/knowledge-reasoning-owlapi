@@ -7,14 +7,18 @@
 namespace owlapi {
 namespace model {
 
-class OWLAnnotationProperty : public OWLEntity
+class OWLAnnotationProperty : public OWLProperty
 {
 public:
+    typedef shared_ptr<OWLAnnotationProperty> Ptr;
+
     OWLAnnotationProperty(const IRI& iri)
-        : OWLEntity(iri, OWLEntity::ANNOTATION_PROPERTY)
+        : OWLProperty(iri, OWLEntity::ANNOTATION_PROPERTY)
     {}
 
     virtual ~OWLAnnotationProperty() {}
+
+    OWLObject::Type getObjectType() const { return OWLObject::AnnotationProperty; }
 
     /**
      * Determines if this annotation property has an IRI corresponding to

@@ -13,7 +13,7 @@ class OWLDataPropertyDomainAxiom : public OWLUnaryPropertyAxiom<OWLDataPropertyA
 public:
     typedef shared_ptr<OWLDataPropertyDomainAxiom> Ptr;
 
-    OWLDataPropertyDomainAxiom(OWLDataPropertyExpression::Ptr property, 
+    OWLDataPropertyDomainAxiom(OWLDataPropertyExpression::Ptr property,
             OWLClassExpression::Ptr domain,
             OWLAnnotationList annotations = OWLAnnotationList())
         : OWLUnaryPropertyAxiom<OWLDataPropertyAxiom>(property, AxiomType::DataPropertyDomain, annotations)

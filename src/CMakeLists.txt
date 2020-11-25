@@ -3,138 +3,147 @@ find_package(Boost REQUIRED regex system filesystem program_options
 
 rock_library(owlapi
     SOURCES
+        io/OWLReader.cpp
+        io/RedlandReader.cpp
+        io/OWLIOBase.cpp
+        io/OWLOntologyIO.cpp
+        io/XMLUtils.cpp
+        io/OWLOntologyReader.cpp
+        io/RedlandWriter.cpp
+        io/OWLWriter.cpp
         KnowledgeBase.cpp
-        db/FileBackend.cpp
+        model/OWLAxiomRetractVisitor.cpp
+        model/OWLExactCardinalityRestriction.cpp
+        model/OWLAxiom.cpp
+        model/OWLObjectPropertyAssertionAxiom.cpp
+        model/RemoveAxiom.cpp
+        model/OWLLiteralInteger.cpp
+        model/QueryCache.cpp
+        model/HasAnnotations.cpp
+        model/OWLOntologyAsk.cpp
+        model/OWLDisjointUnionAxiom.cpp
+        model/OWLDataRange.cpp
+        model/OWLRestriction.cpp
+        model/OWLClassExpression.cpp
+        model/OWLOntology.cpp
+        model/OWLAxiomAddVisitor.cpp
+        model/OWLCardinalityRestriction.cpp
+        model/OWLDataType.cpp
+        model/OWLEquivalentClassesAxiom.cpp
+        model/URI.cpp
+        model/OWLClassAssertionAxiom.cpp
+        model/OWLPropertyExpression.cpp
+        model/OWLSubClassOfAxiom.cpp
+        model/OWLEntity.cpp
+        model/OWLClass.cpp
+        model/OWLLiteralDouble.cpp
+        model/OWLAxiomChange.cpp
+        model/OWLDeclarationAxiom.cpp
+        model/OWLQualifiedRestriction.cpp
+        model/IRI.cpp
+        model/OWLDataPropertyAssertionAxiom.cpp
+        model/OWLLiteral.cpp
+        model/OWLAnnotationValue.cpp
+        model/NodeID.cpp
+        model/OWLObject.cpp
+        model/OWLDataOneOf.cpp
+        model/OWLOntologyChange.cpp
+        model/OWLValueRestriction.cpp
+        model/OWLDisjointClassesAxiom.cpp
+        model/OWLOntologyTell.cpp
+        model/OWLDataProperty.cpp
+        reasoner/factpp/Types.cpp
+        utils/OWLApi.cpp
         db/rdf/Redland.cpp
         db/rdf/Sparql.cpp
         db/rdf/SparqlInterface.cpp
         db/rdf/Variable.cpp
-        io/OWLOntologyIO.cpp
-        io/OWLOntologyReader.cpp
-        io/OWLIOBase.cpp
-        io/OWLReader.cpp
-        io/OWLWriter.cpp
-        io/RedlandReader.cpp
-        io/RedlandWriter.cpp
-        io/XMLUtils.cpp
-        model/IRI.cpp
-        model/NodeID.cpp
-        model/OWLAxiom.cpp
-        model/OWLCardinalityRestriction.cpp
-        model/OWLClass.cpp
-        model/OWLClassAssertionAxiom.cpp
-        model/OWLClassExpression.cpp
-        model/OWLDataOneOf.cpp
-        model/OWLDataProperty.cpp
-        model/OWLDataPropertyAssertionAxiom.cpp
-        model/OWLDataRange.cpp
-        model/OWLDataType.cpp
-        model/OWLDeclarationAxiom.cpp
-        model/OWLDisjointClassesAxiom.cpp
-        model/OWLDisjointUnionAxiom.cpp
-        model/OWLEntity.cpp
-        model/OWLEquivalentClassesAxiom.cpp
-        model/OWLExactCardinalityRestriction.cpp
-        model/OWLLiteral.cpp
-        model/OWLLiteralDouble.cpp
-        model/OWLLiteralInteger.cpp
-        model/OWLObject.cpp
-        model/OWLObjectPropertyAssertionAxiom.cpp
-        model/OWLOntology.cpp
-        model/OWLOntologyAsk.cpp
-        model/OWLOntologyTell.cpp
-        model/OWLPropertyExpression.cpp
-        model/OWLQualifiedRestriction.cpp
-        model/OWLRestriction.cpp
-        model/OWLSubClassOfAxiom.cpp
-        model/OWLValueRestriction.cpp
-        model/QueryCache.cpp
-        model/URI.cpp
-        model/RemoveAxiom.cpp
-        model/OWLAxiomChange.cpp
-        model/OWLAxiomRetractVisitor.cpp
-        model/OWLAxiomAddVisitor.cpp
-        model/OWLOntologyChange.cpp
-        reasoner/factpp/Types.cpp
+        db/FileBackend.cpp
     HEADERS
-        Exceptions.hpp
-        KnowledgeBase.hpp
-        OWLApi.hpp
-        SharedPtr.hpp
-        Vocabulary.hpp
         db/FileBackend.hpp
         db/rdf/Redland.hpp
         db/rdf/Sparql.hpp
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
+        Exceptions.hpp
+        io/OWLIOBase.hpp
         io/OWLOntologyIO.hpp
         io/OWLOntologyReader.hpp
-        io/OWLIOBase.hpp
         io/OWLReader.hpp
         io/OWLWriter.hpp
         io/RedlandReader.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
+        KnowledgeBase.hpp
         model/ChangeApplied.hpp
         model/HasAnnotations.hpp
+        model/HasAnnotationValue.hpp
         model/HasIRI.hpp
+        model/HasProperty.hpp
+        model/HasSubject.hpp
         model/IRI.hpp
         model/NodeID.hpp
         model/OWLAllValuesFromRestriction.hpp
-        model/OWLAnnotation.hpp
+        model/OWLAnnotationAssertionAxiom.hpp
         model/OWLAnnotationAxiom.hpp
+        model/OWLAnnotation.hpp
         model/OWLAnnotationObject.hpp
+        model/OWLAnnotationPropertyDomainAxiom.hpp
         model/OWLAnnotationProperty.hpp
+        model/OWLAnnotationPropertyRangeAxiom.hpp
+        model/OWLAnnotationSubject.hpp
         model/OWLAnnotationValue.hpp
         model/OWLAnonymousClassExpression.hpp
         model/OWLAnonymousIndividual.hpp
         model/OWLAsymmetricObjectPropertyAxiom.hpp
-        model/OWLAxiom.hpp
-        model/OWLAxiomVisitor.hpp
-        model/OWLAxiomRetractVisitor.hpp
         model/OWLAxiomAddVisitor.hpp
+        model/OWLAxiomChange.hpp
+        model/OWLAxiom.hpp
+        model/OWLAxiomRetractVisitor.hpp
+        model/OWLAxiomVisitor.hpp
         model/OWLCardinalityRestriction.hpp
-        model/OWLClass.hpp
         model/OWLClassAssertionAxiom.hpp
         model/OWLClassAxiom.hpp
         model/OWLClassExpression.hpp
+        model/OWLClass.hpp
         model/OWLDataAllValuesFrom.hpp
         model/OWLDataExactCardinality.hpp
         model/OWLDataHasValue.hpp
-        model/OWLDataMinCardinality.hpp
         model/OWLDataMaxCardinality.hpp
+        model/OWLDataMinCardinality.hpp
         model/OWLDataOneOf.hpp
-        model/OWLDataSomeValuesFrom.hpp
-        model/OWLDataProperty.hpp
         model/OWLDataPropertyAssertionAxiom.hpp
         model/OWLDataPropertyAxiom.hpp
         model/OWLDataPropertyDomainAxiom.hpp
         model/OWLDataPropertyExpression.hpp
+        model/OWLDataProperty.hpp
         model/OWLDataPropertyRangeAxiom.hpp
         model/OWLDataRange.hpp
+        model/OWLDataSomeValuesFrom.hpp
         model/OWLDataType.hpp
         model/OWLDeclarationAxiom.hpp
         model/OWLDisjointClassesAxiom.hpp
-        model/OWLDisjointObjectPropertiesAxiom.hpp
         model/OWLDisjointDataPropertiesAxiom.hpp
+        model/OWLDisjointObjectPropertiesAxiom.hpp
         model/OWLDisjointUnionAxiom.hpp
         model/OWLEntity.hpp
+        model/OWLEntityVisitor.hpp
         model/OWLEquivalentClassesAxiom.hpp
-        model/OWLEquivalentObjectPropertiesAxiom.hpp
         model/OWLEquivalentDataPropertiesAxiom.hpp
+        model/OWLEquivalentObjectPropertiesAxiom.hpp
         model/OWLExactCardinalityRestriction.hpp
         model/OWLFunctionalDataPropertyAxiom.hpp
         model/OWLFunctionalObjectPropertyAxiom.hpp
         model/OWLHasSelfRestriction.hpp
         model/OWLHasValueRestriction.hpp
-        model/OWLIndividual.hpp
         model/OWLIndividualAxiom.hpp
+        model/OWLIndividual.hpp
         model/OWLInverseFunctionalObjectPropertyAxiom.hpp
         model/OWLInverseObjectPropertiesAxiom.hpp
         model/OWLInverseObjectProperty.hpp
         model/OWLIrreflexiveObjectPropertyAxiom.hpp
-        model/OWLLiteral.hpp
         model/OWLLiteralDouble.hpp
+        model/OWLLiteral.hpp
         model/OWLLiteralInteger.hpp
         model/OWLLiteralNonNegativeInteger.hpp
         model/OWLLiteralNumeric.hpp
@@ -146,37 +155,41 @@ rock_library(owlapi
         model/OWLNamedObject.hpp
         model/OWLNaryAxiom.hpp
         model/OWLNaryClassAxiom.hpp
-        model/OWLObject.hpp
         model/OWLObjectAllValuesFrom.hpp
         model/OWLObjectExactCardinality.hpp
         model/OWLObjectHasSelf.hpp
         model/OWLObjectHasValue.hpp
+        model/OWLObject.hpp
         model/OWLObjectMaxCardinality.hpp
         model/OWLObjectMinCardinality.hpp
-        model/OWLObjectProperty.hpp
         model/OWLObjectPropertyAssertionAxiom.hpp
         model/OWLObjectPropertyAxiom.hpp
         model/OWLObjectPropertyCharacteristicAxiom.hpp
         model/OWLObjectPropertyDomainAxiom.hpp
         model/OWLObjectPropertyExpression.hpp
+        model/OWLObjectProperty.hpp
         model/OWLObjectPropertyRangeAxiom.hpp
         model/OWLObjectSomeValuesFrom.hpp
-        model/OWLOntology.hpp
         model/OWLOntologyAsk.hpp
+        model/OWLOntologyChangeFilter.hpp
+        model/OWLOntologyChange.hpp
+        model/OWLOntologyChangeVisitor.hpp
+        model/OWLOntology.hpp
         model/OWLOntologyTell.hpp
-        model/OWLProperty.hpp
         model/OWLPropertyAssertionAxiom.hpp
         model/OWLPropertyAssertionObject.hpp
         model/OWLPropertyAxiom.hpp
         model/OWLPropertyDomainAxiom.hpp
         model/OWLPropertyExpression.hpp
-        model/OWLPropertyRange.hpp
+        model/OWLProperty.hpp
         model/OWLPropertyRangeAxiom.hpp
+        model/OWLPropertyRange.hpp
         model/OWLQualifiedRestriction.hpp
         model/OWLReasoner.hpp
         model/OWLReflexiveObjectPropertyAxiom.hpp
         model/OWLRestriction.hpp
         model/OWLSomeValuesFromRestriction.hpp
+        model/OWLSubAnnotationPropertyOfAxiom.hpp
         model/OWLSubClassOfAxiom.hpp
         model/OWLSubDataPropertyOfAxiom.hpp
         model/OWLSubObjectPropertyOfAxiom.hpp
@@ -186,17 +199,17 @@ rock_library(owlapi
         model/OWLUnaryPropertyAxiom.hpp
         model/OWLValueRestriction.hpp
         model/QueryCache.hpp
-        model/URI.hpp
         model/RemoveAxiom.hpp
-        model/OWLAxiomChange.hpp
-        model/OWLOntologyChange.hpp
-        model/OWLOntologyChangeVisitor.hpp
+        model/URI.hpp
+        OWLApi.hpp
         reasoner/factpp/AxiomVisitor.hpp
         reasoner/factpp/Types.hpp
+        SharedPtr.hpp
         vocabularies/OWL.hpp
         vocabularies/RDF.hpp
         vocabularies/RDFS.hpp
         vocabularies/XSD.hpp
+        Vocabulary.hpp
     DEPS_PKGCONFIG
         base-logging
         factpp

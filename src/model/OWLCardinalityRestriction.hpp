@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include "OWLQualifiedRestriction.hpp"
 
 namespace owlapi {
 namespace io {

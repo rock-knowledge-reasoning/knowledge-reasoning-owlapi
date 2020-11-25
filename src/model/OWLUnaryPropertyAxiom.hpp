@@ -18,7 +18,7 @@ public:
 
     OWLUnaryPropertyAxiom(const PropertyPtr& propertyExpression,
             OWLAxiom::AxiomType type,
-            OWLAnnotationList annotations)
+            const OWLAnnotationList& annotations)
         : T(type, annotations)
         , mProperty(propertyExpression)
     {}
