@@ -83,6 +83,8 @@ void RedlandReader::read(const std::string& filename) const
     for(const std::string& format : getSupportedFormats())
     {
         try {
+            if(format == "ntriples")
+                continue;
             read(filename, format);
             return;
         } catch(const io::ParsingFailed& pf)
