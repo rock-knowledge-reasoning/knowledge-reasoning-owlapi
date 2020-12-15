@@ -12,14 +12,18 @@ Variable::Variable()
 Variable::Variable(const IRI& iri)
     : IRI(iri)
 {
+    if(iri.toString().find("genid") != std::string::npos)
+    {
+        mPrefix = "_:" + mPrefix;
+    }
 }
 
 Variable::Variable(const std::string& name, bool grounded)
     : IRI(name)
 {
-    // Making sure ungrounded variables are valid and properly prefixed
     if(!grounded)
     {
+        // Making sure ungrounded variables are valid and properly prefixed
         if(name.find("http://") != std::string::npos)
         {
             throw std::invalid_argument("owlapi::Query::Variable: given URI: '" + name + "'");
