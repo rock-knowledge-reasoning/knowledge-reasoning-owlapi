@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(data_properties)
     }
 }
 
-BOOST_AUTO_TEST_CASE(restriction_equivalence)
+BOOST_AUTO_TEST_CASE(data_restriction_equivalence)
 {
     KnowledgeBase kb;
     kb.setVerbose();
@@ -389,6 +389,61 @@ BOOST_AUTO_TEST_CASE(restriction_equivalence)
 
         BOOST_REQUIRE_MESSAGE(!kb.isInstanceOf(item_4, item2x2m), "Not classifying class as item_2x2m for item_4");
     }
+}
+
+BOOST_AUTO_TEST_CASE(object_restriction_equivalence)
+{
+    KnowledgeBase kb;
+    kb.setVerbose();
+
+    IRI item("item");
+    reasoner::factpp::ClassExpression itemClass = kb.getClassLazy(item);
+    kb.instanceOf(item, item);
+
+    IRI component("component");
+    reasoner::factpp::ClassExpression componentClass = kb.getClassLazy(component);
+    kb.instanceOf(component, component);
+
+    IRI item_with_components("item_with_components");
+    reasoner::factpp::ClassExpression item_with_componentsClass =
+        kb.getClassLazy(item_with_components);
+    kb.instanceOf(item_with_components, item_with_components);
+
+    IRI hasComponent("hasComponent");
+    reasoner::factpp::ObjectPropertyExpression hasComponentProperty = kb.objectProperty(hasComponent);
+
+    IRI wheel_0("wheel_0");
+    IRI wheel_1("wheel_1");
+    IRI wheel_2("wheel_2");
+    IRI wheel_3("wheel_3");
+    kb.instanceOf(wheel_0, component);
+    kb.instanceOf(wheel_1, component);
+    kb.instanceOf(wheel_2, component);
+    kb.instanceOf(wheel_3, component);
+
+    // Class requires instances query, otherwise
+    // facpp++ show memory error
+    kb.refresh();
+
+    // TDLConceptExpression* Exists ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+    // TDLConceptExpression* MinCardinality ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
+    TDLConceptExpression* minConcept =
+        kb.getExpressionManager()->MinCardinality(1, hasComponentProperty.get(), componentClass.get());
+
+    kb.equals(item_with_componentsClass, minConcept);
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    // Now check if the item_0 with the property in the corresponding range
+    // is automatically set as subclass of Item_2m
+    IRI item_0("item_0");
+    kb.instanceOf(item_0, item);
+    kb.relatedTo(item_0, hasComponent, wheel_0);
+    //kb.relatedTo(item_0, hasComponent, wheel_1);
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    IRIList instancesOfItemWithComponents = kb.allInstancesOf(item_with_components);
+    BOOST_TEST_MESSAGE("Instances" << instancesOfItemWithComponents);
+    BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_0, item_with_components), "Automatically added parent class for item_0");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
