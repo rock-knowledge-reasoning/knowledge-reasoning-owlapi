@@ -3,7 +3,7 @@
 #include <base-logging/Logging.hpp>
 #include <sstream>
 
-#include <owlapi/Vocabulary.hpp>
+#include "../../Vocabulary.hpp"
 
 namespace owlapi {
 namespace db {
@@ -104,7 +104,7 @@ std::string Query::getOrCreatePrefix(const owlapi::model::IRI& iri)
 //        addUnboundVariable(variable);
 //    }
 //
-//            
+//
 //    //if(uriOrVariable.empty())
 //    //{
 //    //    throw std::invalid_argument("owlapi::db::rdf::Sparql::prepare given uri or variable is empty");
@@ -172,7 +172,7 @@ Query& Query::select(const db::query::Variable& variable, bool do_throw)
     //    unboundVariable = db::query::SparqlInterface::unboundVariable(variable.toString());
     //} catch(const std::invalid_argument& e)
     //{
-    //    // Not an unbound variable 
+    //    // Not an unbound variable
     //    if(do_throw)
     //    {
     //        throw std::invalid_argument("owlapi::Query::select: '" + variable.toString() + "' is not an unbound variable");
