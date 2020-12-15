@@ -220,6 +220,8 @@ OWLAnonymousIndividual::Ptr OWLOntologyTell::anonymousIndividual(const IRI& iri)
         NodeID node(iri.toString(), true);
         OWLAnonymousIndividual::Ptr individual = make_shared<OWLAnonymousIndividual>(node);
         mpOntology->mAnonymousIndividuals[iri] = individual;
+
+        mpOntology->kb()->getInstanceLazy(iri);
         return individual;
     }
 }
