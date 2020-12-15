@@ -49,10 +49,6 @@ class KnowledgeBase
 {
     ReasoningKernel* mKernel;
 
-    TExpressionManager* getExpressionManager();
-
-    const TExpressionManager* getExpressionManager() const;
-
     IRIInstanceExpressionMap mInstances;
     IRIClassExpressionMap mClasses;
     IRIObjectPropertyExpressionMap mObjectProperties;
@@ -81,6 +77,11 @@ public:
     ~KnowledgeBase();
 
     ReasoningKernel* getReasoningKernel() { return mKernel; }
+
+    TExpressionManager* getExpressionManager();
+
+    const TExpressionManager* getExpressionManager() const;
+
 
     /**
      * Activate verbose output
@@ -335,6 +336,14 @@ public:
     reasoner::factpp::Axiom instanceOf(const IRI& instance, const IRI& klass);
 
     /**
+     * Define an instance of a concept / class
+     * \param instance IRI of the instance which shall be created
+     * \param e_class Class type of the instance to be created
+     * \return corresponding axiom
+     */
+    reasoner::factpp::Axiom instanceOf(const IRI& individual, const reasoner::factpp::ClassExpression& e_class);
+
+    /**
      * Define an object relation between two instances / individuals
      * \param instance
      * \param relationProperty the property that related both instances
@@ -387,6 +396,7 @@ public:
      */
     reasoner::factpp::Axiom dataRangeOf(const IRI& property,
             reasoner::factpp::DataRange& range);
+
     /**
      * Define associated value of an individual
      * \param individual The IRI of the individual
@@ -395,6 +405,18 @@ public:
      * \return axiom representing the valueOf assertion
      */
     reasoner::factpp::Axiom valueOf(const IRI& individual, const IRI& property, const reasoner::factpp::DataValue& dataValue);
+
+    /**
+     * Get all known datatypes
+     * \return Mapping of IRI to datatypes
+     */
+    std::map<IRI, reasoner::factpp::DataTypeName> dataTypes() const { return mDataTypes; }
+
+    /**
+     * Define the associated datatype (or retrieve the existing)
+     * \return datatype
+     */
+    reasoner::factpp::DataTypeName dataType(const IRI& dataType);
 
     /**
      * Define a dataType using a value and the corresponding datatype
@@ -419,6 +441,25 @@ public:
      * Define a oneOf relationship
      */
     reasoner::factpp::DataRange dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals);
+
+    /**
+     * Define a dataTypeRestriction
+     */
+    reasoner::factpp::DataRange dataTypeRestriction(const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+
+
+    reasoner::factpp::ClassExpression dataSomeValuesFrom(const IRI& klassId,
+            const IRI& property,
+            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+
+    reasoner::factpp::ClassExpression dataAllValuesFrom(const IRI& klassId,
+            const IRI& property,
+            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+
+    //reasoner::factpp::ClassExpression dataHasValue(const IRI& klassId,
+    //        const IRI& property,
+    //        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+
 
     /**
      * Define inverse of a given object property
@@ -503,7 +544,12 @@ public:
      * \param otherInstance Another IRI for checking
      * \return true upon success, false otherwise
      */
-    bool isSameInstance(const IRI& instance, const IRI& otherInstance);
+    bool isSameInstance(const IRI& instance, const IRI& otherInstance) const;
+
+    /**
+     * Test if given IRI refers to a datatype
+     */
+    bool isDatatype(const IRI& name) const;
 
     /**
      * Get ClassExpression for given IRI if it exists
@@ -797,6 +843,11 @@ public:
      * NOTE: not sure whether that is what Fact++ actually provides here
      */
     reasoner::factpp::DataPropertyExpressionList getRelatedDataPropertiesByKlass(const IRI& klass);
+
+    /**
+     * Retrieve the datatype name
+     */
+    reasoner::factpp::DataTypeName getDataTypeName(const IRI& dataType) const;
 
     /**
      * Cleanup all axiom that have been marked for retraction

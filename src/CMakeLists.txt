@@ -42,6 +42,9 @@ rock_library(owlapi
         model/OWLQualifiedRestriction.cpp
         model/IRI.cpp
         model/OWLDataPropertyAssertionAxiom.cpp
+        model/OWLDataTypeRestriction.cpp
+        model/OWLFacet.cpp
+        model/OWLFacetRestriction.cpp
         model/OWLLiteral.cpp
         model/OWLAnnotationValue.cpp
         model/NodeID.cpp
@@ -123,6 +126,7 @@ rock_library(owlapi
         model/OWLDataRange.hpp
         model/OWLDataSomeValuesFrom.hpp
         model/OWLDataType.hpp
+        model/OWLDataTypeRestriction.hpp
         model/OWLDeclarationAxiom.hpp
         model/OWLDisjointClassesAxiom.hpp
         model/OWLDisjointDataPropertiesAxiom.hpp
@@ -134,6 +138,8 @@ rock_library(owlapi
         model/OWLEquivalentDataPropertiesAxiom.hpp
         model/OWLEquivalentObjectPropertiesAxiom.hpp
         model/OWLExactCardinalityRestriction.hpp
+        model/OWLFacet.hpp
+        model/OWLFacetRestriction.hpp
         model/OWLFunctionalDataPropertyAxiom.hpp
         model/OWLFunctionalObjectPropertyAxiom.hpp
         model/OWLHasSelfRestriction.hpp

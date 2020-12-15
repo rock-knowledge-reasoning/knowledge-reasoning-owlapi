@@ -1,6 +1,5 @@
 #include "KnowledgeBase.hpp"
 
-#include <boost/foreach.hpp>
 #include <base-logging/Logging.hpp>
 
 #include <factpp/Kernel.h>
@@ -8,6 +7,7 @@
 
 #include "Vocabulary.hpp"
 #include "vocabularies/OWL.hpp"
+#include "model/OWLFacetRestriction.hpp"
 
 using namespace owlapi::reasoner::factpp;
 
@@ -194,33 +194,35 @@ KnowledgeBase::KnowledgeBase()
     mDataTypes["bool"] = getExpressionManager()->getBoolDataType();
     mDataTypes["time"] = getExpressionManager()->getTimeDataType();
 
-    using namespace owlapi::vocabulary;
 
-    mDataTypes[vocabulary::RDF::PlainLiteral()] = getExpressionManager()->getStrDataType();
-    mDataTypes[XSD::resolve("double")] = getExpressionManager()->getRealDataType();
-    mDataTypes[XSD::resolve("float")] = getExpressionManager()->getRealDataType();
+     using namespace owlapi::vocabulary;
 
-    mDataTypes[XSD::resolve("long")] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::resolve("int")] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::resolve("short")] = getExpressionManager()->getIntDataType();
+     mDataTypes[vocabulary::RDF::PlainLiteral()] = getExpressionManager()->getStrDataType();
+     mDataTypes[XSD::resolve("double")] = getExpressionManager()->getRealDataType();
+     mDataTypes[XSD::resolve("float")] = getExpressionManager()->getRealDataType();
 
-    mDataTypes[XSD::nonNegativeInteger()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::nonPositiveInteger()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::positiveInteger()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::negativeInteger()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::integer()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::resolve("long")] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::resolve("int")] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::resolve("short")] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::byte()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedLong()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedInt()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedShort()] = getExpressionManager()->getIntDataType();
-    mDataTypes[XSD::unsignedByte()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::nonNegativeInteger()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::nonPositiveInteger()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::positiveInteger()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::negativeInteger()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::integer()] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::decimal()] = getExpressionManager()->getRealDataType();
-    mDataTypes[XSD::string()] = getExpressionManager()->getStrDataType();
+     mDataTypes[XSD::byte()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::unsignedLong()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::unsignedInt()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::unsignedShort()] = getExpressionManager()->getIntDataType();
+     mDataTypes[XSD::unsignedByte()] = getExpressionManager()->getIntDataType();
 
-    mDataTypes[XSD::dateTime()] = getExpressionManager()->getTimeDataType();
-    mDataTypes[XSD::dateTimeStamp()] = getExpressionManager()->getTimeDataType();
+     mDataTypes[XSD::decimal()] = getExpressionManager()->getRealDataType();
+     mDataTypes[XSD::string()] = getExpressionManager()->getStrDataType();
+
+     mDataTypes[XSD::dateTime()] = getExpressionManager()->getTimeDataType();
+     mDataTypes[XSD::dateTimeStamp()] = getExpressionManager()->getTimeDataType();
+
 }
 
 KnowledgeBase::~KnowledgeBase()
@@ -676,6 +678,11 @@ Axiom KnowledgeBase::disjointUnion(const IRI& klass, const IRIList& disjointClas
 Axiom KnowledgeBase::instanceOf(const IRI& individual, const IRI& klass)
 {
     ClassExpression e_class = getClass(klass);
+    return instanceOf(individual, e_class);
+}
+
+Axiom KnowledgeBase::instanceOf(const IRI& individual, const ClassExpression& e_class)
+{
     InstanceExpression e_instance = getInstanceLazy(individual);
     return Axiom( mKernel->instanceOf(e_instance.get(), e_class.get()) );
 }
@@ -769,6 +776,20 @@ Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const D
     return axiom;
 }
 
+DataTypeName KnowledgeBase::dataType(const IRI& dataType)
+{
+    IRIDataTypeMap::const_iterator cit = mDataTypes.find(dataType);
+    if(cit != mDataTypes.end())
+    {
+        return cit->second;
+    }
+
+    // Guess reasoner datatype
+    DataTypeName dataTypeName(getExpressionManager()->DataType(dataType.toString()));
+    mDataTypes[dataType] = dataTypeName;
+    return dataTypeName;
+}
+
 DataValue KnowledgeBase::dataValue(const std::string& value, const std::string& dataType)
 {
     IRIDataTypeMap::const_iterator cit = mDataTypes.find(dataType);
@@ -803,7 +824,7 @@ ClassExpression KnowledgeBase::oneOf(const IRIList& instanceList)
     return ClassExpression( getExpressionManager()->OneOf() );
 }
 
-DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals)
+reasoner::factpp::DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals)
 {
     getExpressionManager()->newArgList();
     for(const owlapi::model::OWLLiteral::Ptr& literal : literals)
@@ -811,7 +832,83 @@ DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLiteral::PtrList& lit
         DataValue dValue = dataValue(literal->getValue(), literal->getType());
         getExpressionManager()->addArg(dValue.get());
     }
-    return DataRange( getExpressionManager()->DataOneOf() );
+    return reasoner::factpp::DataRange( getExpressionManager()->DataOneOf() );
+}
+
+DataRange KnowledgeBase::dataTypeRestriction(const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+{
+    if(!restriction)
+    {
+        throw std::invalid_argument("owlapi::KnowledgeBase::dataTypeRestriction: "
+                " restriction is NULL");
+    }
+    using namespace owlapi::model;
+
+    TDLDataTypeRestriction* dataTypeRestriction = NULL;
+    for(const OWLFacetRestriction& fr : restriction->getFacetRestrictions())
+    {
+        const OWLLiteral::Ptr& literal = fr.getFacetValue();
+        DataValue dValue = dataValue(literal->getValue(), literal->getType());
+        const TDLFacetExpression* facetExpression;
+
+        switch(fr.getFacet().getFacetType())
+        {
+            case OWLFacet::MIN_INCLUSIVE:
+                facetExpression = getExpressionManager()->FacetMinInclusive( dValue.get());
+                break;
+            case OWLFacet::MIN_EXCLUSIVE:
+                facetExpression = getExpressionManager()->FacetMinExclusive( dValue.get());
+                break;
+            case OWLFacet::MAX_INCLUSIVE:
+                facetExpression = getExpressionManager()->FacetMaxInclusive( dValue.get());
+                break;
+            case OWLFacet::MAX_EXCLUSIVE:
+                facetExpression = getExpressionManager()->FacetMaxExclusive( dValue.get());
+                break;
+            default:
+                break;
+        }
+
+        // TDLDataTypeExpression
+        if(!dataTypeRestriction)
+        {
+            DataTypeName dataTypeName = dataType(literal->getType());
+            dataTypeRestriction = getExpressionManager()->RestrictedType(dataTypeName.get(), facetExpression);
+        } else {
+            dataTypeRestriction = getExpressionManager()->RestrictedType(dataTypeRestriction, facetExpression);
+        }
+    }
+    return reasoner::factpp::DataRange(dataTypeRestriction);
+}
+
+reasoner::factpp::ClassExpression KnowledgeBase::dataSomeValuesFrom(const IRI& klassId,
+        const IRI& property,
+        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+{
+    reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
+    reasoner::factpp::DataPropertyExpression dpExpression = dataProperty(property);
+
+    TDLConceptExpression* someValuesFromConcept = getExpressionManager()->Exists(dpExpression.get(),
+                    range.get());
+
+    ClassExpression ce(someValuesFromConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+reasoner::factpp::ClassExpression KnowledgeBase::dataAllValuesFrom(const IRI& klassId,
+        const IRI& property,
+        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+{
+    reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
+    reasoner::factpp::DataPropertyExpression dpExpression = dataProperty(property);
+
+    TDLConceptExpression* someValuesFromConcept = getExpressionManager()->Forall(dpExpression.get(),
+                    range.get());
+
+    ClassExpression ce(someValuesFromConcept);
+    mClasses[klassId] = ce;
+    return ce;
 }
 
 ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type, const IRI& relationProperty, const IRI& klassOrInstance, int cardinality)
@@ -912,11 +1009,16 @@ bool KnowledgeBase::isRelatedTo(const IRI& instance, const IRI& relationProperty
     return mKernel->isRelated(e_instance.get(), e_relation.get(), e_otherInstance.get());
 }
 
-bool KnowledgeBase::isSameInstance(const IRI& instance, const IRI& otherInstance)
+bool KnowledgeBase::isSameInstance(const IRI& instance, const IRI& otherInstance) const
 {
     InstanceExpression e_instance = getInstance(instance);
     InstanceExpression e_otherInstance = getInstance(otherInstance);
     return mKernel->isSameIndividuals(e_instance.get(), e_otherInstance.get());
+}
+
+bool KnowledgeBase::isDatatype(const IRI& name) const
+{
+    return mDataTypes.find(name) != mDataTypes.end();
 }
 
 IRIList KnowledgeBase::allClasses(bool excludeBottomClass) const
@@ -1365,7 +1467,7 @@ DataValue KnowledgeBase::getDataValue(const IRI& instance, const IRI& dataProper
 {
     // Iterate over all axioms and filter the relevant one
     const AxiomVec& axioms = mKernel->getOntology().getAxioms();
-    BOOST_FOREACH(TDLAxiom* axiom, axioms)
+    for(TDLAxiom* axiom : axioms)
     {
         TDLAxiomValueOf* valueAxiom = dynamic_cast<TDLAxiomValueOf*>(axiom);
 

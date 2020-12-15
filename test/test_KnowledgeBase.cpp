@@ -280,4 +280,115 @@ BOOST_AUTO_TEST_CASE(data_properties)
     }
 }
 
+BOOST_AUTO_TEST_CASE(restriction_equivalence)
+{
+    KnowledgeBase kb;
+    kb.setVerbose();
+
+    IRI item("klass_item");
+    IRI item2m("klass_item_2m");
+    IRI hasLength("hasLength");
+    kb.getClassLazy(item);
+    kb.instanceOf(item, item);
+
+    reasoner::factpp::ClassExpression item2mClass = kb.getClassLazy(item2m);
+    kb.instanceOf(item2m, item2m);
+
+    // Class requires instances query, otherwise
+    // facpp++ show memory error
+    kb.refresh();
+
+    IRIList instancesOfItem2m = kb.allInstancesOf(item2m);
+    BOOST_TEST_MESSAGE("All instances: " << instancesOfItem2m);
+
+    reasoner::factpp::DataPropertyExpression hasLengthProperty = kb.dataProperty(hasLength);
+    reasoner::factpp::DataTypeName dataTypeName = kb.dataType(vocabulary::XSD::resolve("double").toString());
+    //
+    //kb.getReasoningKernel()->setDRange(hasLengthProperty.get(), dataTypeName.get());
+
+    reasoner::factpp::DataValue minValue = kb.dataValue("1.0", vocabulary::XSD::resolve("double").toString());
+    reasoner::factpp::DataValue maxValue = kb.dataValue("2.0", vocabulary::XSD::resolve("double").toString());
+
+    const TDLFacetExpression* minFacetExpression =
+        kb.getExpressionManager()->FacetMinInclusive(minValue.get());
+    const TDLFacetExpression* maxFacetExpression =
+        kb.getExpressionManager()->FacetMaxExclusive(maxValue.get());
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    TDLDataTypeRestriction* dataTypeRestriction = kb.getExpressionManager()->RestrictedType(dataTypeName.get(),
+        minFacetExpression);
+    dataTypeRestriction = kb.getExpressionManager()->RestrictedType(dataTypeRestriction, maxFacetExpression);
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    reasoner::factpp::DataValue value = kb.dataValue("1.5", vocabulary::XSD::resolve("double").toString());
+    TDLConceptExpression* aConcept = kb.getExpressionManager()->Exists(hasLengthProperty.get(),
+            dataTypeRestriction);
+    //TDLConceptExpression* aConcept = kb.getExpressionManager()->Value(hasLengthProperty.get(),
+    //        value.get());
+    reasoner::factpp::ClassExpression lengthRestriction(aConcept);
+    kb.equals(item2mClass, lengthRestriction);
+
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    // Now check if the item_0 with the property in the corresponding range
+    // is automatically set as subclass of Item_2m
+    IRI item_0("Instance_item_0");
+    kb.instanceOf(item_0, item);
+    kb.valueOf(item_0, hasLength, value);
+
+    IRI item_1("Instance_item_1");
+    kb.instanceOf(item_1, item);
+    kb.valueOf(item_1, hasLength, minValue);
+    kb.classify();
+
+    IRI item_2("Instance_item_2");
+    kb.instanceOf(item_2, item);
+    kb.valueOf(item_2, hasLength, maxValue);
+    kb.classify();
+
+    IRIList instancesOfItem_2m = kb.allInstancesOf(item2m);
+    BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_0, item2m), "Automatically added parent class for item_0");
+    BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_1, item2m), "Automatically added parent class for item_1");
+    BOOST_REQUIRE_MESSAGE(!kb.isInstanceOf(item_2, item2m), "Not adding parent class for item_2");
+
+
+    BOOST_REQUIRE_MESSAGE(std::find(instancesOfItem_2m.begin(), instancesOfItem_2m.end(), item_0) != instancesOfItem_2m.end(), "Automatically resolved item in range");
+    BOOST_REQUIRE_MESSAGE(std::find(instancesOfItem_2m.begin(), instancesOfItem_2m.end(), item_1) != instancesOfItem_2m.end(), "Automatically resolved item in range");
+    BOOST_REQUIRE_MESSAGE(std::find(instancesOfItem_2m.begin(), instancesOfItem_2m.end(), item_2) == instancesOfItem_2m.end(), "Automatically ignored item outside range");
+
+
+    {
+        IRI item2x2m("class_item_2x2m");
+        reasoner::factpp::ClassExpression item2x2mClass = kb.getClassLazy(item2x2m);
+        kb.instanceOf(item2x2m,item2x2m);
+
+        IRI hasHeight("hasHeight");
+        reasoner::factpp::DataPropertyExpression hasHeightProperty = kb.dataProperty(hasHeight);
+        reasoner::factpp::DataTypeName dataTypeName = kb.dataType("double");
+        TDLConceptExpression* hConcept = kb.getExpressionManager()->Exists(hasHeightProperty.get(),
+                dataTypeRestriction);
+        reasoner::factpp::ClassExpression heightRestriction(hConcept);
+
+        reasoner::factpp::ClassExpression heightAndLengthRestriction = kb.intersectionOf(heightRestriction, lengthRestriction);
+
+        kb.equals(item2x2mClass, heightAndLengthRestriction);
+
+        IRI item_3("Instance_item_3");
+        kb.instanceOf(item_3, item);
+        kb.valueOf(item_3, hasLength, minValue);
+        kb.valueOf(item_3, hasHeight, minValue);
+        kb.classify();
+
+        BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_3, item2x2m), "Automatically added parent class for item_3");
+
+        IRI item_4("Instance_item_4");
+        kb.instanceOf(item_4, item);
+        kb.valueOf(item_4, hasLength, minValue);
+        kb.valueOf(item_4, hasHeight, maxValue);
+        kb.classify();
+
+        BOOST_REQUIRE_MESSAGE(!kb.isInstanceOf(item_4, item2x2m), "Not classifying class as item_2x2m for item_4");
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
