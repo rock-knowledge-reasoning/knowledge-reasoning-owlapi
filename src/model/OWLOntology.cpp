@@ -260,5 +260,15 @@ ChangeApplied OWLOntology::applyChange(const OWLOntologyChange::Ptr& change)
     return change->accept(filter);
 }
 
+OWLEntity::PtrList OWLOntology::getSignature() const
+{
+    OWLEntity::PtrList entities;
+    for(const auto& p : mDeclarationsByEntity)
+    {
+        entities.push_back(p.first);
+    }
+    return entities;
+}
+
 } // end namespace model
 } // end namespace owlapi

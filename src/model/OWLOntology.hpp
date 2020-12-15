@@ -204,6 +204,16 @@ public:
       * Get access to the query cache object
       */
     QueryCache& getQueryCache() { return mQueryCache; }
+
+    /**
+     * \see https://www.w3.org/TR/owl2-syntax/
+     *  Entities are the fundamental building blocks of OWL 2 ontologies, and
+     *  they define the vocabulary — the named terms — of an ontology. In
+     *  logic, the set of entities is usually said to constitute the signature
+     *  of an ontology. Apart from entities, OWL 2 ontologies typically also
+     *  contain literals, such as strings or integers.
+     */
+    OWLEntity::PtrList getSignature() const;
 };
 
 } // ane namespace model
