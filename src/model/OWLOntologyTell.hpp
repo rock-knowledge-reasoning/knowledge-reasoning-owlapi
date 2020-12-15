@@ -93,6 +93,12 @@ public:
     OWLClass::Ptr klass(const IRI& iri);
 
     /**
+     * Register an iri as anonymousClass with a placeholder object or
+     * the actual anonymous class expression
+     */
+    OWLAnonymousClassExpression::Ptr anonymousClass(const IRI& iri, const OWLAnonymousClassExpression::Ptr expression = OWLAnonymousClassExpression::Ptr());
+
+    /**
      * Get or create the OWLAnonymousIndividual by IRI
      * \return OWLAnonymousIndividual::Ptr
      */
@@ -112,6 +118,11 @@ public:
     void directlyImports(const IRI& iri);
 
     /**
+     * Record an rdf property
+     */
+    void rdfProperty(const IRI& iri);
+
+    /**
      * Get or create the OWLObjectProperty by IRI
      * \return OWLObjectProperty::Ptr
      */
@@ -123,10 +134,13 @@ public:
      */
     OWLDataProperty::Ptr dataProperty(const IRI& iri);
 
+    void removeAnnotationProperty(const IRI& iri);
     OWLAnnotationProperty::Ptr annotationProperty(const IRI& iri);
 
-    OWLSubClassOfAxiom::Ptr subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass);
-    OWLSubClassOfAxiom::Ptr subClassOf(const IRI& subclass, OWLClassExpression::Ptr superclass);
+    OWLSubClassOfAxiom::Ptr subClassOf(const OWLClass::Ptr& subclass,
+                const OWLClass::Ptr& superclass);
+    OWLSubClassOfAxiom::Ptr subClassOf(const IRI& subclass,
+                const OWLClassExpression::Ptr& superclass);
 
     /**
      * Declare the subclass relationship between two classes
@@ -136,7 +150,8 @@ public:
     /**
      * Declare the subclass relationship between two classes
      */
-    OWLSubClassOfAxiom::Ptr subClassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression);
+    OWLSubClassOfAxiom::Ptr subClassOf(const OWLClassExpression::Ptr& subclassExpression,
+                const OWLClassExpression::Ptr& superclassExpression);
 
     /**
      * Set instance of class type
@@ -209,6 +224,11 @@ public:
      * \param literal Literal containing the value
      */
     OWLAxiom::Ptr valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal);
+
+    OWLAxiom::Ptr annotationOf(const IRI& subject,
+            const IRI& annotationProperty,
+            const IRI& object);
+
     OWLAxiom::Ptr annotationOf(const OWLAnnotationSubject::Ptr& subject,
             const IRI& annotationProperty,
             const OWLAnnotationValue::Ptr& annotationValue);

@@ -179,6 +179,24 @@ OWLClass::Ptr OWLOntologyTell::klass(const IRI& iri)
     }
 }
 
+OWLAnonymousClassExpression::Ptr OWLOntologyTell::anonymousClass(const IRI& iri, const OWLAnonymousClassExpression::Ptr expression)
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::iterator it = mpOntology->mAnonymousClassExpressions.find(iri);
+    if(expression)
+    {
+        mpOntology->mAnonymousClassExpressions[iri] = expression;
+        return expression;
+    } else {
+        if(it != mpOntology->mAnonymousClassExpressions.end())
+        {
+            return it->second;
+        }
+        OWLAnonymousClassExpression::Ptr aClass = make_shared<OWLAnonymousClassExpression>();
+        mpOntology->mAnonymousClassExpressions[iri] = aClass;
+        return aClass;
+    }
+}
+
 OWLAnonymousIndividual::Ptr OWLOntologyTell::anonymousIndividual(const IRI& iri)
 {
     std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator it = mpOntology->mAnonymousIndividuals.find(iri);
@@ -223,6 +241,11 @@ void OWLOntologyTell::directlyImports(const IRI& iri)
 void OWLOntologyTell::imports(const IRI& iri)
 {
     mpOntology->addImportsDocument(iri);
+}
+
+void OWLOntologyTell::rdfProperty(const IRI& iri)
+{
+    mpOntology->mRDFProperties.insert(iri);
 }
 
 OWLObjectProperty::Ptr OWLOntologyTell::objectProperty(const IRI& iri)
@@ -284,7 +307,29 @@ OWLAnnotationProperty::Ptr OWLOntologyTell::annotationProperty(const IRI& iri)
     }
 }
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, OWLClassExpression::Ptr superclass)
+void OWLOntologyTell::removeAnnotationProperty(const IRI& iri)
+{
+    OWLAnnotationProperty::Ptr property = mpOntology->mAnnotationProperties[iri];
+    mpOntology->mAnnotationProperties.erase(iri);
+
+    std::map<OWLAxiom::AxiomType, OWLAxiom::PtrList>::iterator it = mpOntology->mAxiomsByType.find(OWLAxiom::AnnotationAssertion);
+    if(it == mpOntology->mAxiomsByType.end())
+    {
+        return;
+    }
+
+    OWLAxiom::PtrList& axioms = it->second;
+    OWLAxiom::PtrList::iterator ait = std::find_if(axioms.begin(), axioms.end(), [iri](OWLAxiom::Ptr other)
+            {
+                return dynamic_pointer_cast<OWLAnnotationAssertionAxiom>(other)->getProperty()->getIRI() == iri;
+            });
+    if(ait != axioms.end())
+    {
+        axioms.erase(ait);
+    }
+}
+
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, const OWLClassExpression::Ptr& superclass)
 {
     OWLClass::Ptr e_subclass = klass(subclass);
     return subClassOf(e_subclass, superclass);
@@ -294,12 +339,18 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, const I
 {
     // All classes inherit from top concept, i.e. owl:Thing
     OWLClass::Ptr e_subclass = klass(subclass);
-    OWLClass::Ptr e_superclass = klass(superclass);
+    if(mAsk.isOWLAnonymousClassExpression(superclass))
+    {
+        OWLAnonymousClassExpression::Ptr e_superclass = mAsk.getOWLAnonymousClassExpression(superclass);
+        return subClassOf(e_subclass, dynamic_pointer_cast<OWLClassExpression>(e_superclass));
 
-    return subClassOf(e_subclass, e_superclass);
+    } else {
+        OWLClass::Ptr e_superclass = klass(superclass);
+        return subClassOf(e_subclass, e_superclass);
+    }
 }
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClass::Ptr subclass, OWLClass::Ptr superclass)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const OWLClass::Ptr& subclass, const OWLClass::Ptr& superclass)
 {
     mpOntology->kb()->subClassOf(subclass->getIRI(), superclass->getIRI());
     return subClassOf(ptr_cast<OWLClassExpression,OWLClass>(subclass),
@@ -307,7 +358,7 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClass::Ptr subclass, OWLC
 }
 
 
-OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(OWLClassExpression::Ptr subclassExpression, OWLClassExpression::Ptr superclassExpression)
+OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const OWLClassExpression::Ptr& subclassExpression, const OWLClassExpression::Ptr& superclassExpression)
 {
     OWLSubClassOfAxiom::Ptr axiom = make_shared<OWLSubClassOfAxiom>(subclassExpression, superclassExpression);
     mpOntology->mSubClassAxiomBySubPosition[subclassExpression].push_back(axiom);
@@ -342,7 +393,6 @@ OWLAxiom::Ptr OWLOntologyTell::addAxiom(const OWLAxiom::Ptr& axiom, const reason
 
 OWLAxiom::Ptr OWLOntologyTell::equalClasses(const IRIList& klasses)
 {
-    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->equalClasses(klasses);
     OWLClassExpression::PtrList pKlasses;
     for(const IRI& classType : klasses)
     {
@@ -350,6 +400,7 @@ OWLAxiom::Ptr OWLOntologyTell::equalClasses(const IRIList& klasses)
         pKlasses.push_back(pKlass);
     }
     OWLEquivalentClassesAxiom::Ptr axiom = make_shared<OWLEquivalentClassesAxiom>(pKlasses);
+    reasoner::factpp::Axiom kb_axiom = mpOntology->kb()->equalClasses(klasses);
     addAxiom(axiom, kb_axiom);
     return axiom;
 }
@@ -513,13 +564,12 @@ OWLAxiom::Ptr OWLOntologyTell::functionalDataProperty(const IRI& property)
 OWLAxiom::Ptr OWLOntologyTell::relatedTo(const IRI& subject, const IRI& relation, const IRI& object)
 {
     bool isAnnotationProperty = mAsk.isAnnotationProperty(relation);
-    if(!isAnnotationProperty)
+    if(isAnnotationProperty)
     {
-        mpOntology->kb()->relatedTo(subject, relation, object);
-    } else {
-        throw std::invalid_argument("owlapi::model::OWLOntologyAsk::relatedTo: you cannot use relatedTo to annotate,"
-                " use 'annotationOf' instead");
+        return annotationOf(subject, relation, object);
     }
+
+    mpOntology->kb()->relatedTo(subject, relation, object);
 
     LOG_DEBUG_S << "Add relation: " << std::endl
         << "    s: " << subject << std::endl
@@ -617,7 +667,7 @@ OWLSubPropertyAxiom::Ptr OWLOntologyTell::subPropertyOf(const IRI& subProperty, 
 
         axiom = make_shared<OWLSubAnnotationPropertyOfAxiom>(subAProperty, superAProperty);
     } else {
-        throw std::runtime_error("OWLOntologyTell::subPropertyOf: could not identify property type for" +
+        throw std::runtime_error("OWLOntologyTell::subPropertyOf: could not identify property type for " +
                 parentProperty.toString());
     }
 
@@ -696,6 +746,12 @@ OWLAxiom::Ptr OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const
 
 OWLAxiom::Ptr OWLOntologyTell::objectPropertyRangeOf(const IRI& relation, const IRI& classType)
 {
+    if(mAsk.isDatatype(classType))
+    {
+        throw std::invalid_argument("owlapi::model::OWLOntologyTell::objectPropertyRangeOf: "
+                "cannot use datarange '" + classType.toString() + "' for object property "
+                + relation.toString());
+    }
     mpOntology->kb()->objectRangeOf(relation, classType);
 
     OWLObjectProperty::Ptr oProperty = mpOntology->getObjectProperty(relation);
@@ -765,12 +821,59 @@ OWLAxiom::Ptr OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataPrope
     reasoner::factpp::DataValue dataValue = mpOntology->kb()->dataValue(literal->getValue(), literal->getType());
     mpOntology->kb()->valueOf(instance, dataProperty, dataValue);
 
-    OWLIndividual::Ptr individual = mAsk.getOWLIndividual(instance);
+    OWLIndividual::Ptr individual;
+    if(mAsk.isOWLIndividual(instance) || mAsk.isOWLAnonymousIndividual(instance))
+    {
+        individual = mAsk.getOWLIndividual(instance);
+    } else {
+        individual = anonymousIndividual(instance);
+    }
     OWLDataProperty::Ptr property = mAsk.getOWLDataProperty(dataProperty);
     OWLDataPropertyAssertionAxiom::Ptr axiom = make_shared<OWLDataPropertyAssertionAxiom>(individual, property, literal);
 
     mpOntology->retractValueOf(individual, property);
     return addAxiom(axiom);
+}
+
+
+OWLAxiom::Ptr OWLOntologyTell::annotationOf(const IRI& subject,
+        const IRI& relation,
+        const IRI& object)
+{
+        OWLAnnotationSubject::Ptr annotationSubject = make_shared<IRI>(subject);
+        // Setting of AnnotationAssertions
+        std::string value = object.toString();
+        if(value.empty())
+        {
+            LOG_WARN_S << "Encountered empty property value for subject: " << annotationSubject
+                << " and relation: " << relation;
+            throw
+                std::invalid_argument("owlapi::model::OWLOntologyTell::annotationOf:"
+                        " Encountered empty property value for subject '"
+                        + subject.toString() +
+                        "' and relation '" +
+                        relation.toString() + "'"
+                    );
+        }
+
+        try {
+            shared_ptr<IRI> annotationObjectIRI = make_shared<IRI>(value);
+            // TODO: improve checking for IRI
+            annotationObjectIRI->toURI();
+            return annotationOf(annotationSubject, relation, annotationObjectIRI);
+        } catch(const std::invalid_argument& e)
+        {
+            LOG_INFO_S << "AnnotationValue is not an IRI (currently limited to URI checking)";
+        }
+
+        OWLLiteral::Ptr literal = OWLLiteral::create(value);
+        if(!literal->isTyped())
+        {
+            // check if range type is known
+            //OWLDataType dataType = OWLDataType::fromRange(,value);
+            literal = OWLLiteral::create(object.toString());
+        }
+        return annotationOf(annotationSubject, relation, literal);
 }
 
 OWLAxiom::Ptr OWLOntologyTell::annotationOf(const OWLAnnotationSubject::Ptr& subject,
@@ -836,7 +939,8 @@ void OWLOntologyTell::datatype(const IRI& iri)
     // <http://www.linkedmodel.org/schema/vaem#dateUnion>
     //      <http://www.w3.org/2002/07/owl#equivalentClass> _:genid1 .
     //
-    subClassOf(iri, vocabulary::RDFS::Datatype());
+
+    mpOntology->kb()->dataType(iri);
 }
 
 void OWLOntologyTell::dataOneOf(const IRI& id, const IRIList& iris)
