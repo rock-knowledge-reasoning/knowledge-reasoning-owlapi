@@ -1,6 +1,5 @@
 #include "KnowledgeBase.hpp"
 
-#include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <base-logging/Logging.hpp>
 
@@ -14,17 +13,19 @@ using namespace owlapi::reasoner::factpp;
 
 namespace owlapi {
 
-std::map<KnowledgeBase::PropertyType, std::string> KnowledgeBase::PropertyTypeTxt = boost::assign::map_list_of
-    ( KnowledgeBase::UNKNOWN_PROPERTY_TYPE, "UNKNOWN PROPERTY TYPE")
-    ( KnowledgeBase::OBJECT, "OBJECT")
-    ( KnowledgeBase::DATA, "DATA");
+std::map<KnowledgeBase::PropertyType, std::string> KnowledgeBase::PropertyTypeTxt = {
+    { KnowledgeBase::UNKNOWN_PROPERTY_TYPE, "UNKNOWN PROPERTY TYPE"},
+    { KnowledgeBase::OBJECT, "OBJECT"},
+    { KnowledgeBase::DATA, "DATA"}
+};
 
-std::map<KnowledgeBase::EntityType, std::string> KnowledgeBase::EntityTypeTxt = boost::assign::map_list_of
-    ( KnowledgeBase::UNKNOWN_ENTITY_TYPE, "UNKNOWN ENTITY TYPE")
-    ( KnowledgeBase::CLASS, "CLASS")
-    ( KnowledgeBase::INSTANCE, "INSTANCE")
-    ( KnowledgeBase::OBJECT_PROPERTY, "OBJECT_RELATION")
-    ( KnowledgeBase::DATA_PROPERTY, "DATA_RELATION");
+std::map<KnowledgeBase::EntityType, std::string> KnowledgeBase::EntityTypeTxt = {
+    { KnowledgeBase::UNKNOWN_ENTITY_TYPE, "UNKNOWN ENTITY TYPE"},
+    { KnowledgeBase::CLASS, "CLASS"},
+    { KnowledgeBase::INSTANCE, "INSTANCE"},
+    { KnowledgeBase::OBJECT_PROPERTY, "OBJECT_RELATION"},
+    { KnowledgeBase::DATA_PROPERTY, "DATA_RELATION"}
+};
 
 IRIList KnowledgeBase::getResult(const Actor& actor, const IRI& filter) const
 {

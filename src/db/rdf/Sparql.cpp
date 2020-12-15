@@ -1,5 +1,4 @@
 #include "Sparql.hpp"
-#include <boost/assign/list_of.hpp>
 #include <boost/regex.hpp>
 #include <base-logging/Logging.hpp>
 #include <sstream>
@@ -11,12 +10,13 @@ namespace db {
 namespace rdf {
 namespace sparql {
 
-std::map<Query::Type, std::string> Query::TypeTxt = boost::assign::map_list_of
-    (Query::UNKNOWN, "UNKNOWN")
-    (Query::SELECT, "SELECT")
-    (Query::CONSTRUCT, "CONSTRUCT")
-    (Query::ASK, "ASK")
-    (Query::DESCRIBE, "DESCRIBE");
+std::map<Query::Type, std::string> Query::TypeTxt = {
+    {Query::UNKNOWN, "UNKNOWN"},
+    {Query::SELECT, "SELECT"},
+    {Query::CONSTRUCT, "CONSTRUCT"},
+    {Query::ASK, "ASK"},
+    {Query::DESCRIBE, "DESCRIBE"}
+};
 
 Query::Query()
     : mWhere(this)
