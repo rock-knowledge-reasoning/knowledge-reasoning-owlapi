@@ -33,8 +33,18 @@ public:
     VOCABULARY_ADD_WORD(_3);
     VOCABULARY_ADD_WORD(CompoundLiteral); // rdfs:Datatype
     VOCABULARY_ADD_WORD(JSON); // rdfs:Datatype
+    VOCABULARY_ADD_WORD(HTML); // rdfs:Datatype
     VOCABULARY_ADD_WORD(PlainLiteral); // rdfs:Datatype
     VOCABULARY_ADD_WORD(XMLLiteral); // rdfs:Datatype
+
+    static bool isDatatype(const owlapi::model::IRI& iri);
+    static const owlapi::model::IRISet& getDatatypes() { return mDataTypes; }
+
+protected:
+    static owlapi::model::IRISet mDataTypes;
+
+protected:
+    static owlapi::model::IRISet mDatatypes;
 };
 
 } // end namespace vocabulary

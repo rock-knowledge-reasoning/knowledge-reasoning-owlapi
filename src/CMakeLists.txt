@@ -54,6 +54,8 @@ rock_library(owlapi
         model/OWLDataProperty.cpp
         reasoner/factpp/Types.cpp
         utils/OWLApi.cpp
+        vocabularies/RDF.cpp
+        vocabularies/XSD.cpp
         db/rdf/Redland.cpp
         db/rdf/Sparql.cpp
         db/rdf/SparqlInterface.cpp

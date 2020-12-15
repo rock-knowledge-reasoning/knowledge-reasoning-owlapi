@@ -82,19 +82,53 @@ public:
     VOCABULARY_ADD_WORD(NOTATION);
 
     // Facets
+    // Fundamental Facets
+    VOCABULARY_ADD_WORD(ordered);
+    VOCABULARY_ADD_WORD(bounded);
+    VOCABULARY_ADD_WORD(cardinality);
+    VOCABULARY_ADD_WORD(numeric);
+
+    // Constraining Facets
+    VOCABULARY_ADD_WORD(length);
+    VOCABULARY_ADD_WORD(minLength);
+    VOCABULARY_ADD_WORD(maxLength);
+    VOCABULARY_ADD_WORD(pattern);
+    VOCABULARY_ADD_WORD(enumeration);
     VOCABULARY_ADD_WORD(whiteSpace);
 
     VOCABULARY_ADD_WORD(totalDigits);
     VOCABULARY_ADD_WORD(fractionDigits);
-    VOCABULARY_ADD_WORD(pattern);
-    VOCABULARY_ADD_WORD(enumeration);
+    VOCABULARY_ADD_WORD(Assertions);
+    VOCABULARY_ADD_WORD(explicitTimezone);
+
     VOCABULARY_ADD_WORD(minInclusive);
     VOCABULARY_ADD_WORD(maxInclusive);
     VOCABULARY_ADD_WORD(minExclusive);
     VOCABULARY_ADD_WORD(maxExclusive);
-    VOCABULARY_ADD_WORD(assertions);
+
+    /**
+     * demo:property a owl:DatatypeProperty ;
+                rdfs:range [ rdf:type rdfs:Datatype ;
+                    owl:unionOf ( [ rdf:type rdfs:Datatype ;
+                        owl:onDatatype rdf:PlainLiteral ;
+                        owl:withRestrictions ( [ rdf:langRange "de" ] )
+                      ]
+                      [ rdf:type rdfs:Datatype ;
+                        owl:onDatatype rdf:PlainLiteral ;
+                        owl:withRestrictions ( [ rdf:langRange "en" ] )
+                      ]
+                    )
+                ] .
+     */
+    VOCABULARY_ADD_WORD(langRange);
 
     VOCABULARY_ADD_WORD(restriction);
+
+    static bool isDatatype(const owlapi::model::IRI& iri);
+    static const owlapi::model::IRISet& getDatatypes() { return mDataTypes; }
+
+protected:
+    static owlapi::model::IRISet mDataTypes;
 };
 
 } // end namespace vocabulary

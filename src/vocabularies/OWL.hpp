@@ -81,6 +81,9 @@ public:
     VOCABULARY_ADD_WORD(real);
     VOCABULARY_ADD_WORD(rational);
     VOCABULARY_ADD_WORD(hasSelf);
+
+    VOCABULARY_ADD_WORD(withRestrictions);
+    VOCABULARY_ADD_WORD(onDatatype);
 };
 
 } // end namespace vocabulary
