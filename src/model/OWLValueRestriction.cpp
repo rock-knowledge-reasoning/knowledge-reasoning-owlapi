@@ -59,9 +59,9 @@ OWLValueRestriction::Ptr OWLValueRestriction::narrow() const
             switch(getValueRestrictionType())
             {
                 case OWLValueRestriction::SOME:
-                    return make_shared<OWLDataSomeValuesFrom>(dProperty, getQualification());
+                    throw std::runtime_error("OWLValueRestriction::narrow: value restriction set to SOME cannot narrow");
                 case OWLValueRestriction::ALL:
-                    return make_shared<OWLDataAllValuesFrom>(dProperty, getQualification());
+                    throw std::runtime_error("OWLValueRestriction::narrow: value restriction set to ALL cannot narrow");
                 case OWLValueRestriction::HAS:
                     return make_shared<OWLDataHasValue>(dProperty, getQualification());
                 default:

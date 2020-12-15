@@ -9,7 +9,11 @@ namespace model {
 class OWLAnonymousClassExpression : public OWLClassExpression
 {
 public:
-    bool isAnonymous() const { return true; }
+    typedef shared_ptr<OWLAnonymousClassExpression> Ptr;
+
+    bool isAnonymous() const override { return true; }
+
+    ClassExpressionType getClassExpressionType() const override { return OWLClassExpression::ANONYMOUS; }
 };
 
 } // end namespace model

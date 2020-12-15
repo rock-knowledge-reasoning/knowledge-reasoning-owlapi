@@ -28,7 +28,7 @@ public:
     /**
      * Default constructor to allow usage of this class in a map
      */
-    OWLRestriction() {}
+    OWLRestriction() = default;
 
     OWLRestriction(const OWLPropertyExpression::Ptr& property)
         : OWLAnonymousClassExpression()
@@ -42,7 +42,7 @@ public:
     /**
      * Set property
      */
-    void setProperty(OWLPropertyExpression::Ptr property) { mpProperty = property; }
+    void setProperty(const OWLPropertyExpression::Ptr& property) { mpProperty = property; }
 
     virtual bool isDataRestriction() const;
     virtual bool isObjectRestriction() const;

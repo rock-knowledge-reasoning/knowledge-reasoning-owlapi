@@ -3,24 +3,32 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLDataPropertyExpression.hpp"
-#include "OWLSomeValuesFromRestriction.hpp"
 #include "../Vocabulary.hpp"
-
+#include "OWLQuantifiedDataRestriction.hpp"
 namespace owlapi {
 namespace model {
 
-class OWLDataSomeValuesFrom : public OWLSomeValuesFromRestriction
+class OWLDataSomeValuesFrom : public OWLQuantifiedDataRestriction
 {
 public:
-    OWLDataSomeValuesFrom(OWLDataPropertyExpression::Ptr property, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLSomeValuesFromRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
-    {}
+    typedef shared_ptr<OWLDataSomeValuesFrom> Ptr;
 
-    virtual ~OWLDataSomeValuesFrom() {}
+    OWLDataSomeValuesFrom(const OWLDataPropertyExpression::Ptr& property,
+            const OWLDataRange::Ptr& dataRange)
+        : OWLQuantifiedDataRestriction(property, dataRange)
+    {
+        if(!property)
+        {
+            throw std::invalid_argument("owlapi::model::OWLDataSomeValuesFrom:"
+                    " property cannot be null");
+        }
+    }
 
-    ClassExpressionType getClassExpressionType() const { return DATA_SOME_VALUES_FROM; }
+    virtual ~OWLDataSomeValuesFrom() = default;
 
-    bool isClassExpressionLiteral() const { return false; }
+    ClassExpressionType getClassExpressionType() const override { return DATA_SOME_VALUES_FROM; }
+
+    bool isClassExpressionLiteral() const override { return false; }
 };
 
 } // end namespace model

@@ -11,7 +11,8 @@ class OWLSomeValuesFromRestriction : public OWLValueRestriction
 public:
     typedef shared_ptr<OWLSomeValuesFromRestriction> Ptr;
 
-    OWLSomeValuesFromRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification)
+    OWLSomeValuesFromRestriction(const OWLPropertyExpression::Ptr& property,
+            const OWLQualification& qualification)
         : OWLValueRestriction(property, qualification, OWLValueRestriction::SOME)
     {}
 

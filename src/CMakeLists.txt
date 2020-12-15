@@ -83,6 +83,7 @@ rock_library(owlapi
         model/ChangeApplied.hpp
         model/HasAnnotations.hpp
         model/HasAnnotationValue.hpp
+        model/HasFiller.hpp
         model/HasIRI.hpp
         model/HasProperty.hpp
         model/HasSubject.hpp
@@ -124,6 +125,7 @@ rock_library(owlapi
         model/OWLDataProperty.hpp
         model/OWLDataPropertyRangeAxiom.hpp
         model/OWLDataRange.hpp
+        model/OWLDataRestriction.hpp
         model/OWLDataSomeValuesFrom.hpp
         model/OWLDataType.hpp
         model/OWLDataTypeRestriction.hpp
@@ -193,6 +195,8 @@ rock_library(owlapi
         model/OWLPropertyRangeAxiom.hpp
         model/OWLPropertyRange.hpp
         model/OWLQualifiedRestriction.hpp
+        model/OWLQuantifiedRestriction.hpp
+        model/OWLQuantifiedDataRestriction.hpp
         model/OWLReasoner.hpp
         model/OWLReflexiveObjectPropertyAxiom.hpp
         model/OWLRestriction.hpp

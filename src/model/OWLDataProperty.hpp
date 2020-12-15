@@ -12,7 +12,7 @@ namespace model {
  * \brief Represents a data property in the OWL 2 Specification.
  * \see http://www.w3.org/TR/owl2-syntax/#Datatypes
  */
-class OWLDataProperty : public OWLDataPropertyExpression, public OWLProperty
+class OWLDataProperty : public virtual OWLDataPropertyExpression, public OWLProperty
 {
 public:
         typedef shared_ptr<OWLDataProperty> Ptr;

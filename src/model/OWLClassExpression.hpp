@@ -23,7 +23,9 @@ public:
 
     /// ClassExpressionType represents all subtypes
     /// of ClassExpressions
-    enum ClassExpressionType { DATA_ALL_VALUES_FROM
+    enum ClassExpressionType {
+        ANONYMOUS
+        , DATA_ALL_VALUES_FROM
         , DATA_EXACT_CARDINALITY
         , DATA_HAS_VALUE
         , DATA_MAX_CARDINALITY

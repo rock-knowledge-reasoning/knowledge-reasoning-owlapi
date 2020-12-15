@@ -13,8 +13,13 @@ public:
     typedef shared_ptr<OWLDataType> Ptr;
 
     OWLDataType(const IRI& iri, OWLDataRange::Type type = OWLDataRange::DATATYPE);
-    virtual ~OWLDataType() {}
+    virtual ~OWLDataType() = default;
 
+    /**
+     * Pick the datatype for a given value, by picking from the options defined
+     * by the data range
+     * \param range OWLDataRange include DATATYPE, ONE_OF, ...
+     */
     static OWLDataType fromRange(const OWLDataRange::Ptr& range, const std::string& value = "");
 
     // OWL2DataType getBuiltInDataType() const;

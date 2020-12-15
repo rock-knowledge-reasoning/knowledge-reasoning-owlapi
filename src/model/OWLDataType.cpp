@@ -1,6 +1,7 @@
 #include "OWLDataType.hpp"
 #include "../Vocabulary.hpp"
 #include "OWLDataOneOf.hpp"
+#include "OWLDataTypeRestriction.hpp"
 
 namespace owlapi {
 namespace model {
@@ -40,6 +41,29 @@ OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range, const std::st
         case OWLDataRange::COMPLEMENT_OF:
         case OWLDataRange::INTERSECTION_OF:
         case OWLDataRange::DATATYPE_RESTRICTION:
+        {
+            owlapi::model::OWLDataTypeRestriction::Ptr datatypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(range);
+            if(datatypeRestriction)
+            {
+                bool isCompliant = true;
+                for(const OWLFacetRestriction restriction : datatypeRestriction->getFacetRestrictions())
+                {
+                    restriction.isCompliant(value);
+                }
+
+                if(isCompliant)
+                {
+                    return datatypeRestriction->getDataType();
+                }
+
+                throw std::invalid_argument("owlapi::model::OWLDataType::fromRange:"
+                    " failed to find literal in data range that complies with restrictions");
+            } else {
+                throw std::invalid_argument("owlapi::model::OWLDataType::fromRange:"
+                        " failed to cast range into OWLDataTypeRestriction object");
+            }
+        }
+
             break;
     }
 

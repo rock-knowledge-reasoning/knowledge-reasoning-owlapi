@@ -27,6 +27,7 @@ public:
     static std::map<EntityType, std::string> TypeTxt;
 
     typedef shared_ptr<OWLEntity> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     OWLEntity( const IRI& iri = IRI(), EntityType type = UNKNOWN);
 
