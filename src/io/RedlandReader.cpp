@@ -6,6 +6,41 @@
 namespace owlapi {
 namespace io {
 
+int rdfLogFunction(void* user_data,
+        librdf_log_message* message)
+{
+    std::string msg(librdf_log_message_message(message));
+
+    switch(librdf_log_message_level(message))
+    {
+        case LIBRDF_LOG_NONE:
+            break;
+        case LIBRDF_LOG_DEBUG:
+            LOG_DEBUG_S << msg;
+            break;
+        case LIBRDF_LOG_INFO:
+            LOG_INFO_S << msg;
+            break;
+        case LIBRDF_LOG_WARN:
+            LOG_WARN_S << msg;
+            break;
+        case LIBRDF_LOG_ERROR:
+            LOG_ERROR_S << msg;
+            break;
+        case LIBRDF_LOG_FATAL:
+            LOG_FATAL_S << msg;
+            break;
+    }
+    return 0;
+}
+
+void rasqalLogFunction(void* user_data,
+        raptor_log_message* message)
+{
+    std::string msg(raptor_log_message(message));
+    LOG_WARN_S << msg;
+}
+
 unsigned char* blankNodeHandler(void *user_data, unsigned char* user_bnodeid)
 {
   //raptor_world *world = (raptor_world*)user_data;
@@ -105,6 +140,19 @@ void RedlandReader::read(const std::string& filename, const std::string& format)
     raptor_world* raptorWorld = librdf_world_get_raptor(mpWorld);
     raptor_world_set_generate_bnodeid_handler(raptorWorld, NULL, blankNodeHandler);
 
+    librdf_world_set_logger(mpWorld,
+            NULL,
+            &rdfLogFunction);
+
+    rasqal_world* rasqalWorld = librdf_world_get_rasqal(mpWorld);
+    rasqal_world_set_warning_level(rasqalWorld, 10);
+    rasqal_world_set_log_handler(rasqalWorld,
+            NULL,
+            &rasqalLogFunction);
+
+
+
+
     std::string parserName = format;
     if(format.empty())
     {
@@ -136,6 +184,7 @@ void RedlandReader::read(const std::string& filename, const std::string& format)
     librdf_free_parser(p);
     librdf_free_uri(base_uri);
 }
+
 
 } // end namespace io
 } // end namespace owlapi
