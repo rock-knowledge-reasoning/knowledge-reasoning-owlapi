@@ -20,6 +20,18 @@ OWLClass::Ptr OWLOntologyAsk::getOWLClass(const IRI& iri) const
     throw std::runtime_error("OWLOntologyAsk::getOWLClass: '" + iri.toString() + "' is not a known OWLClass");
 }
 
+OWLAnonymousClassExpression::Ptr OWLOntologyAsk::getOWLAnonymousClassExpression(const IRI& iri) const
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator it = mpOntology->mAnonymousClassExpressions.find(iri);
+    if(it != mpOntology->mAnonymousClassExpressions.end())
+    {
+        return it->second;
+    }
+
+    throw std::runtime_error("OWLOntologyAsk::getOWLAnonymousClassExpression: '" + iri.toString() + "' is not a known OWLAnonymousClassExpression");
+}
+
+
 OWLIndividual::Ptr OWLOntologyAsk::getOWLIndividual(const IRI& iri) const
 {
     try {
@@ -335,6 +347,12 @@ bool OWLOntologyAsk::isOWLClass(const IRI& iri) const
     return it != mpOntology->mClasses.end();
 }
 
+bool OWLOntologyAsk::isOWLAnonymousClassExpression(const IRI& iri) const
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator it = mpOntology->mAnonymousClassExpressions.find(iri);
+    return it != mpOntology->mAnonymousClassExpressions.end();
+}
+
 bool OWLOntologyAsk::isOWLIndividual(const IRI& iri) const
 {
     try {
@@ -344,6 +362,22 @@ bool OWLOntologyAsk::isOWLIndividual(const IRI& iri) const
     {
         return false;
     }
+}
+
+bool OWLOntologyAsk::isOWLAnonymousIndividual(const IRI& iri) const
+{
+    try {
+        mpOntology->getAnonymousIndividual(iri);
+        return true;
+    } catch(...)
+    {
+        return false;
+    }
+}
+
+bool OWLOntologyAsk::isRDFProperty(const IRI& iri) const
+{
+    return mpOntology->mRDFProperties.find(iri) != mpOntology->mRDFProperties.end();
 }
 
 IRIList OWLOntologyAsk::allInstancesOf(const IRI& classType, bool direct) const
@@ -403,6 +437,11 @@ IRIList OWLOntologyAsk::allClasses(bool excludeBottomClass) const
     return mpOntology->kb()->allClasses(excludeBottomClass);
 }
 
+IRIList OWLOntologyAsk::allRDFProperties() const
+{
+    return IRIList(mpOntology->mRDFProperties.begin(), mpOntology->mRDFProperties.end());
+}
+
 IRIList OWLOntologyAsk::allObjectProperties() const
 {
     IRIList list;
@@ -421,6 +460,16 @@ IRIList OWLOntologyAsk::allDataProperties() const
     for(; cit != mpOntology->mDataProperties.end(); ++cit)
     {
         list.push_back(cit->first);
+    }
+    return list;
+}
+
+IRIList OWLOntologyAsk::allDataTypes() const
+{
+    IRIList list;
+    for(const auto& p : mpOntology->kb()->dataTypes())
+    {
+        list.push_back(p.first);
     }
     return list;
 }
@@ -617,6 +666,11 @@ IRIList OWLOntologyAsk::ancestors(const IRI& instance) const
         throw std::invalid_argument("owlapi::model::OWLOntology::ancestors: '"
                 + instance.toString() + "' is not a known class");
     }
+}
+
+bool OWLOntologyAsk::isDatatype(const IRI& iri) const
+{
+    return mpOntology->kb()->isDatatype(iri);
 }
 
 bool OWLOntologyAsk::isObjectProperty(const IRI& property) const

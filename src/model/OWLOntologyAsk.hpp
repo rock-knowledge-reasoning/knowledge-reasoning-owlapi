@@ -28,6 +28,12 @@ public:
      */
     OWLClass::Ptr getOWLClass(const IRI& iri) const;
 
+
+    /**
+     * Get the OWLAnonymousClassExpression by IRI
+     */
+    OWLAnonymousClassExpression::Ptr getOWLAnonymousClassExpression(const IRI& iri) const;
+
     /**
      * Get an individual by IRI
      * \return OWLIndividual::Ptr
@@ -180,9 +186,24 @@ public:
     bool isOWLClass(const IRI& iri) const;
 
     /**
+     * Check if iri refers to an anonymous class expression
+     */
+    bool isOWLAnonymousClassExpression(const IRI& iri) const;
+
+    /**
      * Check if iri represent a known individual
      */
     bool isOWLIndividual(const IRI& iri) const;
+
+    /**
+     * Check if iri represents an anonymous individual
+     */
+    bool isOWLAnonymousIndividual(const IRI& iri) const;
+
+    /**
+     * Check if iri represents a (direct) RDF Property
+     */
+    bool isRDFProperty(const IRI& iri) const;
 
     /**
      * Retrieve all known classes
@@ -221,6 +242,11 @@ public:
     IRIList allInstancesOf(const IRI& classType, bool direct = false) const;
 
     /**
+     * Retrieve all known rdf properties
+     */
+    IRIList allRDFProperties() const;
+
+    /**
      * Retrieve all known object properties
      */
     IRIList allObjectProperties() const;
@@ -229,6 +255,11 @@ public:
      * Retrieve all known data(type) properties
      */
     IRIList allDataProperties() const;
+
+    /**
+     * Retrieve all known datatypes
+     */
+    IRIList allDataTypes() const;
 
     /**
      * Retrieve all known annotation properties
@@ -337,6 +368,11 @@ public:
      * \return list of ancestors
      */
     IRIList ancestors(const IRI& instance) const;
+
+    /**
+     * Check if the given iri refers to a datatype
+     */
+    bool isDatatype(const IRI& property) const;
 
     /**
      * Check if the given property is an object property, i.e.
