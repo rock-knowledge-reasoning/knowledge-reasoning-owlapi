@@ -10,8 +10,11 @@
 #include "OWLDisjointObjectPropertiesAxiom.hpp"
 #include "OWLDisjointDataPropertiesAxiom.hpp"
 #include "OWLDataOneOf.hpp"
+#include "OWLDataTypeRestriction.hpp"
 #include "OWLSubAnnotationPropertyOfAxiom.hpp"
 #include "OWLAnnotationAssertionAxiom.hpp"
+#include "OWLDataSomeValuesFrom.hpp"
+#include "OWLDataRange.hpp"
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
@@ -154,6 +157,16 @@ void OWLOntologyTell::initializeDefaultClasses()
     {
         // TODO: handle ontologyProperties
         annotationProperty(iri);
+    }
+
+    // Add known datatypes
+    for(const IRI& iri : vocabulary::XSD::getDatatypes())
+    {
+        datatype(iri);
+    }
+    for(const IRI& iri : vocabulary::RDF::getDatatypes())
+    {
+        datatype(iri);
     }
 }
 
@@ -699,6 +712,68 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const O
     return addAxiom(axiom);
 }
 
+OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, const OWLDataRestriction::Ptr& r)
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator cit =
+        mpOntology->mAnonymousClassExpressions.find(iri);
+    if(cit != mAnonymousClassExpressions.end())
+    {
+        return cit->second;
+    }
+
+    switch(r->getClassExpressionType())
+    {
+        case OWLClassExpression::DATA_SOME_VALUES_FROM:
+        {
+            OWLDataSomeValuesFrom::Ptr someValuesFrom = dynamic_pointer_cast<OWLDataSomeValuesFrom>(r);
+
+            OWLPropertyExpression::Ptr property = dynamic_pointer_cast<OWLDataRestriction>(someValuesFrom)->getProperty();
+            if(!property)
+            {
+                throw
+                    std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                            " could not extract property from SomeValuesFrom"
+                            " Restriction ");
+            }
+            OWLDataProperty::Ptr dataProperty = dynamic_pointer_cast<OWLDataProperty>(property);
+            if(!dataProperty)
+            {
+                throw
+                    std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                            " failed to identify data property for restriction '"
+                            + id.toString() + "'" );
+            }
+
+            IRI dataPropertyIRI = mpOntology->iriOfDataProperty(dataProperty);
+            OWLDataRange::Ptr filler = someValuesFrom->getFiller();
+            OWLDataTypeRestriction::Ptr dataTypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(filler);
+            if(!dataTypeRestriction)
+            {
+                throw std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                        "failed to extract data type restriction");
+            }
+
+
+            mpOntology->kb()->dataSomeValuesFrom(id, dataPropertyIRI, dataTypeRestriction);
+            break;
+        }
+        case OWLClassExpression::DATA_ALL_VALUES_FROM:
+            break;
+        case OWLClassExpression::DATA_HAS_VALUE:
+            break;
+        case OWLClassExpression::DATA_MIN_CARDINALITY:
+            break;
+        case OWLClassExpression::DATA_MAX_CARDINALITY:
+            break;
+        case OWLClassExpression::DATA_EXACT_CARDINALITY:
+            break;
+        default:
+            break;
+    }
+
+    mpOntology->mAnonymousClassExpressions[id] = r;
+}
+
 OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classType)
 {
     // cannot use the following since that is not implemented in the reasoner
@@ -950,6 +1025,11 @@ void OWLOntologyTell::dataOneOf(const IRI& id, const IRIList& iris)
     mpOntology->mAnonymousDataRanges[id].push_back(dataRange);
 }
 
+void OWLOntologyTell::dataTypeRestriction(const IRI& id, const OWLDataTypeRestriction::Ptr& restriction)
+{
+    reasoner::factpp::DataRange range = mpOntology->kb()->dataTypeRestriction(restriction);
+    mpOntology->mAnonymousDataRanges[id].push_back(restriction);
+}
 
 void OWLOntologyTell::removeIndividual(const IRI& iri)
 {

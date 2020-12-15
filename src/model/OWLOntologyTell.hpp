@@ -7,6 +7,8 @@
 #include "OWLCardinalityRestriction.hpp"
 #include "OWLOntologyAsk.hpp"
 #include "OWLSubPropertyAxiom.hpp"
+#include "OWLDataTypeRestriction.hpp"
+#include "OWLDataRestriction.hpp"
 
 namespace owlapi {
 namespace reasoner {
@@ -232,6 +234,7 @@ public:
     OWLAxiom::Ptr annotationOf(const OWLAnnotationSubject::Ptr& subject,
             const IRI& annotationProperty,
             const OWLAnnotationValue::Ptr& annotationValue);
+
     OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 
     /**
@@ -244,6 +247,10 @@ public:
      * with an (anonymous) id
      */
     void dataOneOf(const IRI& id, const IRIList& iris);
+
+    void dataTypeRestriction(const IRI& id, const OWLDataTypeRestriction::Ptr& restriction);
+
+    OWLClassExpression::Ptr dataPropertyRestriction(const IRI& id, const OWLDataRestriction::Ptr& r);
 
     void removeIndividual(const IRI& instance);
 
