@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "OWLClass.hpp"
 #include "OWLNamedIndividual.hpp"
+#include "OWLAnonymousClassExpression.hpp"
 #include "OWLAnonymousIndividual.hpp"
 #include "OWLObjectProperty.hpp"
 #include "OWLDataProperty.hpp"
@@ -52,17 +53,21 @@ protected:
     /// Mapping of IRI to types
     /// All existing classes
     std::map<IRI, OWLClass::Ptr> mClasses;
+    /// All anonymous class expressions
+    std::map<IRI, OWLAnonymousClassExpression::Ptr> mAnonymousClassExpressions;
     /// All named individuals
     std::map<IRI, OWLNamedIndividual::Ptr> mNamedIndividuals;
     /// All anonymous individuals
     std::map<IRI, OWLAnonymousIndividual::Ptr> mAnonymousIndividuals;
+    /// All plain rdf properties
+    IRISet mRDFProperties;
     /// All object properties
     std::map<IRI, OWLObjectProperty::Ptr> mObjectProperties;
     /// All data properties
     std::map<IRI, OWLDataProperty::Ptr> mDataProperties;
     /// All annotation properties
     std::map<IRI, OWLAnnotationProperty::Ptr> mAnnotationProperties;
-    /// For data range list ONE_OF, UNION_OF ...
+    /// For data range list ONE_OF, UNION_OF, DATATYPE_RESTRICTION
     std::map<IRI, std::vector<OWLDataRange::Ptr> > mAnonymousDataRanges;
 
     /// General axiom map
@@ -121,10 +126,15 @@ protected:
     QueryCache mQueryCache;
 
     OWLClass::Ptr getClass(const IRI& iri) const;
+    OWLAnonymousClassExpression::Ptr getAnonymousClassExpression(const IRI& iri) const;
+
     OWLDataProperty::Ptr getDataProperty(const IRI& iri) const;
+    const IRI& iriOfDataProperty(const OWLDataProperty::Ptr& property) const;
+
     OWLObjectProperty::Ptr getObjectProperty(const IRI& iri) const;
     OWLAnnotationProperty::Ptr getAnnotationProperty(const IRI& iri) const;
     OWLIndividual::Ptr getIndividual(const IRI& iri) const;
+    OWLAnonymousIndividual::Ptr getAnonymousIndividual(const IRI& iri) const;
 
     void addAxiom(const OWLAxiom::Ptr& axiom);
     void removeAxiom(const OWLAxiom::Ptr& axiom);
@@ -191,7 +201,7 @@ public:
     ChangeApplied applyChange(const shared_ptr<OWLOntologyChange>& change);
 
     /**
-      * Get acces to the query cache object
+      * Get access to the query cache object
       */
     QueryCache& getQueryCache() { return mQueryCache; }
 };

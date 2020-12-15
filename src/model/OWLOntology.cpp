@@ -51,6 +51,17 @@ OWLClass::Ptr OWLOntology::getClass(const IRI& iri) const
             " no class '" + iri.toString() + "' known");
 }
 
+OWLAnonymousClassExpression::Ptr OWLOntology::getAnonymousClassExpression(const IRI& iri) const
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator cit = mAnonymousClassExpressions.find(iri);
+    if(cit != mAnonymousClassExpressions.end())
+    {
+        return cit->second;
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntology::getAnonymousClassExpression: "
+            " no class '" + iri.toString() + "' known");
+}
+
 OWLDataProperty::Ptr OWLOntology::getDataProperty(const IRI& iri) const
 {
     std::map<IRI, OWLDataProperty::Ptr>::const_iterator cit = mDataProperties.find(iri);
@@ -60,6 +71,19 @@ OWLDataProperty::Ptr OWLOntology::getDataProperty(const IRI& iri) const
     }
     throw std::invalid_argument("owlapi::model::OWLOntology::getDataProperty: "
             " no data property '" + iri.toString() + "' known");
+}
+
+const IRI& OWLOntology::iriOfDataProperty(const OWLDataProperty::Ptr& property) const
+{
+    for(const auto& p : mDataProperties)
+    {
+        if(property == p.second)
+        {
+            return p.first;
+        }
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntology::iriOfDataProperty: not matching"
+            " IRI found for dataproperty");
 }
 
 OWLObjectProperty::Ptr OWLOntology::getObjectProperty(const IRI& iri) const
@@ -86,21 +110,31 @@ OWLAnnotationProperty::Ptr OWLOntology::getAnnotationProperty(const IRI& iri) co
 
 OWLIndividual::Ptr OWLOntology::getIndividual(const IRI& iri) const
 {
+{
+    std::map<IRI, OWLNamedIndividual::Ptr>::const_iterator cit = mNamedIndividuals.find(iri);
+    if(cit != mNamedIndividuals.end())
     {
-        std::map<IRI, OWLNamedIndividual::Ptr>::const_iterator cit = mNamedIndividuals.find(iri);
-        if(cit != mNamedIndividuals.end())
-        {
-            return cit->second;
-        }
+        return cit->second;
     }
+}
+{
+    std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator cit = mAnonymousIndividuals.find(iri);
+    if(cit != mAnonymousIndividuals.end())
     {
-        std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator cit = mAnonymousIndividuals.find(iri);
-        if(cit != mAnonymousIndividuals.end())
-        {
-            return cit->second;
-        }
+        return cit->second;
     }
-    throw std::invalid_argument("owlapi::model::OWLOntology::getIndividual: no individual '" + iri.toString() + "' known");
+}
+throw std::invalid_argument("owlapi::model::OWLOntology::getIndividual: no individual '" + iri.toString() + "' known");
+}
+
+OWLAnonymousIndividual::Ptr OWLOntology::getAnonymousIndividual(const IRI& iri) const
+{
+    std::map<IRI, OWLAnonymousIndividual::Ptr>::const_iterator cit = mAnonymousIndividuals.find(iri);
+    if(cit != mAnonymousIndividuals.end())
+    {
+        return cit->second;
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntology::getAnonymousIndividual: no anonymous individual '" + iri.toString() + "' known");
 }
 
 void OWLOntology::addAxiom(const OWLAxiom::Ptr& axiom)
