@@ -4,19 +4,25 @@
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
 #include "OWLAllValuesFromRestriction.hpp"
+#include "OWLObjectRestriction.hpp"
 #include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLObjectAllValuesFrom : public OWLAllValuesFromRestriction
+class OWLObjectAllValuesFrom : public OWLQuantifiedObjectRestriction
 {
 public:
-    OWLObjectAllValuesFrom(OWLObjectPropertyExpression::Ptr property, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLAllValuesFromRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
+    typedef shared_ptr<OWLObjectAllValuesFrom> Ptr;
+
+    OWLObjectAllValuesFrom(
+            const OWLObjectPropertyExpression::Ptr& property,
+            const OWLClassExpression::Ptr& classExpression
+    )
+        : OWLQuantifiedObjectRestriction(property, classExpression)
     {}
 
-    virtual ~OWLObjectAllValuesFrom() {}
+    virtual ~OWLObjectAllValuesFrom() = default;
 
     ClassExpressionType getClassExpressionType() const { return OBJECT_ALL_VALUES_FROM; }
 

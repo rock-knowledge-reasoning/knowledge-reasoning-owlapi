@@ -13,21 +13,19 @@ rock_library(owlapi
         io/OWLWriter.cpp
         KnowledgeBase.cpp
         model/OWLAxiomRetractVisitor.cpp
-        model/OWLExactCardinalityRestriction.cpp
         model/OWLAxiom.cpp
         model/OWLObjectPropertyAssertionAxiom.cpp
         model/RemoveAxiom.cpp
         model/OWLLiteralInteger.cpp
-        model/QueryCache.cpp
         model/HasAnnotations.cpp
         model/OWLOntologyAsk.cpp
         model/OWLDisjointUnionAxiom.cpp
         model/OWLDataRange.cpp
-        model/OWLRestriction.cpp
         model/OWLClassExpression.cpp
         model/OWLOntology.cpp
         model/OWLAxiomAddVisitor.cpp
         model/OWLCardinalityRestriction.cpp
+        model/OWLCardinalityRestrictionOps.cpp
         model/OWLDataType.cpp
         model/OWLEquivalentClassesAxiom.cpp
         model/URI.cpp
@@ -41,20 +39,31 @@ rock_library(owlapi
         model/OWLDeclarationAxiom.cpp
         model/OWLQualifiedRestriction.cpp
         model/IRI.cpp
+        model/OWLDataCardinalityRestriction.cpp
+        model/OWLDataOneOf.cpp
+        model/OWLDataProperty.cpp
         model/OWLDataPropertyAssertionAxiom.cpp
+        model/OWLDataRange.cpp
+        model/OWLDataType.cpp
         model/OWLDataTypeRestriction.cpp
+        model/OWLDeclarationAxiom.cpp
+        model/OWLDisjointClassesAxiom.cpp
+        model/OWLDisjointUnionAxiom.cpp
+        model/OWLEntity.cpp
+        model/OWLEquivalentClassesAxiom.cpp
         model/OWLFacet.cpp
         model/OWLFacetRestriction.cpp
         model/OWLLiteral.cpp
         model/OWLAnnotationValue.cpp
         model/NodeID.cpp
         model/OWLObject.cpp
-        model/OWLDataOneOf.cpp
+        model/OWLObjectCardinalityRestriction.cpp
         model/OWLOntologyChange.cpp
         model/OWLValueRestriction.cpp
         model/OWLDisjointClassesAxiom.cpp
         model/OWLOntologyTell.cpp
         model/OWLDataProperty.cpp
+        model/QueryCache.cpp
         reasoner/factpp/Types.cpp
         utils/OWLApi.cpp
         vocabularies/RDF.cpp
@@ -110,11 +119,13 @@ rock_library(owlapi
         model/OWLAxiomVisitor.hpp
         model/OWLBooleanClassExpression.hpp
         model/OWLCardinalityRestriction.hpp
+        model/OWLCardinalityRestrictionOps.hpp
         model/OWLClassAssertionAxiom.hpp
         model/OWLClassAxiom.hpp
         model/OWLClassExpression.hpp
         model/OWLClass.hpp
         model/OWLDataAllValuesFrom.hpp
+        model/OWLDataCardinalityRestriction.hpp
         model/OWLDataExactCardinality.hpp
         model/OWLDataHasValue.hpp
         model/OWLDataMaxCardinality.hpp
@@ -141,7 +152,6 @@ rock_library(owlapi
         model/OWLEquivalentClassesAxiom.hpp
         model/OWLEquivalentDataPropertiesAxiom.hpp
         model/OWLEquivalentObjectPropertiesAxiom.hpp
-        model/OWLExactCardinalityRestriction.hpp
         model/OWLFacet.hpp
         model/OWLFacetRestriction.hpp
         model/OWLFunctionalDataPropertyAxiom.hpp
@@ -161,14 +171,14 @@ rock_library(owlapi
         model/OWLLiteralNumeric.hpp
         model/OWLLogicalAxiom.hpp
         model/OWLLogicalEntity.hpp
-        model/OWLMaxCardinalityRestriction.hpp
-        model/OWLMinCardinalityRestriction.hpp
         model/OWLNamedIndividual.hpp
         model/OWLNamedObject.hpp
         model/OWLNaryAxiom.hpp
         model/OWLNaryBooleanExpression.hpp
+        model/OWLCardinalityRestriction.hpp
         model/OWLNaryClassAxiom.hpp
         model/OWLObjectAllValuesFrom.hpp
+        model/OWLObjectCardinalityRestriction.hpp
         model/OWLObjectExactCardinality.hpp
         model/OWLObjectHasSelf.hpp
         model/OWLObjectHasValue.hpp
@@ -182,6 +192,7 @@ rock_library(owlapi
         model/OWLObjectPropertyExpression.hpp
         model/OWLObjectProperty.hpp
         model/OWLObjectPropertyRangeAxiom.hpp
+        model/OWLObjectRestriction.hpp
         model/OWLObjectSomeValuesFrom.hpp
         model/OWLOntologyAsk.hpp
         model/OWLOntologyChangeFilter.hpp
@@ -200,6 +211,7 @@ rock_library(owlapi
         model/OWLQualifiedRestriction.hpp
         model/OWLQuantifiedRestriction.hpp
         model/OWLQuantifiedDataRestriction.hpp
+        model/OWLQuantifiedObjectRestriction.hpp
         model/OWLReasoner.hpp
         model/OWLReflexiveObjectPropertyAxiom.hpp
         model/OWLRestriction.hpp

@@ -4,12 +4,12 @@
 #include <string.h>
 #include <map>
 #include <vector>
-#include <owlapi/Exceptions.hpp>
 #include <base-logging/Logging.hpp>
 #include <factpp/Actor.h>
-#include <owlapi/reasoner/factpp/Types.hpp>
-#include <owlapi/OWLApi.hpp>
-#include <owlapi/SharedPtr.hpp>
+#include "OWLApi.hpp"
+#include "reasoner/factpp/Types.hpp"
+#include "model/OWLDataRange.hpp"
+#include "model/OWLObjectOneOf.hpp"
 
 namespace owlapi {
 
@@ -33,6 +33,7 @@ typedef std::map<IRI, reasoner::factpp::ObjectPropertyExpression > IRIObjectProp
 typedef std::map<IRI, reasoner::factpp::DataPropertyExpression > IRIDataPropertyExpressionMap;
 typedef std::map<IRI, reasoner::factpp::DataTypeName > IRIDataTypeMap;
 typedef std::map< std::pair<IRI, IRI>, reasoner::factpp::Axiom::List> DataValueMap;
+typedef std::map<owlapi::model::OWLDataRange::Ptr, reasoner::factpp::DataRange> DataRangeMap;
 
 typedef std::map<owlapi::model::OWLAxiom::Ptr, reasoner::factpp::Axiom::List> ReferencedAxiomsMap;
 
@@ -54,6 +55,7 @@ class KnowledgeBase
     IRIObjectPropertyExpressionMap mObjectProperties;
     IRIDataPropertyExpressionMap mDataProperties;
     IRIDataTypeMap mDataTypes;
+    DataRangeMap mDataRanges;
 
     DataValueMap mValueOfAxioms;
     ReferencedAxiomsMap mReferencedAxiomsMap;
@@ -102,7 +104,7 @@ public:
 
     bool isRealized();
 
-    bool isClassSatifiable(const IRI& klass);
+    bool isClassSatisfiable(const IRI& klass);
 
     // ROLES (PROPERTIES)
     /**
@@ -406,6 +408,8 @@ public:
      */
     reasoner::factpp::Axiom valueOf(const IRI& individual, const IRI& property, const reasoner::factpp::DataValue& dataValue);
 
+    reasoner::factpp::Axiom valueOf(const IRI& individual, const IRI& property, const owlapi::model::OWLLiteral::Ptr& literal);
+
     /**
      * Get all known datatypes
      * \return Mapping of IRI to datatypes
@@ -428,6 +432,20 @@ public:
     reasoner::factpp::DataValue dataValue(const std::string& value, const std::string& dataType);
 
     /**
+     * Define a dataType using an OWLLiteral
+     * \param literal The owl literal
+     * \return A datavalue as tuple of string and datatype
+     */
+    reasoner::factpp::DataValue dataValue(const shared_ptr<owlapi::model::OWLLiteral>& literal);
+
+    reasoner::factpp::DataRange dataRange(const shared_ptr<owlapi::model::OWLDataRange>& range);
+
+    /**
+     * Resolve a class expression with corresponding id (anonymous) or klass name
+     */
+    reasoner::factpp::ClassExpression classExpression(const IRI& expressionId);
+
+    /**
      * Define one of a class relationship
      * (enumerated classes): Classes can be described by enumeration of the individuals that make up the class. The members of the class are exactly the set of enumerated individuals; no more, no less. For example, the class of daysOfTheWeek can be described by simply enumerating the individuals Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday. From this a reasoner can deduce the maximum cardinality (7) of any property that has daysOfTheWeek as its allValuesFrom
      * restriction.
@@ -435,11 +453,56 @@ public:
      * \param instanceList list of classes
      * \return corresponding class expression
      */
-    reasoner::factpp::ClassExpression oneOf(const IRIList& instanceList);
+    reasoner::factpp::ClassExpression objectOneOf(
+            const IRI& id,
+            const IRIList& instanceList
+    );
+
+    void objectOneOf(const IRI& id, const shared_ptr<owlapi::model::OWLObjectOneOf>& oneOf);
+    /**
+     * Define the union (Or) of a set of klasses
+     */
+    reasoner::factpp::ClassExpression objectUnionOf(
+            const IRI& id,
+            const IRIList& klassList
+    );
+
+    /**
+     * Define the intersection (And) of a set of klasses
+     */
+    reasoner::factpp::ClassExpression objectIntersectionOf(
+            const IRI& id,
+            const IRIList& klassList
+    );
+
+    reasoner::factpp::ClassExpression objectComplementOf(
+            const IRI& id,
+            const IRI& klass
+    );
+
+    reasoner::factpp::ClassExpression objectSomeValuesFrom(
+            const IRI& klassId,
+            const IRI& property,
+            const IRI& expressionId
+    );
+
+    reasoner::factpp::ClassExpression objectAllValuesFrom(
+            const IRI& klassId,
+            const IRI& property,
+            const IRI& expressionId
+    );
+
+    reasoner::factpp::ClassExpression objectHasValue(
+            const IRI& klassId,
+            const IRI& property,
+            const IRI& individual
+    );
 
     /**
      * Define a oneOf relationship
      */
+    reasoner::factpp::DataRange dataOneOf(const owlapi::model::OWLDataOneOf::Ptr& oneOf);
+
     reasoner::factpp::DataRange dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals);
 
     /**
@@ -448,18 +511,23 @@ public:
     reasoner::factpp::DataRange dataTypeRestriction(const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
 
 
-    reasoner::factpp::ClassExpression dataSomeValuesFrom(const IRI& klassId,
+    reasoner::factpp::ClassExpression dataSomeValuesFrom(
+            const IRI& klassId,
             const IRI& property,
-            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction
+    );
 
-    reasoner::factpp::ClassExpression dataAllValuesFrom(const IRI& klassId,
+    reasoner::factpp::ClassExpression dataAllValuesFrom(
+            const IRI& klassId,
             const IRI& property,
-            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
+            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction
+    );
 
-    //reasoner::factpp::ClassExpression dataHasValue(const IRI& klassId,
-    //        const IRI& property,
-    //        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction);
-
+    reasoner::factpp::ClassExpression dataHasValue(
+            const IRI& klassId,
+            const IRI& property,
+            const owlapi::model::OWLLiteral::Ptr& literal
+    );
 
     /**
      * Define inverse of a given object property
@@ -497,7 +565,48 @@ public:
      * \param cardinality if cardinality type is selected this defines the min,max or exact cardinality to use
      * \return corresponding class expression
      */
-    reasoner::factpp::ClassExpression objectPropertyRestriction(restriction::Type type, const IRI& relationProperty, const IRI& klassOrInstance, int cardinality = -1);
+    reasoner::factpp::ClassExpression objectPropertyRestriction(
+            restriction::Type type,
+            const IRI& relationProperty,
+            const IRI& klassOrInstance,
+            int cardinality = -1
+    );
+
+    reasoner::factpp::ClassExpression objectMinCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const IRI& qualification = vocabulary::OWL::Thing()
+    );
+
+    reasoner::factpp::ClassExpression objectMaxCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const IRI& qualification = vocabulary::OWL::Thing()
+    );
+
+    reasoner::factpp::ClassExpression objectExactCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const IRI& qualification = vocabulary::OWL::Thing()
+    );
+
+    reasoner::factpp::ClassExpression dataMinCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const owlapi::model::OWLDataRange::Ptr& range
+    );
+
+    reasoner::factpp::ClassExpression dataMaxCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const owlapi::model::OWLDataRange::Ptr& range
+    );
+
+    reasoner::factpp::ClassExpression dataExactCardinality(const IRI& klassId,
+            size_t n,
+            const IRI& property,
+            const owlapi::model::OWLDataRange::Ptr& range
+    );
 
     /**
      * Test if class / concept is a subclass of another

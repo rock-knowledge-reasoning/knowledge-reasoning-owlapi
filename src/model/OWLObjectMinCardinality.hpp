@@ -3,20 +3,22 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
-#include "OWLMinCardinalityRestriction.hpp"
-#include <owlapi/Vocabulary.hpp>
+#include "OWLObjectCardinalityRestriction.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLObjectMinCardinality : public OWLMinCardinalityRestriction
+class OWLObjectMinCardinality : public OWLObjectCardinalityRestriction
 {
 public:
-    OWLObjectMinCardinality(OWLObjectPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLMinCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+    OWLObjectMinCardinality(const OWLObjectPropertyExpression::Ptr& property,
+            uint32_t cardinality,
+            const OWLClassExpression::Ptr& qualification = OWLClassExpression::Ptr())
+        : OWLObjectCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification, OWLCardinalityRestriction::MIN )
     {}
 
-    virtual ~OWLObjectMinCardinality() {}
+    virtual ~OWLObjectMinCardinality() = default;
 
     ClassExpressionType getClassExpressionType() const { return OBJECT_MIN_CARDINALITY; }
 

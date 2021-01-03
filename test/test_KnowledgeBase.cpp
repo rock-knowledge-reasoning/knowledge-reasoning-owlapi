@@ -428,22 +428,74 @@ BOOST_AUTO_TEST_CASE(object_restriction_equivalence)
     // TDLConceptExpression* Exists ( const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
     // TDLConceptExpression* MinCardinality ( unsigned int n, const TDLObjectRoleExpression* R, const TDLConceptExpression* C )
     TDLConceptExpression* minConcept =
-        kb.getExpressionManager()->MinCardinality(1, hasComponentProperty.get(), componentClass.get());
+        kb.getExpressionManager()->MinCardinality(0, hasComponentProperty.get(), componentClass.get());
 
-    kb.equals(item_with_componentsClass, minConcept);
+    TDLConceptExpression* maxConcept =
+        kb.getExpressionManager()->MaxCardinality(3, hasComponentProperty.get(), componentClass.get());
+
+    reasoner::factpp::ClassExpression minConceptExpr(minConcept);
+    reasoner::factpp::ClassExpression maxConceptExpr(maxConcept);
+    std::vector<reasoner::factpp::ClassExpression> klasses = { minConceptExpr, maxConceptExpr };
+    reasoner::factpp::ClassExpression intersection = kb.intersectionOf(klasses);
+
+    kb.equals(item_with_componentsClass, intersection);
     BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
 
     // Now check if the item_0 with the property in the corresponding range
     // is automatically set as subclass of Item_2m
+
+    // In order to handle the open world assumption https://mailman.stanford.edu/pipermail/protege-owl/2011-February/016047.html
+    // we need to restrict item_0 a bit further, here limiting to a maximum of
+    // three instances - otherwise it would not be guaranteed that cardinality is maximum 3
+    IRI id("oneOf_wheels");
+    reasoner::factpp::ClassExpression oneOfWheels = kb.objectOneOf(id, { wheel_0, wheel_1,
+            wheel_2 });
+    TDLConceptExpression* restrictValuesConcept =
+        kb.getExpressionManager()->Forall(hasComponentProperty.get(),
+                oneOfWheels.get());
+    kb.getReasoningKernel()->impliesConcepts(itemClass.get()
+            , restrictValuesConcept);
+
     IRI item_0("item_0");
-    kb.instanceOf(item_0, item);
+    reasoner::factpp::ClassExpression item0Class = kb.getClassLazy(item_0);
+    kb.getReasoningKernel()->impliesConcepts(item0Class.get()
+            , restrictValuesConcept);
+    kb.instanceOf(item_0, item_0);
     kb.relatedTo(item_0, hasComponent, wheel_0);
-    //kb.relatedTo(item_0, hasComponent, wheel_1);
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+    IRI item_1("item_1");
+    reasoner::factpp::ClassExpression item1Class = kb.getClassLazy(item_1);
+    kb.getReasoningKernel()->impliesConcepts(item1Class.get()
+            , restrictValuesConcept);
+    kb.instanceOf(item_1, item_1);
+    kb.relatedTo(item_1, hasComponent, wheel_0);
+    kb.relatedTo(item_1, hasComponent, wheel_1);
+    kb.relatedTo(item_1, hasComponent, wheel_2);
+    BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
+
+
+    IRI item_2("item_2");
+    reasoner::factpp::ClassExpression item2Class = kb.getClassLazy(item_2);
+    reasoner::factpp::ClassExpression oneOf4Wheels = kb.objectOneOf(IRI("oneOf_4wheels"), { wheel_0, wheel_1, wheel_2, wheel_3 });
+    TDLConceptExpression* restrictValuesOf4Concept =
+        kb.getExpressionManager()->Forall(hasComponentProperty.get(),
+                oneOf4Wheels.get());
+    kb.getReasoningKernel()->impliesConcepts(itemClass.get()
+            , restrictValuesOf4Concept);
+    kb.instanceOf(item_2, item_2);
+    // The actual relation do not affect the reasoner
+    //kb.relatedTo(item_2, hasComponent, wheel_0);
+    //kb.relatedTo(item_2, hasComponent, wheel_1);
+    //kb.relatedTo(item_2, hasComponent, wheel_2);
+    //kb.relatedTo(item_2, hasComponent, wheel_3);
     BOOST_REQUIRE_MESSAGE(kb.isConsistent(), "KB remains consistent");
 
     IRIList instancesOfItemWithComponents = kb.allInstancesOf(item_with_components);
     BOOST_TEST_MESSAGE("Instances" << instancesOfItemWithComponents);
     BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_0, item_with_components), "Automatically added parent class for item_0");
+    BOOST_REQUIRE_MESSAGE(kb.isInstanceOf(item_1, item_with_components), "Automatically added parent class for item_1");
+    BOOST_REQUIRE_MESSAGE(!kb.isInstanceOf(item_2, item_with_components), "Not adding parent class for item_2");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

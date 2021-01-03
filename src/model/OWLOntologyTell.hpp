@@ -4,11 +4,13 @@
 #include <stdexcept>
 #include "OWLOntology.hpp"
 #include "OWLLiteral.hpp"
-#include "OWLCardinalityRestriction.hpp"
+#include "OWLObjectCardinalityRestriction.hpp"
+#include "OWLDataCardinalityRestriction.hpp"
 #include "OWLOntologyAsk.hpp"
 #include "OWLSubPropertyAxiom.hpp"
 #include "OWLDataTypeRestriction.hpp"
 #include "OWLDataRestriction.hpp"
+#include "OWLDataOneOf.hpp"
 
 namespace owlapi {
 namespace reasoner {
@@ -165,7 +167,12 @@ public:
      * \see OWLCardinalityRestriction
      * \return restriction
      */
-    OWLCardinalityRestriction::Ptr cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType);
+    OWLCardinalityRestriction::Ptr objectCardinalityRestriction(
+            const OWLPropertyExpression::Ptr& property,
+            uint32_t cardinality,
+            const OWLClassExpression::Ptr& qualification,
+            OWLCardinalityRestriction::CardinalityRestrictionType restrictionType
+     );
 
     /**
      * Add an axiom
@@ -235,7 +242,7 @@ public:
             const IRI& annotationProperty,
             const OWLAnnotationValue::Ptr& annotationValue);
 
-    OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
+    //OWLAxiom::Ptr restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction);
 
     /**
      * Make ontology known
@@ -246,11 +253,41 @@ public:
      * Register a oneOf construct for a data (literal) list
      * with an (anonymous) id
      */
-    void dataOneOf(const IRI& id, const IRIList& iris);
+    // TODO:
+    //void dataIntersectionOf(const IRI& id, const owlapi::model::OWLDataIntersectionOf::Ptr& dataIntersectionOf);
+    //void dataUnionOf(const IRI& id, const owlapi::model::OWLDataUnionOf::Ptr& dataUnionOf);
+    //void dataComplementOf(const IRI& id, const owlapi::model::OWLDataComplementOf::Ptr& dataComplementOf);
+    void dataOneOf(const IRI& id, const owlapi::model::OWLDataOneOf::Ptr& dataOneOf);
 
     void dataTypeRestriction(const IRI& id, const OWLDataTypeRestriction::Ptr& restriction);
 
     OWLClassExpression::Ptr dataPropertyRestriction(const IRI& id, const OWLDataRestriction::Ptr& r);
+
+    OWLClassExpression::Ptr objectOneOf(
+            const IRI& id,
+            const owlapi::model::IRIList& instances
+    );
+
+    OWLClassExpression::Ptr objectIntersectionOf(
+            const IRI& id,
+            const owlapi::model::IRIList& klasses
+    );
+
+    OWLClassExpression::Ptr objectUnionOf(
+            const IRI& id,
+            const owlapi::model::IRIList& klasses
+    );
+
+    OWLClassExpression::Ptr objectComplementOf(
+            const IRI& id,
+            const owlapi::model::IRI& klass
+    );
+
+
+    OWLClassExpression::Ptr objectPropertyRestriction(
+            const IRI& id,
+            const OWLObjectRestriction::Ptr& r
+    );
 
     void removeIndividual(const IRI& instance);
 

@@ -3,21 +3,27 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLDataPropertyExpression.hpp"
-#include "OWLAllValuesFromRestriction.hpp"
 #include "../Vocabulary.hpp"
+#include "OWLQuantifiedDataRestriction.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLDataAllValuesFrom : public OWLAllValuesFromRestriction
+class OWLDataAllValuesFrom : public OWLQuantifiedDataRestriction
 {
 public:
     OWLDataAllValuesFrom(const OWLDataPropertyExpression::Ptr& property,
-            const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLAllValuesFromRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
-    {}
+            const OWLDataRange::Ptr& dataRange)
+        : OWLQuantifiedDataRestriction(property, dataRange)
+    {
+        if(!property)
+        {
+            throw std::invalid_argument("owlapi::model::OWLDataAllValuesFrom:"
+                    " property cannot be null");
+        }
+    }
 
-    virtual ~OWLDataAllValuesFrom() {}
+    virtual ~OWLDataAllValuesFrom() = default;
 
     ClassExpressionType getClassExpressionType() const { return DATA_ALL_VALUES_FROM; }
 

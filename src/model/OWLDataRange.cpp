@@ -4,10 +4,10 @@ namespace owlapi {
 namespace model {
 
 std::map<OWLDataRange::Type, std::string> OWLDataRange::TypeTxt = {
-    { OWLDataRange::COMPLEMENT_OF,        "COMPLEMENT_OF" },
-    { OWLDataRange::INTERSECTION_OF,      "INTERSECTION_OF" },
-    { OWLDataRange::ONE_OF,               "ONE_OF" },
-    { OWLDataRange::UNION_OF,             "UNION_OF" },
+    { OWLDataRange::DATA_COMPLEMENT_OF,   "DATA_COMPLEMENT_OF" },
+    { OWLDataRange::DATA_INTERSECTION_OF, "DATA_INTERSECTION_OF" },
+    { OWLDataRange::DATA_ONE_OF,          "DATA_ONE_OF" },
+    { OWLDataRange::DATA_UNION_OF,        "DATA_UNION_OF" },
     { OWLDataRange::DATATYPE,             "DATATYPE" },
     { OWLDataRange::DATATYPE_RESTRICTION, "DATATYPE_RESTRICTION" }
 };

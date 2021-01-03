@@ -11,9 +11,9 @@
 namespace std {
 using namespace owlapi::model;
 template<>
-struct hash< tuple<IRIList, IRI, OWLCardinalityRestriction::OperationType> >
+struct hash< tuple<IRIList, IRI, OWLCardinalityRestrictionOps::OperationType> >
 {
-    size_t operator()(const tuple<IRIList, IRI, OWLCardinalityRestriction::OperationType>& tpl) const
+    size_t operator()(const tuple<IRIList, IRI, OWLCardinalityRestrictionOps::OperationType>& tpl) const
     {
         size_t seed = 0;
         for(const owlapi::model::IRI& iri : get<0>(tpl) )
@@ -56,7 +56,7 @@ public:
     std::pair<OWLCardinalityRestriction::PtrList, bool>
         getCardinalityRestrictions(const IRIList& iri,
             const IRI& objectProperty,
-            OWLCardinalityRestriction::OperationType operationType) const;
+            OWLCardinalityRestrictionOps::OperationType operationType) const;
 
     /**
      * Cache result of call to identify cardinality restrictions
@@ -66,7 +66,7 @@ public:
 
     void cacheCardinalityRestrictions(const IRIList& iris,
             const IRI& objectProperty,
-            OWLCardinalityRestriction::OperationType operationType,
+            OWLCardinalityRestrictionOps::OperationType operationType,
             const OWLCardinalityRestriction::PtrList& restrictions);
 
     /**
@@ -78,7 +78,7 @@ private:
     std::unordered_map< std::pair<IRI, IRI>, OWLCardinalityRestriction::PtrList> mCardinalityRestrictions;
 
     std::unordered_map< std::tuple<IRIList, IRI,
-        OWLCardinalityRestriction::OperationType>, OWLCardinalityRestriction::PtrList>
+        OWLCardinalityRestrictionOps::OperationType>, OWLCardinalityRestriction::PtrList>
         mCardinalityRestrictionsOps;
 
     std::unordered_map< std::pair<IRI, IRI>, bool> mSubClassing;

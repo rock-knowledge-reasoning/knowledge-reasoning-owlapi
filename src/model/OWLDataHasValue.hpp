@@ -4,20 +4,25 @@
 #include "OWLClassExpression.hpp"
 #include "OWLDataPropertyExpression.hpp"
 #include "OWLHasValueRestriction.hpp"
+#include "OWLDataRestriction.hpp"
+#include "OWLLiteral.hpp"
 #include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLDataHasValue : public OWLHasValueRestriction
+class OWLDataHasValue : public OWLHasValueRestriction<OWLLiteral>, public OWLDataRestriction
 {
 public:
+    typedef shared_ptr<OWLDataHasValue> Ptr;
+
     OWLDataHasValue(const OWLDataPropertyExpression::Ptr& property,
-            const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLHasValueRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
+            const OWLLiteral::Ptr& literal)
+        : OWLHasValueRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), literal)
+        , OWLDataRestriction(property)
     {}
 
-    virtual ~OWLDataHasValue() {}
+    virtual ~OWLDataHasValue() = default;
 
     ClassExpressionType getClassExpressionType() const { return DATA_HAS_VALUE; }
 

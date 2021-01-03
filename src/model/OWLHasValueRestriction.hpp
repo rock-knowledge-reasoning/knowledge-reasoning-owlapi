@@ -1,21 +1,25 @@
 #ifndef OWLAPI_MODEL_OWL_HAS_VALUE_RESTRICTION_HPP
 #define OWLAPI_MODEL_OWL_HAS_VALUE_RESTRICTION_HPP
 
-#include "OWLValueRestriction.hpp"
+#include "OWLRestriction.hpp"
+#include "HasFiller.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLHasValueRestriction : public OWLValueRestriction
+template<typename T>
+class OWLHasValueRestriction : public OWLRestriction, public HasFiller<T>
 {
 public:
     typedef shared_ptr<OWLHasValueRestriction> Ptr;
 
-    OWLHasValueRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification)
-        : OWLValueRestriction(property, qualification, OWLValueRestriction::HAS)
+    OWLHasValueRestriction(const OWLPropertyExpression::Ptr& property,
+            const typename HasFiller<T>::filler_t& value)
+        : OWLRestriction(property)
+        , HasFiller<T>(value)
     {}
 
-    virtual ~OWLHasValueRestriction() {}
+    virtual ~OWLHasValueRestriction() = default;
 };
 
 } // end namespace model

@@ -9,12 +9,26 @@
 #include "OWLEquivalentDataPropertiesAxiom.hpp"
 #include "OWLDisjointObjectPropertiesAxiom.hpp"
 #include "OWLDisjointDataPropertiesAxiom.hpp"
-#include "OWLDataOneOf.hpp"
-#include "OWLDataTypeRestriction.hpp"
 #include "OWLSubAnnotationPropertyOfAxiom.hpp"
 #include "OWLAnnotationAssertionAxiom.hpp"
+
+#include "OWLDataOneOf.hpp"
+#include "OWLDataTypeRestriction.hpp"
+#include "OWLDataAllValuesFrom.hpp"
 #include "OWLDataSomeValuesFrom.hpp"
+#include "OWLDataHasValue.hpp"
+#include "OWLDataMaxCardinality.hpp"
+#include "OWLDataMinCardinality.hpp"
 #include "OWLDataRange.hpp"
+
+#include "OWLObjectSomeValuesFrom.hpp"
+#include "OWLObjectAllValuesFrom.hpp"
+#include "OWLObjectIntersectionOf.hpp"
+#include "OWLObjectOneOf.hpp"
+#include "OWLObjectUnionOf.hpp"
+#include "OWLObjectComplementOf.hpp"
+#include "OWLObjectHasValue.hpp"
+
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
@@ -357,6 +371,9 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const IRI& subclass, const I
     if(mAsk.isOWLAnonymousClassExpression(superclass))
     {
         OWLAnonymousClassExpression::Ptr e_superclass = mAsk.getOWLAnonymousClassExpression(superclass);
+
+        mpOntology->kb()->subClassOf(subclass, superclass);
+
         return subClassOf(e_subclass, dynamic_pointer_cast<OWLClassExpression>(e_superclass));
 
     } else {
@@ -386,10 +403,13 @@ OWLSubClassOfAxiom::Ptr OWLOntologyTell::subClassOf(const OWLClassExpression::Pt
     return axiom;
 }
 
-OWLCardinalityRestriction::Ptr OWLOntologyTell::cardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification, OWLCardinalityRestriction::CardinalityRestrictionType restrictionType)
+OWLCardinalityRestriction::Ptr OWLOntologyTell::objectCardinalityRestriction(
+        const OWLPropertyExpression::Ptr& property,
+        uint32_t cardinality,
+        const OWLClassExpression::Ptr& qualification,
+        OWLCardinalityRestriction::CardinalityRestrictionType restrictionType)
 {
-    return OWLCardinalityRestriction::getInstance(property, cardinality, qualification, restrictionType);
-
+    return OWLObjectCardinalityRestriction::createInstance(dynamic_pointer_cast<OWLObjectPropertyExpression>(property), cardinality, qualification, restrictionType);
 }
 
 OWLAxiom::Ptr OWLOntologyTell::addAxiom(const OWLAxiom::Ptr& axiom)
@@ -717,11 +737,33 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyDomainOf(const IRI& property, const O
 OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, const OWLDataRestriction::Ptr& r)
 {
     std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator cit =
-        mpOntology->mAnonymousClassExpressions.find(iri);
-    if(cit != mAnonymousClassExpressions.end())
+        mpOntology->mAnonymousClassExpressions.find(id);
+
+    if(cit != mpOntology->mAnonymousClassExpressions.end())
     {
-        return cit->second;
+        if(r->getClassExpressionType() == cit->second->getClassExpressionType())
+        {
+            return cit->second;
+        }
     }
+
+    OWLPropertyExpression::Ptr property = r->getProperty();
+    if(!property)
+    {
+        throw
+            std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                    " could not extract property from SomeValuesFrom"
+                    " Restriction ");
+    }
+    OWLDataProperty::Ptr dataProperty = dynamic_pointer_cast<OWLDataProperty>(property);
+    if(!dataProperty)
+    {
+        throw
+            std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                    " failed to identify data property for restriction '"
+                    + id.toString() + "'" );
+    }
+    IRI dataPropertyIRI = mpOntology->iriOfDataProperty(dataProperty);
 
     switch(r->getClassExpressionType())
     {
@@ -729,24 +771,6 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
         {
             OWLDataSomeValuesFrom::Ptr someValuesFrom = dynamic_pointer_cast<OWLDataSomeValuesFrom>(r);
 
-            OWLPropertyExpression::Ptr property = dynamic_pointer_cast<OWLDataRestriction>(someValuesFrom)->getProperty();
-            if(!property)
-            {
-                throw
-                    std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
-                            " could not extract property from SomeValuesFrom"
-                            " Restriction ");
-            }
-            OWLDataProperty::Ptr dataProperty = dynamic_pointer_cast<OWLDataProperty>(property);
-            if(!dataProperty)
-            {
-                throw
-                    std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
-                            " failed to identify data property for restriction '"
-                            + id.toString() + "'" );
-            }
-
-            IRI dataPropertyIRI = mpOntology->iriOfDataProperty(dataProperty);
             OWLDataRange::Ptr filler = someValuesFrom->getFiller();
             OWLDataTypeRestriction::Ptr dataTypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(filler);
             if(!dataTypeRestriction)
@@ -760,11 +784,38 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
             break;
         }
         case OWLClassExpression::DATA_ALL_VALUES_FROM:
+        {
+            OWLDataAllValuesFrom::Ptr allValuesFrom = dynamic_pointer_cast<OWLDataAllValuesFrom>(r);
+
+            OWLDataRange::Ptr filler = allValuesFrom->getFiller();
+            OWLDataTypeRestriction::Ptr dataTypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(filler);
+            if(!dataTypeRestriction)
+            {
+                throw std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
+                        "failed to extract data type restriction");
+            }
+            mpOntology->kb()->dataAllValuesFrom(id, dataPropertyIRI, dataTypeRestriction);
             break;
+        }
         case OWLClassExpression::DATA_HAS_VALUE:
+        {
+            OWLDataHasValue::Ptr hasValue = dynamic_pointer_cast<OWLDataHasValue>(r);
+
+            OWLLiteral::Ptr filler = hasValue->getFiller();
+            mpOntology->kb()->dataHasValue(id, dataPropertyIRI, filler);
             break;
+        }
         case OWLClassExpression::DATA_MIN_CARDINALITY:
+        {
+            OWLDataMinCardinality::Ptr minCardinality = dynamic_pointer_cast<OWLDataMinCardinality>(r);
+
+            OWLDataRange::Ptr filler = minCardinality->getFiller();
+            mpOntology->kb()->dataMinCardinality(id,
+                    minCardinality->getCardinality(),
+                    dataPropertyIRI,
+                    filler);
             break;
+        }
         case OWLClassExpression::DATA_MAX_CARDINALITY:
             break;
         case OWLClassExpression::DATA_EXACT_CARDINALITY:
@@ -774,6 +825,7 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
     }
 
     mpOntology->mAnonymousClassExpressions[id] = r;
+    return r;
 }
 
 OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IRI& classType)
@@ -790,7 +842,7 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IR
         for(const OWLDataRange::Ptr& range : ranges)
         {
             dataProperty->addRange(range);
-            if(range->getDataRangeType() == OWLDataRange::ONE_OF)
+            if(range->getDataRangeType() == OWLDataRange::DATA_ONE_OF)
             {
                 OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(range);
                 reasoner::factpp::DataRange range = mpOntology->kb()->dataOneOf(oneOf->getLiterals());
@@ -808,6 +860,210 @@ OWLAxiom::Ptr OWLOntologyTell::dataPropertyRangeOf(const IRI& property, const IR
         OWLDataPropertyRangeAxiom::Ptr axiom = make_shared<OWLDataPropertyRangeAxiom>(e_dataProperty, range);
         return addAxiom(axiom);
     }
+}
+
+OWLClassExpression::Ptr OWLOntologyTell::objectOneOf(
+        const IRI& id,
+        const owlapi::model::IRIList& instances
+)
+{
+    OWLNamedIndividual::PtrList individuals;
+    for(const IRI& instance : instances)
+    {
+        individuals.push_back( namedIndividual(instance) );
+    }
+
+    OWLObjectOneOf::Ptr ce = make_shared<OWLObjectOneOf>(individuals);
+    mpOntology->kb()->objectOneOf(id, instances);
+    mpOntology->mAnonymousClassExpressions[id] = dynamic_pointer_cast<OWLAnonymousClassExpression>(ce);
+    return dynamic_pointer_cast<OWLClassExpression>(ce);
+}
+
+OWLClassExpression::Ptr OWLOntologyTell::objectIntersectionOf(
+        const IRI& id,
+        const owlapi::model::IRIList& klasses
+)
+{
+    OWLClassExpression::PtrList classExpressions;
+    for(const IRI& iri : klasses)
+    {
+        classExpressions.push_back(mAsk.getOWLClassExpression(iri));
+    }
+    OWLObjectIntersectionOf::Ptr intersection =
+        make_shared<OWLObjectIntersectionOf>(classExpressions);
+
+    mpOntology->kb()->objectIntersectionOf(id, klasses);
+
+    mpOntology->mAnonymousClassExpressions[id] = dynamic_pointer_cast<OWLAnonymousClassExpression>(intersection);
+    return dynamic_pointer_cast<OWLClassExpression>(intersection);
+}
+
+OWLClassExpression::Ptr OWLOntologyTell::objectUnionOf(
+        const IRI& id,
+        const owlapi::model::IRIList& klasses
+)
+{
+    OWLClassExpression::PtrList classExpressions;
+    for(const IRI& iri : klasses)
+    {
+        classExpressions.push_back(mAsk.getOWLClassExpression(iri));
+    }
+    OWLObjectUnionOf::Ptr unionOf =
+        make_shared<OWLObjectUnionOf>(classExpressions);
+
+    mpOntology->kb()->objectUnionOf(id, klasses);
+
+    mpOntology->mAnonymousClassExpressions[id] = dynamic_pointer_cast<OWLAnonymousClassExpression>(unionOf);
+    return dynamic_pointer_cast<OWLClassExpression>(unionOf);
+}
+
+OWLClassExpression::Ptr OWLOntologyTell::objectComplementOf(
+        const IRI& id,
+        const owlapi::model::IRI& klass
+)
+{
+    OWLClassExpression::Ptr ce = mAsk.getOWLClassExpression(klass);
+    OWLObjectComplementOf::Ptr complementOf =
+        make_shared<OWLObjectComplementOf>(ce);
+
+    mpOntology->kb()->objectComplementOf(id, klass);
+
+    mpOntology->mAnonymousClassExpressions[id] = dynamic_pointer_cast<OWLAnonymousClassExpression>(ce);
+    return dynamic_pointer_cast<OWLClassExpression>(ce);
+}
+
+OWLClassExpression::Ptr OWLOntologyTell::objectPropertyRestriction(
+        const IRI& id,
+        const OWLObjectRestriction::Ptr& r
+)
+{
+    std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator cit =
+        mpOntology->mAnonymousClassExpressions.find(id);
+
+    if(cit != mpOntology->mAnonymousClassExpressions.end())
+    {
+        if(r->getClassExpressionType() == cit->second->getClassExpressionType())
+        {
+            return cit->second;
+        }
+    }
+
+    OWLPropertyExpression::Ptr property = r->getProperty();
+    if(!property)
+    {
+        throw
+            std::invalid_argument("owlapi::model::OWLOntologyTell::objectPropertyRestriction:"
+                    " could not extract property from ObjectRestriction");
+    }
+    OWLObjectProperty::Ptr objectProperty = dynamic_pointer_cast<OWLObjectProperty>(property);
+    if(!objectProperty)
+    {
+        throw
+            std::invalid_argument("owlapi::model::OWLOntologyTell::objectPropertyRestriction:"
+                    " failed to identify object property for restriction '"
+                    + id.toString() + "'" );
+    }
+    const IRI& objectPropertyIRI = objectProperty->getIRI();
+
+    switch(r->getClassExpressionType())
+    {
+        case OWLClassExpression::OBJECT_SOME_VALUES_FROM:
+        {
+            OWLObjectSomeValuesFrom::Ptr someValuesFrom = dynamic_pointer_cast<OWLObjectSomeValuesFrom>(r);
+            OWLClassExpression::Ptr filler = someValuesFrom->getFiller();
+            IRI fillerIRI = mAsk.getOWLClassExpressionIRI(filler);
+            mpOntology->kb()->objectSomeValuesFrom(id, objectPropertyIRI, fillerIRI);
+            break;
+        }
+        case OWLClassExpression::OBJECT_ALL_VALUES_FROM:
+        {
+            OWLObjectAllValuesFrom::Ptr allValuesFrom = dynamic_pointer_cast<OWLObjectAllValuesFrom>(r);
+            OWLClassExpression::Ptr filler = allValuesFrom->getFiller();
+            IRI fillerIRI = mAsk.getOWLClassExpressionIRI(filler);
+            mpOntology->kb()->objectAllValuesFrom(id, objectPropertyIRI, fillerIRI);
+            break;
+        }
+        case OWLClassExpression::OBJECT_HAS_VALUE:
+        {
+            OWLObjectHasValue::Ptr hasValue = dynamic_pointer_cast<OWLObjectHasValue>(r);
+            OWLIndividual::Ptr filler = hasValue->getFiller();
+            const IRI& fillerIRI = filler->getReferenceID();
+            mpOntology->kb()->objectHasValue(id, objectPropertyIRI, fillerIRI);
+            break;
+        }
+        case OWLClassExpression::OBJECT_MIN_CARDINALITY:
+        {
+            OWLObjectMinCardinality::Ptr minCardinality =
+                dynamic_pointer_cast<OWLObjectMinCardinality>(r);
+
+            OWLClassExpression::Ptr filler = minCardinality->getFiller();
+            IRI fillerIRI = vocabulary::OWL::Thing();
+            try {
+                fillerIRI = mAsk.getOWLClassExpressionIRI(filler);
+            } catch(...)
+            {
+                // no qualification
+            }
+
+            mpOntology->kb()->objectMinCardinality(
+                    id,
+                    minCardinality->getCardinality(),
+                    objectPropertyIRI,
+                    fillerIRI
+            );
+            break;
+        }
+        case OWLClassExpression::OBJECT_MAX_CARDINALITY:
+        {
+            OWLObjectMaxCardinality::Ptr maxCardinality =
+                dynamic_pointer_cast<OWLObjectMaxCardinality>(r);
+
+            OWLClassExpression::Ptr filler = maxCardinality->getFiller();
+            IRI fillerIRI = vocabulary::OWL::Thing();
+            try {
+                fillerIRI = mAsk.getOWLClassExpressionIRI(filler);
+            } catch(...)
+            {
+                // no qualification
+            }
+
+            mpOntology->kb()->objectMaxCardinality(
+                    id,
+                    maxCardinality->getCardinality(),
+                    objectPropertyIRI,
+                    fillerIRI
+            );
+            break;
+        }
+        case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
+        {
+            OWLObjectExactCardinality::Ptr exactCardinality =
+                dynamic_pointer_cast<OWLObjectExactCardinality>(r);
+
+            OWLClassExpression::Ptr filler = exactCardinality->getFiller();
+            IRI fillerIRI = vocabulary::OWL::Thing();
+            try {
+                fillerIRI = mAsk.getOWLClassExpressionIRI(filler);
+            } catch(...)
+            {
+                // no qualification
+            }
+
+            mpOntology->kb()->objectExactCardinality(
+                    id,
+                    exactCardinality->getCardinality(),
+                    objectPropertyIRI,
+                    fillerIRI
+            );
+            break;
+        }
+            break;
+        default:
+            break;
+    }
+
+    mpOntology->mAnonymousClassExpressions[id] = r;
+    return r;
 }
 
 OWLAxiom::Ptr OWLOntologyTell::objectPropertyDomainOf(const IRI& relation, const IRI& classType)
@@ -895,8 +1151,7 @@ OWLAxiom::Ptr OWLOntologyTell::inverseOf(const IRI& relation, const IRI& inverse
 
 OWLAxiom::Ptr OWLOntologyTell::valueOf(const IRI& instance, const IRI& dataProperty, OWLLiteral::Ptr literal)
 {
-    reasoner::factpp::DataValue dataValue = mpOntology->kb()->dataValue(literal->getValue(), literal->getType());
-    mpOntology->kb()->valueOf(instance, dataProperty, dataValue);
+    mpOntology->kb()->valueOf(instance, dataProperty, literal);
 
     OWLIndividual::Ptr individual;
     if(mAsk.isOWLIndividual(instance) || mAsk.isOWLAnonymousIndividual(instance))
@@ -962,30 +1217,30 @@ OWLAxiom::Ptr OWLOntologyTell::annotationOf(const OWLAnnotationSubject::Ptr& sub
     return addAxiom(axiom);
 }
 
-OWLAxiom::Ptr OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)
-{
-    OWLProperty::Ptr property = dynamic_pointer_cast<OWLProperty>( restriction->getProperty());
-    if(!property)
-    {
-        throw std::invalid_argument("OWLOntologyTell::restrictClass: cardinalityRestriction on anonymous properties is currently not supported");
-    }
-
-    switch(restriction->getCardinalityRestrictionType())
-    {
-        case OWLCardinalityRestriction::MIN:
-            mpOntology->kb()->objectPropertyRestriction(restriction::MIN_CARDINALITY,property->getIRI(), restriction->getQualification(), restriction->getCardinality());
-            break;
-        case OWLCardinalityRestriction::MAX:
-            mpOntology->kb()->objectPropertyRestriction(restriction::MAX_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
-            break;
-        case OWLCardinalityRestriction::EXACT:
-            mpOntology->kb()->objectPropertyRestriction(restriction::EXACT_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
-            break;
-        default:
-            throw std::invalid_argument("OWLOntologyTell::restrictClass: unknown cardinality restriction type given");
-    }
-    return subClassOf(klass, restriction);
-}
+//OWLAxiom::Ptr OWLOntologyTell::restrictClass(const IRI& klass, OWLCardinalityRestriction::Ptr restriction)
+//{
+//    OWLProperty::Ptr property = dynamic_pointer_cast<OWLProperty>( restriction->getProperty());
+//    if(!property)
+//    {
+//        throw std::invalid_argument("OWLOntologyTell::restrictClass: cardinalityRestriction on anonymous properties is currently not supported");
+//    }
+//
+//    switch(restriction->getCardinalityRestrictionType())
+//    {
+//        case OWLCardinalityRestriction::MIN:
+//            mpOntology->kb()->objectPropertyRestriction(restriction::MIN_CARDINALITY,property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+//            break;
+//        case OWLCardinalityRestriction::MAX:
+//            mpOntology->kb()->objectPropertyRestriction(restriction::MAX_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+//            break;
+//        case OWLCardinalityRestriction::EXACT:
+//            mpOntology->kb()->objectPropertyRestriction(restriction::EXACT_CARDINALITY, property->getIRI(), restriction->getQualification(), restriction->getCardinality());
+//            break;
+//        default:
+//            throw std::invalid_argument("OWLOntologyTell::restrictClass: unknown cardinality restriction type given");
+//    }
+//    return subClassOf(klass, restriction);
+//}
 
 void OWLOntologyTell::ontology(const IRI& iri)
 {
@@ -1020,11 +1275,10 @@ void OWLOntologyTell::datatype(const IRI& iri)
     mpOntology->kb()->dataType(iri);
 }
 
-void OWLOntologyTell::dataOneOf(const IRI& id, const IRIList& iris)
+void OWLOntologyTell::dataOneOf(const IRI& id, const OWLDataOneOf::Ptr& dataOneOf)
 {
-    OWLDataOneOf::Ptr dataRange =
-        make_shared<OWLDataOneOf>(iris);
-    mpOntology->mAnonymousDataRanges[id].push_back(dataRange);
+    mpOntology->kb()->dataOneOf(dataOneOf);
+    mpOntology->mAnonymousDataRanges[id].push_back(dataOneOf);
 }
 
 void OWLOntologyTell::dataTypeRestriction(const IRI& id, const OWLDataTypeRestriction::Ptr& restriction)

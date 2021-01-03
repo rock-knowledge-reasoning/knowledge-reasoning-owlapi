@@ -15,7 +15,7 @@ public:
         : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::MIN)
     {}
 
-    virtual ~OWLMinCardinalityRestriction() {}
+    virtual ~OWLMinCardinalityRestriction() = default;
 };
 
 } // end namespace model

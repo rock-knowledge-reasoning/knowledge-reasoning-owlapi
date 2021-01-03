@@ -11,22 +11,17 @@
 #include <limits>
 #include <math.h>
 #include <sstream>
-#include <boost/assign/list_of.hpp>
 #include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {
 
-std::map<OWLCardinalityRestriction::OperationType, std::string> OWLCardinalityRestriction::OperationTypeTxt = boost::assign::map_list_of
-    (SUM_OP, "SUM_OP")
-    (MIN_OP, "MIN_OP")
-    (MAX_OP, "MAX_OP");
-
-std::map<OWLCardinalityRestriction::CardinalityRestrictionType, std::string> OWLCardinalityRestriction::CardinalityRestrictionTypeTxt = boost::assign::map_list_of
-    (UNKNOWN, "UNKNOWN")
-    (MIN, "MIN")
-    (MAX, "MAX")
-    (EXACT, "EXACT");
+std::map<OWLCardinalityRestriction::CardinalityRestrictionType, std::string> OWLCardinalityRestriction::CardinalityRestrictionTypeTxt = {
+    {UNKNOWN, "UNKNOWN"},
+    {MIN, "MIN"},
+    {MAX, "MAX"},
+    {EXACT, "EXACT"}
+};
 
 OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
 {
@@ -43,11 +38,11 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
             switch(getCardinalityRestrictionType())
             {
                 case OWLCardinalityRestriction::MIN:
-                    return make_shared<OWLObjectMinCardinality>(property, getCardinality(), getQualification());
+                    return make_shared<OWLObjectMinCardinality>(property, getCardinality());
                 case OWLCardinalityRestriction::MAX:
-                    return make_shared<OWLObjectMaxCardinality>(property, getCardinality(), getQualification());
+                    return make_shared<OWLObjectMaxCardinality>(property, getCardinality());
                 case OWLCardinalityRestriction::EXACT:
-                    return make_shared<OWLObjectExactCardinality>(property, getCardinality(), getQualification());
+                    return make_shared<OWLObjectExactCardinality>(property, getCardinality());
                 default:
                     throw std::runtime_error("OWLCardinalityRestriction::narrow: cardinality set to UNKNOWN cannot narrow");
             }
@@ -60,12 +55,11 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
             switch(getCardinalityRestrictionType())
             {
                 case OWLCardinalityRestriction::MIN:
-                    return make_shared<OWLDataMinCardinality>(property, getCardinality(), getQualification());
+                    return make_shared<OWLDataMinCardinality>(property, getCardinality());
                 case OWLCardinalityRestriction::MAX:
-                    return make_shared<OWLDataMaxCardinality>(property, getCardinality(), getQualification());
+                    return make_shared<OWLDataMaxCardinality>(property, getCardinality());
                 case OWLCardinalityRestriction::EXACT:
-                    return make_shared<OWLDataExactCardinality>(property, getCardinality(), getQualification());
-                default:
+                    return make_shared<OWLDataExactCardinality>(property, getCardinality()); default:
                     throw std::runtime_error("OWLCardinalityRestriction::narrow: cardinality set to UNKNOWN cannot narrow");
             }
         }
@@ -76,23 +70,32 @@ OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::narrow() const
 
 
 OWLCardinalityRestriction::OWLCardinalityRestriction()
-    : OWLQualifiedRestriction( OWLPropertyExpression::Ptr(), OWLQualification(""))
+    : OWLRestriction()
+    , OWLCardinalityRestrictionOps()
     , mCardinality(0)
     , mCardinalityRestrictionType(OWLCardinalityRestriction::UNKNOWN)
 {}
 
-OWLCardinalityRestriction::OWLCardinalityRestriction(OWLPropertyExpression::Ptr property,
+OWLCardinalityRestriction::OWLCardinalityRestriction(
+        const OWLPropertyExpression::Ptr& property,
         uint32_t cardinality,
-        const OWLQualification& qualification,
         CardinalityRestrictionType restrictionType)
-    : OWLQualifiedRestriction(property, qualification)
+    : OWLRestriction()
+    , OWLCardinalityRestrictionOps()
     , mCardinality(cardinality)
     , mCardinalityRestrictionType(restrictionType)
-{}
+{
+    if(!property)
+    {
+        throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction"
+                " cannot construct without property");
+    }
+    setProperty(property);
+}
 
 OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::clone() const
 {
-    return getInstance(getProperty(), mCardinality, getQualification(), mCardinalityRestrictionType);
+    return doClone();
 }
 
 std::string OWLCardinalityRestriction::toString() const
@@ -107,7 +110,6 @@ std::string OWLCardinalityRestriction::toString(size_t indent) const
     ss << hspace << "OWLCardinalityRestriction:" << std::endl;
     ss << hspace << "    property: " << getProperty()->toString() << std::endl;
     ss << hspace << "    cardinality: " << getCardinality() << std::endl;
-    ss << hspace << "    qualification: " << getQualification().toString() << std::endl;
     ss << hspace << "    type: " << CardinalityRestrictionTypeTxt[getCardinalityRestrictionType()] << std::endl;
     return ss.str();
 }
@@ -124,275 +126,37 @@ std::string OWLCardinalityRestriction::toString(const std::vector<OWLCardinality
 }
 
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::getInstance(OWLPropertyExpression::Ptr property,
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::getInstance(const OWLPropertyExpression::Ptr& property,
         uint32_t cardinality,
-        const OWLQualification& qualification,
+        const OWLClassExpression::Ptr& qualification,
         CardinalityRestrictionType restrictionType)
 {
-    OWLCardinalityRestriction restriction(property, cardinality, qualification, restrictionType);
-    return restriction.narrow();
+    return OWLObjectCardinalityRestriction::createInstance(
+            dynamic_pointer_cast<OWLObjectPropertyExpression>(property),
+            cardinality,
+            qualification,
+            restrictionType
+    );
 }
 
-std::map<IRI, uint32_t> OWLCardinalityRestriction::convertToExactMapping(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
+OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::getInstance(const OWLPropertyExpression::Ptr& property,
+        uint32_t cardinality,
+        const OWLDataRange::Ptr& range,
+        CardinalityRestrictionType restrictionType)
 {
-    std::map<IRI, uint32_t> exactMapping;
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
-    for(; cit != restrictions.end(); ++cit)
-    {
-        OWLCardinalityRestriction::Ptr restriction = *cit;
-        // Here we assume that
-        //  max 3 and max 4 -> exact 4
-        //  min 3 and max 4 -> exact 4
-        //  exact 1 and exact 2 -> exact 4
-        uint32_t current = exactMapping[restriction->getQualification()];
-        exactMapping[restriction->getQualification()] = std::max(current, restriction->getCardinality());
-    }
-
-    return exactMapping;
+    return OWLDataCardinalityRestriction::createInstance(
+            dynamic_pointer_cast<OWLDataPropertyExpression>(property),
+            cardinality,
+            range,
+            restrictionType
+    );
 }
 
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersection(OWLCardinalityRestriction::Ptr a,
-        OWLCardinalityRestriction::Ptr b)
-{
-    if(areOverlapping(a,b))
-    {
-        CardinalityRestrictionType aType = a->getCardinalityRestrictionType();
-        CardinalityRestrictionType bType = b->getCardinalityRestrictionType();
-
-        // Same cardinality type
-        if(aType == bType)
-        {
-            switch(aType)
-            {
-                case MIN:
-                    return getInstance(a->getProperty(),
-                              std::max(a->getCardinality(), b->getCardinality()),
-                              a->getQualification(),
-                              MIN);
-                case MAX:
-                    return getInstance(a->getProperty(),
-                            std::min(a->getCardinality(), b->getCardinality()),
-                            a->getQualification(),
-                            MAX);
-                case EXACT:
-                    {
-                        if(a->getCardinality() != b->getCardinality())
-                        {
-                            std::stringstream ss;
-                            ss << "owlapi::model::OWLCardinalityRestriction::intersection ";
-                            ss << "incompatible EXACT cardinality restrictions on property ";
-                            ss << "'" << a->getProperty()->toString() << "' ";
-                            ss << " qualification ";
-                            ss << "'" << a->getQualification() << "' ";
-                            ss << " cardinality: ";
-                            ss << a->getCardinality();
-                            ss << " vs. ";
-                            ss << b->getCardinality();
-
-                            throw std::invalid_argument(ss.str());
-                        }
-
-                        return getInstance(a->getProperty(),
-                                a->getCardinality(),
-                                a->getQualification(),
-                                EXACT);
-                    }
-                default:
-                    throw std::runtime_error("owlapi::model::OWLCardinalityRestriction::intersection  \
-                             invalid cardinality restriction of type UNKNOWN");
-            }
-        } else if(aType == MIN && bType == MAX)
-        {
-            return intersectionMinMax( dynamic_pointer_cast<OWLMinCardinalityRestriction>(a),
-                    dynamic_pointer_cast<OWLMaxCardinalityRestriction>(b));
-        } else if(aType == MAX && bType == MIN)
-        {
-            return intersectionMinMax(dynamic_pointer_cast<OWLMinCardinalityRestriction>(b),
-                    dynamic_pointer_cast<OWLMaxCardinalityRestriction>(a));
-        } else if(aType == EXACT)
-        {
-            return intersectionExact(dynamic_pointer_cast<OWLExactCardinalityRestriction>(a),
-                    b);
-        } else if(bType == EXACT)
-        {
-            return intersectionExact(dynamic_pointer_cast<OWLExactCardinalityRestriction>(b),
-                    a);
-        }
-    }
-
-    return OWLCardinalityRestriction::Ptr();
-}
-
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersectionExact(OWLExactCardinalityRestriction::Ptr exact,
-        OWLCardinalityRestriction::Ptr b)
-{
-    switch(b->getCardinalityRestrictionType())
-    {
-        case MIN:
-            if(exact->getCardinality() >= b->getCardinality())
-            {
-                return exact->clone();
-            }
-            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
-                    cardinality restriction of exact and min : " + exact->toString() + " vs. " + b->toString());
-        case MAX:
-            if(exact->getCardinality() <= b->getCardinality())
-            {
-                return exact->clone();
-            }
-            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
-                    cardinality restriction of exact and max : " + exact->toString() + " vs. " + b->toString());
-        case EXACT:
-            if(exact->getCardinality() == b->getCardinality())
-            {
-                return exact->clone();
-            }
-            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: incompatible \
-                    cardinality restriction of exact and exact: " + exact->toString() + " vs. " + b->toString());
-        default:
-            throw std::invalid_argument("owlapi::model::OWLCardinalityRestriction::intersectionExact: \
-                    cannot handle UNKNOWN type");
-    }
-}
-
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::intersectionMinMax(OWLMinCardinalityRestriction::Ptr a,
-    OWLMaxCardinalityRestriction::Ptr b)
-{
-    if(a->getCardinality() == b->getCardinality())
-    {
-       return getInstance(a->getProperty(),
-                    a->getCardinality(),
-                    a->getQualification(),
-                    EXACT);
-    } else if(a->getCardinality() > b->getCardinality())
-    {
-        std::stringstream ss;
-        ss << "owlapi::model::OWLCardinalityRestriction::intersection ";
-        ss << "incompatible MIN/MAX cardinality restrictions on property ";
-        ss << "'" << a->getProperty()->toString() << "' ";
-        ss << " qualification ";
-        ss << "'" << a->getQualification() << "' ";
-        ss << " min cardinality: ";
-        ss << a->getCardinality();
-        ss << " vs. max cardinality: ";
-        ss << b->getCardinality();
-
-        throw std::invalid_argument(ss.str());
-    }
-
-    return OWLCardinalityRestriction::Ptr();
-}
-
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::intersection(const std::vector<OWLCardinalityRestriction::Ptr>& a,
-            const std::vector<OWLCardinalityRestriction::Ptr>& _b)
-{
-    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
-    std::vector<OWLCardinalityRestriction::Ptr> b = _b;
-
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator ait = a.begin();
-    for(; ait != a.end(); ++ait)
-    {
-        LOG_DEBUG_S << "Try merging : " << (*ait)->toString();
-        bool intersectiond = false;
-        std::vector<OWLCardinalityRestriction::Ptr>::iterator bit = b.begin();
-        for(; bit != b.end(); ++bit)
-        {
-            LOG_DEBUG_S << "   -- with : " << (*bit)->toString();
-            OWLCardinalityRestriction::Ptr aRestriction= *ait;
-            OWLCardinalityRestriction::Ptr bRestriction= *bit;
-
-            OWLCardinalityRestriction::Ptr restriction = intersection(aRestriction, bRestriction);
-            if(restriction)
-            {
-                // merging succeeded
-                restrictions.push_back(restriction);
-
-                // assuming a compact representation of _a and _b, i.e. not multiple
-                // definitions of the same type in it we can skip checking the
-                // remaining
-                b.erase(bit);
-                LOG_DEBUG_S << "Merging succeeded: result is " << restriction->toString();
-                intersectiond = true;
-                break;
-            }
-        }
-
-        if(!intersectiond)
-        {
-            // seems like *ait did not get intersectiond, so add it to results
-            restrictions.push_back((*ait)->clone());
-        }
-    }
-    // At this point the vector restrictions contains all intersectiond ones from a,
-    // but left one of b have still to be added
-    restrictions.insert(restrictions.begin(), b.begin(), b.end());
-    return restrictions;
-}
-
-
-bool OWLCardinalityRestriction::areOverlapping(OWLCardinalityRestriction::Ptr a,
-            OWLCardinalityRestriction::Ptr b)
-{
-    if((a->isDataRestriction() && b->isDataRestriction()) ||
-            (a->isObjectRestriction() && b->isObjectRestriction()))
-    {
-        if( a->getProperty()->toString() != b->getProperty()->toString() )
-        {
-            LOG_DEBUG_S << "Different property";
-            return false;
-        }
-
-        if(a->getQualification() != b->getQualification())
-        {
-            LOG_DEBUG_S << "Different qualification";
-            return false;
-        }
-        return true;
-    }
-
-    LOG_DEBUG_S << "Data/Object Restrictions are incompatible";
-    return false;
-}
-
-OWLCardinalityRestriction::Ptr OWLCardinalityRestriction::join(const OWLCardinalityRestriction::Ptr& a,
-        const OWLCardinalityRestriction::Ptr& b,
-        OperationType operationType)
-
-{
-    if(areOverlapping(a,b))
-    {
-        if(a->getCardinalityRestrictionType() == b->getCardinalityRestrictionType())
-        {
-            uint32_t cardinality = 0;
-            switch(operationType)
-            {
-                case SUM_OP:
-                    cardinality = a->getCardinality() + b->getCardinality();
-                    break;
-                case MIN_OP:
-                    cardinality = std::min(a->getCardinality(), b->getCardinality());
-                    break;
-                case MAX_OP:
-                    cardinality = std::max(a->getCardinality(), b->getCardinality());
-                    break;
-            }
-
-            return getInstance(a->getProperty(),
-                            cardinality,
-                            a->getQualification(),
-                            a->getCardinalityRestrictionType());
-        }
-    } else {
-        LOG_DEBUG_S << "Restrictions are not overlapping: "
-            << a->toString() << std::endl
-            << b->toString() << std::endl;
-    }
-    return OWLCardinalityRestriction::Ptr();
-}
-
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(const std::vector<OWLCardinalityRestriction::Ptr>& a,
+std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(
+        const std::vector<OWLCardinalityRestriction::Ptr>& a,
         const std::vector<OWLCardinalityRestriction::Ptr>& _b,
-        OperationType operationType)
+        OperationType operationType
+)
 {
     std::vector<OWLCardinalityRestriction::Ptr> restrictions;
     std::vector<OWLCardinalityRestriction::Ptr> b = _b;
@@ -406,10 +170,22 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
         for(; bit != b.end(); ++bit)
         {
             LOG_DEBUG_S << "   -- with : " << (*bit)->toString();
-            OWLCardinalityRestriction::Ptr aRestriction= *ait;
-            OWLCardinalityRestriction::Ptr bRestriction= *bit;
+            OWLCardinalityRestriction::Ptr restriction;
+            if((*ait)->isObjectRestriction())
+            {
+                OWLObjectCardinalityRestriction::Ptr aRestriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(*ait);
+                if(!aRestriction)
+                {
+                    throw std::runtime_error("owlapi::modell::OWLCardinalityRestriction::join:"
+                            " expect Object Restriction");
+                }
 
-            OWLCardinalityRestriction::Ptr restriction = join(aRestriction, bRestriction, operationType);
+                OWLCardinalityRestriction::Ptr restriction = aRestriction->join(*bit, operationType);
+            } else {
+                throw std::runtime_error("owlapi::model::OWLCardinalityRestriction::join:"
+                        " joining OWLDataCardinalityRestriction is currently not supported");
+            }
+
             if(restriction)
             {
                 // merging succeeded
@@ -442,92 +218,6 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::join(cons
         restrictions.push_back((*bit)->clone());
     }
     return restrictions;
-}
-
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::compact(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions, OperationType operationType)
-{
-    std::vector<OWLCardinalityRestriction::Ptr> compactRestrictions;
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
-    for(; cit != restrictions.end(); ++cit)
-    {
-        std::vector<OWLCardinalityRestriction::Ptr> singleRestriction;
-        singleRestriction.push_back(*cit);
-
-        std::vector<OWLCardinalityRestriction::Ptr> merged = join(compactRestrictions, singleRestriction, operationType);
-        compactRestrictions = merged;
-    }
-
-    return compactRestrictions;
-}
-
-std::map<IRI, OWLCardinalityRestriction::MinMax> OWLCardinalityRestriction::getBounds(const std::vector<OWLCardinalityRestriction::Ptr>& restrictions)
-{
-    owlapi::model::OWLPropertyExpression::Ptr property;
-    std::map<IRI, OWLCardinalityRestriction::MinMax> modelCount;
-
-    // We assume a compact list of the query restrictions, but
-    // have to generate an intermediate bounded representation for each
-    // possible resource model
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = restrictions.begin();
-    for(; cit != restrictions.end(); ++cit)
-    {
-        OWLCardinalityRestriction::Ptr restriction = *cit;
-
-        // Check if the same property is used for all cardinality restrictions
-        // Note: might to too restrictive, but need to verify lateron
-        if(!property)
-        {
-            property = restriction->getProperty();
-        } else {
-            if(property->toString() != restriction->getProperty()->toString())
-            {
-                throw std::invalid_argument("owlapi::model::getBounds cardinality restrictions are inconsistent, i.e. apply to different properties: " + \
-                        property->toString() + " vs. " + restriction->getProperty()->toString());
-            }
-        }
-
-        uint32_t cardinality = restriction->getCardinality();
-        owlapi::model::IRI qualification = restriction->getQualification();
-        std::pair<uint32_t,uint32_t>& minMax = modelCount[qualification];
-
-        if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MAX)
-        {
-            minMax.first = std::max(static_cast<uint32_t>(0), minMax.first);
-            if(minMax.second == 0) // has not been initialized yet
-            {
-                minMax.second = cardinality;
-            } else {
-                minMax.second = std::min(cardinality, minMax.second);
-            }
-        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::MIN)
-        {
-            minMax.first = std::max(cardinality, minMax.first);
-            minMax.second = std::numeric_limits<uint32_t>::max();
-        } else if(restriction->getCardinalityRestrictionType() == owlapi::model::OWLCardinalityRestriction::EXACT)
-        {
-            minMax.first = cardinality;
-            minMax.second = cardinality;
-        }
-    }
-
-    return modelCount;
-}
-
-
-std::vector<OWLCardinalityRestriction::Ptr> OWLCardinalityRestriction::scale(const std::vector<OWLCardinalityRestriction::Ptr>& a, size_t factor)
-{
-    LOG_DEBUG_S << "Scale restrictions by factor: " << factor;
-    std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions;
-
-    std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = a.begin();
-    for(; cit != a.end(); ++cit)
-    {
-        OWLCardinalityRestriction::Ptr restriction = (*cit)->clone();
-        restriction->setCardinality( restriction->getCardinality() * factor );
-        scaledRestrictions.push_back(restriction);
-    }
-
-    return scaledRestrictions;
 }
 
 } // end namespace model

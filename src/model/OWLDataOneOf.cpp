@@ -4,7 +4,7 @@ namespace owlapi {
 namespace model {
 
 OWLDataOneOf::OWLDataOneOf(const owlapi::model::IRIList& list)
-    : OWLDataRange(OWLDataRange::ONE_OF)
+    : OWLDataRange(OWLDataRange::DATA_ONE_OF)
     , mLiterals()
 {
     for(const IRI& iri : list)
@@ -15,7 +15,7 @@ OWLDataOneOf::OWLDataOneOf(const owlapi::model::IRIList& list)
 }
 
 OWLDataOneOf::OWLDataOneOf(const OWLLiteral::PtrList& literals)
-    : OWLDataRange(OWLDataRange::ONE_OF)
+    : OWLDataRange(OWLDataRange::DATA_ONE_OF)
     , mLiterals(literals)
 {}
 

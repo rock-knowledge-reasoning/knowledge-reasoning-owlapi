@@ -11,13 +11,14 @@ class OWLNamedIndividual : public OWLIndividual, public OWLLogicalEntity
 {
 public:
     typedef shared_ptr<OWLNamedIndividual> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
     OWLNamedIndividual( const IRI& iri)
         : OWLIndividual()
         , OWLLogicalEntity(iri, OWLEntity::NAMED_INDIVIDUAL)
     {}
 
-    virtual ~OWLNamedIndividual() {}
+    virtual ~OWLNamedIndividual() = default;
 
     bool isAnonymous() const { return false; }
 

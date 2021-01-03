@@ -17,7 +17,7 @@ OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range, const std::st
     {
         case OWLDataRange::DATATYPE:
             return *dynamic_pointer_cast<OWLDataType>(range);
-        case OWLDataRange::ONE_OF:
+        case OWLDataRange::DATA_ONE_OF:
         {
             OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(range);
             if(oneOf)
@@ -37,9 +37,9 @@ OWLDataType OWLDataType::fromRange(const OWLDataRange::Ptr& range, const std::st
             }
 
         }
-        case OWLDataRange::UNION_OF:
-        case OWLDataRange::COMPLEMENT_OF:
-        case OWLDataRange::INTERSECTION_OF:
+        case OWLDataRange::DATA_UNION_OF:
+        case OWLDataRange::DATA_COMPLEMENT_OF:
+        case OWLDataRange::DATA_INTERSECTION_OF:
         case OWLDataRange::DATATYPE_RESTRICTION:
         {
             owlapi::model::OWLDataTypeRestriction::Ptr datatypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(range);

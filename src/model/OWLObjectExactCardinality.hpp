@@ -3,20 +3,32 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
-#include "OWLExactCardinalityRestriction.hpp"
+#include "OWLObjectCardinalityRestriction.hpp"
 #include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLObjectExactCardinality : public OWLExactCardinalityRestriction
+class OWLObjectExactCardinality : public OWLObjectCardinalityRestriction
 {
 public:
-    OWLObjectExactCardinality(OWLObjectPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLExactCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
-    {}
+    OWLObjectExactCardinality(const OWLObjectPropertyExpression::Ptr& property,
+            uint32_t cardinality,
+            const OWLClassExpression::Ptr& qualification = OWLClassExpression::Ptr())
+        : OWLObjectCardinalityRestriction(
+                dynamic_pointer_cast<OWLPropertyExpression>(property),
+                cardinality,
+                qualification,
+                OWLCardinalityRestriction::EXACT )
+    {
+        if(!property)
+        {
+            throw std::invalid_argument("owlapi::model::OWLObjectExactCardinalityRestriction"
+                    " cannot construct without property");
+        }
+    }
 
-    virtual ~OWLObjectExactCardinality() {}
+    virtual ~OWLObjectExactCardinality() = default;
 
     ClassExpressionType getClassExpressionType() const { return OBJECT_EXACT_CARDINALITY; }
 

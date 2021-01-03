@@ -137,20 +137,17 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::OBJECT_MIN_CARDINALITY:
             case OWLClassExpression::OBJECT_MAX_CARDINALITY:
             case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
-            case OWLClassExpression::DATA_EXACT_CARDINALITY:
-            case OWLClassExpression::DATA_MIN_CARDINALITY:
-            case OWLClassExpression::DATA_MAX_CARDINALITY:
             {
-                OWLCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
+                OWLObjectCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(superClass);
                 // Only handle restriction which are matching the object
                 // property
-                if(property && restriction->getProperty() != property)
+                if(property && dynamic_pointer_cast<OWLCardinalityRestriction>(restriction)->getProperty() != property)
                 {
                     // property is not equal
                     break;
                 }
 
-                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getQualification(), objectProperty);
+                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getFiller(), objectProperty);
 
                 if(inheritedRestrictions.empty())
                 {
@@ -162,14 +159,19 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
                     std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions = OWLCardinalityRestriction::scale(inheritedRestrictions,
                             restriction->getCardinality());
 
-                    restrictions = OWLCardinalityRestriction::intersection(restrictions, scaledRestrictions);
+                    restrictions = OWLCardinalityRestrictionOps::intersection(restrictions, scaledRestrictions);
                 }
                 break;
             }
+            case OWLClassExpression::DATA_EXACT_CARDINALITY:
+            case OWLClassExpression::DATA_MIN_CARDINALITY:
+            case OWLClassExpression::DATA_MAX_CARDINALITY:
+                throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions: cannot handle data restriction, when dealing with class qualification");
+                break;
             case OWLClassExpression::OWL_CLASS:
             {
                 std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass, objectProperty);
-                restrictions = OWLCardinalityRestriction::intersection(restrictions, inheritedRestrictions);
+                restrictions = OWLCardinalityRestrictionOps::intersection(restrictions, inheritedRestrictions);
             }
             default:
                 break;
@@ -200,7 +202,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
 }
 
 std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const std::vector<IRI>& klasses, const IRI& objectProperty,
-        OWLCardinalityRestriction::OperationType operationType) const
+        OWLCardinalityRestrictionOps::OperationType operationType) const
 {
     std::pair<OWLCardinalityRestriction::PtrList, bool> result =
         mpOntology->mQueryCache.getCardinalityRestrictions(klasses,
@@ -217,7 +219,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
         {
             IRI iri = *cit;
             std::vector<OWLCardinalityRestriction::Ptr> klassRestrictions = getCardinalityRestrictions(iri, objectProperty);
-            restrictions = OWLCardinalityRestriction::join(restrictions, klassRestrictions, operationType);
+            restrictions = OWLCardinalityRestrictionOps::join(restrictions, klassRestrictions, operationType);
         }
         mpOntology->mQueryCache.cacheCardinalityRestrictions(klasses,
                 objectProperty,
@@ -251,19 +253,31 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     std::vector<OWLCardinalityRestriction::Ptr>::const_iterator rit = restrictions.begin();
     for(; rit != restrictions.end(); ++rit)
     {
-        const OWLCardinalityRestriction::Ptr& restriction = *rit;
+        const OWLObjectCardinalityRestriction::Ptr& restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(*rit);
+
+        if(!restriction)
+        {
+            throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions:"
+                    " failed to handle data restriction - expected object restriction");
+        }
 
         std::vector<IRI>::const_iterator qit = qualificationKlasses.begin();
         for(; qit != qualificationKlasses.end(); ++qit)
         {
             const IRI& allowedQualification = *qit;
-            const IRI& qualification = restriction->getQualification();
+            OWLClass::Ptr klass = dynamic_pointer_cast<OWLClass>(restriction->getFiller());
+            if(!klass)
+            {
+                throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions"
+                        " currently only supporting qualification with plain klasses");
+            }
 
-                if(qualification == allowedQualification
-                        || (!direct && isSubClassOf(qualification, allowedQualification)) )
-                {
-                    filteredRestrictions.push_back(restriction);
-                }
+            const IRI& qualification = klass->getIRI();
+            if(qualification == allowedQualification
+                    || (!direct && isSubClassOf(qualification, allowedQualification)) )
+            {
+                filteredRestrictions.push_back(restriction);
+            }
         }
     }
     return filteredRestrictions;
@@ -290,8 +304,10 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     {
         if( r->getProperty() == property)
         {
-            const IRI& qualification = r->getQualification();
-            if(isSubClassOf(targetKlass, qualification))
+            OWLObjectCardinalityRestriction::Ptr oRestriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(r);
+
+            OWLClassExpression::Ptr klassExpression = oRestriction->getFiller();
+            if(isSubClassOf(targetKlass, klassExpression))
             {
                 filteredRestrictions.push_back(r);
             }
@@ -637,11 +653,11 @@ OWLDataType OWLOntologyAsk::getDataType(const IRI& dataProperty, const std::stri
         switch(rangeType)
         {
             case OWLDataRange::DATATYPE:
-            case OWLDataRange::ONE_OF:
+            case OWLDataRange::DATA_ONE_OF:
                 return OWLDataType::fromRange(range, value);
-            case OWLDataRange::UNION_OF:
-            case OWLDataRange::COMPLEMENT_OF:
-            case OWLDataRange::INTERSECTION_OF:
+            case OWLDataRange::DATA_UNION_OF:
+            case OWLDataRange::DATA_COMPLEMENT_OF:
+            case OWLDataRange::DATA_INTERSECTION_OF:
             case OWLDataRange::DATATYPE_RESTRICTION:
                 throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getDataType: "
                         " data range '" + OWLDataRange::TypeTxt[rangeType] + "' for '" + dataProperty.toString() + "' is unsupported");

@@ -4,15 +4,17 @@
 #include "HasFiller.hpp"
 #include "OWLRestriction.hpp"
 #include "OWLPropertyExpression.hpp"
+#include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {
 
 template<typename T>
-class OWLQuantifiedRestriction : public OWLRestriction, public HasFiller<T>
+class OWLQuantifiedRestriction : virtual public OWLRestriction, public HasFiller<T>
 {
 public:
     typedef shared_ptr< OWLQuantifiedRestriction<T> > Ptr;
+
     OWLQuantifiedRestriction()
         : OWLRestriction()
         , HasFiller<T>()
@@ -20,9 +22,16 @@ public:
 
     OWLQuantifiedRestriction(const OWLPropertyExpression::Ptr& property,
             const typename HasFiller<T>::filler_t& filler)
-        : OWLRestriction(property)
+        : OWLRestriction()
         , HasFiller<T>(filler)
-    {}
+    {
+        if(!property)
+        {
+            throw std::invalid_argument("owlapi::model::OWLQuantifiedRestriction"
+                    " cannot construct object without property");
+        }
+        setProperty(property);
+    }
 
     virtual ~OWLQuantifiedRestriction() = default;
 };

@@ -393,7 +393,7 @@ void RedlandVisitor::visit(const owlapi::model::OWLDataPropertyRangeAxiom& axiom
             writeTriple(propertyIRI, vocabulary::RDFS::range(), dataType->getIRI());
             break;
         }
-        case OWLDataRange::ONE_OF:
+        case OWLDataRange::DATA_ONE_OF:
         {
             OWLDataOneOf::Ptr oneOf = dynamic_pointer_cast<OWLDataOneOf>(e_range);
 

@@ -3,20 +3,22 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLDataPropertyExpression.hpp"
-#include "OWLMaxCardinalityRestriction.hpp"
+#include "OWLDataCardinalityRestriction.hpp"
 #include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLDataMaxCardinality : public OWLMaxCardinalityRestriction
+class OWLDataMaxCardinality : public OWLDataCardinalityRestriction
 {
 public:
-    OWLDataMaxCardinality(OWLDataPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLMaxCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+    OWLDataMaxCardinality(const OWLDataPropertyExpression::Ptr& property,
+            uint32_t cardinality,
+            const OWLDataRange::Ptr& range = OWLDataRange::Ptr())
+        : OWLDataCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, range, OWLCardinalityRestriction::MAX )
     {}
 
-    virtual ~OWLDataMaxCardinality() {}
+    virtual ~OWLDataMaxCardinality() = default;
 
     ClassExpressionType getClassExpressionType() const { return DATA_MAX_CARDINALITY; }
 

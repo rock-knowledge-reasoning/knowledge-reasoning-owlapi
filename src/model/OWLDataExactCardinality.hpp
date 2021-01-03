@@ -3,22 +3,29 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLDataPropertyExpression.hpp"
-#include "OWLExactCardinalityRestriction.hpp"
+#include "OWLDataCardinalityRestriction.hpp"
 #include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLDataExactCardinality : public OWLExactCardinalityRestriction
+class OWLDataExactCardinality : public OWLDataCardinalityRestriction
 {
 public:
-    OWLDataExactCardinality(OWLDataPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLExactCardinalityRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), cardinality, qualification)
+    OWLDataExactCardinality(const OWLDataPropertyExpression::Ptr& property,
+            uint32_t cardinality,
+            const OWLDataRange::Ptr& range = OWLDataRange::Ptr())
+        : OWLDataCardinalityRestriction(
+                dynamic_pointer_cast<OWLPropertyExpression>(property),
+                cardinality,
+                range,
+                OWLCardinalityRestriction::EXACT
+          )
     {}
 
-    virtual ~OWLDataExactCardinality() {}
+    virtual ~OWLDataExactCardinality() = default;
 
-    ClassExpressionType getClassExpressionType() const { return DATA_EXACT_CARDINALITY; }
+    OWLClassExpression::ClassExpressionType getClassExpressionType() const { return DATA_EXACT_CARDINALITY; }
 
     bool isClassExpressionLiteral() const { return false; }
 };

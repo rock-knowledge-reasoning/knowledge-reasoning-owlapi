@@ -2,9 +2,31 @@
 #include <stdexcept>
 #include <sstream>
 #include <ostream>
+#include <base-logging/Logging.hpp>
 
 namespace owlapi {
 namespace model {
+
+OWLRestriction::OWLRestriction()
+    : OWLAnonymousClassExpression()
+    , mpProperty()
+{}
+
+OWLRestriction::OWLRestriction(const OWLPropertyExpression::Ptr& property)
+    : OWLAnonymousClassExpression()
+    , mpProperty(property)
+{
+    if(!property)
+    {
+        throw std::invalid_argument("owlapi::model::OWLRestriction"
+                " cannot construct object without property");
+    }
+}
+
+const OWLPropertyExpression::Ptr& OWLRestriction::getProperty() const
+{
+    return mpProperty;
+}
 
 std::string OWLRestriction::toString() const
 {

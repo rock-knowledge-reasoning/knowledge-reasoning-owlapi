@@ -3,7 +3,9 @@
 namespace owlapi {
 namespace model {
 
-OWLExactCardinalityRestriction::OWLExactCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification)
+OWLExactCardinalityRestriction::OWLExactCardinalityRestriction(
+        const OWLPropertyExpression::Ptr& property,
+        uint32_t cardinality)
     : OWLCardinalityRestriction(property, cardinality, qualification, OWLCardinalityRestriction::EXACT)
 {}
 

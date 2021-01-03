@@ -4,8 +4,9 @@
 namespace owlapi {
 namespace model {
 
-OWLQualifiedRestriction::OWLQualifiedRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification)
-    : OWLRestriction(property)
+OWLQualifiedRestriction::OWLQualifiedRestriction(const OWLPropertyExpression::Ptr& property,
+        const OWLQualification& qualification)
+    : OWLRestriction()
 {
     if(property && qualification == IRI())
     {
@@ -20,6 +21,7 @@ OWLQualifiedRestriction::OWLQualifiedRestriction(OWLPropertyExpression::Ptr prop
     }
 
     mQualified = !( mQualification == owlapi::vocabulary::OWL::Thing() || mQualification == owlapi::vocabulary::RDFS::Literal() );
+    setProperty(property);
 }
 
 std::string OWLQualifiedRestriction::toString() const

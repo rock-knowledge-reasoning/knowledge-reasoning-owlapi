@@ -15,7 +15,7 @@ namespace model {
 
 typedef IRI OWLQualification;
 
-class OWLQualifiedRestriction : public OWLRestriction
+class OWLQualifiedRestriction : virtual public OWLRestriction
 {
     friend class owlapi::io::OWLOntologyReader;
     OWLQualification mQualification;
@@ -31,15 +31,16 @@ public:
      * However, to facilitate implementation, we relax/generalize the requirement to an IRI, so that OWLQualification := IRI
      *
      * To qualify ObjectProperties and DataProperties they have to differ from the TOP concepts, i.e. owl:Thing and rdfs::Literal respectively
-     * 
+     *
      */
-    OWLQualifiedRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification);
+    OWLQualifiedRestriction(const OWLPropertyExpression::Ptr& property,
+            const OWLQualification& qualification);
     /**
      * Default constructor to allow usage of this class in a map
      */
     OWLQualifiedRestriction() { mQualified = false; }
 
-    virtual ~OWLQualifiedRestriction() {}
+    virtual ~OWLQualifiedRestriction() = default;
 
     /**
      * Retrieve the qualification for this restriction

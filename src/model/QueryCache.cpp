@@ -49,12 +49,12 @@ void QueryCache::cacheCardinalityRestrictions(const IRI& iri, const IRI& objectP
 
 std::pair<OWLCardinalityRestriction::PtrList, bool> QueryCache::getCardinalityRestrictions(const IRIList& iris,
         const IRI& objectProperty,
-        OWLCardinalityRestriction::OperationType operationType) const
+        OWLCardinalityRestrictionOps::OperationType operationType) const
 {
     std::pair<OWLCardinalityRestriction::PtrList, bool> result;
-    std::unordered_map< std::tuple<IRIList, IRI, OWLCardinalityRestriction::OperationType>, OWLCardinalityRestriction::PtrList >::const_iterator cit;
+    std::unordered_map< std::tuple<IRIList, IRI, OWLCardinalityRestrictionOps::OperationType>, OWLCardinalityRestriction::PtrList >::const_iterator cit;
 
-    std::tuple<IRIList,IRI,OWLCardinalityRestriction::OperationType> tpl = std::make_tuple(iris, objectProperty, operationType);
+    std::tuple<IRIList,IRI,OWLCardinalityRestrictionOps::OperationType> tpl = std::make_tuple(iris, objectProperty, operationType);
     cit = mCardinalityRestrictionsOps.find(tpl);
 
     if(cit != mCardinalityRestrictionsOps.end())
@@ -69,10 +69,10 @@ std::pair<OWLCardinalityRestriction::PtrList, bool> QueryCache::getCardinalityRe
 
 void QueryCache::cacheCardinalityRestrictions(const IRIList& iris,
         const IRI& objectProperty,
-        OWLCardinalityRestriction::OperationType operationType,
+        OWLCardinalityRestrictionOps::OperationType operationType,
         const OWLCardinalityRestriction::PtrList& restrictions)
 {
-    std::tuple<IRIList,IRI,OWLCardinalityRestriction::OperationType> tpl = std::make_tuple(iris, objectProperty, operationType);
+    std::tuple<IRIList,IRI,OWLCardinalityRestrictionOps::OperationType> tpl = std::make_tuple(iris, objectProperty, operationType);
     mCardinalityRestrictionsOps.emplace(tpl,restrictions);
 
 }

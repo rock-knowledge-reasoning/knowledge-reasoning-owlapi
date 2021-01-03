@@ -5,6 +5,7 @@
 #include "OWLDataPropertyExpression.hpp"
 #include "../Vocabulary.hpp"
 #include "OWLQuantifiedDataRestriction.hpp"
+
 namespace owlapi {
 namespace model {
 
@@ -13,9 +14,10 @@ class OWLDataSomeValuesFrom : public OWLQuantifiedDataRestriction
 public:
     typedef shared_ptr<OWLDataSomeValuesFrom> Ptr;
 
-    OWLDataSomeValuesFrom(const OWLDataPropertyExpression::Ptr& property,
-            const OWLDataRange::Ptr& dataRange)
-        : OWLQuantifiedDataRestriction(property, dataRange)
+    OWLDataSomeValuesFrom(
+        const OWLDataPropertyExpression::Ptr& property,
+        const OWLDataRange::Ptr& dataRange
+    ) : OWLQuantifiedDataRestriction(property, dataRange)
     {
         if(!property)
         {

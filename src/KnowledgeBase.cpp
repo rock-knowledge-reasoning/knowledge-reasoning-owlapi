@@ -10,6 +10,7 @@
 #include "model/OWLFacetRestriction.hpp"
 
 using namespace owlapi::reasoner::factpp;
+using namespace owlapi::model;
 
 namespace owlapi {
 
@@ -260,7 +261,7 @@ bool KnowledgeBase::isRealized()
     return mKernel->isKBRealised();
 }
 
-bool KnowledgeBase::isClassSatifiable(const IRI& klass)
+bool KnowledgeBase::isClassSatisfiable(const IRI& klass)
 {
     ClassExpression e_klass = getClass(klass);
     return mKernel->isSatisfiable(e_klass.get());
@@ -776,6 +777,12 @@ Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const D
     return axiom;
 }
 
+Axiom KnowledgeBase::valueOf(const IRI& individual, const IRI& property, const owlapi::model::OWLLiteral::Ptr& literal)
+{
+    reasoner::factpp::DataValue value = dataValue(literal);
+    return valueOf(individual, property, value);
+}
+
 DataTypeName KnowledgeBase::dataType(const IRI& dataType)
 {
     IRIDataTypeMap::const_iterator cit = mDataTypes.find(dataType);
@@ -803,6 +810,11 @@ DataValue KnowledgeBase::dataValue(const std::string& value, const std::string& 
     return DataValue(dataValue);
 }
 
+DataValue KnowledgeBase::dataValue(const owlapi::model::OWLLiteral::Ptr& literal)
+{
+    return dataValue(literal->getValue(), literal->getType());
+}
+
 Axiom KnowledgeBase::inverseOf(const IRI& base, const IRI& inverse)
 {
     ObjectPropertyExpression e_role = getObjectPropertyLazy(base);
@@ -811,17 +823,104 @@ Axiom KnowledgeBase::inverseOf(const IRI& base, const IRI& inverse)
     return Axiom( mKernel->setInverseRoles(e_role.get(), e_inverse.get()) );
 }
 
-ClassExpression KnowledgeBase::oneOf(const IRIList& instanceList)
+ClassExpression KnowledgeBase::objectOneOf(const IRI& id,
+        const IRIList& instanceList)
 {
-    IRIList::const_iterator cit = instanceList.begin();
-    for(; cit != instanceList.end(); ++cit)
+    getExpressionManager()->newArgList();
+    for(const IRI& instance : instanceList)
     {
-        IRI instance = *cit;
         InstanceExpression e_instance = getInstanceLazy(instance);
-        getExpressionManager()->newArgList();
         getExpressionManager()->addArg(e_instance.get());
     }
-    return ClassExpression( getExpressionManager()->OneOf() );
+    ClassExpression ce( getExpressionManager()->OneOf() );
+    mClasses[id] = ce;
+    return ce;
+}
+
+void KnowledgeBase::objectOneOf(const IRI& id, const OWLObjectOneOf::Ptr& oneOf)
+{
+    getExpressionManager()->newArgList();
+    for(const OWLNamedIndividual::Ptr& instance : oneOf->getNamedIndividuals())
+    {
+        InstanceExpression e_instance = getInstanceLazy(instance->getIRI());
+        getExpressionManager()->addArg(e_instance.get());
+    }
+    ClassExpression ce( getExpressionManager()->OneOf() );
+    mClasses[id] = ce;
+}
+
+ClassExpression KnowledgeBase::objectComplementOf(const IRI& id, const IRI& klass)
+{
+    ClassExpression e_klass = getClassLazy(klass);
+    ClassExpression ce( getExpressionManager()->Not( e_klass.get() ) ) ;
+    mClasses[id] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectIntersectionOf(const IRI& id, const IRIList& klassList)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& klass : klassList)
+    {
+        ClassExpression e_klass = getClassLazy(klass);
+        getExpressionManager()->addArg(e_klass.get());
+    }
+
+    ClassExpression ce(getExpressionManager()->And());
+    mClasses[id] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectUnionOf(const IRI& id, const IRIList& klassList)
+{
+    getExpressionManager()->newArgList();
+    for(const IRI& klass : klassList)
+    {
+        ClassExpression e_klass = getClassLazy(klass);
+        getExpressionManager()->addArg(e_klass.get());
+    }
+
+    ClassExpression ce(getExpressionManager()->Or());
+    mClasses[id] = ce;
+    return ce;
+}
+
+
+reasoner::factpp::DataRange KnowledgeBase::dataRange(const owlapi::model::OWLDataRange::Ptr& range)
+{
+    DataRangeMap::const_iterator cit = mDataRanges.find(range);
+    if(cit != mDataRanges.end())
+    {
+        return cit->second;
+    }
+
+    switch(range->getDataRangeType())
+    {
+        case OWLDataRange::DATATYPE:
+            break;
+        case OWLDataRange::DATA_INTERSECTION_OF:
+            break;
+        case OWLDataRange::DATA_UNION_OF:
+            break;
+        case OWLDataRange::DATA_COMPLEMENT_OF:
+        //    return dataComplementOf(dynamic_pointer_cast<OWLDataComplementOf>(range));
+        case OWLDataRange::DATA_ONE_OF:
+            return dataOneOf(dynamic_pointer_cast<OWLDataOneOf>(range));
+        case OWLDataRange::DATATYPE_RESTRICTION:
+            break;
+        default:
+            break;
+    }
+
+    throw std::invalid_argument("owlapi::KnowledgeBase::dataRange: failed to"
+            "convert OWLDataRange into reasoner type");
+}
+
+reasoner::factpp::DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLDataOneOf::Ptr& oneOf)
+{
+    reasoner::factpp::DataRange range = dataOneOf(oneOf->getLiterals());
+    mDataRanges[oneOf] = range;
+    return range;
 }
 
 reasoner::factpp::DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLiteral::PtrList& literals)
@@ -835,7 +934,7 @@ reasoner::factpp::DataRange KnowledgeBase::dataOneOf(const owlapi::model::OWLLit
     return reasoner::factpp::DataRange( getExpressionManager()->DataOneOf() );
 }
 
-DataRange KnowledgeBase::dataTypeRestriction(const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+reasoner::factpp::DataRange KnowledgeBase::dataTypeRestriction(const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
 {
     if(!restriction)
     {
@@ -881,12 +980,72 @@ DataRange KnowledgeBase::dataTypeRestriction(const owlapi::model::OWLDataTypeRes
     return reasoner::factpp::DataRange(dataTypeRestriction);
 }
 
+reasoner::factpp::ClassExpression KnowledgeBase::classExpression(
+        const IRI& expressionId
+)
+{
+    IRIClassExpressionMap::const_iterator it = mClasses.find(expressionId);
+    if(it != mClasses.end())
+    {
+        return it->second;
+    }
+
+    throw std::invalid_argument("owlapi::KnowledgeBase::classExpression: failed"
+            " to resolve class expression for iri '" + expressionId.toString() + "'");
+}
+
+reasoner::factpp::ClassExpression KnowledgeBase::objectSomeValuesFrom(const IRI& klassId,
+        const IRI& property,
+        const IRI& expressionId
+)
+{
+    reasoner::factpp::ClassExpression classExpr = classExpression(expressionId);
+    reasoner::factpp::ObjectPropertyExpression opExpr = objectProperty(property);
+    TDLConceptExpression* someValuesFromConcept =
+        getExpressionManager()->Exists(opExpr.get(), classExpr.get());
+
+    ClassExpression ce(someValuesFromConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+reasoner::factpp::ClassExpression KnowledgeBase::objectAllValuesFrom(const IRI& klassId,
+    const IRI& property,
+    const IRI& expressionId
+)
+{
+    reasoner::factpp::ClassExpression classExpr = classExpression(expressionId);
+    reasoner::factpp::ObjectPropertyExpression opExpr = objectProperty(property);
+    TDLConceptExpression* allValuesFromConcept =
+        getExpressionManager()->Forall(opExpr.get(), classExpr.get());
+
+    ClassExpression ce(allValuesFromConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+reasoner::factpp::ClassExpression KnowledgeBase::objectHasValue(
+        const IRI& id,
+        const IRI& property,
+        const IRI& individual
+)
+{
+    reasoner::factpp::ObjectPropertyExpression opExpr = objectProperty(property);
+    reasoner::factpp::InstanceExpression e_instance = getInstanceLazy(individual);
+
+    TDLConceptExpression* hasValue = getExpressionManager()->Value(opExpr.get(), e_instance.get());
+    ClassExpression ce(hasValue);
+
+    mClasses[id] = ce;
+    return ce;
+}
+
 reasoner::factpp::ClassExpression KnowledgeBase::dataSomeValuesFrom(const IRI& klassId,
         const IRI& property,
         const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
 {
     reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
-    reasoner::factpp::DataPropertyExpression dpExpression = dataProperty(property);
+    DataPropertyExpression dpExpression = dataProperty(property);
 
     TDLConceptExpression* someValuesFromConcept = getExpressionManager()->Exists(dpExpression.get(),
                     range.get());
@@ -896,22 +1055,130 @@ reasoner::factpp::ClassExpression KnowledgeBase::dataSomeValuesFrom(const IRI& k
     return ce;
 }
 
-reasoner::factpp::ClassExpression KnowledgeBase::dataAllValuesFrom(const IRI& klassId,
+ClassExpression KnowledgeBase::dataAllValuesFrom(const IRI& klassId,
         const IRI& property,
         const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
 {
     reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
-    reasoner::factpp::DataPropertyExpression dpExpression = dataProperty(property);
+    DataPropertyExpression dpExpression = dataProperty(property);
 
-    TDLConceptExpression* someValuesFromConcept = getExpressionManager()->Forall(dpExpression.get(),
+    TDLConceptExpression* allValuesFromConcept = getExpressionManager()->Forall(dpExpression.get(),
                     range.get());
 
-    ClassExpression ce(someValuesFromConcept);
+    ClassExpression ce(allValuesFromConcept);
     mClasses[klassId] = ce;
     return ce;
 }
 
-ClassExpression KnowledgeBase::objectPropertyRestriction(restriction::Type type, const IRI& relationProperty, const IRI& klassOrInstance, int cardinality)
+ClassExpression KnowledgeBase::dataHasValue(const IRI& klassId,
+        const IRI& property,
+        const owlapi::model::OWLLiteral::Ptr& literal)
+{
+    reasoner::factpp::DataValue value = dataValue(literal);
+    DataPropertyExpression dpExpression = dataProperty(property);
+    TDLConceptExpression* hasValueConcept = getExpressionManager()->Value(dpExpression.get(),
+                    value.get());
+
+    ClassExpression ce(hasValueConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::dataMinCardinality(const IRI& klassId,
+        size_t n,
+        const IRI& property,
+        const owlapi::model::OWLDataRange::Ptr& range)
+{
+    DataPropertyExpression dpProperty = dataProperty(property);
+    reasoner::factpp::DataRange dataExpression = dataRange(range);
+    TDLConceptExpression* cardinalityConcept =
+        getExpressionManager()->MinCardinality(n, dpProperty.get(), dataExpression.get());
+
+    ClassExpression ce(cardinalityConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::dataMaxCardinality(const IRI& klassId,
+        size_t n,
+        const IRI& property,
+        const owlapi::model::OWLDataRange::Ptr& range)
+{
+    DataPropertyExpression dpProperty = dataProperty(property);
+    reasoner::factpp::DataRange dataExpression = dataRange(range);
+    TDLConceptExpression* cardinalityConcept =
+        getExpressionManager()->MaxCardinality(n, dpProperty.get(), dataExpression.get());
+
+    ClassExpression ce(cardinalityConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::dataExactCardinality(const IRI& klassId,
+        size_t n,
+        const IRI& property,
+        const owlapi::model::OWLDataRange::Ptr& range)
+{
+    DataPropertyExpression dpProperty = dataProperty(property);
+    reasoner::factpp::DataRange dataExpression = dataRange(range);
+    TDLConceptExpression* cardinalityConcept =
+        getExpressionManager()->Cardinality(n, dpProperty.get(), dataExpression.get());
+
+    ClassExpression ce(cardinalityConcept);
+    mClasses[klassId] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectMinCardinality(
+        const IRI& id,
+        size_t cardinality,
+        const IRI& relationProperty,
+        const IRI& qualification
+)
+{
+    ClassExpression ce = objectPropertyRestriction(restriction::MIN_CARDINALITY,
+            relationProperty,
+            qualification,
+            cardinality);
+    mClasses[id] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectMaxCardinality(
+        const IRI& id,
+        size_t cardinality,
+        const IRI& relationProperty,
+        const IRI& qualification
+)
+{
+    ClassExpression ce = objectPropertyRestriction(restriction::MAX_CARDINALITY,
+            relationProperty,
+            qualification,
+            cardinality);
+    mClasses[id] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectExactCardinality(
+        const IRI& id,
+        size_t cardinality,
+        const IRI& relationProperty,
+        const IRI& qualification
+)
+{
+    ClassExpression ce = objectPropertyRestriction(restriction::EXACT_CARDINALITY,
+            relationProperty,
+            qualification,
+            cardinality);
+    mClasses[id] = ce;
+    return ce;
+}
+
+ClassExpression KnowledgeBase::objectPropertyRestriction(
+        restriction::Type type,
+        const IRI& relationProperty,
+        const IRI& klassOrInstance,
+        int cardinality)
 {
     ObjectPropertyExpression e_relation = getObjectPropertyLazy(relationProperty);
     switch(type)

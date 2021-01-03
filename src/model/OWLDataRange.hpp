@@ -17,11 +17,12 @@ public:
     typedef shared_ptr<OWLDataRange> Ptr;
     typedef std::vector<Ptr> PtrList;
 
-    enum Type { COMPLEMENT_OF,
-        INTERSECTION_OF,
-        ONE_OF,
-        UNION_OF,
+    enum Type {
         DATATYPE,
+        DATA_INTERSECTION_OF,
+        DATA_UNION_OF,
+        DATA_COMPLEMENT_OF,
+        DATA_ONE_OF,
         DATATYPE_RESTRICTION
     };
 

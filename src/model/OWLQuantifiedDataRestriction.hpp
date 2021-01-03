@@ -14,14 +14,14 @@ public:
     typedef shared_ptr<OWLQuantifiedDataRestriction> Ptr;
 
     OWLQuantifiedDataRestriction()
-        : OWLDataRestriction()
-        , OWLQuantifiedRestriction<OWLDataRange>()
+        : OWLQuantifiedRestriction<OWLDataRange>()
+        , OWLDataRestriction()
     {}
 
     OWLQuantifiedDataRestriction(const OWLDataPropertyExpression::Ptr& property,
             const OWLDataRange::Ptr& dataRange)
-        : OWLDataRestriction(property)
-        , OWLQuantifiedRestriction<OWLDataRange>(property, dataRange)
+        : OWLQuantifiedRestriction<OWLDataRange>(property, dataRange)
+        , OWLDataRestriction(property)
     {}
 
     virtual ~OWLQuantifiedDataRestriction() = default;

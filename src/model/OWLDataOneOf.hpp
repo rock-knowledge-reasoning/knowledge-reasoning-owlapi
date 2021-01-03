@@ -12,12 +12,16 @@ class OWLDataOneOf : public OWLDataRange
 public:
     typedef shared_ptr<OWLDataOneOf> Ptr;
 
-    OWLDataOneOf(const IRIList& list);
+    OWLDataOneOf(const IRIList& iris);
 
     OWLDataOneOf(const OWLLiteral::PtrList& literals =
             OWLLiteral::PtrList());
 
     const OWLLiteral::PtrList& getLiterals() const { return mLiterals; }
+
+    OWLDataRange::Type getDataRangeType() const { return DATA_ONE_OF; }
+
+
 private:
     OWLLiteral::PtrList mLiterals;
 };

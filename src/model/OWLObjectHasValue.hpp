@@ -4,19 +4,27 @@
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
 #include "OWLHasValueRestriction.hpp"
-#include <owlapi/Vocabulary.hpp>
+#include "OWLObjectRestriction.hpp"
+#include "OWLIndividual.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLObjectHasValue : public OWLHasValueRestriction
+class OWLObjectHasValue : public OWLHasValueRestriction<OWLIndividual>, public OWLObjectRestriction
 {
 public:
-    OWLObjectHasValue(OWLObjectPropertyExpression::Ptr property, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLHasValueRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
+    typedef shared_ptr<OWLObjectHasValue> Ptr;
+
+    OWLObjectHasValue(
+            const OWLObjectPropertyExpression::Ptr& property,
+            const OWLIndividual::Ptr& individual
+    )
+        : OWLHasValueRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property),individual)
+        , OWLObjectRestriction(property)
     {}
 
-    virtual ~OWLObjectHasValue() {}
+    virtual ~OWLObjectHasValue() = default;
 
     ClassExpressionType getClassExpressionType() const { return OBJECT_HAS_VALUE; }
 

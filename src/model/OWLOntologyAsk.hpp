@@ -112,7 +112,7 @@ public:
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const std::vector<IRI>& klasses,
             const IRI& objectProperty = IRI(),
-            OWLCardinalityRestriction::OperationType operationType = OWLCardinalityRestriction::SUM_OP) const;
+            OWLCardinalityRestrictionOps::OperationType operationType = OWLCardinalityRestrictionOps::SUM_OP) const;
 
     /* Get all cardinality restrictions whose qualification is a (direct)
      * subclass of one of the classes list in the filter

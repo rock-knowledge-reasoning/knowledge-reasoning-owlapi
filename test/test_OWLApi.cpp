@@ -121,22 +121,22 @@ BOOST_AUTO_TEST_CASE(property_expressions)
 BOOST_AUTO_TEST_CASE(class_expressions)
 {
     using namespace owlapi::model;
-    OWLClass baseClass("baseClass");
+    OWLClass::Ptr baseClass = make_shared<OWLClass>("baseClass");
 
     IRI has("has");
-    OWLObjectProperty::Ptr oPropertyPtr(new OWLObjectProperty(has));
+    OWLObjectProperty::Ptr oPropertyPtr = make_shared<OWLObjectProperty>(has);
     uint32_t cardinality = 10;
-    OWLCardinalityRestriction::Ptr oe(new OWLObjectExactCardinality(oPropertyPtr, cardinality, baseClass.getIRI()) );
+    OWLObjectCardinalityRestriction::Ptr oe = make_shared<OWLObjectExactCardinality>(oPropertyPtr, cardinality, baseClass);
 
     BOOST_REQUIRE( oe->getCardinality() == cardinality );
     BOOST_REQUIRE( oe->getCardinalityRestrictionType() == OWLCardinalityRestriction::EXACT );
     BOOST_REQUIRE( oe->isQualified() );
-    BOOST_REQUIRE( oe->getQualification() == baseClass.getIRI() );
+    BOOST_REQUIRE( oe->getFiller() == baseClass);
 
     // ClassRestriction
     IRI name("individual");
     OWLIndividual::Ptr individualPtr(new OWLNamedIndividual( name ));
-    OWLClassAssertionAxiom ce(individualPtr, oe);
+    OWLClassAssertionAxiom ce(individualPtr, dynamic_pointer_cast<OWLClassExpression>(oe));
     BOOST_REQUIRE( ce.getIndividual() == individualPtr);
     BOOST_REQUIRE( ce.getClassExpression() == oe );
 }
@@ -144,23 +144,35 @@ BOOST_AUTO_TEST_CASE(class_expressions)
 BOOST_AUTO_TEST_CASE(cardinality_restrictions)
 {
     using namespace owlapi::model;
-    OWLClass fork("fork");
-    OWLClass spoon("spoon");
-    OWLClass knife("knife");
+    OWLClass::Ptr fork = make_shared<OWLClass>("fork");
+    OWLClass::Ptr spoon = make_shared<OWLClass>("spoon");
+    OWLClass::Ptr knife = make_shared<OWLClass>("knife");
 
     IRI has("has");
-    OWLObjectProperty::Ptr oPropertyPtr(new OWLObjectProperty(has));
+    OWLObjectProperty::Ptr oPropertyPtr = make_shared<OWLObjectProperty>(has);
+    BOOST_REQUIRE_MESSAGE( dynamic_pointer_cast<OWLObjectPropertyExpression>(oPropertyPtr),
+            "Object property is an object property expression");
 
     {
         uint32_t cardinality = 2;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::createInstance(
+                oPropertyPtr, cardinality, fork, OWLCardinalityRestriction::EXACT);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+        BOOST_REQUIRE_MESSAGE(forkRestriction0, "Restriction created");
+        BOOST_REQUIRE_MESSAGE(forkRestriction0->getProperty(), "Restriction has property");
+
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::createInstance(
+                oPropertyPtr, cardinality, fork, OWLCardinalityRestriction::EXACT);
+        BOOST_REQUIRE_MESSAGE(forkRestriction1, "Restriction created");
+        BOOST_REQUIRE_MESSAGE(forkRestriction1->getProperty(), "Restriction has property");
+
+        BOOST_REQUIRE_MESSAGE(dynamic_pointer_cast<OWLCardinalityRestriction>(forkRestriction1)->getProperty(), "Property is available");
+
+        BOOST_REQUIRE_MESSAGE(forkRestriction0->isOverlapping(dynamic_pointer_cast<OWLCardinalityRestriction>(forkRestriction1)),
+                "Restrictions overlap");
 
         OWLCardinalityRestriction::Ptr restriction =
-            OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
+            OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1);
 
         BOOST_REQUIRE_MESSAGE(restriction, "Merging exact restrictions of same cardinality");
     }
@@ -168,102 +180,102 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::EXACT);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, fork, OWLCardinalityRestriction::EXACT);
 
-        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
     }
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+        OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::EXACT);
 
-        OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+        OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, spoon, OWLCardinalityRestriction::EXACT);
 
-        BOOST_REQUIRE_NO_THROW(OWLCardinalityRestriction::intersection(forkRestriction, spoonRestriction));
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction, spoonRestriction);
+        BOOST_REQUIRE_NO_THROW(OWLCardinalityRestrictionOps::intersection(forkRestriction, spoonRestriction));
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestrictionOps::intersection(forkRestriction, spoonRestriction);
         BOOST_REQUIRE_MESSAGE(!restriction, "Non overlapping restrictions return null pointer");
     }
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::MIN);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::MIN);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MIN);
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, fork, OWLCardinalityRestriction::MIN);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == cardinality1, "Min cardinality takes max");
     }
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::MAX);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MAX);
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, fork, OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == cardinality0, "Max cardinality takes min");
     }
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::MIN);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::MIN);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MAX);
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, fork, OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1);
+        OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1);
         BOOST_REQUIRE_MESSAGE(!restriction, "Min max cardinality returns null pointer if valid");
     }
     {
         uint32_t cardinality0 = 2;
         uint32_t cardinality1 = 4;
-        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality0, fork.getIRI(), OWLCardinalityRestriction::MAX);
+        OWLCardinalityRestriction::Ptr forkRestriction0 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality0, fork, OWLCardinalityRestriction::MAX);
 
-        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLCardinalityRestriction::getInstance(
-                oPropertyPtr, cardinality1, fork.getIRI(), OWLCardinalityRestriction::MIN);
+        OWLCardinalityRestriction::Ptr forkRestriction1 = OWLObjectCardinalityRestriction::getInstance(
+                oPropertyPtr, cardinality1, fork, OWLCardinalityRestriction::MIN);
 
-        BOOST_REQUIRE_THROW(OWLCardinalityRestriction::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(OWLCardinalityRestrictionOps::intersection(forkRestriction0, forkRestriction1), std::invalid_argument);
     }
 
     {
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsA;
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
             restrictionsA.push_back(forkRestriction);
             restrictionsA.push_back(spoonRestriction);
         }
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
             restrictionsB.push_back(forkRestriction);
             restrictionsB.push_back(spoonRestriction);
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::intersection(restrictionsA, restrictionsB);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets should reduce to size 2");
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::intersection(restrictionsB, restrictionsA);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 2, "Intersected sets (reverse) should reduce to size 2");
         }
     }
@@ -272,32 +284,32 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsA;
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr knifeRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 3, knife.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr knifeRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 3, knife, OWLCardinalityRestriction::EXACT);
             restrictionsA.push_back(forkRestriction);
             restrictionsA.push_back(spoonRestriction);
             restrictionsA.push_back(knifeRestriction);
         }
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
             restrictionsB.push_back(forkRestriction);
             restrictionsB.push_back(spoonRestriction);
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsA, restrictionsB);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::intersection(restrictionsA, restrictionsB);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets should reduce to size 3");
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::intersection(restrictionsB, restrictionsA);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::intersection(restrictionsB, restrictionsA);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Intersected sets (reverse) should reduce to size 3");
         }
     }
@@ -309,13 +321,13 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
             std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
 
             {
-                OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                        oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
+                OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                        oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
 
                 restrictionsA.push_back(forkRestriction);
                 restrictionsB.push_back(forkRestriction->clone());
 
-                std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsA, restrictionsB);
+                std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::join(restrictionsA, restrictionsB);
                 BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 1, "Joined set expected to reduce to size 1, size was " << cardinalityRestrictions.size());
             }
         }
@@ -324,40 +336,40 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         std::vector<OWLCardinalityRestriction::Ptr> restrictionsB;
 
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr knifeRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 3, knife.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr knifeRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 3, knife, OWLCardinalityRestriction::EXACT);
             restrictionsA.push_back(forkRestriction);
             restrictionsA.push_back(spoonRestriction);
             restrictionsA.push_back(knifeRestriction);
         }
         {
-            OWLCardinalityRestriction::Ptr forkRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, fork.getIRI(), OWLCardinalityRestriction::EXACT);
-            OWLCardinalityRestriction::Ptr spoonRestriction = OWLCardinalityRestriction::getInstance(
-                    oPropertyPtr, 1, spoon.getIRI(), OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr forkRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, fork, OWLCardinalityRestriction::EXACT);
+            OWLCardinalityRestriction::Ptr spoonRestriction = OWLObjectCardinalityRestriction::getInstance(
+                    oPropertyPtr, 1, spoon, OWLCardinalityRestriction::EXACT);
             restrictionsB.push_back(forkRestriction);
             restrictionsB.push_back(spoonRestriction);
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsA, restrictionsB);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::join(restrictionsA, restrictionsB);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Joined sets should reduce to size 3");
 
             std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = cardinalityRestrictions.begin();
             for(;cit != cardinalityRestrictions.end(); ++cit)
             {
-                OWLCardinalityRestriction::Ptr restriction = *cit;
-                if(restriction->getQualification() == fork.getIRI())
+                OWLObjectCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(*cit);
+                if(restriction->getFiller() == fork)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for fork should have cardinality 2");
-                } else if(restriction->getQualification() == spoon.getIRI())
+                } else if(restriction->getFiller() == spoon)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for spoon should have cardinality 2");
-                } else if(restriction->getQualification() == knife.getIRI())
+                } else if(restriction->getFiller() == knife)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 3, "Joined restrictions for knife should have cardinality 3");
                 }
@@ -365,20 +377,20 @@ BOOST_AUTO_TEST_CASE(cardinality_restrictions)
         }
 
         {
-            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestriction::join(restrictionsB, restrictionsA);
+            std::vector<OWLCardinalityRestriction::Ptr> cardinalityRestrictions = OWLCardinalityRestrictionOps::join(restrictionsB, restrictionsA);
             BOOST_REQUIRE_MESSAGE(cardinalityRestrictions.size() == 3, "Joined sets (reverse) should reduce to size 3");
 
             std::vector<OWLCardinalityRestriction::Ptr>::const_iterator cit = cardinalityRestrictions.begin();
             for(;cit != cardinalityRestrictions.end(); ++cit)
             {
-                OWLCardinalityRestriction::Ptr restriction = *cit;
-                if(restriction->getQualification() == fork.getIRI())
+                OWLObjectCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(*cit);
+                if(restriction->getFiller() == fork)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for fork should have cardinality 2");
-                } else if(restriction->getQualification() == spoon.getIRI())
+                } else if(restriction->getFiller() == spoon)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 2, "Joined restrictions for spoon should have cardinality 2");
-                } else if(restriction->getQualification() == knife.getIRI())
+                } else if(restriction->getFiller() == knife)
                 {
                     BOOST_REQUIRE_MESSAGE(restriction->getCardinality() == 3, "Joined restrictions for knife should have cardinality 3");
                 }

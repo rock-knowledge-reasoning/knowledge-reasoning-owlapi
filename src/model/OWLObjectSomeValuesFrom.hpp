@@ -3,22 +3,23 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
-#include "OWLSomeValuesFromRestriction.hpp"
-#include <owlapi/Vocabulary.hpp>
+#include "OWLQuantifiedObjectRestriction.hpp"
+#include "../Vocabulary.hpp"
 
 namespace owlapi {
 namespace model {
 
-class OWLObjectSomeValuesFrom : public OWLSomeValuesFromRestriction
+class OWLObjectSomeValuesFrom : public OWLQuantifiedObjectRestriction
 {
 public:
-    OWLObjectSomeValuesFrom(OWLObjectPropertyExpression::Ptr property, const OWLQualification& qualification = owlapi::vocabulary::OWL::Thing())
-        : OWLSomeValuesFromRestriction( dynamic_pointer_cast<OWLPropertyExpression>(property), qualification)
+    OWLObjectSomeValuesFrom(const OWLObjectPropertyExpression::Ptr& property,
+            const OWLClassExpression::Ptr& classExpression)
+        : OWLQuantifiedObjectRestriction(property, classExpression)
     {}
 
-    virtual ~OWLObjectSomeValuesFrom() {}
+    virtual ~OWLObjectSomeValuesFrom() = default;
 
-    ClassExpressionType getClassExpressionType() const { return OBJECT_SOME_VALUES_FROM; }
+    OWLClassExpression::ClassExpressionType getClassExpressionType() const { return OBJECT_SOME_VALUES_FROM; }
 
     bool isClassExpressionLiteral() const { return false; }
 };

@@ -20,7 +20,6 @@ namespace model {
 class OWLRestriction : public OWLAnonymousClassExpression
 {
     friend class owlapi::io::OWLOntologyReader;
-    OWLPropertyExpression::Ptr mpProperty;
 
 public:
     typedef shared_ptr<OWLRestriction> Ptr;
@@ -28,16 +27,18 @@ public:
     /**
      * Default constructor to allow usage of this class in a map
      */
-    OWLRestriction() = default;
+    OWLRestriction();
 
-    OWLRestriction(const OWLPropertyExpression::Ptr& property)
-        : OWLAnonymousClassExpression()
-        , mpProperty(property)
-    {}
+    /**
+     * Do not use this constructor when referring to the
+     * virtual public base class, since data member will not be
+     * initialized, unless you call this constructor in the leaf class
+     */
+    OWLRestriction(const OWLPropertyExpression::Ptr& property);
 
-    virtual ~OWLRestriction() {}
+    virtual ~OWLRestriction() = default;
 
-    virtual OWLPropertyExpression::Ptr getProperty() const { return mpProperty; }
+    virtual const OWLPropertyExpression::Ptr& getProperty() const;
 
     /**
      * Set property
@@ -47,7 +48,10 @@ public:
     virtual bool isDataRestriction() const;
     virtual bool isObjectRestriction() const;
 
-    virtual std::string toString() const;
+    virtual std::string toString() const override;
+
+protected:
+    OWLPropertyExpression::Ptr mpProperty;
 };
 
 typedef std::vector<OWLRestriction::Ptr> OWLRestrictionPtrList;

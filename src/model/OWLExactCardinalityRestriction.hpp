@@ -11,7 +11,7 @@ class OWLExactCardinalityRestriction : public OWLCardinalityRestriction
 public:
     typedef shared_ptr<OWLExactCardinalityRestriction> Ptr;
 
-    OWLExactCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality, const OWLQualification& qualification);
+    OWLExactCardinalityRestriction(OWLPropertyExpression::Ptr property, uint32_t cardinality);
 
     virtual ~OWLExactCardinalityRestriction();
 };
