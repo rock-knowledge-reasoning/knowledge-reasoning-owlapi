@@ -85,6 +85,7 @@ rock_library(owlapi
         model/HasAnnotationValue.hpp
         model/HasFiller.hpp
         model/HasIRI.hpp
+        model/HasOperands.hpp
         model/HasProperty.hpp
         model/HasSubject.hpp
         model/IRI.hpp
@@ -107,6 +108,7 @@ rock_library(owlapi
         model/OWLAxiom.hpp
         model/OWLAxiomRetractVisitor.hpp
         model/OWLAxiomVisitor.hpp
+        model/OWLBooleanClassExpression.hpp
         model/OWLCardinalityRestriction.hpp
         model/OWLClassAssertionAxiom.hpp
         model/OWLClassAxiom.hpp
@@ -164,6 +166,7 @@ rock_library(owlapi
         model/OWLNamedIndividual.hpp
         model/OWLNamedObject.hpp
         model/OWLNaryAxiom.hpp
+        model/OWLNaryBooleanExpression.hpp
         model/OWLNaryClassAxiom.hpp
         model/OWLObjectAllValuesFrom.hpp
         model/OWLObjectExactCardinality.hpp
