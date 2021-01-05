@@ -13,7 +13,7 @@ public:
 
     bool isAnonymous() const override { return true; }
 
-    ClassExpressionType getClassExpressionType() const override { return OWLClassExpression::ANONYMOUS; }
+    virtual ClassExpressionType getClassExpressionType() const override { return OWLClassExpression::ANONYMOUS; }
 };
 
 } // end namespace model

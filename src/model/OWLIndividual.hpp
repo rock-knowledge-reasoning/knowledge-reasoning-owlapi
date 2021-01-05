@@ -1,6 +1,7 @@
 #ifndef OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 #define OWLAPI_MODEL_OWL_INDIVIDUAL_HPP
 
+#include <vector>
 #include "OWLPropertyAssertionObject.hpp"
 #include "IRI.hpp"
 
@@ -15,8 +16,9 @@ class OWLIndividual : public OWLPropertyAssertionObject
 {
 public:
     typedef shared_ptr<OWLIndividual> Ptr;
+    typedef std::vector<Ptr> PtrList;
 
-    virtual ~OWLIndividual() {}
+    virtual ~OWLIndividual() = default;
 
     virtual IRI getReferenceID() const { throw std::runtime_error("owlapi::model::OWLIndividual::getReferenceID: not implemented"); }
 

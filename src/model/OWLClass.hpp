@@ -23,9 +23,9 @@ public:
     /**
      * Default constructor
      */
-    OWLClass(const IRI& iri);
+    OWLClass(const IRI& iri = IRI());
 
-    virtual ~OWLClass() {}
+    virtual ~OWLClass() = default;
 
     /**
      * Test if this class is the top entity, i.e. owl:Thing

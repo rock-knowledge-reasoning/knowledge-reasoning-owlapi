@@ -15,9 +15,12 @@ class OWLClassAssertionAxiom : public OWLIndividualAxiom
 public:
     typedef shared_ptr<OWLClassAssertionAxiom> Ptr;
 
-    virtual ~OWLClassAssertionAxiom() {}
+    virtual ~OWLClassAssertionAxiom() = default;
 
-    OWLClassAssertionAxiom(OWLIndividual::Ptr individual, OWLClassExpression::Ptr classExpression, OWLAnnotationList annotations = OWLAnnotationList())
+    OWLClassAssertionAxiom(
+        const OWLIndividual::Ptr& individual,
+        const OWLClassExpression::Ptr& classExpression,
+        const OWLAnnotationList& annotations = OWLAnnotationList())
         : OWLIndividualAxiom(OWLAxiom::ClassAssertion, annotations)
         , mpIndividual(individual)
         , mpClassExpression(classExpression)
