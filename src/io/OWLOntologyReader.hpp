@@ -5,10 +5,17 @@
 #include "../db/rdf/SparqlInterface.hpp"
 
 namespace owlapi {
+namespace io {
+
+class OntologyChange;
+
+}
 namespace model {
 
 class OWLOntologyTell;
 class OWLOntologyAsk;
+class OWLFacetRestriction;
+class OWLObjectRestriction;
 
 }
 
@@ -24,12 +31,17 @@ class OWLOntologyReader
     db::query::SparqlInterface* mSparqlInterface;
 
     std::vector<owlapi::model::IRI> mRestrictions;
-    std::map<owlapi::model::IRI, std::vector<owlapi::model::OWLClass::Ptr> > mAnonymousRestrictions;
+    std::map<owlapi::model::IRI, std::vector< shared_ptr<OntologyChange> > > mAnonymousOntologyChanges;
     std::map<owlapi::model::IRI, owlapi::model::OWLCardinalityRestriction> mCardinalityRestrictions;
     std::map<owlapi::model::IRI, owlapi::model::OWLValueRestriction> mValueRestrictions;
 
     typedef std::pair<owlapi::model::IRI, owlapi::model::IRI> HeadTail;
     std::map<owlapi::model::IRI, HeadTail > mAnonymousLists;
+    std::map<owlapi::model::IRI, owlapi::model::OWLFacetRestriction::List> mAnonymousListsOfFacetRestrictions;
+    std::map<owlapi::model::IRI, owlapi::model::OWLFacetRestriction> mFacetRestrictions;
+    std::map<owlapi::model::IRI, owlapi::model::OWLDataTypeRestriction::Ptr> mAnonymousDataTypeRestrictions;
+
+    std::map<owlapi::model::IRI, owlapi::model::OWLObjectRestriction::Ptr> mAnonymousObjectRestrictions;
 
     /// The currently opened path
     std::string mAbsolutePath;
@@ -47,7 +59,10 @@ protected:
     void loadDataProperties(owlapi::model::OWLOntology::Ptr& ontology);
     void loadAnnotationProperties(owlapi::model::OWLOntology::Ptr& ontology);
     void loadAnonymousLists(owlapi::model::OWLOntology::Ptr& ontology);
-    owlapi::model::IRIList getList(const owlapi::model::IRI& anonymousId);
+    void loadDataTypeRestrictions(owlapi::model::OWLOntology::Ptr& ontology);
+    void loadObjectRestrictions(owlapi::model::OWLOntology::Ptr& ontology);
+    owlapi::model::IRIList getList(const owlapi::model::IRI& anonymousId,
+            const std::map<owlapi::model::IRI, HeadTail>& anonymousLists);
 
 public:
     /**

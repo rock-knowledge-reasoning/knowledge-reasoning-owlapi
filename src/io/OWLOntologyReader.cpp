@@ -4,12 +4,31 @@
 #include <utilmm/configfile/pkgconfig.hh>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <iostream>
 
 #include "../model/OWLOntologyTell.hpp"
 #include "../db/rdf/Redland.hpp"
 #include "../db/rdf/Sparql.hpp"
 #include "../Vocabulary.hpp"
+#include "changes/AddEquivalentClasses.hpp"
+#include "changes/AddSubClassOfAnonymous.hpp"
 #include "OWLOntologyIO.hpp"
+#include "../model/OWLDataSomeValuesFrom.hpp"
+#include "../model/OWLDataAllValuesFrom.hpp"
+#include "../model/OWLDataRange.hpp"
+#include "../model/OWLDataCardinalityRestriction.hpp"
+
+#include "../model/OWLObjectCardinalityRestriction.hpp"
+#include "../model/OWLObjectMinCardinality.hpp"
+#include "../model/OWLObjectMaxCardinality.hpp"
+#include "../model/OWLObjectExactCardinality.hpp"
+
+#include "../model/OWLObjectSomeValuesFrom.hpp"
+#include "../model/OWLObjectAllValuesFrom.hpp"
+#include "../model/OWLObjectIntersectionOf.hpp"
+#include "../model/OWLObjectUnionOf.hpp"
+#include "../model/OWLObjectOneOf.hpp"
+#include "../model/OWLObjectComplementOf.hpp"
 
 using namespace owlapi::db::query;
 using namespace owlapi::model;
@@ -142,8 +161,6 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
     // TODO: introduce rdf triple parser
     // http://www.w3.org/TR/owl-parsing/#subsec-streaming
     {
-        std::vector< std::pair<IRI,IRI> > instances;
-
         db::query::Results results = findAll(Subject(), Predicate(), Object());
         ResultsIterator it(results);
         while(it.next())
@@ -151,6 +168,8 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
             IRI subject = it[Subject()];
             IRI predicate = it[Predicate()];
             IRI object = it[Object()];
+            std::cout << "TRIPLE: "
+                << subject << " " << predicate << " " << object << std::endl;
 
             // Check for all type triples
             if(predicate == vocabulary::RDF::type())
@@ -170,17 +189,16 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
                         if(classType != vocabulary::OWL::NamedIndividual())
                         {
                             tell.instanceOf(subject, classType);
-
                         } else {
-                            LOG_DEBUG_S << "Skipping NamedIndividual " << classType;
+                            LOG_INFO_S << "NamedIndividual: " << subject << " with no class type given, using Thing()";
+                            tell.instanceOf(subject, vocabulary::OWL::Thing());
                         }
                     }
                 } else if(object == vocabulary::RDF::Property())
                 {
-                    // Have to guess the actual type: object, data, annotation,
-                    // ontologyProperty
-                    LOG_WARN_S << "rdf:Property encountered - interpreting as annotationProperty";
-                    tell.annotationProperty(subject);
+                    // Have to guess the actual type for OWL handling
+                    // object, data, annotation, ontologyProperty
+                    tell.rdfProperty(subject);
                 } else if(object == vocabulary::OWL::DatatypeProperty())
                 {
                     tell.dataProperty(subject);
@@ -240,8 +258,32 @@ void OWLOntologyReader::loadDeclarations(OWLOntology::Ptr& ontology, bool direct
             } else if(predicate == vocabulary::OWL::versionIRI())
             {
                 tell.ontology(subject);
+            } else if( OWLFacet::isFacet(predicate) )
+            {
+                mFacetRestrictions[subject] = OWLFacetRestriction(OWLFacet::getFacet(predicate),
+                        OWLLiteral::create(object.toString()));
             }
+
         } // end while
+
+        for(const IRI& rdfProperty : ask.allRDFProperties())
+        {
+            db::query::Results results = findAll(rdfProperty,vocabulary::RDFS::range(),Object());
+            ResultsIterator it(results);
+            while(it.next())
+            {
+                IRI object = it[Object()];
+                if(ask.isDatatype(object))
+                {
+                    tell.dataProperty(rdfProperty);
+                } else if(ask.isOWLIndividual(object))
+                {
+                    tell.objectProperty(rdfProperty);
+                } else {
+                    tell.annotationProperty(rdfProperty);
+                }
+            }
+        }
     }
 }
 
@@ -279,6 +321,9 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
             IRI predicate = it[Predicate()];
             IRI object = it[Object()];
 
+            //std::cout << "TRIPLE "
+            //    << subject << " " << predicate << " " << object << std::endl;
+
             if(predicate == vocabulary::RDFS::subClassOf())
             {
                 // add a new axiom SubClassOf(subject-translation
@@ -300,10 +345,11 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
                 } else {
                     // We have to delay the mapping until the anonymous node has
                     // been fully resolved to a restriction or similar
-                    OWLClass::Ptr e_subject = tell.klass(subject);
-                    // cache the restrictions
-                    mAnonymousRestrictions[object].push_back(e_subject);
 
+                    OWLClass::Ptr e_subject = tell.klass(subject);
+                    OWLAnonymousClassExpression::Ptr e_object = tell.anonymousClass(object);
+
+                    mAnonymousOntologyChanges[object].push_back(make_shared<changes::AddSubClassOfAnonymous>(subject, object));
                     LOG_DEBUG_S << "Add anonymous " << object << " from s: " << subject << ", p: " << predicate << ", o: " << object;
                 }
             } else if(predicate == vocabulary::RDFS::domain())
@@ -346,43 +392,72 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
             } else if(predicate == vocabulary::OWL::inverseOf())
             {
                 // check that subject and object are object properties, if not
-                // raise, else
+                // handled in loadObjectProperties
             } else if(predicate == vocabulary::OWL::oneOf())
             {
                 // object is a node representing a list of named individuals
                 // if l is not a list (of named individuals) raise
+
+                // handled partially in loadAnonymousLists
             } else if(predicate == vocabulary::OWL::intersectionOf())
             {
                 // add the axiom Class(x complete lt1 lt2 .. ltn)
                 // where lt1 ... ltn ard the translated descriptions in the list
                 // l
                 // if l is not a list (of class descriptions) raise an error
-
+                // TODO: handle in loadAnonymousLists
             } else if(predicate == vocabulary::OWL::unionOf())
             {
                 // add the axiom Class(x complete unionOf(lt1 lt2 ..ltn)
                 // otherwise same as intersectionOf
+                // TODO: handle in loadAnonymousLists
             } else if(predicate == vocabulary::OWL::complementOf())
             {
                 // add the axiom Class(x complete complementOf(nt))
                 // where nt is the translation of object, if nt is not a class
                 // description raise
+                // TODO: handle in loadAnonymousLists
             } else if(predicate == vocabulary::OWL::equivalentClass())
             {
-                if(!ask.isOWLClass(object))
+                bool anonymousObject = false;
+                bool anonymousSubject = false;
+
+                if(object.toString().rfind("genid",0) == 0)
                 {
-                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
-                            " equivalentClass: object '" + object.toString() + "'"
-                            " is not a known class");
-                }
-                if(!ask.isOWLClass(subject))
+                    anonymousObject = true;
+                    tell.anonymousClass(object);
+                    LOG_INFO_S << "owlapi::io::OWLOntologyReader::loadAxioms:"
+                            << " equivalentClass: object '" << object << "'"
+                            " is not a known class" <<
+                            " -- " << ontology->getIRI()
+                            << " registering as anonymous";
+                } else if(!ask.isOWLClass(object))
                 {
-                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadAxioms:"
-                            " equivalentClass: subject '" + subject.toString() + "'"
-                            " is not a known class");
+                    tell.klass(object);
                 }
 
-                tell.equalClasses({ subject, object});
+                if(subject.toString().rfind("genid",0) == 0)
+                {
+                    anonymousObject = true;
+                    tell.anonymousClass(object);
+                    LOG_INFO_S << "owlapi::io::OWLOntologyReader::loadAxioms:"
+                            << " equivalentClass: subject '" << subject << "'"
+                            " is not a known class" <<
+                            " -- " << ontology->getIRI()
+                            << " registering as anonymous";
+
+                } else if(!ask.isOWLClass(subject))
+                {
+                    tell.klass(subject);
+                }
+
+                if(anonymousObject)
+                {
+                    IRIList klasses = {subject, object};
+                    mAnonymousOntologyChanges[object].push_back(make_shared<changes::AddEquivalentClasses>(klasses));
+                } else {
+                    tell.equalClasses({ subject, object});
+                }
 
             } else if(predicate == vocabulary::OWL::disjointWith())
             {
@@ -410,6 +485,8 @@ void OWLOntologyReader::loadAxioms(OWLOntology::Ptr& ontology)
 void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 {
     LOG_DEBUG_S << "Loading properties from path: " << mAbsolutePath;
+    //std::cout << "Loading properties from path: " << mAbsolutePath <<
+    //    std::endl;
 
     OWLOntologyTell tell(ontology);
     OWLOntologyAsk ask(ontology);
@@ -460,9 +537,32 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
         }
     }
 
+    loadAnonymousLists(ontology);
+    std::cout << "LOAD OBJECT RESTRICTIONS" << std::endl;
+    loadObjectRestrictions(ontology);
     loadRestrictions(ontology);
 
-    loadAnonymousLists(ontology);
+    // narrow only after property is assigned
+    //OWLValueRestriction::Ptr valueRestrictionPtr = valueRestriction.narrow();
+    //tell.anonymousClass(cit->first, valueRestrictionPtr);
+
+    std::cout << "LOAD CHANGES" << std::endl;
+    // Get anonymous node this restriction is responsible for
+    for(const auto& p : mAnonymousOntologyChanges)
+    {
+        for(OntologyChange::Ptr change : p.second)
+        {
+            switch(change->getChangeType())
+            {
+                case OntologyChange::ADD_SUBCLASSOF_ANONYMOUS:
+                case OntologyChange::ADD_EQUIVALENT_CLASSES:
+                    change->commit(tell);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     loadObjectProperties(ontology);
     loadDataProperties(ontology);
@@ -486,7 +586,14 @@ void OWLOntologyReader::loadProperties(OWLOntology::Ptr& ontology)
 
                 // validate/enforce that subject and object have the same property type
                 // add axiom to assert superproperty
-                tell.subPropertyOf(subject, object);
+                try {
+                    tell.subPropertyOf(subject, object);
+                } catch(const std::exception& e)
+                {
+                    tell.annotationProperty(object);
+                    tell.subPropertyOf(subject, object);
+                }
+
             } else if(predicate == vocabulary::OWL::equivalentProperty())
             {
                 // validate that subject and object have the same property type
@@ -609,12 +716,23 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
                 OWLProperty::Ptr aProperty = ask.getOWLAnnotationProperty( it[Object()] );
                 r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(aProperty));
             } else {
-                throw
-                    std::invalid_argument("owlapi::io::OWLOntologyReader::loadRestrictions:"
-                            " neither object, data nor general property encountered: "
-                             + restriction.toString() + " "
-                             + predicate.toString() + " "
-                             + property.toString());
+                tell.annotationProperty(property);
+                OWLRestriction* r = &restrictionMap[restriction];
+                if (r->getProperty())
+                {
+                    std::stringstream ss;
+                    ss << "Restriction '" << restriction << "' applies to more than one property, but requires to be exactly one";
+                    throw std::invalid_argument("owlapi::Ontology: " + ss.str() );
+                }
+
+                OWLProperty::Ptr aProperty = ask.getOWLAnnotationProperty( it[Object()] );
+                r->setProperty(dynamic_pointer_cast<OWLPropertyExpression>(aProperty));
+                //throw
+                //    std::invalid_argument("owlapi::io::OWLOntologyReader::loadRestrictions:"
+                //            " neither object, data nor general property encountered: "
+                //             + restriction.toString() + " "
+                //             + predicate.toString() + " "
+                //             + property.toString());
             }
         } else if(predicate == vocabulary::OWL::minCardinality() || predicate == vocabulary::OWL::minQualifiedCardinality())
         {
@@ -639,22 +757,13 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
             cardinalityRestrictionPtr->setCardinalityRestrictionType(OWLCardinalityRestriction::EXACT);
         } else if(predicate == vocabulary::OWL::someValuesFrom())
         {
-            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
-
-            valueRestrictionPtr->setQualification(it[Object()]);
-            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::SOME);
+            // handled partially in loadDataTypeRestrictions
         } else if(predicate == vocabulary::OWL::allValuesFrom())
         {
-            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
-
-            valueRestrictionPtr->setQualification(it[Object()]);
-            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
+            // handled partially in loadDataTypeRestrictions
         } else if(predicate == vocabulary::OWL::hasSelf())
         {
-            // FIXME: hasSelf is not a qualified restriction but a value restriction?!?
-            OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
-
-            valueRestrictionPtr->setValueRestrictionType(OWLValueRestriction::ALL);
+            // handled partially in loadDataTypeRestrictions
         } else if(predicate == vocabulary::OWL::hasValue())
         {
             OWLValueRestriction* valueRestrictionPtr = &mValueRestrictions[restriction];
@@ -697,23 +806,26 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
 
                 // Set stuff of associated generic and qualified restriction classes
                 std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
+                OWLPropertyExpression::Ptr property;
                 if (rcit != restrictionMap.end())
                 {
-                    valueRestriction.setProperty(rcit->second.getProperty());
+                    property = rcit->second.getProperty();
+                    valueRestriction.setProperty(property);
                 } else {
                     throw std::invalid_argument("owl::onProperty missing for value restriction");
                 }
 
-                // narrow only after property is assigned
-                OWLValueRestriction::Ptr valueRestrictionPtr = cit->second.narrow();
-
-                // Get anonymous node this restriction is responsible for
-                std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
-                std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
-                for(; sit != subclasses.end(); ++sit)
+                OWLAnnotationProperty::Ptr annotationProperty = dynamic_pointer_cast<OWLAnnotationProperty>(property);
+                if(annotationProperty && ask.isRDFProperty(annotationProperty->getIRI()))
                 {
-                    tell.subClassOf(*sit, valueRestrictionPtr);
+                   // std::cout << "RDF (ANNOTATION) PROPERTY SHOULD BE DATA PROPERTY "
+                   //     << annotationProperty->getIRI() << std::endl;
+                    OWLDataProperty::Ptr dProperty = tell.dataProperty(annotationProperty->getIRI());
+                    valueRestriction.setProperty( dProperty );
+                   // std::cout << "Property type: " << dProperty->toString() << std::endl;
                 }
+
+
             } catch(const std::runtime_error& e)
             {
                 LOG_ERROR_S << "Error handling value restriction: '" << cit->first << "' -- " << e.what();
@@ -736,28 +848,57 @@ void OWLOntologyReader::loadRestrictions(OWLOntology::Ptr& ontology)
             try {
                 // Set stuff of associated generic and qualified restriction classes
                 std::map<IRI, OWLRestriction>::const_iterator rcit = restrictionMap.find(cit->first);
+
+                OWLPropertyExpression::Ptr property;
                 if (rcit != restrictionMap.end())
                 {
-                    cardinalityRestriction.setProperty(rcit->second.getProperty());
+                    property = rcit->second.getProperty();
+                    cardinalityRestriction.setProperty(property);
+
                 } else {
                     throw std::invalid_argument("owl::onProperty missing for cardinality restriction");
                 }
-                std::map<IRI, OWLQualifiedRestriction>::const_iterator qrcit = qualifiedRestrictionMap.find(cit->first);
-                if (qrcit != qualifiedRestrictionMap.end())
+
+                OWLAnnotationProperty::Ptr annotationProperty = dynamic_pointer_cast<OWLAnnotationProperty>(property);
+                if(annotationProperty && ask.isRDFProperty(annotationProperty->getIRI()))
                 {
-                    cardinalityRestriction.setQualification(qrcit->second.getQualification());
+                    if(ask.isDataProperty(annotationProperty->getIRI()))
+                    {
+                        cardinalityRestriction.setProperty( tell.dataProperty(annotationProperty->getIRI()) );
+                    } else
+                    {
+                       // std::cout << "ANNOTATION PROPERTY SHOULD BE OBJECT PROPERTY "
+                       //     << annotationProperty->getIRI() << std::endl;
+                        OWLObjectProperty::Ptr oProperty = tell.objectProperty(annotationProperty->getIRI());
+                        cardinalityRestriction.setProperty(oProperty);
+                    }
                 }
 
-                OWLCardinalityRestriction::Ptr cardinalityRestrictionPtr = cit->second.narrow();
-
-
-                // Get anonymous node this restriction is responsible for
-                std::vector<OWLClass::Ptr> subclasses = mAnonymousRestrictions[cit->first];
-                std::vector<OWLClass::Ptr>::const_iterator sit = subclasses.begin();
-                for(; sit != subclasses.end(); ++sit)
+                // narrow only after property is assigned
+                OWLCardinalityRestriction::Ptr cardinalityRestrictionPtr = cardinalityRestriction.narrow();
+                if(cardinalityRestrictionPtr->isObjectRestriction())
                 {
-                    tell.subClassOf(*sit, cardinalityRestrictionPtr);
+                    OWLObjectCardinalityRestriction::Ptr oRestriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(cardinalityRestrictionPtr);
+                    std::map<IRI, OWLQualifiedRestriction>::const_iterator qrcit = qualifiedRestrictionMap.find(cit->first);
+                    if (qrcit != qualifiedRestrictionMap.end())
+                    {
+                        OWLClassExpression::Ptr classExpression = ask.getOWLClass(qrcit->second.getQualification());
+                        oRestriction->setFiller(classExpression);
+                    }
                 }
+
+                if(cardinalityRestrictionPtr->isDataRestriction())
+                {
+                    OWLDataCardinalityRestriction::Ptr dRestriction = dynamic_pointer_cast<OWLDataCardinalityRestriction>(cardinalityRestrictionPtr);
+                    std::map<IRI, OWLQualifiedRestriction>::const_iterator qrcit = qualifiedRestrictionMap.find(cit->first);
+                    if (qrcit != qualifiedRestrictionMap.end())
+                    {
+                        //OWLDataRange::Ptr dataRange = ask.getOWLDataRange(qrcit->second.getQualification());
+                        //dRestriction->setFiller<OWLDataRange>(dataRange);
+                    }
+                }
+
+                tell.anonymousClass(cit->first, cardinalityRestrictionPtr);
             } catch(const std::runtime_error& e)
             {
                 LOG_ERROR_S << "Error handling cardinality restriction: '" << cit->first << "' -- " << e.what();
@@ -780,7 +921,6 @@ void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
             mAnonymousLists[subject] = HeadTail();
         }
     }
-
     // _:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Datatype> .
     // _:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
     // _:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "DC_External" .
@@ -808,6 +948,9 @@ void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
         {
             IRI subject = it[Subject()];
             mAnonymousLists[ subject ].first = it[Object()];
+
+            //std::cout << " ADD: " << subject << " -- first: " << it[Object()] <<
+            //    std::endl;
         }
     }
 
@@ -820,6 +963,11 @@ void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
             mAnonymousLists[ subject ].second = it[Object()];
         }
     }
+
+    // Ensure that all facet and restrictions are loaded for anonymous
+    // datatypes and added to the ontology+reasoner as restricted
+    // although anonymous datatypes
+    loadDataTypeRestrictions(ontology);
 
     {
         db::query::Results results = findAll(Subject(), Predicate(), Object());
@@ -834,11 +982,17 @@ void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
             {
                 // object is a node representing a list of named individuals
                 // if l is not a list (of named individuals) raise
-                if( ask.isSubClassOf(subject, vocabulary::RDFS::Datatype() ))
+                if( ask.isDatatype(subject) )
                 {
-                    owlapi::model::IRIList list = getList(object);
-                    tell.dataOneOf(subject, list);
-
+                    // TODO: 2maz
+                    //owlapi::model::IRIList list = getList(object, mAnonymousLists);
+                    //tell.dataOneOf(subject, list);
+                } else if(ask.isOWLClass(subject))
+                {
+                    owlapi::model::IRIList list = getList(object, mAnonymousLists);
+                    //std::cout << "subject " << subject << " oneOf " << list <<
+                    //    std::endl;
+                    //tell.objectOneOf(subject, list);
                 }
             } else if(predicate == vocabulary::OWL::intersectionOf())
             {
@@ -861,27 +1015,493 @@ void OWLOntologyReader::loadAnonymousLists(OWLOntology::Ptr& ontology)
     }
 }
 
-owlapi::model::IRIList OWLOntologyReader::getList(const owlapi::model::IRI& anonymousId)
+void OWLOntologyReader::loadDataTypeRestrictions(OWLOntology::Ptr& ontology)
+{
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    {
+        // genid11 http://www.w3.org/2002/07/owl#withRestrictions genid10
+        // genid11 http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.w3.org/2000/01/rdf-schema#Datatype
+        // genid11 http://www.w3.org/2002/07/owl#onDatatype http://www.w3.org/2001/XMLSchema#double
+
+        // Find declarations of anonymous lists resulting from restriction definition
+
+        db::query::Variable propertyVar("?property");
+        db::rdf::sparql::Query customQuery;
+        customQuery.select(db::query::Subject())
+                .select(propertyVar)
+                .select(db::query::Object())
+               .beginWhere() \
+               .triple(db::query::Subject(),vocabulary::OWL::withRestrictions(),
+                       propertyVar)
+               .triple(db::query::Subject(), vocabulary::OWL::onDatatype(), Object())
+               .endWhere();
+
+        //Results results = findAll(Subject(), vocabulary::OWL::withRestrictions(), Object());
+        Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            if(!ask.isDatatype(subject))
+            {
+                LOG_DEBUG_S << subject << " is not a datatype" << std::endl;
+                continue;
+            }
+
+            const IRI& anonymousId = it[propertyVar];
+            const IRI& object = it[Object()];
+
+            OWLFacetRestriction::List facetRestrictions;
+            // Find declarations for data restrictions
+            OWLDataTypeRestriction::Ptr dataTypeRestriction;
+            LOG_DEBUG_S << "Search for: " <<
+                subject << " onDatatype";
+            //Results dataTypeResults = findAll(subject, vocabulary::OWL::onDatatype(), Object());
+            //ResultsIterator dtIt(dataTypeResults);
+            //while(dtIt.next())
+            //{
+                //IRI anonymousSubject = dtIt[Subject()];
+            //    IRI object = dtIt[Object()];
+                //if(anonymousSubject != subject)
+                //    continue;
+
+                LOG_DEBUG_S << "Datatype restriction found: " << object << std::endl
+                    << " registering for " << subject;
+
+                dataTypeRestriction = make_shared<OWLDataTypeRestriction>(make_shared<OWLDataType>(object));
+                mAnonymousDataTypeRestrictions[subject] = dataTypeRestriction;
+            //}
+
+            owlapi::model::IRIList iris = getList(anonymousId, mAnonymousLists);
+            //for(const auto& p : mAnonymousLists)
+            //{
+            //    std::cout << "Anonymous: " << p.first << ", " << std::endl;
+            //}
+            //std::cout << std::endl << "RESTRICTION IRI: for " << anonymousId <<
+            //    " " <<  iris << std::endl;
+            for(const IRI& iri : iris)
+            {
+                std::map<IRI, OWLFacetRestriction>::const_iterator cit =  mFacetRestrictions.find(iri);
+                if(cit == mFacetRestrictions.end())
+                {
+                    throw std::runtime_error("owlapi::model::OWLOntologyReader::loadFacetRestrictionsLists:"
+                            " failed to identify anonymous id '" + iri.toString() +
+                            "' as facet restriction");
+                } else {
+                    facetRestrictions.push_back(cit->second);
+                }
+            }
+
+            if(!facetRestrictions.empty())
+            {
+                if(dataTypeRestriction)
+                {
+                    dataTypeRestriction->setFacetRestrictions(facetRestrictions);
+                } else {
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadFacetRestrictionsLists:"
+                            " could not find datatype restriction for facet restriction list '" +
+                            anonymousId.toString() + "'");
+                }
+            }
+        }
+    }
+
+
+    IRIList predicates = {
+        vocabulary::OWL::allValuesFrom(),
+        vocabulary::OWL::someValuesFrom()
+    };
+
+    for(const IRI& predicate : predicates)
+    {
+        db::query::Variable propertyVar("?property");
+        db::rdf::sparql::Query customQuery;
+        customQuery.select(db::query::Subject())
+                .select(propertyVar)
+                .select(db::query::Object())
+               .beginWhere() \
+               .triple(db::query::Subject(),vocabulary::OWL::onProperty(), propertyVar)
+               .triple(propertyVar, vocabulary::RDF::type(), vocabulary::OWL::DatatypeProperty())
+               .triple(db::query::Subject(), predicate, db::query::Object())
+               .endWhere();
+
+        //Results results = findAll(Subject(), vocabulary::OWL::withRestrictions(), Object());
+        Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+        //Results results = findAll(Subject(), vocabulary::OWL::onProperty(), Object());
+        ResultsIterator it(results);
+        while(it.next())
+        {
+            IRI subject = it[Subject()];
+            IRI object = it[Object()];
+            IRI property = it[propertyVar];
+
+            if(!ask.isDataProperty(property))
+            {
+                continue;
+            }
+
+            std::cout << "ON PROPERTY: " << subject << "   " << property << std::endl;
+            // Declare lists resulting from restriction definition
+            //for(const auto& r : mAnonymousDataTypeRestrictions)
+            //{
+            OWLDataProperty::Ptr restrictedProperty = ask.getOWLDataProperty(property);
+            if(!restrictedProperty)
+            {
+                throw
+                    std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                            "failed to identify property: " +
+                            property.toString());
+            }
+
+            std::map<IRI,
+                OWLDataTypeRestriction::Ptr>::const_iterator cit = mAnonymousDataTypeRestrictions.find(object);
+            if(cit == mAnonymousDataTypeRestrictions.end())
+            {
+                throw
+                    std::runtime_error("owlapi::model::OWLOntologyReader::loadDataTypeRestrictions:"
+                            " failed to locate anonymous restriction '"
+                            + object.toString() + "'");
+            }
+
+            OWLDataTypeRestriction::Ptr datatypeRestrictions = cit->second;
+            OWLDataRestriction::Ptr dataRestriction;
+            if(predicate == vocabulary::OWL::someValuesFrom())
+            {
+                OWLDataSomeValuesFrom::Ptr someValuesFrom =
+                    make_shared<OWLDataSomeValuesFrom>(
+                            restrictedProperty,
+                            datatypeRestrictions);
+                if(!dynamic_pointer_cast<OWLDataRestriction>(someValuesFrom))
+                {
+                    throw
+                        std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                "failed to identify OWLDataRestriction");
+                }
+
+                std::cout << "TELL SOME VALUES FROM: " <<
+                    restrictedProperty->toString() << std::endl;
+
+                dataRestriction =
+                    dynamic_pointer_cast<OWLDataRestriction>(someValuesFrom);
+            } else if(predicate == vocabulary::OWL::allValuesFrom())
+            {
+                OWLDataAllValuesFrom::Ptr allValuesFrom = make_shared<OWLDataAllValuesFrom>(restrictedProperty,
+                        datatypeRestrictions
+                );
+                if(!dynamic_pointer_cast<OWLDataRestriction>(allValuesFrom))
+                {
+                    throw
+                        std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                "failed to identify OWLDataRestriction");
+                }
+                dataRestriction =
+                    dynamic_pointer_cast<OWLDataRestriction>(allValuesFrom);
+
+            } else if(predicate == vocabulary::OWL::sameAs())
+            {
+            }
+
+            if(dataRestriction)
+            {
+                tell.dataPropertyRestriction(subject, dataRestriction);
+            }
+        }
+    }
+}
+
+// TODO: 2maz
+void OWLOntologyReader::loadObjectRestrictions(OWLOntology::Ptr& ontology)
+{
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    // simple cardinalities
+    {
+        IRIList predicates = {
+            vocabulary::OWL::cardinality(),
+            vocabulary::OWL::minCardinality(),
+            vocabulary::OWL::maxCardinality(),
+        };
+
+        for(const IRI& predicate : predicates)
+        {
+            //_:genid5 <http://www.w3.org/2002/07/owl#oneOf> _:genid4 .
+            //_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> .
+            //_:genid6 <http://www.w3.org/2002/07/owl#onProperty> <http://www.rock-robotics.org/test/turtle/restrictions#hasComponent> .
+            //_:genid6 <http://www.w3.org/2002/07/owl#allValuesFrom> _:genid5 .
+            //<http://www.rock-robotics.org/test/turtle/restrictions#Item> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+            //<http://www.rock-robotics.org/test/turtle/restrictions#Item> <http://www.w3.org/2000/01/rdf-schema#subClassOf> _:genid6 .
+            // Find declarations of anonymous lists resulting from restriction definition
+            db::query::Variable propertyVar("?property");
+            db::query::Variable cardinalityVar("?card");
+            db::rdf::sparql::Query customQuery;
+            customQuery.select(db::query::Subject())
+                    .select(propertyVar)
+                    .select(cardinalityVar)
+                   .beginWhere() \
+                   .triple(db::query::Subject(),vocabulary::OWL::onProperty(), propertyVar)
+                   .triple(propertyVar, vocabulary::RDF::type(), vocabulary::OWL::ObjectProperty())
+                   .triple(db::query::Subject(), predicate, cardinalityVar)
+                   .endWhere();
+
+            std::string queryTxt = customQuery.toString();
+            Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+            ResultsIterator it(results);
+            while(it.next())
+            {
+                IRI subject = it[Subject()];
+                IRI property = it[propertyVar];
+                IRI cardinalityIRI = it[cardinalityVar];
+
+                OWLLiteral::Ptr literal = OWLLiteral::create(cardinalityIRI.toString());
+                size_t cardinality = literal->getNonNegativeInteger();
+
+                if(!ask.isObjectProperty(property))
+                {
+                    continue;
+                }
+
+                OWLObjectProperty::Ptr restrictedProperty = ask.getOWLObjectProperty(property);
+                if(!restrictedProperty)
+                {
+                    throw
+                        std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                "failed to identify property: " +
+                                property.toString());
+                }
+
+                OWLClassExpression::Ptr klass;
+                OWLObjectRestriction::Ptr objectRestriction;
+
+                if(predicate == vocabulary::OWL::cardinality())
+                {
+                    OWLObjectExactCardinality::Ptr exact =
+                        make_shared<OWLObjectExactCardinality>(restrictedProperty,
+                                cardinality,
+                                klass
+                        );
+                    objectRestriction =
+                        dynamic_pointer_cast<OWLObjectRestriction>(exact);
+                } else if(predicate == vocabulary::OWL::minCardinality())
+                {
+                    std::cout << "Set min cardinality" << std::endl
+                        << "    " << restrictedProperty->toString() << std::endl
+                        << "    " << cardinality << std::endl
+                        << "    " << klass << std::endl
+                        ;
+                    OWLObjectMinCardinality::Ptr min =
+                        make_shared<OWLObjectMinCardinality>(restrictedProperty,
+                                cardinality,
+                                klass
+                        );
+                    objectRestriction =
+                        dynamic_pointer_cast<OWLObjectRestriction>(min);
+                } else if(predicate == vocabulary::OWL::maxCardinality())
+                {
+
+                    std::cout << "Set max cardinality" << std::endl
+                        << "    " << restrictedProperty->toString() << std::endl
+                        << "    " << cardinality << std::endl
+                        << "    " << klass << std::endl
+                        ;
+                    OWLObjectMaxCardinality::Ptr max =
+                        make_shared<OWLObjectMaxCardinality>(restrictedProperty,
+                                cardinality,
+                                klass
+                        );
+                    objectRestriction =
+                        dynamic_pointer_cast<OWLObjectRestriction>(max);
+                }
+
+                if(objectRestriction)
+                {
+                    tell.objectPropertyRestriction(subject,
+                            objectRestriction
+                            );
+                }
+            }
+        } // for all predicates
+    } // simple cardinalities
+
+    {
+        IRIList predicates = {
+            vocabulary::OWL::oneOf(),
+            vocabulary::OWL::unionOf(),
+            vocabulary::OWL::complementOf(),
+            vocabulary::OWL::intersectionOf()
+        };
+
+        for(const IRI& predicate : predicates)
+        {
+            db::rdf::sparql::Query customQuery;
+            customQuery.select(db::query::Subject())
+                    .select(db::query::Object())
+                   .beginWhere() \
+                   .triple(db::query::Subject(),vocabulary::RDF::type(), vocabulary::OWL::Class())
+                   .triple(db::query::Subject(), predicate, db::query::Object())
+                   .endWhere();
+
+            Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+            ResultsIterator it(results);
+            while(it.next())
+            {
+                IRI subject = it[Subject()];
+                IRI object = it[Object()];
+
+                if(predicate == vocabulary::OWL::oneOf())
+                {
+                    IRIList list = getList(object, mAnonymousLists);
+                    tell.objectOneOf(subject, list);
+                } else if(predicate == vocabulary::OWL::intersectionOf())
+                {
+                    // add the axiom Class(x complete lt1 lt2 .. ltn)
+                    // where lt1 ... ltn ard the translated descriptions in the list
+                    // l
+                    // if l is not a list (of class descriptions) raise an error
+                    // TODO: register via tell
+                    // need to make it via OntologyChange, same as for the
+                    // others in order to ensure
+                    // that dependencies can be resolved
+                    IRIList list = getList(object, mAnonymousLists);
+                    tell.objectIntersectionOf(subject, list);
+                } else if(predicate == vocabulary::OWL::unionOf())
+                {
+                    IRIList list = getList(object, mAnonymousLists);
+                    tell.objectUnionOf(subject, list);
+                } else if(predicate == vocabulary::OWL::complementOf())
+                {
+                    // add the axiom Class(x complete complementOf(nt))
+                    // where nt is the translation of object, if nt is not a class
+                    // description raise
+                    tell.objectComplementOf(subject, object);
+                }
+            } // end while
+        } // end for
+    } // end scope
+
+    {
+        IRIList predicates = {
+            vocabulary::OWL::allValuesFrom(),
+            vocabulary::OWL::someValuesFrom()
+        };
+
+        for(const IRI& predicate : predicates)
+        {
+            //_:genid5 <http://www.w3.org/2002/07/owl#oneOf> _:genid4 .
+            //_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> .
+            //_:genid6 <http://www.w3.org/2002/07/owl#onProperty> <http://www.rock-robotics.org/test/turtle/restrictions#hasComponent> .
+            //_:genid6 <http://www.w3.org/2002/07/owl#allValuesFrom> _:genid5 .
+            //<http://www.rock-robotics.org/test/turtle/restrictions#Item> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+            //<http://www.rock-robotics.org/test/turtle/restrictions#Item> <http://www.w3.org/2000/01/rdf-schema#subClassOf> _:genid6 .
+            // Find declarations of anonymous lists resulting from restriction definition
+            db::query::Variable propertyVar("?property");
+            db::rdf::sparql::Query customQuery;
+            customQuery.select(db::query::Subject())
+                    .select(propertyVar)
+                    .select(db::query::Object())
+                   .beginWhere() \
+                   .triple(db::query::Subject(),vocabulary::OWL::onProperty(),
+                           propertyVar)
+                   .triple(propertyVar, vocabulary::RDF::type(),
+                           vocabulary::OWL::ObjectProperty())
+                   .triple(db::query::Subject(), predicate,
+                           db::query::Object())
+                   .endWhere();
+
+            std::string queryTxt = customQuery.toString();
+            std::cout << "QUERY: " << queryTxt << std::endl;
+
+            Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+            //Results results = findAll(Subject(), vocabulary::OWL::onProperty(), Object());
+            ResultsIterator it(results);
+            while(it.next())
+            {
+                IRI subject = it[Subject()];
+                IRI property = it[propertyVar];
+                IRI object = it[Object()];
+
+                if(!ask.isObjectProperty(property))
+                {
+                    continue;
+                }
+
+                OWLObjectProperty::Ptr restrictedProperty = ask.getOWLObjectProperty(property);
+                if(!restrictedProperty)
+                {
+                    throw
+                        std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                "failed to identify property: " +
+                                property.toString());
+                }
+
+                std::cout << "READER " << std::endl
+                    << "predicate: " << predicate << std::endl
+                    << "subject: " << subject << std::endl
+                    << "object: " << object << std::endl;
+
+                OWLClassExpression::Ptr klass = ask.getOWLClassExpression(object);
+                OWLObjectRestriction::Ptr objectRestriction;
+                if(predicate == vocabulary::OWL::allValuesFrom())
+                {
+                    OWLObjectAllValuesFrom::Ptr allValuesFrom =
+                        make_shared<OWLObjectAllValuesFrom>(restrictedProperty, klass);
+                    if(!dynamic_pointer_cast<OWLObjectRestriction>(allValuesFrom))
+                    {
+                        throw
+                            std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                    "failed to identify OWLObjectRestriction from "
+                                    "someValuesFrom");
+                    }
+                    objectRestriction = dynamic_pointer_cast<OWLObjectRestriction>(allValuesFrom);
+                } else if(predicate == vocabulary::OWL::someValuesFrom())
+                {
+                    OWLObjectSomeValuesFrom::Ptr someValuesFrom =
+                        make_shared<OWLObjectSomeValuesFrom>(restrictedProperty, klass);
+                    if(!dynamic_pointer_cast<OWLObjectRestriction>(someValuesFrom))
+                    {
+                        throw
+                            std::invalid_argument("owlapi::io::OWLOntologyReader:"
+                                    "failed to identify OWLObjectRestriction from "
+                                    "someValuesFrom");
+                    }
+                    objectRestriction = dynamic_pointer_cast<OWLObjectRestriction>(someValuesFrom);
+                }
+
+                if(objectRestriction)
+                {
+                    tell.objectPropertyRestriction(subject, objectRestriction);
+                }
+            }
+        }
+    }
+
+}
+
+owlapi::model::IRIList OWLOntologyReader::getList(const owlapi::model::IRI& anonymousId,
+        const std::map<IRI, HeadTail>& anonymousLists)
 {
     owlapi::model::IRIList list;
     IRI id = anonymousId;
     while(true)
     {
-        std::map<IRI, HeadTail>::const_iterator cit = mAnonymousLists.find(id);
-
-        if(cit == mAnonymousLists.end())
+        std::map<IRI, HeadTail>::const_iterator cit = anonymousLists.find(id);
+        if(cit == anonymousLists.end())
         {
             throw std::runtime_error("owlapi::model::OWLOntologyReader::getList"
                     " failed to identify list for id '" + anonymousId.toString()
                     + "'");
         }
-        HeadTail headTail = cit->second;
-        if(headTail.second == vocabulary::RDF::nil())
+
+        const HeadTail& headTail = cit->second;
+        list.push_back(headTail.first);
+
+        if(headTail.second != vocabulary::RDF::nil())
         {
-            return list;
-        } else {
-            list.push_back(headTail.first);
             id = headTail.second;
+        } else {
+            return list;
         }
     }
 
@@ -907,7 +1527,7 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
         ResultsIterator it(results);
 
         // Setting domain of property
-        // currently limited to simple classes, i.e. no expressions permitte
+        // currently limited to simple classes, i.e. no expressions permitted
         {
             Results domain = findAll(relation, vocabulary::RDFS::domain(), Object());
             if(!domain.empty())
@@ -968,6 +1588,10 @@ void OWLOntologyReader::loadDataProperties(OWLOntology::Ptr& ontology)
                     // check if range type is known
                     OWLDataType dataType = ask.getDataType(relation, value);
                     literal = OWLLiteral::create(object.toString(), dataType);
+                }
+                if(!ask.isOWLIndividual(subject))
+                {
+                    tell.anonymousIndividual(subject);
                 }
                 tell.valueOf(subject, relation, literal);
             } catch(const std::invalid_argument& e)
@@ -1056,6 +1680,7 @@ void OWLOntologyReader::loadAnnotationProperties(OWLOntology::Ptr& ontology)
 
     using namespace db::query;
 
+    IRISet removedAnnotationProperties;
     for(const IRI& relation : ask.allAnnotationProperties())
     {
         Results results = findAll(Subject(), relation, Object());
@@ -1090,10 +1715,36 @@ void OWLOntologyReader::loadAnnotationProperties(OWLOntology::Ptr& ontology)
                 while(rangeIt.next())
                 {
                     IRI classType = rangeIt[Object()];
-                    tell.annotationPropertyRangeOf(relation, classType);
+                    if(ask.isRDFProperty(relation))
+                    {
+                        if(ask.isDatatype(classType))
+                        {
+                            //std::cout << "CONVERT TO DATA: " << relation << " -- " << classType << std::endl;
+                            tell.dataProperty(relation);
+                            tell.dataPropertyRangeOf(relation, classType);
+                            removedAnnotationProperties.insert(relation);
+                        } else if(ask.isOWLClass(classType))
+                        {
+                            //std::cout << "CONVERT TO OBJECT: " << relation << " -- " << classType << std::endl;
+                            tell.objectProperty(relation);
+                            tell.objectPropertyRangeOf(relation, classType);
+                            removedAnnotationProperties.insert(relation);
+                        } else
+                        {
+                            tell.annotationPropertyRangeOf(relation, classType);
+                        }
+                    } else {
+                        tell.annotationPropertyRangeOf(relation, classType);
+                    }
                 }
             }
         }
+    }
+
+    for(const IRI& property : removedAnnotationProperties)
+    {
+        //std::cout << "REMOVE ANNOTATION: " << property << std::endl;
+        tell.removeAnnotationProperty(property);
     }
 
     for(const IRI& relation : ask.allAnnotationProperties())
@@ -1102,43 +1753,15 @@ void OWLOntologyReader::loadAnnotationProperties(OWLOntology::Ptr& ontology)
         ResultsIterator it(results);
         while(it.next())
         {
-            OWLAnnotationSubject::Ptr annotationSubject = make_shared<IRI>(it[Subject()]);
-            IRI object = it[Object()];
-
-            // Setting of AnnotationAssertions
-            std::string value = object.toString();
-            if(value.empty())
-            {
-                LOG_WARN_S << "Encountered empty property value for subject: " << annotationSubject
-                    << " and relation: " << relation;
-                continue;
-            }
-
+            IRI subject = it[Subject()];
             try {
-                shared_ptr<IRI> annotationObjectIRI = make_shared<IRI>(value);
-                // TODO: improve checking for IRI
-                annotationObjectIRI->toURI();
-                tell.annotationOf(annotationSubject, relation, annotationObjectIRI);
-            } catch(const std::invalid_argument& e)
-            {
-                LOG_INFO_S << "AnnotationValue is not an IRI (currently limited to URI checking)";
-            }
-
-            try {
-                OWLLiteral::Ptr literal = OWLLiteral::create(value);
-                if(!literal->isTyped())
-                {
-                    // check if range type is known
-                    //OWLDataType dataType = OWLDataType::fromRange(,value);
-                    literal = OWLLiteral::create(object.toString());
-                }
-                tell.annotationOf(annotationSubject, relation, literal);
+                tell.annotationOf(subject, relation, it[Object()]);
             } catch(const std::exception& e)
             {
                 std::string msg = "owlapi::model::OWLOntologyReader::fromFile: "
                         " '" + mAbsolutePath + "' "
                         " cannot set annotation property: " + relation.toString() + " on"
-                        " '" + annotationSubject->toString() + "' since data range is not "
+                        " '" + subject.toString() + "' since data range is not "
                         "specified or unsupported"
                         " for this property -- " + e.what();
                 LOG_WARN_S << msg;
