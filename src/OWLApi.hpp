@@ -30,34 +30,34 @@
   * vocabularies, in order to facilitate the programmatic use
   */
 
-#include <owlapi/SharedPtr.hpp>
-#include <owlapi/model/HasIRI.hpp>
-#include <owlapi/model/OWLObject.hpp>
-#include <owlapi/model/OWLNamedObject.hpp>
-#include <owlapi/model/OWLAxiom.hpp>
-#include <owlapi/model/OWLEntity.hpp>
-#include <owlapi/model/OWLObjectProperty.hpp>
-#include <owlapi/model/OWLInverseObjectProperty.hpp>
-#include <owlapi/model/OWLClass.hpp>
-#include <owlapi/model/OWLDataProperty.hpp>
-#include <owlapi/model/OWLObjectProperty.hpp>
-#include <owlapi/model/OWLRestriction.hpp>
-#include <owlapi/model/OWLQualifiedRestriction.hpp>
-#include <owlapi/model/OWLValueRestriction.hpp>
-#include <owlapi/model/OWLCardinalityRestriction.hpp>
-#include <owlapi/model/OWLObjectExactCardinality.hpp>
-#include <owlapi/model/OWLObjectMinCardinality.hpp>
-#include <owlapi/model/OWLObjectMaxCardinality.hpp>
-#include <owlapi/model/OWLIndividual.hpp>
-#include <owlapi/model/OWLNamedIndividual.hpp>
-#include <owlapi/model/OWLAnonymousIndividual.hpp>
-#include <owlapi/model/OWLLiteral.hpp>
-#include <owlapi/model/OWLLiteralInteger.hpp>
-#include <owlapi/model/OWLOntology.hpp>
-#include <owlapi/model/OWLOntologyTell.hpp>
-#include <owlapi/model/OWLOntologyAsk.hpp>
+#include "Exceptions.hpp"
+#include "model/HasIRI.hpp"
+#include "model/OWLObject.hpp"
+#include "model/OWLNamedObject.hpp"
+#include "model/OWLAxiom.hpp"
+#include "model/OWLEntity.hpp"
+#include "model/OWLObjectProperty.hpp"
+#include "model/OWLInverseObjectProperty.hpp"
+#include "model/OWLClass.hpp"
+#include "model/OWLDataProperty.hpp"
+#include "model/OWLObjectProperty.hpp"
+#include "model/OWLRestriction.hpp"
+#include "model/OWLQualifiedRestriction.hpp"
+#include "model/OWLValueRestriction.hpp"
+#include "model/OWLCardinalityRestriction.hpp"
+#include "model/OWLObjectExactCardinality.hpp"
+#include "model/OWLObjectMinCardinality.hpp"
+#include "model/OWLObjectMaxCardinality.hpp"
+#include "model/OWLIndividual.hpp"
+#include "model/OWLNamedIndividual.hpp"
+#include "model/OWLAnonymousIndividual.hpp"
+#include "model/OWLLiteral.hpp"
+#include "model/OWLLiteralInteger.hpp"
+#include "model/OWLOntology.hpp"
+#include "model/OWLOntologyTell.hpp"
+#include "model/OWLOntologyAsk.hpp"
 
-#include <owlapi/model/OWLLiteral.hpp>
-#include <owlapi/model/OWLAxiomVisitor.hpp>
+#include "model/OWLLiteral.hpp"
+#include "model/OWLAxiomVisitor.hpp"
 
 #endif // OWLAPI_HPP

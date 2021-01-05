@@ -12,33 +12,19 @@ rock_library(owlapi
         io/RedlandWriter.cpp
         io/OWLWriter.cpp
         KnowledgeBase.cpp
-        model/OWLAxiomRetractVisitor.cpp
-        model/OWLAxiom.cpp
-        model/OWLObjectPropertyAssertionAxiom.cpp
-        model/RemoveAxiom.cpp
-        model/OWLLiteralInteger.cpp
         model/HasAnnotations.cpp
-        model/OWLOntologyAsk.cpp
-        model/OWLDisjointUnionAxiom.cpp
-        model/OWLDataRange.cpp
-        model/OWLClassExpression.cpp
-        model/OWLOntology.cpp
+        model/IRI.cpp
+        model/NodeID.cpp
+        model/OWLAnnotationValue.cpp
+        model/OWLAxiom.cpp
         model/OWLAxiomAddVisitor.cpp
+        model/OWLAxiomChange.cpp
+        model/OWLAxiomRetractVisitor.cpp
         model/OWLCardinalityRestriction.cpp
         model/OWLCardinalityRestrictionOps.cpp
-        model/OWLDataType.cpp
-        model/OWLEquivalentClassesAxiom.cpp
-        model/URI.cpp
-        model/OWLClassAssertionAxiom.cpp
-        model/OWLPropertyExpression.cpp
-        model/OWLSubClassOfAxiom.cpp
-        model/OWLEntity.cpp
         model/OWLClass.cpp
-        model/OWLLiteralDouble.cpp
-        model/OWLAxiomChange.cpp
-        model/OWLDeclarationAxiom.cpp
-        model/OWLQualifiedRestriction.cpp
-        model/IRI.cpp
+        model/OWLClassAssertionAxiom.cpp
+        model/OWLClassExpression.cpp
         model/OWLDataCardinalityRestriction.cpp
         model/OWLDataOneOf.cpp
         model/OWLDataProperty.cpp
@@ -54,16 +40,23 @@ rock_library(owlapi
         model/OWLFacet.cpp
         model/OWLFacetRestriction.cpp
         model/OWLLiteral.cpp
-        model/OWLAnnotationValue.cpp
-        model/NodeID.cpp
+        model/OWLLiteralDouble.cpp
+        model/OWLLiteralInteger.cpp
         model/OWLObject.cpp
         model/OWLObjectCardinalityRestriction.cpp
+        model/OWLObjectPropertyAssertionAxiom.cpp
+        model/OWLOntology.cpp
+        model/OWLOntologyAsk.cpp
         model/OWLOntologyChange.cpp
-        model/OWLValueRestriction.cpp
-        model/OWLDisjointClassesAxiom.cpp
         model/OWLOntologyTell.cpp
-        model/OWLDataProperty.cpp
+        model/OWLPropertyExpression.cpp
+        model/OWLQualifiedRestriction.cpp
+        model/OWLRestriction.cpp
+        model/OWLSubClassOfAxiom.cpp
+        model/OWLValueRestriction.cpp
         model/QueryCache.cpp
+        model/RemoveAxiom.cpp
+        model/URI.cpp
         reasoner/factpp/Types.cpp
         utils/OWLApi.cpp
         vocabularies/RDF.cpp
