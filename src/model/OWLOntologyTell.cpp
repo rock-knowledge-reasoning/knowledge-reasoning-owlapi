@@ -19,6 +19,7 @@
 #include "OWLDataHasValue.hpp"
 #include "OWLDataMaxCardinality.hpp"
 #include "OWLDataMinCardinality.hpp"
+#include "OWLDataExactCardinality.hpp"
 #include "OWLDataRange.hpp"
 
 #include "OWLObjectSomeValuesFrom.hpp"
@@ -431,7 +432,7 @@ OWLAxiom::Ptr OWLOntologyTell::equalClasses(const IRIList& klasses)
     OWLClassExpression::PtrList pKlasses;
     for(const IRI& classType : klasses)
     {
-        OWLClassExpression::Ptr pKlass = klass(classType);
+        OWLClassExpression::Ptr pKlass = mAsk.getOWLClassExpression(classType);
         pKlasses.push_back(pKlass);
     }
     OWLEquivalentClassesAxiom::Ptr axiom = make_shared<OWLEquivalentClassesAxiom>(pKlasses);
@@ -817,9 +818,27 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
             break;
         }
         case OWLClassExpression::DATA_MAX_CARDINALITY:
+        {
+            OWLDataMaxCardinality::Ptr maxCardinality = dynamic_pointer_cast<OWLDataMaxCardinality>(r);
+
+            OWLDataRange::Ptr filler = maxCardinality->getFiller();
+            mpOntology->kb()->dataMaxCardinality(id,
+                    maxCardinality->getCardinality(),
+                    dataPropertyIRI,
+                    filler);
             break;
+        }
         case OWLClassExpression::DATA_EXACT_CARDINALITY:
+        {
+            OWLDataExactCardinality::Ptr exactCardinality = dynamic_pointer_cast<OWLDataExactCardinality>(r);
+
+            OWLDataRange::Ptr filler = exactCardinality->getFiller();
+            mpOntology->kb()->dataExactCardinality(id,
+                    exactCardinality->getCardinality(),
+                    dataPropertyIRI,
+                    filler);
             break;
+        }
         default:
             break;
     }
