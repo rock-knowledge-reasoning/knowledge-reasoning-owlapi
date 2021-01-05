@@ -9,6 +9,79 @@ OWLOntologyAsk::OWLOntologyAsk(OWLOntology::Ptr ontology)
     : mpOntology(ontology)
 {}
 
+
+OWLClassExpression::Ptr OWLOntologyAsk::getOWLClassExpression(const IRI& iri) const
+{
+
+    try {
+        OWLAnonymousClassExpression::Ptr klass = getOWLAnonymousClassExpression(iri);
+        return dynamic_pointer_cast<OWLClassExpression>(klass);
+    } catch(...)
+    {
+        ///
+    }
+
+    try {
+        OWLClass::Ptr klass = getOWLClass(iri);
+        return dynamic_pointer_cast<OWLClassExpression>(klass);
+    } catch(...)
+    {
+        ///
+    }
+    throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getClassExpression: "
+            "could not find a class expression for iri '" + iri.toString() + "'");
+}
+const IRI& OWLOntologyAsk::getOWLClassExpressionIRI(const OWLClassExpression::Ptr& expression) const
+{
+    OWLAnonymousClassExpression::Ptr aClassExpression = dynamic_pointer_cast<OWLAnonymousClassExpression>(expression);
+
+    if(aClassExpression)
+    {
+        std::map<IRI, OWLAnonymousClassExpression::Ptr>::const_iterator it = std::find_if(
+                mpOntology->mAnonymousClassExpressions.begin(),
+                mpOntology->mAnonymousClassExpressions.end(),
+                [&aClassExpression](const std::pair<IRI, OWLAnonymousClassExpression::Ptr>& other)
+                {
+                    return other.second == aClassExpression;
+                });
+        if(it != mpOntology->mAnonymousClassExpressions.end())
+        {
+            return it->first;
+        }
+        throw std::runtime_error("owlapi::model::OWLOntologyAsk::getOWLClassExpressionIRI:"
+                " failed to identify IRI for AnonymousClassExpression."
+                " Did you already define it via OWLOntologyTell?"
+        );
+    }
+
+    OWLClass::Ptr aClass = dynamic_pointer_cast<OWLClass>(expression);
+    if(aClass)
+    {
+        std::map<IRI, OWLClass::Ptr>::const_iterator it = std::find_if(
+                mpOntology->mClasses.begin(),
+                mpOntology->mClasses.end(),
+                [&aClass](const std::pair<IRI, OWLClass::Ptr>& other)
+                {
+                    return other.second == aClass;
+                });
+
+        if(it != mpOntology->mClasses.end())
+        {
+            return it->first;
+        }
+        throw std::runtime_error(
+            "owlapi::model::OWLOntologyAsk::getOWLClassExpressionIRI:"
+            " failed to identify IRI for Class " + aClass->getIRI().toString() + "' "
+            " Did you already define it via OWLOntologyTell?"
+        );
+    }
+
+    throw std::invalid_argument(
+            "owlapi::model::OWLOntologyAsk::getOWLClassExpressionIRI:"
+            " given expression is neither Class nor AnonymousClassExpression"
+    );
+}
+
 OWLClass::Ptr OWLOntologyAsk::getOWLClass(const IRI& iri) const
 {
     std::map<IRI, OWLClass::Ptr>::const_iterator it = mpOntology->mClasses.find(iri);
@@ -342,19 +415,16 @@ bool OWLOntologyAsk::isDirectSubClassOf(const IRI& iri, const IRI& superclass) c
 
 bool OWLOntologyAsk::isSubClassOf(const OWLClassExpression::Ptr& subclass, const OWLClassExpression::Ptr& superclass) const
 {
-    IRI subclassIRI;
-    IRI superclassIRI;
+    IRI subclassIRI = getOWLClassExpressionIRI(subclass);
+    IRI superclassIRI = getOWLClassExpressionIRI(superclass);
 
-    if(subclass->isClassExpressionLiteral() && superclass->isClassExpressionLiteral())
-    {
-        subclassIRI = dynamic_pointer_cast<OWLClass>(subclass)->getIRI();
-        superclassIRI = dynamic_pointer_cast<OWLClass>(superclass)->getIRI();
+    return isSubClassOf(subclassIRI, superclassIRI);
+}
 
-        return isSubClassOf(subclassIRI, superclassIRI);
-    }
-
-    throw std::runtime_error("owlapi::model::OWLOntologyAsk::isSubClassOf:"
-            " cannot (yet) handle anyonmous class definitions");
+bool OWLOntologyAsk::isSubClassOf(const IRI& subclass, const OWLClassExpression::Ptr& superclass) const
+{
+    IRI superclassIRI = getOWLClassExpressionIRI(superclass);
+    return isSubClassOf(subclass, superclassIRI);
 }
 
 bool OWLOntologyAsk::isOWLClass(const IRI& iri) const

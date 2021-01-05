@@ -35,6 +35,13 @@ public:
     OWLAnonymousClassExpression::Ptr getOWLAnonymousClassExpression(const IRI& iri) const;
 
     /**
+     * Get class expression, i.e. Class or AnonymousExpression
+     */
+    OWLClassExpression::Ptr getOWLClassExpression(const IRI& iri) const;
+
+    const IRI& getOWLClassExpressionIRI(const OWLClassExpression::Ptr& expression) const;
+
+    /**
      * Get an individual by IRI
      * \return OWLIndividual::Ptr
      * \throw std::runtime_error if neither a anonymous nor a named individual
@@ -179,6 +186,12 @@ public:
      * \return true if superclass is parent of subclass
      */
     bool isSubClassOf(const OWLClassExpression::Ptr& subclass, const OWLClassExpression::Ptr& superclass) const;
+
+    /**
+     * Check if given class expression is subclass of superclass
+     * \return true if superclass is parent of subclass
+     */
+    bool isSubClassOf(const IRI& subclass, const OWLClassExpression::Ptr& superclass) const;
 
     /**
      * Check if iri represents a known class
