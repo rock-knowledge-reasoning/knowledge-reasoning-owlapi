@@ -369,4 +369,40 @@ BOOST_AUTO_TEST_CASE(annotations)
     BOOST_CHECK_MESSAGE(iri == IRI(), "Is not an IRI " << iri);
 }
 
+BOOST_AUTO_TEST_CASE(data_restriction_equivalence)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
+            "/test/data/test-data-restrictions-equivalence.ttl");
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+    owlapi::model::IRI instance = vocab.resolve("Item");
+
+    OWLOntologyAsk ask(ontology);
+    BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
+                vocab.resolve("Item_Length_lt_2m")), "Item is instance of Item_Length_lt_2m");
+}
+
+BOOST_AUTO_TEST_CASE(data_cardinality_equivalence)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
+            "/test/data/test-data-cardinality.ttl");
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+    owlapi::model::IRI instance = vocab.resolve("Item");
+
+    OWLOntologyAsk ask(ontology);
+    BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
+                vocab.resolve("Item_With_Components")), "Item is instance of Item_With_Components");
+}
+
+BOOST_AUTO_TEST_CASE(object_restriction_equivalence)
+{
+    OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
+            "/test/data/test-object-restrictions-components.ttl");
+    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+    owlapi::model::IRI instance = vocab.resolve("Item");
+
+    OWLOntologyAsk ask(ontology);
+    BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
+                vocab.resolve("Item_With_Components")), "Item is instance of Item_With_Components");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,0 +1,27 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:Item
+    :hasLength "1.5"^^xsd:double ;
+    a :Item, owl:Class, owl:NamedIndividual .
+
+:hasLength
+    a owl:DatatypeProperty .
+
+:Item_Length_lt_2m
+    a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :hasLength ;
+        owl:someValuesFrom [ a rdfs:Datatype ;
+                owl:onDatatype xsd:double ;
+                owl:withRestrictions (
+                    [xsd:minInclusive "0.0"^^xsd:double]
+                    [xsd:maxExclusive "2.0"^^xsd:double]
+                )
+            ]
+        ;
+    ] .

@@ -16,7 +16,6 @@ namespace model {
 
 class OWLSomeValuesFromRestriction;
 class OWLAllValuesFromRestriction;
-class OWLHasValueRestriction;
 class OWLHasSelfRestriction;
 
 /**
@@ -37,7 +36,10 @@ public:
      */
     OWLValueRestriction();
 
-    OWLValueRestriction(OWLPropertyExpression::Ptr property, const OWLQualification& qualification, ValueRestrictionType restrictionType);
+    OWLValueRestriction(
+        const OWLPropertyExpression::Ptr& property,
+        const OWLQualification& qualification,
+        ValueRestrictionType restrictionType);
 
     virtual ~OWLValueRestriction() {}
 

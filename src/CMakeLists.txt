@@ -74,6 +74,7 @@ rock_library(owlapi
         db/rdf/SparqlInterface.hpp
         db/rdf/Variable.hpp
         Exceptions.hpp
+        io/OntologyChange.hpp
         io/OWLIOBase.hpp
         io/OWLOntologyIO.hpp
         io/OWLOntologyReader.hpp
@@ -82,6 +83,8 @@ rock_library(owlapi
         io/RedlandReader.hpp
         io/RedlandWriter.hpp
         io/XMLUtils.hpp
+        io/changes/AddEquivalentClasses.hpp
+        io/changes/AddSubClassOfAnonymous.hpp
         KnowledgeBase.hpp
         model/ChangeApplied.hpp
         model/HasAnnotations.hpp

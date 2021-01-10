@@ -1,0 +1,72 @@
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.rock-robotics.org/test/turtle/restrictions> .
+
+<http://www.rock-robotics.org/test/turtle/restrictions> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasComponent rdf:type owl:ObjectProperty .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+:Component rdf:type owl:Class .
+
+:Item rdf:type owl:Class ;
+      rdfs:subClassOf [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasComponent ;
+                        owl:allValuesFrom [ rdf:type owl:Class ;
+                                            owl:oneOf ( :Wheel_0
+                                                        :Wheel_1
+                                                        :Wheel_2
+                                                        :Wheel_3
+                                                      )
+                                          ]
+                      ] .
+
+:Item_With_Components rdf:type owl:Class ;
+                     owl:equivalentClass [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                  owl:onProperty :hasComponent ;
+                                                                  owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                                                ]
+                                                                [ rdf:type owl:Restriction ;
+                                                                  owl:onProperty :hasComponent ;
+                                                                  owl:maxCardinality "4"^^xsd:nonNegativeInteger
+                                                                ]
+                                                              ) ;
+                                           rdf:type owl:Class
+                                         ] .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+:Item rdf:type owl:NamedIndividual ,
+                  :Item ;
+         :hasComponent :Wheel_0 .
+
+
+:Wheel_0 rdf:type owl:NamedIndividual ,
+                  :Component .
+
+
+:Wheel_1 rdf:type owl:NamedIndividual ,
+                  :Component .
+
+
+:Wheel_2 rdf:type owl:NamedIndividual ,
+                  :Component .
+
+
+:Wheel_3 rdf:type owl:NamedIndividual ,
+                  :Component .

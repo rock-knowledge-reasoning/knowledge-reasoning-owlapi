@@ -1,0 +1,65 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix : <http://www.rock-robotics.org/test/turtle/restrictions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:Component
+    a :Component, owl:Class, owl:NamedIndividual .
+
+:Wheel_0
+    a :Component, owl:Class, owl:NamedIndividual .
+
+:Wheel_1
+    a :Component, owl:NamedIndividual .
+
+:Wheel_2
+    a :Component, owl:NamedIndividual .
+
+:Wheel_3
+    a :Component, owl:NamedIndividual .
+
+:Item
+    a :Item, owl:Class, owl:NamedIndividual
+
+:hasComponent
+    a owl:ObjectProperty .
+
+:Item_A
+    :hasComponent :Wheel_0 ;
+    a :Item, owl:Class, owl:NamedIndividual 
+
+:Item_B
+    :hasComponent :Wheel_0 ;
+    :hasComponent :Wheel_1 ;
+    :hasComponent :Wheel_2 ;
+    :hasComponent :Wheel_3 ;
+    a :Item, owl:Class, owl:NamedIndividual .
+
+:Item_With_3to5_Components
+    a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :hasComponent ;
+        owl:someValuesFrom [ a :Component ;
+                owl:withRestrictions (
+                    [xsd:minCardinality "3"]
+                    [xsd:maxCardinality "5"]
+                )
+            ]
+        ;
+    ] .
+
+:Item_With_1to3_Components
+    a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :hasComponent ;
+        owl:someValuesFrom [ a :Component ;
+                owl:withRestrictions (
+                    [xsd:minCardinality "1"]
+                    [xsd:maxCardinality "3"]
+                )
+            ]
+        ;
+    ] .
