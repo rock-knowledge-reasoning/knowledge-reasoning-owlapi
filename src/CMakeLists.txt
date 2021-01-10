@@ -59,6 +59,7 @@ rock_library(owlapi
         model/URI.cpp
         reasoner/factpp/Types.cpp
         utils/OWLApi.cpp
+        vocabularies/OWL.cpp
         vocabularies/RDF.cpp
         vocabularies/XSD.cpp
         db/rdf/Redland.cpp

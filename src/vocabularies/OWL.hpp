@@ -84,6 +84,8 @@ public:
 
     VOCABULARY_ADD_WORD(withRestrictions);
     VOCABULARY_ADD_WORD(onDatatype);
+
+    static bool isQualifiedCardinality(const owlapi::model::IRI& predicate);
 };
 
 } // end namespace vocabulary
