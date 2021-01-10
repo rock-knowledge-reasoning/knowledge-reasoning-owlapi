@@ -20,7 +20,7 @@ public:
 
     virtual ~OWLObjectMaxCardinality() = default;
 
-    ClassExpressionType getClassExpressionType() const { return OBJECT_MAX_CARDINALITY; }
+    ClassExpressionType getClassExpressionType() const override { return OBJECT_MAX_CARDINALITY; }
 
     bool isClassExpressionLiteral() const { return false; }
 };

@@ -30,7 +30,7 @@ public:
 
     virtual ~OWLObjectExactCardinality() = default;
 
-    ClassExpressionType getClassExpressionType() const { return OBJECT_EXACT_CARDINALITY; }
+    ClassExpressionType getClassExpressionType() const override { return OBJECT_EXACT_CARDINALITY; }
 
     bool isClassExpressionLiteral() const { return false; }
 };

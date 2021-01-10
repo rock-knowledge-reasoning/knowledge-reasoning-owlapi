@@ -20,7 +20,7 @@ public:
 
     virtual ~OWLObjectMinCardinality() = default;
 
-    ClassExpressionType getClassExpressionType() const { return OBJECT_MIN_CARDINALITY; }
+    ClassExpressionType getClassExpressionType() const override { return OBJECT_MIN_CARDINALITY; }
 
     bool isClassExpressionLiteral() const { return false; }
 };

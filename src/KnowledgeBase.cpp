@@ -1090,9 +1090,17 @@ ClassExpression KnowledgeBase::dataMinCardinality(const IRI& klassId,
         const owlapi::model::OWLDataRange::Ptr& range)
 {
     DataPropertyExpression dpProperty = dataProperty(property);
-    reasoner::factpp::DataRange dataExpression = dataRange(range);
-    TDLConceptExpression* cardinalityConcept =
-        getExpressionManager()->MinCardinality(n, dpProperty.get(), dataExpression.get());
+    TDLConceptExpression* cardinalityConcept;
+    if(range)
+    {
+        reasoner::factpp::DataRange dataExpression = dataRange(range);
+        cardinalityConcept =
+            getExpressionManager()->MinCardinality(n, dpProperty.get(), dataExpression.get());
+    } else {
+        reasoner::factpp::DataRange range(getExpressionManager()->getStrDataType());
+        cardinalityConcept =
+            getExpressionManager()->MinCardinality(n, dpProperty.get(), range.get());
+    }
 
     ClassExpression ce(cardinalityConcept);
     mClasses[klassId] = ce;
@@ -1105,9 +1113,17 @@ ClassExpression KnowledgeBase::dataMaxCardinality(const IRI& klassId,
         const owlapi::model::OWLDataRange::Ptr& range)
 {
     DataPropertyExpression dpProperty = dataProperty(property);
-    reasoner::factpp::DataRange dataExpression = dataRange(range);
-    TDLConceptExpression* cardinalityConcept =
-        getExpressionManager()->MaxCardinality(n, dpProperty.get(), dataExpression.get());
+    TDLConceptExpression* cardinalityConcept;
+    if(range)
+    {
+        reasoner::factpp::DataRange dataExpression = dataRange(range);
+        cardinalityConcept =
+            getExpressionManager()->MaxCardinality(n, dpProperty.get(), dataExpression.get());
+    } else {
+        reasoner::factpp::DataRange range(getExpressionManager()->getStrDataType());
+        cardinalityConcept =
+            getExpressionManager()->MaxCardinality(n, dpProperty.get(), range.get());
+    }
 
     ClassExpression ce(cardinalityConcept);
     mClasses[klassId] = ce;
@@ -1120,9 +1136,17 @@ ClassExpression KnowledgeBase::dataExactCardinality(const IRI& klassId,
         const owlapi::model::OWLDataRange::Ptr& range)
 {
     DataPropertyExpression dpProperty = dataProperty(property);
-    reasoner::factpp::DataRange dataExpression = dataRange(range);
-    TDLConceptExpression* cardinalityConcept =
-        getExpressionManager()->Cardinality(n, dpProperty.get(), dataExpression.get());
+    TDLConceptExpression* cardinalityConcept;
+    if(range)
+    {
+        reasoner::factpp::DataRange dataExpression = dataRange(range);
+        cardinalityConcept =
+            getExpressionManager()->Cardinality(n, dpProperty.get(), dataExpression.get());
+    } else {
+        reasoner::factpp::DataRange range(getExpressionManager()->getStrDataType());
+        cardinalityConcept =
+            getExpressionManager()->Cardinality(n, dpProperty.get(), range.get());
+    }
 
     ClassExpression ce(cardinalityConcept);
     mClasses[klassId] = ce;

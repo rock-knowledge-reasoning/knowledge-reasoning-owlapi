@@ -214,7 +214,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
                 OWLObjectCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(superClass);
                 // Only handle restriction which are matching the object
                 // property
-                if(property && dynamic_pointer_cast<OWLCardinalityRestriction>(restriction)->getProperty() != property)
+                if(property && restriction->getProperty() != property)
                 {
                     // property is not equal
                     break;
@@ -224,7 +224,7 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
 
                 if(inheritedRestrictions.empty())
                 {
-                    restrictions.push_back(dynamic_pointer_cast<OWLCardinalityRestriction>(superClass)->clone());
+                    restrictions.push_back(restriction->clone());
                 } else {
                     // We need to increase scale each cardinality based on the
                     // requirements of the restrictions that got it in here in
