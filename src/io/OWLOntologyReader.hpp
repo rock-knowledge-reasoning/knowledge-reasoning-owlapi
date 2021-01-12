@@ -33,7 +33,6 @@ class OWLOntologyReader
     std::vector<owlapi::model::IRI> mRestrictions;
     std::map<owlapi::model::IRI, std::vector< shared_ptr<OntologyChange> > > mAnonymousOntologyChanges;
     std::map<owlapi::model::IRI, owlapi::model::OWLCardinalityRestriction> mCardinalityRestrictions;
-    std::map<owlapi::model::IRI, owlapi::model::OWLValueRestriction> mValueRestrictions;
 
     typedef std::pair<owlapi::model::IRI, owlapi::model::IRI> HeadTail;
     std::map<owlapi::model::IRI, HeadTail > mAnonymousLists;

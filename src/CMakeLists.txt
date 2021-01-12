@@ -53,7 +53,6 @@ rock_library(owlapi
         model/OWLQualifiedRestriction.cpp
         model/OWLRestriction.cpp
         model/OWLSubClassOfAxiom.cpp
-        model/OWLValueRestriction.cpp
         model/QueryCache.cpp
         model/RemoveAxiom.cpp
         model/URI.cpp
@@ -96,7 +95,6 @@ rock_library(owlapi
         model/HasSubject.hpp
         model/IRI.hpp
         model/NodeID.hpp
-        model/OWLAllValuesFromRestriction.hpp
         model/OWLAnnotationAssertionAxiom.hpp
         model/OWLAnnotationAxiom.hpp
         model/OWLAnnotation.hpp
@@ -212,7 +210,6 @@ rock_library(owlapi
         model/OWLReasoner.hpp
         model/OWLReflexiveObjectPropertyAxiom.hpp
         model/OWLRestriction.hpp
-        model/OWLSomeValuesFromRestriction.hpp
         model/OWLSubAnnotationPropertyOfAxiom.hpp
         model/OWLSubClassOfAxiom.hpp
         model/OWLSubDataPropertyOfAxiom.hpp
@@ -221,7 +218,6 @@ rock_library(owlapi
         model/OWLSymmetricObjectPropertyAxiom.hpp
         model/OWLTransitiveObjectPropertyAxiom.hpp
         model/OWLUnaryPropertyAxiom.hpp
-        model/OWLValueRestriction.hpp
         model/QueryCache.hpp
         model/RemoveAxiom.hpp
         model/URI.hpp

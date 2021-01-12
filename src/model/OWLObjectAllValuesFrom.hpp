@@ -3,7 +3,6 @@
 
 #include "OWLClassExpression.hpp"
 #include "OWLObjectPropertyExpression.hpp"
-#include "OWLAllValuesFromRestriction.hpp"
 #include "OWLObjectRestriction.hpp"
 #include "../Vocabulary.hpp"
 
