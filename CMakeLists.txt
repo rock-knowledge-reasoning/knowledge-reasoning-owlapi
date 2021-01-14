@@ -5,6 +5,7 @@ project(owlapi
     VERSION 0.2
     DESCRIPTION "C++-based owlapi implementation to handle ontologies"
 )
+set(ROCK_TEST_ENABLED ON)
 find_package(Rock)
 rock_init()
 set(CMAKE_CXX_STANDARD 11)
