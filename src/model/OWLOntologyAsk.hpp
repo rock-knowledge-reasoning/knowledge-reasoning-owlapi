@@ -298,6 +298,12 @@ public:
     bool isRelatedTo(const IRI& instance, const IRI& relationProperty, const IRI& otherInstance) const;
 
     /**
+     * Retrieve all types of the provided instance
+     * \return list of types
+     */
+    IRIList allTypesOf(const IRI& instance, bool direct = false) const;
+
+    /**
      * Retrieve the type of the provided instance
      * \return type
      */

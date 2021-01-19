@@ -581,6 +581,11 @@ bool OWLOntologyAsk::isRelatedTo(const IRI& instance, const IRI& relationPropert
     return mpOntology->kb()->isRelatedTo(instance, relationProperty, otherInstance);
 }
 
+IRIList OWLOntologyAsk::allTypesOf(const IRI& instance, bool direct) const
+{
+    return mpOntology->kb()->typesOf(instance, direct);
+}
+
 IRI OWLOntologyAsk::typeOf(const IRI& instance) const
 {
     return mpOntology->kb()->typeOf(instance);

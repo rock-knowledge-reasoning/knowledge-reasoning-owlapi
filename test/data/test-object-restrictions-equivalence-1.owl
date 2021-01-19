@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.rock-robotics.org/test/turtle/restrictions#"
+     xml:base="http://www.rock-robotics.org/test/turtle/restrictions"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:restrictions="http://www.rock-robotics.org/test/turtle/restrictions#">
+    <owl:Ontology rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#has -->
+
+    <owl:ObjectProperty rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#has"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Agent -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Agent"/>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Camera -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Camera">
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#PhysicalEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Functionality -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#ImageProvider -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#ImageProvider">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#has"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Camera"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#LocationImageProvider -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#LocationImageProvider">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#ImageProvider"/>
+                    <rdf:Description rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#MoveTo"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Locomotion -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Locomotion">
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning">
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#MoveTo -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#MoveTo">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#has"/>
+                        <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                        <owl:onClass rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Locomotion"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#has"/>
+                        <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                        <owl:onClass rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Functionality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#PhysicalEntity -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#PhysicalEntity"/>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#RobotA -->
+
+    <owl:Class rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#RobotA">
+        <rdfs:subClassOf rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Agent"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Camera -->
+
+    <owl:NamedIndividual rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Camera">
+        <rdf:type rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Camera"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#Locomotion -->
+
+    <owl:NamedIndividual rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#Locomotion">
+        <rdf:type rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Locomotion"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning -->
+
+    <owl:NamedIndividual rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning">
+        <rdf:type rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.rock-robotics.org/test/turtle/restrictions#RobotA -->
+
+    <owl:NamedIndividual rdf:about="http://www.rock-robotics.org/test/turtle/restrictions#RobotA">
+        <rdf:type rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#RobotA"/>
+        <has rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Camera"/>
+        <has rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#Locomotion"/>
+        <has rdf:resource="http://www.rock-robotics.org/test/turtle/restrictions#MotionPlanning"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

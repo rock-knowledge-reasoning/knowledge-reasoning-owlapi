@@ -395,14 +395,36 @@ BOOST_AUTO_TEST_CASE(data_cardinality_equivalence)
 
 BOOST_AUTO_TEST_CASE(object_restriction_equivalence)
 {
-    OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
-            "/test/data/test-object-restrictions-components.ttl");
-    owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
-    owlapi::model::IRI instance = vocab.resolve("Item");
+    {
+        OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
+                "/test/data/test-object-restrictions-components.ttl");
+        owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+        owlapi::model::IRI instance = vocab.resolve("Item");
 
-    OWLOntologyAsk ask(ontology);
-    BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
-                vocab.resolve("Item_With_Components")), "Item is instance of Item_With_Components");
+        OWLOntologyAsk ask(ontology);
+        BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
+                    vocab.resolve("Item_With_Components")), "Item is instance of Item_With_Components");
+    }
+
+    {
+        OWLOntology::Ptr ontology = OWLOntology::fromFile(getRootDir() +
+                "/test/data/test-object-restrictions-equivalence-1.owl");
+        owlapi::vocabulary::Custom vocab("http://www.rock-robotics.org/test/turtle/restrictions#");
+        owlapi::model::IRI instance = vocab.resolve("RobotA");
+
+        OWLOntologyAsk ask(ontology);
+        BOOST_REQUIRE_MESSAGE(ask.isInstanceOf(instance,
+                    vocab.resolve("MoveTo")), "RobotA is instance of MoveTo");
+
+        IRI moveto = vocab.resolve("MoveTo");
+        IRIList instances = ask.allInstancesOf(moveto);
+        BOOST_REQUIRE_MESSAGE(std::find(instances.begin(), instances.end(), instance) !=
+            instances.end(), "" << instance << " is an instance of " << moveto);
+        IRIList types = ask.allTypesOf(instance);
+        BOOST_REQUIRE_MESSAGE(std::find(types.begin(), types.end(), moveto) !=
+                types.end(), "" << moveto << " is a type of " << instance
+                );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
