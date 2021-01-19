@@ -9,6 +9,7 @@
 #include "OWLAnonymousIndividual.hpp"
 #include "OWLObjectProperty.hpp"
 #include "OWLDataProperty.hpp"
+#include "OWLDataType.hpp"
 #include "OWLAxiom.hpp"
 #include "OWLClassAssertionAxiom.hpp"
 #include "OWLDeclarationAxiom.hpp"
@@ -69,6 +70,8 @@ protected:
     std::map<IRI, OWLAnnotationProperty::Ptr> mAnnotationProperties;
     /// For data range list ONE_OF, UNION_OF, DATATYPE_RESTRICTION
     std::map<IRI, std::vector<OWLDataRange::Ptr> > mAnonymousDataRanges;
+    /// All data types
+    std::map<IRI, OWLDataType::Ptr> mDataTypes;
 
     /// General axiom map
     AxiomMap mAxiomsByType;

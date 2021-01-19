@@ -6,7 +6,8 @@ namespace model {
 
 OWLDataTypeRestriction::OWLDataTypeRestriction(const OWLDataType::Ptr& datatype,
             const OWLFacetRestriction::List& facetRestrictions)
-    : mDataType(datatype)
+    : OWLDataRange(OWLDataTypeRestriction::DATATYPE_RESTRICTION)
+    , mDataType(datatype)
     , mFacetRestrictions(facetRestrictions)
 {}
 

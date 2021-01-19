@@ -802,7 +802,7 @@ void OWLOntologyReader::loadDataTypeRestrictions(OWLOntology::Ptr& ontology)
                 std::map<IRI, OWLFacetRestriction>::const_iterator cit =  mFacetRestrictions.find(iri);
                 if(cit == mFacetRestrictions.end())
                 {
-                    throw std::runtime_error("owlapi::model::OWLOntologyReader::loadFacetRestrictionsLists:"
+                    throw std::runtime_error("owlapi::io::OWLOntologyReader::loadFacetRestrictionsLists:"
                             " failed to identify anonymous id '" + iri.toString() +
                             "' as facet restriction");
                 } else {
@@ -824,6 +824,35 @@ void OWLOntologyReader::loadDataTypeRestrictions(OWLOntology::Ptr& ontology)
         }
     }
 
+    {
+        IRIList predicates = {
+            vocabulary::OWL::oneOf(),
+            vocabulary::OWL::unionOf(),
+            vocabulary::OWL::datatypeComplementOf(),
+            vocabulary::OWL::intersectionOf()
+        };
+
+        for(const IRI& predicate : predicates)
+        {
+            db::rdf::sparql::Query customQuery;
+            customQuery.select(db::query::Subject())
+                    .select(db::query::Object())
+                   .beginWhere() \
+                   .triple(db::query::Subject(),vocabulary::RDF::type(),
+                           vocabulary::RDFS::Datatype())
+                   .triple(db::query::Subject(), predicate, db::query::Object())
+                   .endWhere();
+
+            Results results = mSparqlInterface->query(customQuery.toString(),customQuery.getBindings());
+            ResultsIterator it(results);
+            while(it.next())
+            {
+                IRI subject = it[Subject()];
+                IRI object = it[Object()];
+                // TODO: 2maz
+            }
+        }
+    }
 
     IRIList predicates = {
         vocabulary::OWL::allValuesFrom(),
@@ -867,24 +896,25 @@ void OWLOntologyReader::loadDataTypeRestrictions(OWLOntology::Ptr& ontology)
                             property.toString());
             }
 
+            OWLDataRange::Ptr dataRange;
+
             std::map<IRI,
                 OWLDataTypeRestriction::Ptr>::const_iterator cit = mAnonymousDataTypeRestrictions.find(object);
-            if(cit == mAnonymousDataTypeRestrictions.end())
+            if(cit != mAnonymousDataTypeRestrictions.end())
             {
-                throw
-                    std::runtime_error("owlapi::model::OWLOntologyReader::loadDataTypeRestrictions:"
-                            " failed to locate anonymous restriction '"
-                            + object.toString() + "'");
+                 dataRange = dynamic_pointer_cast<OWLDataRange>(cit->second);
+            } else
+            {
+                dataRange = dynamic_pointer_cast<OWLDataRange>( tell.datatype(object) );
             }
 
-            OWLDataTypeRestriction::Ptr datatypeRestrictions = cit->second;
             OWLDataRestriction::Ptr dataRestriction;
             if(predicate == vocabulary::OWL::someValuesFrom())
             {
                 OWLDataSomeValuesFrom::Ptr someValuesFrom =
                     make_shared<OWLDataSomeValuesFrom>(
                             restrictedProperty,
-                            datatypeRestrictions);
+                            dataRange);
                 if(!dynamic_pointer_cast<OWLDataRestriction>(someValuesFrom))
                 {
                     throw
@@ -897,7 +927,7 @@ void OWLOntologyReader::loadDataTypeRestrictions(OWLOntology::Ptr& ontology)
             } else if(predicate == vocabulary::OWL::allValuesFrom())
             {
                 OWLDataAllValuesFrom::Ptr allValuesFrom = make_shared<OWLDataAllValuesFrom>(restrictedProperty,
-                        datatypeRestrictions
+                        dataRange
                 );
                 if(!dynamic_pointer_cast<OWLDataRestriction>(allValuesFrom))
                 {
@@ -1207,6 +1237,7 @@ void OWLOntologyReader::loadObjectRestrictions(OWLOntology::Ptr& ontology)
         for(const IRI& predicate : predicates)
         {
             db::rdf::sparql::Query customQuery;
+            // This query pattern is unique for object properties,
             customQuery.select(db::query::Subject())
                     .select(db::query::Object())
                    .beginWhere() \

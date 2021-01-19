@@ -514,13 +514,13 @@ public:
     reasoner::factpp::ClassExpression dataSomeValuesFrom(
             const IRI& klassId,
             const IRI& property,
-            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction
+            const owlapi::model::OWLDataRange::Ptr& restriction
     );
 
     reasoner::factpp::ClassExpression dataAllValuesFrom(
             const IRI& klassId,
             const IRI& property,
-            const owlapi::model::OWLDataTypeRestriction::Ptr& restriction
+            const owlapi::model::OWLDataRange::Ptr& restriction
     );
 
     reasoner::factpp::ClassExpression dataHasValue(

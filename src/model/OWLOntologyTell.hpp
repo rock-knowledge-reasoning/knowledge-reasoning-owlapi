@@ -248,7 +248,13 @@ public:
      * Make ontology known
      */
     void ontology(const IRI& ontology);
-    void datatype(const IRI& datatype);
+
+    /**
+     * Declare and create new datatype or return existing if it has
+     * already been created
+     */
+    owlapi::model::OWLDataType::Ptr datatype(const IRI& datatype);
+
     /**
      * Register a oneOf construct for a data (literal) list
      * with an (anonymous) id

@@ -773,15 +773,12 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
             OWLDataSomeValuesFrom::Ptr someValuesFrom = dynamic_pointer_cast<OWLDataSomeValuesFrom>(r);
 
             OWLDataRange::Ptr filler = someValuesFrom->getFiller();
-            OWLDataTypeRestriction::Ptr dataTypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(filler);
-            if(!dataTypeRestriction)
+            if(!filler)
             {
                 throw std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
-                        "failed to extract data type restriction");
+                        "failed to extract data type restriction filler for some values from");
             }
-
-
-            mpOntology->kb()->dataSomeValuesFrom(id, dataPropertyIRI, dataTypeRestriction);
+            mpOntology->kb()->dataSomeValuesFrom(id, dataPropertyIRI, filler);
             break;
         }
         case OWLClassExpression::DATA_ALL_VALUES_FROM:
@@ -789,13 +786,12 @@ OWLClassExpression::Ptr OWLOntologyTell::dataPropertyRestriction(const IRI& id, 
             OWLDataAllValuesFrom::Ptr allValuesFrom = dynamic_pointer_cast<OWLDataAllValuesFrom>(r);
 
             OWLDataRange::Ptr filler = allValuesFrom->getFiller();
-            OWLDataTypeRestriction::Ptr dataTypeRestriction = dynamic_pointer_cast<OWLDataTypeRestriction>(filler);
-            if(!dataTypeRestriction)
+            if(!filler)
             {
                 throw std::invalid_argument("owlapi::model::OWLOntologyTell::dataPropertyRestriction:"
-                        "failed to extract data type restriction");
+                        "failed to extract data type restriction filler for all values from");
             }
-            mpOntology->kb()->dataAllValuesFrom(id, dataPropertyIRI, dataTypeRestriction);
+            mpOntology->kb()->dataAllValuesFrom(id, dataPropertyIRI, filler);
             break;
         }
         case OWLClassExpression::DATA_HAS_VALUE:
@@ -1267,7 +1263,7 @@ void OWLOntologyTell::ontology(const IRI& iri)
     instanceOf(iri, vocabulary::OWL::Ontology());
 }
 
-void OWLOntologyTell::datatype(const IRI& iri)
+OWLDataType::Ptr OWLOntologyTell::datatype(const IRI& iri)
 {
     // http://www.w3.org/TR/owl-ref/#rdf-datatype
     //
@@ -1290,8 +1286,16 @@ void OWLOntologyTell::datatype(const IRI& iri)
     // <http://www.linkedmodel.org/schema/vaem#dateUnion>
     //      <http://www.w3.org/2002/07/owl#equivalentClass> _:genid1 .
     //
-
-    mpOntology->kb()->dataType(iri);
+    std::map<IRI, OWLDataType::Ptr>::const_iterator cit = mpOntology->mDataTypes.find(iri);
+    if(cit != mpOntology->mDataTypes.end())
+    {
+        return cit->second;
+    } else {
+        OWLDataType::Ptr dataType = make_shared<OWLDataType>(iri);
+        mpOntology->kb()->dataType(iri);
+        mpOntology->mDataTypes[iri] = dataType;
+        return dataType;
+    }
 }
 
 void OWLOntologyTell::dataOneOf(const IRI& id, const OWLDataOneOf::Ptr& dataOneOf)

@@ -44,6 +44,7 @@ public:
     /// Unqualified cardinality
     VOCABULARY_ADD_WORD(cardinality);
     VOCABULARY_ADD_WORD(complementOf);
+    VOCABULARY_ADD_WORD(datatypeComplementOf);
     VOCABULARY_ADD_WORD(differentFrom);
     VOCABULARY_ADD_WORD(disjointWith);
     VOCABULARY_ADD_WORD(distinctMembers);

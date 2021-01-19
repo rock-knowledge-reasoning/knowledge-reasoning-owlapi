@@ -1042,13 +1042,33 @@ reasoner::factpp::ClassExpression KnowledgeBase::objectHasValue(
 
 reasoner::factpp::ClassExpression KnowledgeBase::dataSomeValuesFrom(const IRI& klassId,
         const IRI& property,
-        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+        const owlapi::model::OWLDataRange::Ptr& range)
 {
-    reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
-    DataPropertyExpression dpExpression = dataProperty(property);
+    const TDLDataExpression* dataExpression;
+    switch(range->getDataRangeType())
+    {
+        case OWLDataRange::DATATYPE:
+        {
+            owlapi::model::IRI name = dynamic_pointer_cast<OWLLogicalEntity>(range)->getIRI();
+            reasoner::factpp::DataTypeName dt = dataType(name);
+            dataExpression = dt.get();
+            break;
+        }
+        case OWLDataRange::DATATYPE_RESTRICTION:
+        {
+            OWLDataTypeRestriction::Ptr restriction = dynamic_pointer_cast<OWLDataTypeRestriction>(range);
+            reasoner::factpp::DataRange e_range = dataTypeRestriction(restriction);
+            dataExpression = e_range.get();
+            break;
+        }
+        default:
+            throw std::runtime_error("owlapi::KnowledgeBase:dataSomeValuesFrom:"
+                    " missing support this data range type");
+    }
 
+    DataPropertyExpression dpExpression = dataProperty(property);
     TDLConceptExpression* someValuesFromConcept = getExpressionManager()->Exists(dpExpression.get(),
-                    range.get());
+     dataExpression);
 
     ClassExpression ce(someValuesFromConcept);
     mClasses[klassId] = ce;
@@ -1057,13 +1077,33 @@ reasoner::factpp::ClassExpression KnowledgeBase::dataSomeValuesFrom(const IRI& k
 
 ClassExpression KnowledgeBase::dataAllValuesFrom(const IRI& klassId,
         const IRI& property,
-        const owlapi::model::OWLDataTypeRestriction::Ptr& restriction)
+        const owlapi::model::OWLDataRange::Ptr& range)
 {
-    reasoner::factpp::DataRange range = dataTypeRestriction(restriction);
+    const TDLDataExpression* dataExpression;
+    switch(range->getDataRangeType())
+    {
+        case OWLDataRange::DATATYPE:
+        {
+            owlapi::model::IRI name = dynamic_pointer_cast<OWLLogicalEntity>(range)->getIRI();
+            reasoner::factpp::DataTypeName dt = dataType(name);
+            dataExpression = dt.get();
+            break;
+        }
+        case OWLDataRange::DATATYPE_RESTRICTION:
+        {
+            OWLDataTypeRestriction::Ptr restriction = dynamic_pointer_cast<OWLDataTypeRestriction>(range);
+            reasoner::factpp::DataRange e_range = dataTypeRestriction(restriction);
+            dataExpression = e_range.get();
+            break;
+        }
+        default:
+            throw std::runtime_error("owlapi::KnowledgeBase:dataSomeValuesFrom:"
+                    " missing support this data range type");
+    }
     DataPropertyExpression dpExpression = dataProperty(property);
 
     TDLConceptExpression* allValuesFromConcept = getExpressionManager()->Forall(dpExpression.get(),
-                    range.get());
+                    dataExpression);
 
     ClassExpression ce(allValuesFromConcept);
     mClasses[klassId] = ce;
