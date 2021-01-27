@@ -70,7 +70,7 @@ public:
             const OWLCardinalityRestriction::PtrList& restrictions);
 
     /**
-     * Cache supplace relationship testing
+     * Cache subclass relationship testing
      */
     void cacheIsSubClassOf(const IRI& iri, const IRI& otherIri, bool isSubclass);
 
