@@ -287,8 +287,8 @@ OWLCardinalityRestriction::Ptr OWLObjectCardinalityRestriction::join(const OWLCa
         }
     } else {
         LOG_DEBUG_S << "Restrictions are not overlapping: "
-            << toString() << std::endl
-            << other->toString() << std::endl;
+            << toString(0) << std::endl
+            << other->toString(0) << std::endl;
     }
     return OWLCardinalityRestriction::Ptr();
 }
@@ -369,7 +369,20 @@ IRI OWLObjectCardinalityRestriction::getQualification() const
             " failed to extract qualification");
 }
 
-
+std::string OWLObjectCardinalityRestriction::toString(size_t indent) const
+{
+    std::string hspace(indent,' ');
+    std::stringstream ss;
+    ss << OWLCardinalityRestriction::toString(indent);
+    try {
+        IRI qualification = getQualification();
+        ss << hspace << "    qualification: " << qualification << std::endl;
+    } catch(...)
+    {
+        ///
+    }
+    return ss.str();
+}
 
 
 

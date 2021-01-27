@@ -116,6 +116,10 @@ public:
      */
     IRI getQualification() const;
 
+    virtual std::string toString() const override { return toString(0); }
+
+    virtual std::string toString(size_t indent) const override;
+
 protected:
     OWLCardinalityRestriction::Ptr doClone() const;
 

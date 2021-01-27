@@ -66,7 +66,7 @@ public:
 
     virtual std::string toString() const;
 
-    std::string toString(size_t indent) const;
+    virtual std::string toString(size_t indent) const;
 
     /**
      * Stringify list of restriction
