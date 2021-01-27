@@ -9,6 +9,8 @@ namespace model {
 class OWLObjectIntersectionOf : public OWLNaryBooleanExpression
 {
 public:
+    typedef shared_ptr<OWLObjectIntersectionOf> Ptr;
+
     OWLObjectIntersectionOf(const OWLClassExpression::PtrList& expressions)
         : OWLNaryBooleanExpression(expressions)
     {}

@@ -1,6 +1,7 @@
 #include "OWLOntologyAsk.hpp"
 #include "../KnowledgeBase.hpp"
 #include "../Vocabulary.hpp"
+#include "OWLObjectIntersectionOf.hpp"
 
 namespace owlapi {
 namespace model {
@@ -173,7 +174,10 @@ OWLAnnotationProperty::Ptr OWLOntologyAsk::getOWLAnnotationProperty(const IRI& i
     throw std::runtime_error("OWLOntologyAsk::getOWLAnnotationProperty: '" + iri.toString() + "' is not a known OWLAnnotationProperty");
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce, const IRI& objectProperty) const
+std::vector<OWLCardinalityRestriction::Ptr>
+OWLOntologyAsk::getCardinalityRestrictions(const owlapi::model::OWLClassExpression::Ptr& ce,
+        const IRI& objectProperty,
+        bool includeAncestors) const
 {
     owlapi::model::OWLProperty::Ptr property;
     if(objectProperty != IRI())
@@ -195,23 +199,86 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     //        - (including the ones for the superclasses -- identify restrictions)
     std::vector<OWLSubClassOfAxiom::Ptr> subclassAxioms = mpOntology->mSubClassAxiomBySubPosition[ce];
 
-    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
-    std::vector<OWLSubClassOfAxiom::Ptr>::const_iterator sit = subclassAxioms.begin();
-    for(; sit != subclassAxioms.end(); ++sit)
+    std::vector<OWLCardinalityRestriction::Ptr> restrictionsFromAxioms;
+    for(const OWLSubClassOfAxiom::Ptr& subclassAxiomPtr : subclassAxioms)
     {
-        OWLSubClassOfAxiom::Ptr subclassAxiomPtr = *sit;
         OWLClassExpression::Ptr superClass = subclassAxiomPtr->getSuperClass();
+        OWLCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLCardinalityRestriction>(superClass);
+        if(restriction)
+        {
+            restrictionsFromAxioms.push_back(restriction->clone());
+        }
+    }
 
-        // The class for which the cardinality expressions are queried for
-        OWLClassExpression::Ptr subClass = subclassAxiomPtr->getSubClass();
+    std::vector<OWLClassExpression::Ptr> equivalentClasses = allEquivalentClassExpressions(ce);
+    for(const OWLClassExpression::Ptr& equivalentClass : equivalentClasses)
+    {
+        switch(equivalentClass->getClassExpressionType())
+        {
+            case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
+            case OWLClassExpression::OBJECT_MAX_CARDINALITY:
+            case OWLClassExpression::OBJECT_MIN_CARDINALITY:
+            {
+                OWLCardinalityRestriction::Ptr r =
+                    dynamic_pointer_cast<OWLCardinalityRestriction>(equivalentClass);
+                if(!r)
+                {
+                    throw
+                        std::runtime_error("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions:"
+                                " internal error: equivalent class cast to object cardinality failed");
+                }
+                restrictionsFromAxioms.push_back(r->clone());
+                break;
+            }
+            case OWLClassExpression::OBJECT_INTERSECTION_OF:
+            {
+                OWLObjectIntersectionOf::Ptr intersectionOf =
+                    dynamic_pointer_cast<OWLObjectIntersectionOf>(equivalentClass);
+                for(OWLClassExpression::Ptr element : intersectionOf->getOperands())
+                {
+                    switch(element->getClassExpressionType())
+                    {
+                        case OWLClassExpression::OBJECT_MAX_CARDINALITY:
+                        case OWLClassExpression::OBJECT_MIN_CARDINALITY:
+                        case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
+                        {
+                            OWLCardinalityRestriction::Ptr r =
+                                dynamic_pointer_cast<OWLCardinalityRestriction>(element);
+                            if(!r)
+                            {
+                                throw
+                                    std::runtime_error("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions:"
+                                            " internal error in object intersection: cast to cardinality restriction failed");
+                            }
 
-        switch(superClass->getClassExpressionType())
+                            restrictionsFromAxioms.push_back(r->clone());
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+            default:
+                break;
+        }
+    }
+
+    std::vector<OWLCardinalityRestriction::Ptr> restrictions;
+    for(OWLCardinalityRestriction::Ptr restriction : restrictionsFromAxioms)
+    {
+        if(!restriction)
+        {
+            throw
+                std::runtime_error("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions:"
+                        " internal error: object is not an OWLCardinalityRestriction");
+        }
+        switch(restriction->getClassExpressionType())
         {
             case OWLClassExpression::OBJECT_MIN_CARDINALITY:
             case OWLClassExpression::OBJECT_MAX_CARDINALITY:
             case OWLClassExpression::OBJECT_EXACT_CARDINALITY:
             {
-                OWLObjectCardinalityRestriction::Ptr restriction = dynamic_pointer_cast<OWLObjectCardinalityRestriction>(superClass);
                 // Only handle restriction which are matching the object
                 // property
                 if(property && restriction->getProperty() != property)
@@ -220,19 +287,19 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
                     break;
                 }
 
-                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(restriction->getFiller(), objectProperty);
+                OWLObjectCardinalityRestriction::Ptr oRestriction =
+                    dynamic_pointer_cast<OWLObjectCardinalityRestriction>(restriction);
+                std::vector<OWLCardinalityRestriction::Ptr>
+                    inheritedRestrictions = getCardinalityRestrictions(oRestriction->getFiller(), objectProperty);
 
                 if(inheritedRestrictions.empty())
                 {
                     restrictions.push_back(restriction->clone());
                 } else {
-                    // We need to increase scale each cardinality based on the
-                    // requirements of the restrictions that got it in here in
-                    // the first place
-                    std::vector<OWLCardinalityRestriction::Ptr> scaledRestrictions = OWLCardinalityRestriction::scale(inheritedRestrictions,
-                            restriction->getCardinality());
 
-                    restrictions = OWLCardinalityRestrictionOps::intersection(restrictions, scaledRestrictions);
+                    restrictions =
+                        OWLCardinalityRestrictionOps::intersection(restrictions,
+                                inheritedRestrictions);
                 }
                 break;
             }
@@ -241,19 +308,29 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
             case OWLClassExpression::DATA_MAX_CARDINALITY:
                 throw std::invalid_argument("owlapi::model::OWLOntologyAsk::getCardinalityRestrictions: cannot handle data restriction, when dealing with class qualification");
                 break;
-            case OWLClassExpression::OWL_CLASS:
-            {
-                std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions = getCardinalityRestrictions(superClass, objectProperty);
-                restrictions = OWLCardinalityRestrictionOps::intersection(restrictions, inheritedRestrictions);
-            }
             default:
                 break;
         }
     }
+
+    if(includeAncestors)
+    {
+        const IRI& klassIri = getOWLClassExpressionIRI(ce);
+        for(const IRI& ancestor : ancestors(klassIri))
+        {
+            std::vector<OWLCardinalityRestriction::Ptr> inheritedRestrictions =
+                getCardinalityRestrictions(ancestor, objectProperty, false);
+            restrictions = OWLCardinalityRestrictionOps::intersection(restrictions, inheritedRestrictions);
+        }
+    }
+
     return OWLCardinalityRestriction::compact(restrictions);
 }
 
-std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestrictions(const IRI& iri, const IRI& objectProperty) const
+std::vector<OWLCardinalityRestriction::Ptr>
+OWLOntologyAsk::getCardinalityRestrictions(const IRI& iri,
+        const IRI& objectProperty,
+        bool includeAncestors) const
 {
     // In order to find a restriction for a given class
     //    1. check class assertions for individuals
@@ -268,8 +345,11 @@ std::vector<OWLCardinalityRestriction::Ptr> OWLOntologyAsk::getCardinalityRestri
     } else {
         OWLClass::Ptr klass = getOWLClass(iri);
         OWLCardinalityRestriction::PtrList restrictions =
-            getCardinalityRestrictions(klass, objectProperty);
-        mpOntology->mQueryCache.cacheCardinalityRestrictions(iri, objectProperty, restrictions);
+            getCardinalityRestrictions(klass, objectProperty, includeAncestors);
+        if(includeAncestors)
+        {
+            mpOntology->mQueryCache.cacheCardinalityRestrictions(iri, objectProperty, restrictions);
+        }
         return restrictions;
     }
 }
@@ -523,6 +603,51 @@ IRIList OWLOntologyAsk::allClasses(bool excludeBottomClass) const
     return mpOntology->kb()->allClasses(excludeBottomClass);
 }
 
+IRIList OWLOntologyAsk::allEquivalentClasses(const IRI& klass) const
+{
+    return mpOntology->kb()->allEquivalentClasses(klass);
+}
+
+std::vector<OWLClassExpression::Ptr> OWLOntologyAsk::allEquivalentClassExpressions(const IRI& klass) const
+{
+    OWLClassExpression::Ptr klassExpression = getOWLClassExpression(klass);
+    if(!klassExpression)
+    {
+        throw std::invalid_argument("owlapi::model::equivalentClasses: failed to"
+                " get class expression for '" + klass.toString() + "'");
+    }
+    return allEquivalentClassExpressions(klassExpression);
+}
+
+
+std::vector<OWLClassExpression::Ptr> OWLOntologyAsk::allEquivalentClassExpressions(const OWLClassExpression::Ptr& klassExpression) const
+{
+    OWLClassExpression::PtrList allClasses;
+
+    for(const OWLAxiom::Ptr& axiom :
+            mpOntology->mAxiomsByType[OWLAxiom::EquivalentClasses])
+    {
+        const OWLEquivalentClassesAxiom::Ptr& equivalentClassesAxiom =
+            dynamic_pointer_cast<OWLEquivalentClassesAxiom>(axiom);
+
+        if(equivalentClassesAxiom->contains(klassExpression))
+        {
+            OWLClassExpression::PtrList equivalentClasses =
+                equivalentClassesAxiom->getEquivalentClasses();
+
+            equivalentClasses.erase(std::remove_if(equivalentClasses.begin(), equivalentClasses.end(),
+                    [klassExpression](const OWLClassExpression::Ptr& other)
+                    {
+                        return other == klassExpression;
+                    }), equivalentClasses.end());
+
+            allClasses.insert(allClasses.end(), equivalentClasses.begin(),
+                    equivalentClasses.end());
+        }
+    }
+    return allClasses;
+}
+
 IRIList OWLOntologyAsk::allRDFProperties() const
 {
     return IRIList(mpOntology->mRDFProperties.begin(), mpOntology->mRDFProperties.end());
@@ -748,15 +873,20 @@ IRIList OWLOntologyAsk::getObjectPropertyDomain(const IRI& objectProperty, bool 
     return mpOntology->kb()->getObjectPropertyDomain(objectProperty, direct);
 }
 
-IRIList OWLOntologyAsk::ancestors(const IRI& instance) const
+IRIList OWLOntologyAsk::ancestors(const IRI& instance, bool direct) const
 {
     if(isOWLClass(instance))
     {
-        return mpOntology->kb()->allAncestorsOf(instance, false);
+        return mpOntology->kb()->allAncestorsOf(instance, direct);
     } else {
         throw std::invalid_argument("owlapi::model::OWLOntology::ancestors: '"
                 + instance.toString() + "' is not a known class");
     }
+}
+
+bool OWLOntologyAsk::areEquivalent(const IRI& klassA, const IRI& klassB) const
+{
+    return mpOntology->kb()->isEquivalentClass(klassA, klassB);
 }
 
 bool OWLOntologyAsk::isDatatype(const IRI& iri) const

@@ -14,13 +14,16 @@ class OWLEquivalentClassesAxiom : public OWLClassAxiom
     OWLClassExpression::PtrList mClassExpressions;
 
 public:
-    OWLEquivalentClassesAxiom(OWLClassExpression::PtrList classExpressions,
-            OWLAnnotationList annotations = OWLAnnotationList())
-        : OWLClassAxiom(EquivalentClasses, annotations)
-        , mClassExpressions(classExpressions)
-    {}
+    typedef shared_ptr<OWLEquivalentClassesAxiom> Ptr;
 
-    virtual ~OWLEquivalentClassesAxiom() {}
+    OWLEquivalentClassesAxiom(const OWLClassExpression::PtrList& classExpressions,
+           const OWLAnnotationList& annotations = OWLAnnotationList());
+
+    virtual ~OWLEquivalentClassesAxiom() = default;
+
+    bool contains(const OWLClassExpression::Ptr& klass) const;
+
+    const OWLClassExpression::PtrList& getEquivalentClasses() const { return mClassExpressions; }
 
     bool containsNamedEquivalentClass() const { throw std::runtime_error("OWLEquivalentClassesAxiom:containsOWLNothing: not implemented"); }
 

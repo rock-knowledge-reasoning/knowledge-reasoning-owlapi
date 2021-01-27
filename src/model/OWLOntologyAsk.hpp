@@ -93,7 +93,7 @@ public:
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const
             owlapi::model::OWLClassExpression::Ptr& ce,
-            const IRI& objectProperty = IRI()) const;
+            const IRI& objectProperty = IRI(), bool includeAncestors = true) const;
 
     /**
      * Retrieve the cardinality restrictions of a given class (by IRI)
@@ -104,7 +104,7 @@ public:
      * \see OWLCardinalityRestriction::compact
      */
     std::vector<OWLCardinalityRestriction::Ptr> getCardinalityRestrictions(const IRI& iri,
-            const IRI& objectProperty = IRI()) const;
+            const IRI& objectProperty = IRI(), bool includeAncestors = true) const;
 
     /**
      * Retrieve the cardinality restrictions for a given set of classes
@@ -223,6 +223,22 @@ public:
      * \return list of all classes
      */
     IRIList allClasses(bool excludeBottomClass = true) const;
+
+    /**
+     * Retrieve all equivalent classes
+     */
+    IRIList allEquivalentClasses(const IRI& klass) const;
+
+    /**
+     * Extracting requivalent between a complex and a primivite class might not
+     * be possible by using the reasoner, here, Fact++
+     *
+     * Hence use this interface to process axiom and identify equivalent class
+     * expressions, e.g., to map to equivalent cardinality restrictions
+     */
+    std::vector<OWLClassExpression::Ptr> allEquivalentClassExpressions(const IRI& klass) const;
+
+    std::vector<OWLClassExpression::Ptr> allEquivalentClassExpressions(const OWLClassExpression::Ptr& klass) const;
 
     /**
      * Retrieve all known instances
@@ -386,7 +402,9 @@ public:
      * Retrieve the list of ancestors
      * \return list of ancestors
      */
-    IRIList ancestors(const IRI& instance) const;
+    IRIList ancestors(const IRI& instance, bool direct = false) const;
+
+    bool areEquivalent(const IRI& klassA, const IRI& klassB) const;
 
     /**
      * Check if the given iri refers to a datatype
