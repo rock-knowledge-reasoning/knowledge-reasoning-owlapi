@@ -170,7 +170,6 @@ rock_library(owlapi
         model/OWLNamedObject.hpp
         model/OWLNaryAxiom.hpp
         model/OWLNaryBooleanExpression.hpp
-        model/OWLCardinalityRestriction.hpp
         model/OWLNaryClassAxiom.hpp
         model/OWLObjectAllValuesFrom.hpp
         model/OWLObjectCardinalityRestriction.hpp
