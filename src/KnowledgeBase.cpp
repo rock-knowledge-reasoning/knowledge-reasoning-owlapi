@@ -41,7 +41,15 @@ IRIList KnowledgeBase::getResult(const Actor& actor, const IRI& filter) const
         IRI iri = IRI::create(entry->getName());
         if(iri != filter)
         {
-            list.push_back(iri);
+            if(iri == IRI("TOP"))
+            {
+                list.push_back(vocabulary::OWL::Thing());
+            } else if(iri == IRI("BOTTOM"))
+            {
+                list.push_back(vocabulary::OWL::Nothing());
+            } else {
+                list.push_back(iri);
+            }
         }
     }
 
@@ -1409,7 +1417,6 @@ IRIList KnowledgeBase::allEquivalentClasses(const IRI& klass)
     Actor actor;
     actor.needConcepts();
     mKernel->getEquivalentConcepts(e_class.get(), actor);
-
     return getResult(actor);
 }
 
