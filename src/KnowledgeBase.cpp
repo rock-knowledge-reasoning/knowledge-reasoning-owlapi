@@ -1382,7 +1382,24 @@ IRIList KnowledgeBase::allAncestorsOf(const IRI& klass, bool direct)
     actor.needConcepts();
     mKernel->getSupConcepts(e_class.get(), direct, actor);
 
-    return getResult(actor);
+    IRIList directClassAncestors = getResult(actor);
+    IRIList punningBasedAncestors;
+    try {
+        punningBasedAncestors = typesOf(klass);
+    } catch(...)
+    {
+        /// ignore if there is no instance for punning
+    }
+    IRISet ancestors(directClassAncestors.begin(), directClassAncestors.end());
+    for(const IRI& ancestor : ancestors)
+    {
+        IRIList equivalenctClasses = allEquivalentClasses(ancestor);
+        punningBasedAncestors.insert(punningBasedAncestors.end(),
+                equivalenctClasses.begin(), equivalenctClasses.end());
+
+    }
+    ancestors.insert(punningBasedAncestors.begin(), punningBasedAncestors.end());
+    return IRIList(ancestors.begin(), ancestors.end());
 }
 
 IRIList KnowledgeBase::allEquivalentClasses(const IRI& klass)
