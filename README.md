@@ -1,6 +1,5 @@
 # owlapi: A C++-based owlapi implementation
-[![Build
-Status](https://travis-ci.org/rock-knowledge-reasoning/knowledge-reasoning-owlapi.svg?branch=master)](https:///travis-ci.org/rock-knowledge-reasoning/knowledge-reasoning-owlapi)
+![Build Status](https://github.com/rock-knowledge-reasoning/knowledge-reasoning-owlapi/workflows/test/badge.svg)
 
 
 This library reimplements owlapi (https://github.com/owlcs/owlapi) functionality
@@ -115,12 +114,8 @@ OWLObjectPropery::Ptr oProperty = tell->objectProperty("http://www.rock-robotics
 
 // either
 {
-    OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr( new OWLMaxCardinalityRestriction(oProperty, 10, cameraKlass.getIRI()));
-    tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
-}
-// or
-{
-    OWLCardinalityRestriction::Ptr restriction = tell->cardinalityRestriction(oProperty, 10, cameraKlass.getIRI(), OWLCardinalityRestriction::MAX);
+    OWLCardinalityRestriction::Ptr restriction = OWLCardinalityRestriction::Ptr(
+    new OWLObjectMaxCardinality(oProperty, 10, cameraKlass));
     tell->restrictClass(robotKlass, restriction); // alternatively: tell->subClassOf(robotKlass, restriction);
 }
 
@@ -185,13 +180,13 @@ tell.valueOf(instance, property, literal);
  
 ### Architecture
  
-This library is a C++-Clone of the JAVA-based owlapi: http://owlapi.sourceforge.net.
-The motivation for implementation is to allow a consistent application of
-C/C++-based programs on robotic systems -- especially since we are intending
-to target small/embedded devices.
+This library intends bring the functionality of the JAVA-based owlapi: http://owlapi.sourceforge.net
+to C++.
+The motivation for implementation is to permit a consistent application of
+C/C++-based programs on robotic systems -- especially since we are targeting small/embedded devices.
 
-Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description Logic v1.6.3) is actually written in C++
-and thus can be accessed almost directly.
+Furthermore, the embedded reasoner FACT++ (Reasoner for the SROIQ(D) Description
+Logic v1.6.3) is already written in C++ and thus can be accessed almost directly.
 This implementation of owlapi is not as complete as the original JAVA-based one.
 Among other things it does not fully support is processing of construct such as DataComplementOf.
 DataOneOf is supported however.
@@ -230,7 +225,7 @@ export BOOST_TEST_CATCH_SYSTEM_ERRORS="no"
 ```
 
 ## COPYRIGHT
-Copyright (c) 2013-2019 Thomas M Roehr and Contributors, DFKI GmbH Robotics Innovation Center
+Copyright (c) 2013-2021 Thomas M Roehr and Contributors, DFKI GmbH Robotics Innovation Center
 
 ## LICENSE
 This project is licensed under [LGPL v2.1 or later](https://www.gnu.org/licenses/lgpl-2.1.txt)
