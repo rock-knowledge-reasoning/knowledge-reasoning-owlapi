@@ -1,0 +1,22 @@
+name: test
+on: [push]
+jobs:
+  unittest-owlapi:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: current_branch
+
+      - name: Build 
+        run: docker build -t rock/owlapi .  --build-arg PKG_NAME="knowledge_reasoning/owlapi" --build-arg PKG_BRANCH=${{ steps.current_branch.outputs.branch }}
+
+      - name: Test
+        run: docker run rock/owlapi /bin/bash -c "source /home/docker/rock_test/env.sh; BOOST_TEST_CATCH_SYSTEM_ERRORS=\"no\" make -C knowledge_reasoning/owlapi/build test"
+
+
+
