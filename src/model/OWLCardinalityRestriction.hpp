@@ -94,12 +94,6 @@ public:
 
     void setCardinalityRestrictionType(OWLCardinalityRestriction::CardinalityRestrictionType type) { mCardinalityRestrictionType = type; }
 
-    static std::vector<OWLCardinalityRestriction::Ptr> join(
-            const std::vector<OWLCardinalityRestriction::Ptr>& a,
-            const std::vector<OWLCardinalityRestriction::Ptr>& _b,
-            OperationType operationType
-    );
-
     /**
      * Depending on the property type, narrow the internally used class to
      * either OWLObject.. or OWLData
