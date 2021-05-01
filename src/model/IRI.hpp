@@ -10,6 +10,7 @@
 #include "URI.hpp"
 #include "OWLAnnotationValue.hpp"
 #include "OWLAnnotationSubject.hpp"
+#include <regex>
 
 namespace owlapi {
 namespace model {
@@ -19,9 +20,16 @@ class IRI;
 typedef std::vector<IRI> IRIList;
 typedef std::set<IRI> IRISet;
 
+/**
+ * Implementation of a class for handling Internationalized Resource Identifiers
+ * (IRIs)
+ * \see https://www.ietf.org/rfc/rfc3987.txt
+ */
 class IRI : public OWLAnnotationValue, public virtual OWLAnnotationSubject
 {
 protected:
+    static const std::regex VALIDATION_REGEXP;
+
     std::string mPrefix;
     std::string mRemainder;
 
@@ -44,6 +52,12 @@ public:
      * \return true upon success, false otherwise
      */
     bool isAbsolute() const;
+
+    /**
+     * Test if IRI is valid
+     * \return true upon success, false otherwise
+     */
+    static bool isValid(const std::string& valid);
 
     /**
      * \return IRI scheme, i.e http, urn

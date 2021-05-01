@@ -4,9 +4,12 @@
 #include <owlapi/io/XMLUtils.hpp>
 #include <base-logging/Logging.hpp>
 #include <boost/algorithm/string.hpp>
+#include <regex>
 
 namespace owlapi {
 namespace model {
+
+const std::regex IRI::VALIDATION_REGEXP = std::regex("^((http[s]?|ftp):\\/)?\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?");
 
 void IRI::setFromString(const std::string& s)
 {
@@ -48,6 +51,11 @@ IRI::IRI(const std::string& prefix, const std::string& remainder)
     : mPrefix(prefix)
     , mRemainder(remainder)
 {}
+
+bool IRI::isValid(const std::string& s)
+{
+    return std::regex_match(s, VALIDATION_REGEXP);
+}
 
 URI IRI::toURI() const
 {

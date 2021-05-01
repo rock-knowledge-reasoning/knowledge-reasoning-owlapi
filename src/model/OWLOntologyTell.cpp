@@ -1203,16 +1203,19 @@ OWLAxiom::Ptr OWLOntologyTell::annotationOf(const IRI& subject,
                     );
         }
 
-        try {
-            shared_ptr<IRI> annotationObjectIRI = make_shared<IRI>(value);
-            // TODO: improve checking for IRI
-            annotationObjectIRI->toURI();
-            return annotationOf(annotationSubject, relation, annotationObjectIRI);
-        } catch(const std::invalid_argument& e)
+        if(IRI::isValid(value))
         {
-            LOG_INFO_S << "AnnotationValue is not an IRI (currently limited to URI checking)";
+            try {
+                shared_ptr<IRI> annotationObjectIRI = make_shared<IRI>(value);
+                annotationObjectIRI->toURI();
+                return annotationOf(annotationSubject, relation, annotationObjectIRI);
+            } catch(const std::invalid_argument& e)
+            {
+                LOG_INFO_S << "AnnotationValue '" << value << "' is not an IRI (currently limited to URI checking)";
+            }
         }
 
+        LOG_INFO_S << "AnnotationValue '" << value << "' creating literal";
         OWLLiteral::Ptr literal = OWLLiteral::create(value);
         if(!literal->isTyped())
         {
