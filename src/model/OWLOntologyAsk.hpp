@@ -399,11 +399,17 @@ public:
             bool includeAncestors = true) const;
 
     /**
-     * Retrieve the list of ancestors
-     * \return list of ancestors
+     * Retrieve the list of ancestors of a given klass
+     * \param klass Name of klass
+     * \param direct False if all ancestors should be retrieve, and True if only
+     * the direct one
+     * \return list of ancestors of klass
      */
-    IRIList ancestors(const IRI& instance, bool direct = false) const;
+    IRIList ancestors(const IRI& klass, bool direct = false) const;
 
+    /**
+     * Check if two classes are equivalent
+     */
     bool areEquivalent(const IRI& klassA, const IRI& klassB) const;
 
     /**
