@@ -262,6 +262,47 @@ BOOST_AUTO_TEST_CASE(equivalence)
             " is subclass of equivalent class");
 }
 
+BOOST_AUTO_TEST_CASE(ancestors)
+{
+    OWLOntology::Ptr ontology = make_shared<OWLOntology>();
+    OWLOntologyAsk ask(ontology);
+    OWLOntologyTell tell(ontology);
+
+    IRI klass("http://my-classes#class");
+    IRI instance("http://my-classes/#instance");
+
+    IRI property("http://my-classes/#property");
+    IRI subproperty0("http://my-classes/#subproperty0");
+    IRI subproperty1("http://my-classes/#subproperty1");
+
+    IRI oproperty("http://my-classes/#oproperty");
+    IRI osubproperty0("http://my-classes/#osubproperty0");
+    IRI osubproperty1("http://my-classes/#osubproperty1");
+
+    tell.initializeDefaultClasses();
+
+    tell.klass(klass);
+    tell.instanceOf(instance, klass);
+
+    tell.dataProperty(property);
+    tell.subPropertyOf(subproperty0, property);
+    tell.subPropertyOf(subproperty1, property);
+
+    tell.objectProperty(oproperty);
+    tell.subPropertyOf(osubproperty0, oproperty);
+    tell.subPropertyOf(osubproperty1, oproperty);
+
+    IRIList d_property = ask.ancestors(subproperty0, true);
+    BOOST_REQUIRE_MESSAGE(d_property.size() == 1 && d_property[0] == property,
+            "Ancestor property of '" << subproperty0 << "' is '" << property
+            << ": " << d_property);
+
+    IRIList o_property = ask.ancestors(osubproperty0, true);
+    BOOST_REQUIRE_MESSAGE(o_property.size() == 1 && o_property[0] == oproperty,
+            "Ancestor property of '" << osubproperty0 << "' is '" << oproperty
+            << ": " << o_property);
+}
+
 BOOST_AUTO_TEST_CASE(ranges)
 {
     OWLOntology::Ptr ontology = make_shared<OWLOntology>();

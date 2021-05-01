@@ -817,6 +817,14 @@ public:
     IRIList allObjectProperties() const;
 
     /**
+     * Retrieve all ancestors of a given object property
+     * \param property Name of object property
+     * \param direct True if only the direct parent should be returned, false
+     * otherwise
+     */
+    IRIList allAncestorObjectProperties(const IRI& property, bool direct = false);
+
+    /**
      * Retrieve all sub object properties
      */
     IRIList allSubObjectProperties(const IRI& relationProperty, bool direct = false );
@@ -834,6 +842,15 @@ public:
      * Note that the top and bottom data properties are excluded from this list
      */
     IRIList allDataProperties() const;
+
+    /**
+     * Retrieve all ancestors of a given data property
+     * \param property Name of object property
+     * \param direct True if only the direct parent should be returned, false
+     * otherwise
+     */
+    IRIList allAncestorDataProperties(const IRI& property, bool direct = false);
+
     /**
      * Retrieve all sub data properties
      */

@@ -873,14 +873,21 @@ IRIList OWLOntologyAsk::getObjectPropertyDomain(const IRI& objectProperty, bool 
     return mpOntology->kb()->getObjectPropertyDomain(objectProperty, direct);
 }
 
-IRIList OWLOntologyAsk::ancestors(const IRI& klass, bool direct) const
+IRIList OWLOntologyAsk::ancestors(const IRI& iri, bool direct) const
 {
-    if(isOWLClass(klass))
+    if(isOWLClass(iri))
     {
-        return mpOntology->kb()->allAncestorsOf(klass, direct);
+        return mpOntology->kb()->allAncestorsOf(iri, direct);
+    } else if(isObjectProperty(iri))
+    {
+        return mpOntology->kb()->allAncestorObjectProperties(iri, direct);
+
+    } else if(isDataProperty(iri))
+    {
+        return mpOntology->kb()->allAncestorDataProperties(iri, direct);
     } else {
         throw std::invalid_argument("owlapi::model::OWLOntology::ancestors: '"
-                + klass.toString() + "' is not a known class");
+                + iri.toString() + "' is not a known class, object or data property");
     }
 }
 

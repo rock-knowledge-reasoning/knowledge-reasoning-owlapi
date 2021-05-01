@@ -399,13 +399,13 @@ public:
             bool includeAncestors = true) const;
 
     /**
-     * Retrieve the list of ancestors of a given klass
-     * \param klass Name of klass
+     * Retrieve the list of ancestors of a given klass, object or data property
+     * \param iri Name of klass, object or data property
      * \param direct False if all ancestors should be retrieve, and True if only
      * the direct one
-     * \return list of ancestors of klass
+     * \return list of ancestors (either klasses, object properties or data * properties)
      */
-    IRIList ancestors(const IRI& klass, bool direct = false) const;
+    IRIList ancestors(const IRI& iri, bool direct = false) const;
 
     /**
      * Check if two classes are equivalent

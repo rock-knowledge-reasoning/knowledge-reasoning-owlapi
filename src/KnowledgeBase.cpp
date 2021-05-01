@@ -1553,12 +1553,33 @@ IRIList KnowledgeBase::allObjectProperties() const
     return properties;
 }
 
+
+IRIList KnowledgeBase::allAncestorObjectProperties(const IRI& property, bool direct)
+{
+    ObjectPropertyExpression e_role = getObjectProperty(property);
+
+    Actor actor;
+    actor.needObjectRoles();
+    mKernel->getSupRoles(e_role.get(), direct, actor);
+
+    IRIList directAncestors = getResult(actor);
+    IRISet ancestors(directAncestors.begin(), directAncestors.end());
+
+    for(const IRI& ancestor : ancestors)
+    {
+        IRIList equivalenctRoles = allEquivalentObjectProperties(ancestor);
+        ancestors.insert(equivalenctRoles.begin(), equivalenctRoles.end());
+
+    }
+    return IRIList(ancestors.begin(), ancestors.end());
+}
+
 IRIList KnowledgeBase::allSubObjectProperties(const IRI& propertyRelation, bool direct)
 {
     ObjectPropertyExpression e_relation = getObjectProperty(propertyRelation);
 
     Actor actor;
-    actor.needConcepts();
+    actor.needObjectRoles();
     mKernel->getSubRoles(e_relation.get(), direct, actor);
 
     return getResult(actor);
@@ -1570,7 +1591,7 @@ IRIList KnowledgeBase::allEquivalentObjectProperties(const IRI& propertyRelation
     IRIList relations;
 
     Actor actor;
-    actor.needConcepts();
+    actor.needObjectRoles();
     mKernel->getEquivalentRoles(e_relation.get(), actor);
     return getResult(actor);
 }
@@ -1649,13 +1670,33 @@ IRIList KnowledgeBase::allDataProperties() const
     return properties;
 }
 
+IRIList KnowledgeBase::allAncestorDataProperties(const IRI& property, bool direct)
+{
+    DataPropertyExpression e_role = getDataProperty(property);
+
+    Actor actor;
+    actor.needDataRoles();
+    mKernel->getSupRoles(e_role.get(), direct, actor);
+
+    IRIList directAncestors = getResult(actor);
+    IRISet ancestors(directAncestors.begin(), directAncestors.end());
+
+    for(const IRI& ancestor : directAncestors)
+    {
+        IRIList equivalenctRoles = allEquivalentDataProperties(ancestor);
+        ancestors.insert(equivalenctRoles.begin(), equivalenctRoles.end());
+
+    }
+    return IRIList(ancestors.begin(), ancestors.end());
+}
+
 IRIList KnowledgeBase::allSubDataProperties(const IRI& propertyRelation, bool direct)
 {
     DataPropertyExpression e_relation = getDataProperty(propertyRelation);
     IRIList relations;
 
     Actor actor;
-    actor.needConcepts();
+    actor.needDataRoles();
     mKernel->getSubRoles(e_relation.get(), direct, actor);
 
     return getResult(actor);
@@ -1667,7 +1708,7 @@ IRIList KnowledgeBase::allEquivalentDataProperties(const IRI& propertyRelation)
     IRIList relations;
 
     Actor actor;
-    actor.needConcepts();
+    actor.needDataRoles();
     mKernel->getEquivalentRoles(e_relation.get(), actor);
 
     return getResult(actor);
