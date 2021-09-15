@@ -238,8 +238,6 @@ rock_library(owlapi
         utilmm
         icu-i18n
         icu-io
-        icu-le
-        icu-lx
         icu-uc
     DEPS_PLAIN
         Boost_PROGRAM_OPTIONS
