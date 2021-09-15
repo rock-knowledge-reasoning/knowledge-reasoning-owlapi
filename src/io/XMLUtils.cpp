@@ -65,11 +65,11 @@ size_t XMLUtils::getNCNameSuffixIndex(const std::string& s)
        return -1;
     }
 
-    UnicodeString unicodeString(s.data(), s.size());
-    UnicodeString colon(":");
+    icu::UnicodeString unicodeString(s.data(), s.size());
+    icu::UnicodeString colon(":");
     int32_t pos = unicodeString.indexOf(colon);
     if(pos < 0)
-    { 
+    {
         return std::string::npos;
     } else {
         return pos;
