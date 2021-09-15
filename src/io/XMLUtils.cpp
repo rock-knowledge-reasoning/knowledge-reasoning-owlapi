@@ -57,6 +57,8 @@ namespace io {
 //    return true;
 //}
 
+using namespace icu_66;
+
 size_t XMLUtils::getNCNameSuffixIndex(const std::string& s)
 {
     // identify bnode labels and do not try to split them
