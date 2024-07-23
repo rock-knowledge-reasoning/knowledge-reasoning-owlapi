@@ -1,22 +1,34 @@
 name: test
 on: [push]
 jobs:
-  unittest-owlapi:
-    runs-on: ubuntu-18.04
+  unittests:
+    strategy:
+      matrix:
+        os: ["ubuntu:20.04", "ubuntu:22.04"]
+        package: ["knowledge_reasoning/owlapi"]
+        seed_config: ["test/ci/autoproj-config.yml"]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: current_branch
+      - name: Checkout CI Helper
+        uses: actions/checkout@v4
+        with:
+          repository: 2maz/rock-github-workflow
+          path: rock-github-workflow
 
       - name: Build 
-        run: docker build -t rock/owlapi .  --build-arg PKG_NAME="knowledge_reasoning/owlapi" --build-arg PKG_BRANCH=${{ steps.current_branch.outputs.branch }}
+        run: docker build -t rock/${{ matrix.os }} -f rock-github-workflow/docker/Dockerfile .
+                --build-arg PKG_NAME=${{ matrix.package }}
+                --build-arg PKG_BRANCH=${{ github.ref_name }}
+                --build-arg BASE_IMAGE=${{ matrix.os }}
+                --build-arg SEED_CONFIG=${{ matrix.seed_config }}
 
       - name: Test
-        run: docker run rock/owlapi /bin/bash -c "source /home/docker/rock_test/env.sh; BOOST_TEST_CATCH_SYSTEM_ERRORS=\"no\" make -C knowledge_reasoning/owlapi/build test"
+        run: docker run rock/${{ matrix.os }}
+                /bin/bash -c
+                  "source /home/docker/rock_test/env.sh; BOOST_TEST_CATCH_SYSTEM_ERRORS=\"no\" make -C /home/docker/rock_test/${{ matrix.package }}/build test"
 
 
 
