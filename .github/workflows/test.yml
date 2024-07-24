@@ -6,7 +6,7 @@ jobs:
       matrix:
         os: ["ubuntu:20.04", "ubuntu:22.04"]
         package: ["knowledge_reasoning/owlapi"]
-        seed_config: ["test/ci/autoproj-config.yml"]
+        seed_config: [".ci/autoproj-config.yml"]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
