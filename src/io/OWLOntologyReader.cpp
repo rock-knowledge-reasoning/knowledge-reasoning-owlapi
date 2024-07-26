@@ -1,6 +1,7 @@
 #include "OWLOntologyReader.hpp"
 
 #include <base-logging/Logging.hpp>
+#include <stdexcept>
 #include <utilmm/configfile/pkgconfig.hh>
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -1271,7 +1272,15 @@ void OWLOntologyReader::loadObjectRestrictions(OWLOntology::Ptr& ontology)
                 } else if(predicate == vocabulary::OWL::unionOf())
                 {
                     IRIList list = getList(object, mAnonymousLists);
-                    tell.objectUnionOf(subject, list);
+                    try {
+                        tell.objectUnionOf(subject, list);
+                    } catch(const std::invalid_argument& e)
+                    {
+                        LOG_WARN_S
+                            << "Cannot create unionOf "
+                            << list  << " -- "
+                            << e.what();
+                    }
                 } else if(predicate == vocabulary::OWL::complementOf())
                 {
                     // add the axiom Class(x complete complementOf(nt))
