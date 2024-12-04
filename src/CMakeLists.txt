@@ -239,11 +239,11 @@ rock_library(owlapi
         icu-i18n
         icu-io
         icu-uc
-    DEPS_PLAIN
-        Boost_PROGRAM_OPTIONS
-        Boost_REGEX
-        Boost_SYSTEM
-        Boost_FILESYSTEM
+    DEPS
+        Boost::program_options
+        Boost::regex
+        Boost::system
+        Boost::filesystem
 )
 
 target_include_directories(owlapi PUBLIC ${Boost_INCLUDE_DIR})
